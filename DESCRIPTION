@@ -5,8 +5,15 @@ Version: 0.1
 Date: 2010-09-10
 Author: Bjarki Thor Elvarsson
 Maintainer: Bjarki Thor Elvarsson <bthe@hafro.is>
-Description: Ecosystem simulator that reimplements some of the commonly used routines in gadget (http://www.hafro.is/gadget/)
-Depends: R (>= 2.11.1), lattice, latticeExtra
+Description: Ecosystem simulator that reimplements some of the commonly used
+    routines in gadget (http://www.hafro.is/gadget/)
+Depends:
+    R (>= 2.11.1),
+    ggplot2,
+    plyr,
+    reshape2,
+    dplyr,
+    data.table,
+    parallel
 License: GPL
 LazyLoad: yes
-Collate: 'function.R' 'stock.R' 'summaryFunc.R'
