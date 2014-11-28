@@ -77,14 +77,18 @@ setMethod("write",
     function (x, file = "data", ncolumns = if (is.character(x)) 1 else 5, 
         append = FALSE, sep = " ") 
     {
-        dir.create(sprintf('%s/Data', file), showWarnings = FALSE, recursive = TRUE)
-        dir.create(sprintf('%s/aggfiles', file), showWarnings = FALSE, recursive = TRUE)
+        dir.create(sprintf('%s/Data', file),
+                   showWarnings = FALSE, recursive = TRUE)
+        dir.create(sprintf('%s/aggfiles', file),
+                   showWarnings = FALSE, recursive = TRUE)
         
-        ref.head <- paste(sprintf('; refweight file for %s created using rgadget at %s',
-                                  x@stockname,Sys.Date()),
-                          paste(c('; ',names(x@refweight)),collapse = '\t'),
-                          sep = '\n')
-        write(ref.head,file = sprintf('%s/Data/%s.refweigthfile',file,x@stockname))
+        ref.head <-
+          paste(sprintf('; refweight file for %s created using rgadget at %s',
+                        x@stockname,Sys.Date()),
+                paste(c('; ',names(x@refweight)),collapse = '\t'),
+                sep = '\n')
+        write(ref.head,file = sprintf('%s/Data/%s.refweigthfile',
+                         file,x@stockname))
         tmp <- x@refweight
 #        tmp[,2] <- round(tmp[,2])
         write.table(tmp,
@@ -317,12 +321,19 @@ setMethod("toString",
                 params = '',
                 sprintf('beta\t%s',x@beta),
                 sprintf('maxlengthgroupgrowth\t%s',x@maxlengthgroupgrowth))
-            if(x@growthfunction == 'lengthvbsimple')
+            if(x@growthfunction == 'lengthvbsimple'){
               growth.text['params'] <- 
                 paste(sprintf('growthparameters\t%s',
                               paste(x@growthparameters,collapse = '\t')))
-            else 
+            } else if(x@growthfunction == 'weightvb'){
+              growth.text['params'] <- 
+                paste(sprintf('wgrowthparameters\t%s',
+                              paste(x@wgrowthparameters,collapse = '\t')),
+                      sprintf('lgrowthparameters\t%s',
+                              paste(x@lgrowthparameters,collapse = '\t')))
+            } else { 
               stop('other growth updates currently not supported by Rgadget')
+            }
             return(paste(growth.text,collapse = '\n'))
           }
           )

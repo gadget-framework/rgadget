@@ -23,7 +23,7 @@ containing the initial value for the optimisation.}
 final optimised parameter values
 }
 \description{
-Gadget phasing
+Phased minimization based on variables
 }
 \author{
 Bjarki Thor Elvarsson

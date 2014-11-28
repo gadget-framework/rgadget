@@ -78,6 +78,7 @@ library(parallel)
 ##' @param PBS.name Name of the pbs script (.sh will be appended).
 ##' @param qsub.output The directory where the output from the script is stored
 ##' @return the run history
+##' @export
 callGadget <- function(l=NULL,
                        s=NULL,
                        n=NULL,
@@ -187,7 +188,7 @@ callGadget <- function(l=NULL,
 ##' @param scale 
 ##' @param condor 
 ##' @param paramin.exe 
-##' @return 
+##' @return null
 ##' @author Bjarki Thor Elvarsson
 callParamin <- function(i='params.in',
                         func='gadget -s -n',
@@ -617,7 +618,8 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
 ##' @param stepsize The stepsize used
 ##' @return results from lik.out
 ##' @author Bjarki Thor Elvarsson
-sensitivity.gadget <- function(file='params.out',
+##' @export
+gadget.sensitivity <- function(file='params.out',
                                outer.range=0.5,
                                outer.stepsize=0.05,
                                inner.range=0.05,
@@ -703,11 +705,18 @@ sensitivity.gadget <- function(file='params.out',
   sens.data$parameter <- row.names(param.table)
 #  attr(sens.data,'params') <- params
 #  attr(sens.data,'comps') <- 
-  class(sens.data) <- c('gadget.sens',class(sens.data))
+  class(sens.data) <- c('gadgetSens',class(sens.data))
   return(sens.data)
 }
 
-plot.gadget.sens <- function(sens,comp='score',ylimit=NULL,ncol=10,nrow=4){
+##' Plot the likelihood profile plot by parameter for a particular likelihood component
+##'
+##' @title Plot likelihood sensitivity
+##' @param sens resulsts from gadget sensitivity
+##' @param comp what component to plot, defaults to overall score
+##' @return ggplot object
+##' @export
+plot.gadgetSens <- function(sens,comp='score'){
   
   sens$parameter <- sapply(strsplit(sens$parameter,'.',fixed=TRUE),
                            function(x) paste(x[-length(x)],collapse='.'))
@@ -732,7 +741,7 @@ plot.gadget.sens <- function(sens,comp='score',ylimit=NULL,ncol=10,nrow=4){
   
 }
 
-##' Gadget phasing 
+##' Phased minimization based on variables
 ##' @title Gadget Phasing 
 ##' @param phase a dataframe where the columns indicate the parameters
 ##' that are to be optimised in that particular phase
@@ -743,6 +752,7 @@ plot.gadget.sens <- function(sens,comp='score',ylimit=NULL,ncol=10,nrow=4){
 ##' @param optinfofile 
 ##' @return final optimised parameter values
 ##' @author Bjarki Thor Elvarsson
+##' @export
 gadget.phasing <- function(phase,params.in='params.in',main='main',
                            phase.dir='PHASING', optinfofile='optinfofile'){
   dir.create(phase.dir, showWarnings = FALSE)
@@ -790,6 +800,7 @@ gadget.phasing <- function(phase,params.in='params.in',main='main',
 ##' @param PBS logical, is this a cluster run? 
 ##' @return NULL
 ##' @author Bjarki Thor Elvarsson
+##' @export
 gadget.bootstrap <- function(bs.likfile = 'likelihood.bs',
                              bs.samples = 1,
                              main='main',
@@ -897,6 +908,7 @@ gadget.bootstrap <- function(bs.likfile = 'likelihood.bs',
 ##' @return a list containing the yield per recruit by F, estimate of
 ##' Fmax and F0.1
 ##' @author Bjarki Thor Elvarsson
+##' @export
 gadget.ypr <- function(params.file = 'params.in',
                        main.file = 'main',
                        effort = seq(0, 1, by=0.01),
@@ -1089,7 +1101,7 @@ gadget.ypr <- function(params.file = 'params.in',
 ##' .. content for \description{} (no empty lines) ..
 ##'
 ##' .. content for \details{} ..
-##' @title 
+##' @title Gadget bootstrap yield per recruit
 ##' @param params.file 
 ##' @param main.file 
 ##' @param effort 
@@ -1100,8 +1112,9 @@ gadget.ypr <- function(params.file = 'params.in',
 ##' @param bs.wgts 
 ##' @param bs.samples 
 ##' @param .parallel 
-##' @return 
+##' @return yield per recruit for the bootstrap
 ##' @author Bjarki Thor Elvarsson
+##' @export
 gadget.bootypr <- function(params.file='params.final',
                            main.file = 'main.final',
                            effort = seq(0, 1, by=0.01),
@@ -1138,7 +1151,7 @@ gadget.bootypr <- function(params.file='params.final',
 ##' .. content for \description{} (no empty lines) ..
 ##'
 ##' .. content for \details{} ..
-##' @title 
+##' @title Gadget forward simulation
 ##' @param years 
 ##' @param params.file 
 ##' @param main.file 
@@ -1157,8 +1170,9 @@ gadget.bootypr <- function(params.file='params.final',
 ##' @param mat.par 
 ##' @param rec.window 
 ##' @param compact 
-##' @return 
+##' @return list of results 
 ##' @author Bjarki Thor Elvarsson
+##' @export
 gadget.forward <- function(years = 20,params.file = 'params.out',
                            main.file = 'main', pre = 'PRE', num.trials = 10,
                            fleets = data.frame(fleet='comm',ratio = 1),
@@ -1413,7 +1427,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
   if (spawnmodel == 'hockeystick' ){
     llply(stocks,function(x){
       x@renewal.data <-
-        subset(x@renewal.data,V1 <  sim.begin)
+        subset(x@renewal.data,year <  sim.begin)
       
       x@doesspawn <- 1
       x@spawning = new('gadget-spawning',
@@ -1454,21 +1468,21 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
 
   } else { 
     llply(stocks,function(x){
+      rec.years <- sim.begin:(sim.begin+years)
       x@renewal.data <-
-        rbind.fill(subset(x@renewal.data,V1 < sim.begin),
-                   data.frame(V1 = sim.begin:(sim.begin+years),
-                              V2 = x@renewal.data$V2[1],
-                              V3 = x@renewal.data$V3[1],
-                              V4 = x@renewal.data$V4[1],
-                              V5 = sprintf(sprintf(gsub('rec[0-9]+',
+        rbind.fill(subset(x@renewal.data,year < sim.begin),
+                   data.frame(year = rec.years,
+                              step = x@renewal.data$step[1],
+                              area = x@renewal.data$area[1],
+                              age = x@renewal.data$age[1],
+                              number = sprintf(gsub('rec[0-9]+',
                                 'rec%s',
-                                x@renewal.data$V5[1]),
-                                sim.begin:
-                                (sim.begin+years))),
-                              V6 = x@renewal.data$V6[1],
-                              V7 = x@renewal.data$V7[1],
-                              V8 = x@renewal.data$V8[1],
-                              V9 = x@renewal.data$V9[1],
+                                x@renewal.data$number[1]),
+                                rec.years),
+                              mean = x@renewal.data$mean[1],
+                              stddev = x@renewal.data$stddev[1],
+                              alpha = x@renewal.data$alpha[1],
+                              beta = x@renewal.data$beta[1],
                               stringsAsFactors = FALSE))
       
       write(x,file=pre)
@@ -1560,7 +1574,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
 ##' .. content for \description{} (no empty lines) ..
 ##'
 ##' .. content for \details{} ..
-##' @title 
+##' @title Gadget bootstrap forward
 ##' @param years 
 ##' @param params.file 
 ##' @param main.file 
@@ -1575,8 +1589,9 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
 ##' @param mat.par 
 ##' @param stochastic 
 ##' @param .parallel 
-##' @return 
+##' @return list of bootstrap results
 ##' @author Bjarki Thor Elvarsson
+##' @export
 gadget.bootforward <- function(years = 20,
                                params.file='params.final',
                                main.file = 'main.final',

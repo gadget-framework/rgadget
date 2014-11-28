@@ -421,6 +421,7 @@ recruits <- function(n,mu,sigma,
 ##' @param l prey length group(s)
 ##' @param L predator length group(s)
 ##' @return matrix of suitabilities, columns prey length, lines predator length
+##' @export
 suitability <- function(params,
                         l,
                         L=c(0),
@@ -446,7 +447,8 @@ suitability <- function(params,
                                params[3]*rep(L,length(l))))),
                c(length(L),length(l)))
     
-  } else if(tolower(type) == 'exponentiall50'){
+  } else if(tolower(type) == 'exponentiall50' |
+            tolower(type) == 'expsuitfuncl50'){
     S <- array(rep(1/(1+exp(-params[1]*(l - params[2]))),each = length(L)),
                c(length(L),length(l)))
 
