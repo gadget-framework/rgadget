@@ -916,16 +916,16 @@ read.gadget.model <- function(main.file='main',model.name='Gadget-model'){
   fleets <- read.gadget.fleet(main$fleetfiles)
   fleets <- dlply(fleets$fleet,~fleet,
                   function(x){
-                    fleetdat <- 
+                    fleetdat <-
                       subset(read.gadget.table(x$amount[1]),
                              V4 == x$fleet)
                     if(x$type[1]!='linearfleet'){
-                      names(fleetdat) <- 
+                      names(fleetdat) <-
                         c('year','step','area','fleetname','amount')
                     } else{
-                      names(fleetdat) <- 
+                      names(fleetdat) <-
                         c('year','step','area','fleetname','Fy')
-                      
+
                     }
                     suitability <- merge(x['fleet'],fleets$prey)
                     new('gadget-fleet',
@@ -934,9 +934,9 @@ read.gadget.model <- function(main.file='main',model.name='Gadget-model'){
                     multiplicative = x$multiplicative[1],
                     amount = fleetdat,
                     suitability=suitability)
-                  }) 
-  
-  
+                  })
+
+
   gadget.model <-
     new('gadget-main',
         model.name = model.name,
@@ -945,7 +945,7 @@ read.gadget.model <- function(main.file='main',model.name='Gadget-model'){
         print = ifelse(is.null(main$printfile),list(),
           read.gadget.printfile(main$printfile)),
         stocks = read.gadget.stockfiles(main$stockfiles),
-        tags = new('gadget-tagging'), 
+        tags = new('gadget-tagging'),
         otherfood = ifelse(is.null(main$otherfoodfiles),list(),
                            read.gadget.otherfood(main$otherfoodfiles)),
         fleets = fleets,
@@ -992,9 +992,9 @@ read.gadget.stockfiles <- function(stock.files){
         names.tmp <- sapply(tmp,function(x) x[1])
         tmp <- llply(tmp,function(x) paste(x[-1],collapse=' '))
         names(tmp) <- names.tmp
-        
+
         if(is.null(tmp$growthparameters))
-          tmp$growthparameters <- vector()        
+          tmp$growthparameters <- vector()
         if(is.null(tmp$growthfunction))
           tmp$growthfunction <- vector()
         if(is.null(tmp$wgrowthfunction))
@@ -1087,7 +1087,7 @@ read.gadget.stockfiles <- function(stock.files){
     } else if (length(names(initialdata)) == 5){
       names(initialdata) <- c('area','age','length','number','weight')
     }
-renewal.data <- 
+renewal.data <-
   tryCatch(read.gadget.table(stock[[renew.loc+3]][2]),
            error=function(x){
              tryCatch(read.gadget.table(stock[[renew.loc+4]][2]),
@@ -1487,7 +1487,7 @@ eval.gadget.formula <- function(gad.for,par){
           x <- gsub('log','log(',x,fixed = TRUE)
           x <- gsub('sqrt','sqrt(',x,fixed = TRUE)
           ## remove initial values
-          x <- gsub('[0-9]+.[0-9]+#|[0-9]+#','#',x) 
+          x <- gsub('[0-9]+.[0-9]+#|[0-9]+#','#',x)
           x[par.ind] <- par[gsub('#','',x[par.ind],fixed=TRUE),'value']
           x <- gsub(',)',')',gsub('(,','(',paste(x,collapse=','),fixed=TRUE),
                     fixed=TRUE)
@@ -1733,17 +1733,31 @@ read.gadget.grouping <- function(lik = read.gadget.likelihood(),
 ##' @param main.file
 ##' @param fleet.predict
 ##' @param mat.par
+##' @param params.file
 ##' @return list of fit things
 ##' @author Bjarki Thor Elvarsson
 ##' @export
 gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
                        fleet.predict = data.frame(fleet='comm',ratio=1),
-                       mat.par=NULL){
+                       mat.par=NULL, params.file=NULL){
 
-  resTable <- read.gadget.results(wgts=wgts)
-  nesTable <- read.gadget.results(wgts=wgts,normalize = TRUE)
-  params <- read.gadget.parameters(sprintf('%s/params.final',wgts))
-  lik <- read.gadget.likelihood(sprintf('%s/likelihood.final',wgts))
+  main <- read.gadget.main(file = main.file)
+
+  if(!is.null(wgts)){
+    resTable <- read.gadget.results(wgts=wgts)
+    nesTable <- read.gadget.results(wgts=wgts,normalize = TRUE)
+
+    params <- read.gadget.parameters(sprintf('%s/params.final',wgts))
+    lik <- read.gadget.likelihood(sprintf('%s/likelihood.final',wgts))
+  } else {
+    resTable <- list()
+    nesTable <- list()
+    wgts <- 'FIT'
+    dir.create('FIT')
+    params <- read.gadget.parameters(params.file)
+    lik <- read.gadget.likelihood(main$likelihoodfiles)
+  }
+
   lik.dat <- read.gadget.data(lik)
 
   ## model output, i.e printfiles
@@ -1751,7 +1765,7 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
                         file = sprintf('%s/printfile.fit',wgts),
                         out = sprintf('%s/out.fit',wgts),
                         aggfiles = sprintf('%s/print.aggfiles',wgts))
-  main <- read.gadget.main(file = main.file)
+
   main$printfiles <- sprintf('%s/printfile.fit',wgts)
   write.gadget.main(main,file = sprintf('%s/main.print',wgts))
   callGadget(s=1,
