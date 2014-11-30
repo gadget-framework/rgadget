@@ -2,8 +2,8 @@
 
 setMethod("write",
     signature(x = "gadget-time"),
-    function (x, file = "data", ncolumns = if (is.character(x)) 1 else 5, 
-        append = FALSE, sep = " ") 
+    function (x, file = "data", ncolumns = if (is.character(x)) 1 else 5,
+        append = FALSE, sep = " ")
     {
       header <- sprintf('; time file created in Rgadget\n; %s - %s',file,Sys.Date())
       time.file <-
@@ -32,8 +32,8 @@ setMethod('getTimeSteps','gadget-time',
 
 setMethod("write",
     signature(x = "gadget-area"),
-    function (x, file = "data", ncolumns = if (is.character(x)) 1 else 5, 
-        append = FALSE, sep = " ") 
+    function (x, file = "data", ncolumns = if (is.character(x)) 1 else 5,
+        append = FALSE, sep = " ")
     {
       header <- sprintf('; time file created in Rgadget\n; %s - %s',file,Sys.Date())
       area.file <-
@@ -46,7 +46,7 @@ setMethod("write",
       write(area.file,file=file)
       write.table(x@temperature,file=file,col.names=FALSE,append=TRUE,
                   quote=FALSE,sep='\t',row.names=FALSE)
-      
+
     }
 )
 
@@ -54,8 +54,8 @@ setMethod("write",
 
 setMethod("write",
     signature(x = "gadget-prey"),
-    function (x, file = "data", ncolumns = if (is.character(x)) 1 else 5, 
-        append = FALSE, sep = " ") 
+    function (x, file = "data", ncolumns = if (is.character(x)) 1 else 5,
+        append = FALSE, sep = " ")
     {
       dir.create(sprintf('%s/aggfiles',file), showWarnings = FALSE, recursive = TRUE)
       header <- paste(sprintf('; prey aggregation file for %s',x@name),
@@ -67,21 +67,21 @@ setMethod("write",
             quote=FALSE,sep='\t',row.names=FALSE)
       paste(sprintf('preylengths\t%s/aggfiles/%s.prey.agg',file,x@name),
             sprintf('energycontent\t%s',x@energycontent),
-            sep = '\n')    
+            sep = '\n')
     }
 )
 
 
 setMethod("write",
     signature(x = "gadget-stock"),
-    function (x, file = "data", ncolumns = if (is.character(x)) 1 else 5, 
-        append = FALSE, sep = " ") 
+    function (x, file = "data", ncolumns = if (is.character(x)) 1 else 5,
+        append = FALSE, sep = " ")
     {
         dir.create(sprintf('%s/Data', file),
                    showWarnings = FALSE, recursive = TRUE)
         dir.create(sprintf('%s/aggfiles', file),
                    showWarnings = FALSE, recursive = TRUE)
-        
+
         ref.head <-
           paste(sprintf('; refweight file for %s created using rgadget at %s',
                         x@stockname,Sys.Date()),
@@ -95,7 +95,7 @@ setMethod("write",
                     file = sprintf('%s/Data/%s.refweigthfile',file,x@stockname),
                     col.names=FALSE,append=TRUE,
                     quote=FALSE,sep='\t',row.names=FALSE)
-        
+
         ## length aggregation
         lengths <- seq(x@minlength,x@maxlength,by = x@dl)
         lenAgg <- data.frame(length = paste('len',tail(lengths,-1), sep = ''),
@@ -110,18 +110,18 @@ setMethod("write",
                           paste(c('; ',names(lenAgg)),collapse = '\t'),
                           sep = '\n')
         write(agg.head,file = sprintf('%s/aggfiles/%s.len.agg',file,x@stockname))
-        
+
         write.table(lenAgg,
                     file = sprintf('%s/aggfiles/%s.len.agg',file,x@stockname),
                     col.names=FALSE,append=TRUE,
                     quote=FALSE,sep='\t',row.names=FALSE)
-        
+
         write(agg.head,file = sprintf('%s/aggfiles/%s.alllen.agg',file,x@stockname))
         write.table(alllenAgg,
                     file = sprintf('%s/aggfiles/%s.alllen.agg',file,x@stockname),
                     col.names=FALSE,append=TRUE,
                     quote=FALSE,sep='\t',row.names=FALSE)
- 
+
         ## age agg file
         ageAgg <- data.frame(label = x@minage:x@maxage,
                              age = x@minage:x@maxage)
@@ -137,7 +137,7 @@ setMethod("write",
                     file = sprintf('%s/aggfiles/%s.allages.agg',file,x@stockname),
                     col.names=FALSE,append=TRUE,
                     quote=FALSE,sep='\t',row.names=FALSE)
-        
+
         ## initial data
         if(ncol(x@initialdata)==7){
           init.type <- 'normalcond'
@@ -155,9 +155,9 @@ setMethod("write",
                     file = sprintf('%s/Data/%s.%s',file,x@stockname,init.type),
                     col.names=FALSE,append=TRUE,
                     quote=FALSE,sep='\t',row.names=FALSE)
-        
-        
-        stock.text <- 
+
+
+        stock.text <-
           c(sprintf('; stock definition file for %s created using rgadget',x@stockname),
             sprintf('; at %s',Sys.Date()),
             ';',
@@ -210,7 +210,7 @@ setMethod("write",
                              x@stockname))
         }
         if(x@doesmigrate == 1){
-          stock.text['migration'] <- 
+          stock.text['migration'] <-
             paste(sprintf('yearstepfile\t%s/Data/%s.yearstep',file,x@stockname),
                   sprintf('defineratios\t%s/Data/%s.migratio',file,x@stockname),
                   sep = '\n')
@@ -221,7 +221,7 @@ setMethod("write",
                       quote=FALSE)
           file.remove(sprintf('%s/Data/%s.migratio',file,x@stockname))
           l_ply(names(x@migrationratio),
-                function(y){ 
+                function(y){
                   migratio <- sprintf('%s/Data/%s.migratio',file,x@stockname)
                   write(sprintf('[migrationmatrix]\nname\t%s',y),
                         file = migratio, append = TRUE)
@@ -272,7 +272,7 @@ setMethod("write",
                   sprintf('coefficients %s',
                           paste(x@coefficients,collapse='\t')),
                   sep='\n')
-          write(maturityfile,file=sprintf('%s/maturity',file)) 
+          write(maturityfile,file=sprintf('%s/maturity',file))
 
         }
         if(x@doesmove == 1){
@@ -291,13 +291,13 @@ setMethod("write",
 
 setMethod("toString",
           signature(x = "gadget-predator"),
-          function (x, ...) 
+          function (x, ...)
           {
             tmp <- x@suitability
             tmp <- paste(tmp$stock,tmp$func,sapply(tmp$parameters,
                                             function(x) paste(x,collapse='\t')),
                          sep = '\t',collapse = '\n')
-            pred.text <- 
+            pred.text <-
               paste(sprintf('suitabiliy\n%s',tmp),
                     sprintf('preference\n%s',
                             paste(x@preference$stock,
@@ -314,24 +314,24 @@ setMethod("toString",
 
 setMethod("toString",
           signature(x = "gadget-growth"),
-          function (x, ...) 
+          function (x, ...)
           {
-            growth.text <- 
+            growth.text <-
               c(sprintf('growthfunction\t%s',x@growthfunction),
                 params = '',
                 sprintf('beta\t%s',x@beta),
                 sprintf('maxlengthgroupgrowth\t%s',x@maxlengthgroupgrowth))
             if(x@growthfunction == 'lengthvbsimple'){
-              growth.text['params'] <- 
+              growth.text['params'] <-
                 paste(sprintf('growthparameters\t%s',
                               paste(x@growthparameters,collapse = '\t')))
             } else if(x@growthfunction == 'weightvb'){
-              growth.text['params'] <- 
+              growth.text['params'] <-
                 paste(sprintf('wgrowthparameters\t%s',
                               paste(x@wgrowthparameters,collapse = '\t')),
                       sprintf('lgrowthparameters\t%s',
                               paste(x@lgrowthparameters,collapse = '\t')))
-            } else { 
+            } else {
               stop('other growth updates currently not supported by Rgadget')
             }
             return(paste(growth.text,collapse = '\n'))
@@ -341,12 +341,12 @@ setMethod("toString",
 
 setMethod("write",
     signature(x = "gadget-fleet"),
-    function (x, file = "data", ncolumns = if (is.character(x)) 1 else 5, 
-        append = FALSE, sep = " ") 
+    function (x, file = "data", ncolumns = if (is.character(x)) 1 else 5,
+        append = FALSE, sep = " ")
     {
       header <- sprintf('; fleet file created in Rgadget\n; %s - %s\n[fleetcomponent]',file,Sys.Date())
       ## default text
-      fleet.text <- 
+      fleet.text <-
         c(header = header,
           name = sprintf('%s\t%s',x@type,x@name),
           area = sprintf('livesonareas\t%s',x@livesonareas),
@@ -362,19 +362,19 @@ setMethod("write",
           ';')
 
       if(tolower(x@type) == 'quotafleet')
-        fleet.text['empty'] <- 
+        fleet.text['empty'] <-
           paste(sprintf('quotafunction\t%s',x@quotafunction),
                 sprintf('biomasslevel\t%s',paste(x@biomasslevel,collapse = '\t')),
                 sprintf('quotalevel\t%s',paste(x@quotalevel,collapse = '\t')),
                 sep = '\n')
       else if(tolower(x@type) == 'effortfleet')
-        fleet.text['empty'] <- 
+        fleet.text['empty'] <-
           sprintf('catchability\n%s',
                   paste(paste(x@catchability$stock,
                               x@catchability$catchabilty,sep='\t'),collapse = '\n'))
-      else 
+      else
         fleet.text <- fleet.text[names(fleet.text) != 'empty']
-      
+
       write.table(x@amount,file=sprintf('%s/Data/%s.amount',file,x@name),
                   col.names=FALSE,
                   quote=FALSE,sep='\t',row.names=FALSE)
@@ -391,8 +391,8 @@ setMethod("write",
 
 setMethod("write",
     signature(x = "gadget-main"),
-    function (x, file = "gadget-models", ncolumns = if (is.character(x)) 1 else 5, 
-        append = FALSE, sep = " ") 
+    function (x, file = "gadget-models", ncolumns = if (is.character(x)) 1 else 5,
+        append = FALSE, sep = " ")
     {
       loc <- sprintf('%s/%s',file,x@model.name)
       dir.create(loc, showWarnings = FALSE, recursive = TRUE)
@@ -417,7 +417,7 @@ setMethod("write",
         write(fleet,file=loc)
       ## Likelihood files
       ##write(x@likelhood, file = sprintf('%s/likelihood'))
-      
+
       main.text <-
         paste(sprintf('; main file for the %s model',x@model.name),
               sprintf('; created using rgadget at %s',Sys.Date()),
@@ -447,10 +447,10 @@ setMethod("write",
 
 setMethod("write",
           signature(x = "gadget-spawning"),
-          function (x, file = "data", ncolumns = if (is.character(x)) 1 else 5, 
-                    append = FALSE, sep = " ") 
+          function (x, file = "data", ncolumns = if (is.character(x)) 1 else 5,
+                    append = FALSE, sep = " ")
           {
-            spawn.text <- 
+            spawn.text <-
               paste(sprintf('; spawning file created using Rgadget at %s',Sys.Date()),
                     sprintf('spawnsteps\t%s', x@spawnsteps),
                     sprintf('spawnareas\t%s', x@spawnareas),
@@ -466,11 +466,11 @@ setMethod("write",
                             x@weightlossfunction['func'],paste(x@weightlossfunction[-1],collapse='\t')),
                     sprintf('recruitment\t%s\t%s',
                             x@recruitment['func'],paste(x@recruitment[-1],collapse='\t')),
-                    
+
                     sprintf('stockparameters\t%s\t%s\t%s\t%s',
-                            x@stockparameters$mean, 
+                            x@stockparameters$mean,
                             x@stockparameters$std.dev,
-                            x@stockparameters$alpha, 
+                            x@stockparameters$alpha,
                             x@stockparameters$beta),
                     sep = '\n')
               write(spawn.text,file = file)
@@ -479,14 +479,14 @@ setMethod("write",
 
 #setGeneric('popArray',def=function(object){standardGeneric("popArray")})
 #setMethod('gadget-stock',function(object){
-#  
-#  
+#
+#
 #})
 
 
 setGeneric('getMaxage',def=function(object){standardGeneric("getMaxage")})
 setMethod('getMaxage','gadget-stock', function(object) return(object@maxage))
-setMethod('getMaxage','gadget-main', 
+setMethod('getMaxage','gadget-main',
           function(object){
             maxage <- max(laply(object@stocks,getMaxage))
             return(maxage)
@@ -494,7 +494,7 @@ setMethod('getMaxage','gadget-main',
 
 setGeneric('getMinage',def=function(object){standardGeneric("getMinage")})
 setMethod('getMinage','gadget-stock', function(object) return(object@minage))
-setMethod('getMinage','gadget-main', 
+setMethod('getMinage','gadget-main',
           function(object){
             minage <- min(laply(object@stocks,getMinage))
             return(minage)
@@ -510,7 +510,7 @@ setMethod('getStockNames','gadget-stock',
 setMethod('getStockNames','gadget-main',
           function(object) laply(object@stocks,getStockNames))
 
-setMethod('getMinage','gadget-main', 
+setMethod('getMinage','gadget-main',
           function(object){
             stockNames <- laply(object@stocks,getStockNames)
             return(stockNames)
@@ -545,7 +545,7 @@ setMethod('getLengthGroups', 'gadget-stock',
             } else {
               # is this the proper way of dealing with this?
               seq(object@minlength, object@maxlength,by=object@dl)+
-                (object@maxlength-object@minlength)%%object@dl 
+                (object@maxlength-object@minlength)%%object@dl
             }
             })
 setMethod('getLengthGroups', 'gadget-main',
@@ -556,11 +556,11 @@ setGeneric('getNumTimeSteps',def=function(object){
   standardGeneric("getNumTimeSteps")
   })
 setMethod('getNumTimeSteps','gadget-time',
-          function(object){ 
+          function(object){
             length(object@notimesteps)
           })
 setMethod('getNumTimeSteps','gadget-main',
-          function(object){ 
+          function(object){
             getNumTimeSteps(object@time)
           })
 
@@ -615,9 +615,9 @@ setMethod('getPredatorNames','gadget-main',
                            if(isPredator(x)==1)
                              getStockNames(x)
                            else
-                             ''                    
-                         })                  
-            tmp[tmp!='']  
+                             ''
+                         })
+            tmp[tmp!='']
           })
 
 setGeneric('getGrowth',def=function(object, par){standardGeneric("getGrowth")})
@@ -670,8 +670,8 @@ setMethod('getGrowth', 'gadget-main',
 setGeneric('getWeight',def=function(object, l, par){standardGeneric("getWeight")})
 setMethod('getWeight', 'gadget-growth',
           function(object,l,par){
-          
-            
+
+
             if(tolower(object@growthfunction) == 'lengthvbsimple'){
               if(class(object@growthparameters) == 'numeric' |
                    class(object@growthparameters) == 'integer'){
@@ -680,7 +680,7 @@ setMethod('getWeight', 'gadget-growth',
                 tmp <- merge.formula(unlist(strsplit(object@growthparameters,' ')))
               }
               params <- eval.gadget.formula(tmp,par)$V1[3:4]
-              
+
               return(params[1]*l^params[2])
             } else {
               stop(sprintf('Error in Growth -- Only lengthvbsimple is supported, %s was supplied',
@@ -689,8 +689,9 @@ setMethod('getWeight', 'gadget-growth',
           })
 setMethod('getWeight','gadget-stock',
           function(object, l, par){
-            getWeight(object@growth,l,par)
-            #subset(object@refweight,V1 %in% l)$V2
+            #getWeight(object@growth,l,par)
+            tmp <- object@refweight
+            approxfun(tmp$V1,tmp$V2)(l)
           })
 
 
@@ -701,8 +702,8 @@ setGeneric('getFleetSuitability',
 setMethod('getFleetSuitability','gadget-fleet',
           function(object,par=data.frame()){
             dlply(object@suitability,~stock,function(x){
-              function(l){                
-                tmp <- 
+              function(l){
+                tmp <-
                   merge.formula(unlist(strsplit(as.character(x[1,-(1:3)]),
                                                 ' ')))
                 suitability(eval.gadget.formula(tmp,par)$V1,
@@ -747,7 +748,7 @@ setMethod('getInitData','gadget-stock',
 )
 setMethod('getInitData','gadget-main',
           function(object,par){ ## a bit of a hack
-            llply(object@stocks,getInitData,par)  
+            llply(object@stocks,getInitData,par)
 })
 
 setMethod('getMortality','gadget-main',
@@ -791,7 +792,7 @@ setGeneric('writeAggfiles',
            def=function(x,folder){standardGeneric("writeAggfiles")})
 setMethod('writeAggfiles','gadget-stock',
           function(x,folder){
-            
+
             ## length aggregation file
             lengths <- seq(x@minlength,x@maxlength,by = x@dl)
             lenAgg <- data.frame(length = paste('len',tail(lengths,-1),
@@ -799,7 +800,7 @@ setMethod('writeAggfiles','gadget-stock',
                                  min = head(lengths,-1),
                                  max = tail(lengths,-1)
                                  )
-            
+
             agg.head <-
               paste(sprintf('; aggregation file for %s created using rgadget at %s',
                             x@stockname,Sys.Date()),
@@ -807,7 +808,7 @@ setMethod('writeAggfiles','gadget-stock',
                     sep = '\n')
             write(agg.head,file = sprintf('%s/%s.len.agg',folder,
                              x@stockname))
-            
+
             write.table(lenAgg,
                         file = sprintf('%s/%s.len.agg',folder,
                           x@stockname),
@@ -824,7 +825,7 @@ setMethod('writeAggfiles','gadget-stock',
                         file = sprintf('%s/%s.alllen.agg',folder,x@stockname),
                         col.names=FALSE,append=TRUE,
                         quote=FALSE,sep='\t',row.names=FALSE)
-            
+
             ## age agg file
             ageAgg <- data.frame(label = x@minage:x@maxage,
                                  age = x@minage:x@maxage)
@@ -855,7 +856,7 @@ setMethod('writeAggfiles','gadget-stock',
                         file = sprintf('%s/%s.area.agg',folder,x@stockname),
                         col.names=FALSE,append=TRUE,
                         quote=FALSE,sep='\t',row.names=FALSE)
-            
+
           })
 
 

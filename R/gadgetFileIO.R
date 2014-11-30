@@ -1746,7 +1746,6 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
   if(!is.null(wgts)){
     resTable <- read.gadget.results(wgts=wgts)
     nesTable <- read.gadget.results(wgts=wgts,normalize = TRUE)
-
     params <- read.gadget.parameters(sprintf('%s/params.final',wgts))
     lik <- read.gadget.likelihood(sprintf('%s/likelihood.final',wgts))
   } else {
@@ -1808,6 +1807,7 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
                                     by='name')
                      return(sidat)
                    })
+
   } else {
     sidat <- NULL
   }
@@ -1946,7 +1946,7 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
               res.by.year = res.by.year,
               likelihoodsummary = out$likelihoodsummary,
               catchdist.fleets = catchdist.fleets, stockdist = stockdist)
-
+  class(out) <- c('gadget.fit',class(out))
   save(out,file=sprintf('%s/WGTS.Rdata',wgts))
   return(out)
 }
@@ -2056,4 +2056,126 @@ gadget.bootfit <- function(main = 'main', dparam.file = 'bsres_v1.RData',
                    boot.growth = boot.growth)
   save(boot.fit,file='digestedBoot.RData')
   invisible(boot.fit)
+}
+
+##' <description>
+##'
+##' <details>
+##' @title plot gadget fit
+##' @param fit results from gadget fit
+##' @param data what results should be plotted
+##' @return ggplot object
+##' @author Bjarki Þór Elvarsson
+##' @export
+plot.gadget.fit <- function(fit,data = 'sidat',type='direct',dat.name=NULL){
+  if(data=='summary'){
+      ggplot(subset(fit$likelihoodsummary,
+                    year!='all'),
+             aes(as.numeric(year), likelihood.value)) +
+      geom_point() + facet_wrap(~component) +theme_bw()+
+      xlab('Year') + ylab('Score')
+
+  } else if(data=='sidat'){
+      ggplot(fit$sidat, aes(year,number.x)) +
+      geom_point() +
+      geom_line(aes(year,predict)) +
+      geom_linerange(data=subset(fit$sidat,year==max(year)),
+                     aes(year,ymax=number.x,ymin=predict),col='green')+
+      geom_text(data=ddply(fit$sidat,~length,function(x){
+        mutate(subset(x,year==min(year)),y=Inf)
+      }),
+                aes(year,y,label=length), vjust = 2,hjust = -1)+
+      facet_wrap(~lower+step,scale='free_y',ncol=2) + theme_bw() +
+      ylab('Index') + xlab('Year') +
+      theme (panel.margin = unit(0,'cm'), plot.margin = unit(c(0,0,0,0),'cm'),
+             strip.background = element_blank(), strip.text.x = element_blank())
+
+  } else if(data=='catchdist.fleets'){
+    if(type == 'direct'){
+      if(is.null(dat.name)){
+        ldist.fit <- llply(unique(catchdist.fleets$name),
+                   function(x){
+                     dat <- subset(catchdist.fleets,name == x)
+                     if(length(unique(dat$age))==1){
+                     ggplot(dat,aes(lower,predicted)) +
+                     geom_line(aes(lower,observed),col='gray') +
+                     facet_wrap(~year+step) + theme_bw() + geom_line() +
+                     geom_text(data=mutate(subset(dat,
+                               lower==min(lower)),y=Inf),
+                               aes(lower,y,label=year), vjust = 2,hjust = -1)+
+                     ylab('Proportion') + xlab('length') +
+                     theme (axis.text.y = element_blank(),
+                            axis.ticks.y = element_blank(),
+                            panel.margin = unit(0,'cm'),
+                            plot.margin = unit(c(0,0,0,0),'cm'),
+                            strip.background = element_blank(),
+                            strip.text.x = element_blank())
+                   } else {
+                     dat <- mutate(ddply(dat,~year+step+age,summarise,
+                                         predicted=sum(predicted),
+                                         observed=sum(observed,na.rm=TRUE)),
+                                   age=as.numeric(gsub('age','',age)))
+                     ggplot(dat,aes(age,predicted)) +
+                     geom_line(aes(age,observed),col='gray') +
+                     facet_wrap(~year+step) + theme_bw() + geom_line() +
+                     geom_text(data=mutate(subset(dat,
+                               age==min(age)),y=Inf),
+                               aes(age,y,label=year), vjust = 2,hjust = -1)+
+                     ylab('Proportion') + xlab('Age') +
+                     theme (axis.text.y = element_blank(),
+                            axis.ticks.y = element_blank(),
+                            panel.margin = unit(0,'cm'),
+                            plot.margin = unit(c(0,0,0,0),'cm'),
+                            strip.background = element_blank(),
+                            strip.text.x = element_blank()
+                            )
+                   }})
+        names(ldist.fit) <- unique(catchdist.fleets$name)
+        return(ldist.fit)
+      } else {
+        dat <- subset(catchdist.fleets,name == dat.name)
+        if(length(unique(dat$age))==1){
+          ggplot(dat,aes(lower,predicted)) +
+          geom_line(aes(lower,observed),col='gray') +
+                     facet_wrap(~year+step) + theme_bw() + geom_line() +
+                     geom_text(data=mutate(subset(dat,
+                               lower==min(lower)),y=Inf),
+                               aes(lower,y,label=year), vjust = 2,hjust = -1)+
+                     ylab('Proportion') + xlab('length') +
+                     theme (axis.text.y = element_blank(),
+                            axis.ticks.y = element_blank(),
+                            panel.margin = unit(0,'cm'),
+                            plot.margin = unit(c(0,0,0,0),'cm'),
+                            strip.background = element_blank(),
+                            strip.text.x = element_blank())
+        } else {
+          dat <- mutate(ddply(dat,~year+step+age,summarise,
+                              predicted=sum(predicted),
+                              observed=sum(observed,na.rm=TRUE)),
+                        age=as.numeric(gsub('age','',age)))
+                     ggplot(dat,aes(age,predicted)) +
+                     geom_line(aes(age,observed),col='gray') +
+                     facet_wrap(~year+step) + theme_bw() + geom_line() +
+                     geom_text(data=mutate(subset(dat,
+                               age==min(age)),y=Inf),
+                               aes(age,y,label=year), vjust = 2,hjust = -1)+
+                     ylab('Proportion') + xlab('Age') +
+                     theme (axis.text.y = element_blank(),
+                            axis.ticks.y = element_blank(),
+                            panel.margin = unit(0,'cm'),
+                            plot.margin = unit(c(0,0,0,0),'cm'),
+                            strip.background = element_blank(),
+                            strip.text.x = element_blank()
+                            )
+        }}
+    } else if(type == 'resid'){
+      ggplot(fit$catchdist.fleets,aes(lower, observed - predicted,
+                                          group=round_any(lower,1))) +
+      geom_boxplot() + facet_wrap(~name) + theme_bw() + ylab('Residual') +
+      xlab('Length')
+    }
+
+
+  }# else if()
+
 }
