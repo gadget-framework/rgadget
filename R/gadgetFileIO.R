@@ -1798,19 +1798,22 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
   catches <- get.gadget.catches(fleets,params)
   gss.suit <- ldply(stocks,
                     function(x){
-                      get.gadget.suitability(fleets,params,
-                                             getLengthGroups(x))
+                      subset(get.gadget.suitability(fleets,params,
+                                                    getLengthGroups(x)),
+                             stock == x@stockname)
                     })
 #  stock.growth <- get.gadget.growth(stocks,params,age.based=TRUE)
   stock.recruitment <- get.gadget.recruitment(stocks,params)
 
-  harv.suit <- function(l){
-    ddply(merge(get.gadget.suitability(fleets,params,l),fleet.predict),~l,
+  harv.suit <- function(l,stockname){
+    ddply(merge(subset(get.gadget.suitability(fleets,params,l),
+                       stock==stockname),
+                fleet.predict),~l,
           summarise, harv=sum(ratio*suit))$harv
   }
 
   stock.full <- data.table(ldply(stocks,function(x){
-    mutate(out[[sprintf('%s.full',Rgadget:::getStockNames(x))]],
+    mutate(out[[sprintf('%s.full',getStockNames(x))]],
            length=as.numeric(gsub('len','',length)))
   }))
   
@@ -1917,11 +1920,11 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
                              total.biomass = sum(number*mean.weight),
                              harv.biomass =
                              sum(mean.weight*
-                                 harv.suit(as.numeric(gsub('len','',length)))*
+                                 harv.suit(as.numeric(gsub('len','',length)),x)*
                                  number),
                              ssb = sum(mean.weight*logit(mat.par[1],
                                mat.par[2],as.numeric(gsub('len','',length)))*
-                             number))
+                               number))
 
         bio <- merge(f.by.year,bio.by.year)
         bio$stock <- x
@@ -2116,7 +2119,11 @@ plot.gadget.fit <- function(fit,data = 'sidat',type='direct',dat.name=NULL){
                     year!='all'),
              aes(as.numeric(year), likelihood.value)) +
       geom_point() + facet_wrap(~component,scale='free_y') +theme_bw()+
-      xlab('Year') + ylab('Score')
+      xlab('Year') + ylab('Score') +      
+      theme (panel.margin = unit(0,'cm'), plot.margin = unit(c(0,0,0,0),'cm'),
+             strip.background = element_blank(),axis.text.y=element_blank(),
+             axis.ticks=element_blank())
+
 
   } else if(data=='sidat' & type == 'direct'){
       ggplot(fit$sidat, aes(year,number.x)) +
