@@ -1021,8 +1021,9 @@ gadget.ypr <- function(params.file = 'params.in',
       x@renewal.data <- tmp
       x@doesspawn <- 0
       
-      write(x,file=ypr)
+      
     }
+    write(x,file=ypr)
   })
 
   main$stockfiles <- sprintf('%s/%s',ypr,
@@ -1092,10 +1093,37 @@ gadget.ypr <- function(params.file = 'params.in',
   fmax <- min(res$effort[which(res$bio==max(res$bio,na.rm=TRUE))])
   res <- list(params=params,out=out,ypr=res,fmax=fmax,
               f0.1=data.frame(f0.1=f0.1))
+
+  class(res) <- c('gadget.ypr',class(res))
   if(save.results){
     save(res, file = sprintf('%s/ypr.Rdata',ypr))
   }
+  
   return(res)
+}
+##' .. content for \description{} (no empty lines) ..
+##'
+##' .. content for \details{} ..
+##' @title Plot yield per recruit
+##' @param ypr gadget.ypr object
+##' @return ggplot object
+##' @author Bjarki Thor Elvarsson
+##' @export
+plot.gadget.ypr <- function(ypr){
+  ggplot(ypr$ypr,aes(effort,bio)) +
+  geom_line() +
+  geom_segment(aes(x = effort,xend=effort,y=-Inf,yend=bio),
+               data=subset(ypr$ypr, effort == ypr$fmax)) +
+  geom_segment(aes(x = effort,xend=effort,y=-Inf,yend=bio),
+               data=subset(ypr$ypr, effort == ypr$f0.1$f0.1)) +
+  geom_text(data=subset(ypr$ypr,effort == ypr$fmax),
+            aes(label = sprintf('Fmax = %s',effort),
+                x = effort+0.04,y=0.2,angle=90)) +
+  geom_text(data=subset(ypr$ypr,effort == ypr$f0.1$f0.1),
+            aes(label = sprintf('F0.1 = %s',effort),
+                x = effort+0.04,y=0.2,angle=90)) +
+  theme_bw() +  xlab('Fishing mortality') + ylab('Yield per recruit') +
+  theme(legend.position='none',plot.margin = unit(c(0,0,0,0),'cm'))
 }
 
 ##' .. content for \description{} (no empty lines) ..

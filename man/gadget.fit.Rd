@@ -5,7 +5,7 @@
 \usage{
 gadget.fit(wgts = "WGTS", main.file = "main",
   fleet.predict = data.frame(fleet = "comm", ratio = 1), mat.par = NULL,
-  params.file = NULL)
+  params.file = NULL, f.age.range = NULL)
 }
 \arguments{
 \item{wgts}{}
@@ -17,6 +17,8 @@ gadget.fit(wgts = "WGTS", main.file = "main",
 \item{mat.par}{}
 
 \item{params.file}{}
+
+\item{f.age.range}{}
 }
 \value{
 list of fit things

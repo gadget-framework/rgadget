@@ -464,12 +464,14 @@ make.gadget.printfile <- function(main='main',output='out',
           sprintf('printfile\t%s/likelihoodsummary', output),
           ';',sep='\n')
 
+
   lik.template <-
     paste('[component]',
           'type\tlikelihoodprinter',
           'likelihood\t%1$s',
           sprintf('printfile\t%s/%%1$s',output),
           ';', sep='\n')
+
 
   stock.std <-
     paste('[component]',
@@ -1087,23 +1089,35 @@ read.gadget.stockfiles <- function(stock.files){
     } else if (length(names(initialdata)) == 5){
       names(initialdata) <- c('area','age','length','number','weight')
     }
-renewal.data <-
-  tryCatch(read.gadget.table(stock[[renew.loc+3]][2]),
-           error=function(x){
-             tryCatch(read.gadget.table(stock[[renew.loc+4]][2]),
-                      error=function(x) data.frame(text='No renewal data'))
-           })
-if(length(names(renewal.data)) == 8){
-  names(renewal.data) <- c('year','step','area','age','number',
-                          'mean','stddev','relcond')
-} else if (length(names(renewal.data)) == 9){
-  names(renewal.data) <- c('year','step','area','age','number',
-                          'mean','stddev','alpha','beta')
-} else if (length(names(renewal.data)) == 6){
-  names(renewal.data) <- c('year','area','age','length','number','weight')
-}
-
-
+    renewal.data <-
+      tryCatch(read.gadget.table(stock[[renew.loc+3]][2]),
+               error=function(x){
+                 tryCatch(read.gadget.table(stock[[renew.loc+4]][2]),
+                          error=function(x) data.frame(text='No renewal data'))
+               })
+    if(length(names(renewal.data)) == 8){
+      names(renewal.data) <- c('year','step','area','age','number',
+                               'mean','stddev','relcond')
+    } else if (length(names(renewal.data)) == 9){
+      names(renewal.data) <- c('year','step','area','age','number',
+                               'mean','stddev','alpha','beta')
+    } else if (length(names(renewal.data)) == 6){
+      names(renewal.data) <- c('year','area','age','length','number','weight')
+    }
+    doesmature <- as.numeric(stock[[mature.loc]][2])
+    if(doesmature == 1){
+      maturity.function <- tolower(stock[[mature.loc+1]][2])
+      maturity.file <- strip.comments(stock[[mature.loc+2]][2])
+      if(maturity.function == 'continous'){
+        maturestocksandratios <- maturityfile[[1]][-1]
+        coefficients <- maturityfile[[2]][-1]
+      }
+        
+    } else {
+      maturity.function <- ''
+      maturestocksandratios <- list()
+      coefficients <- list()
+    }
 
 
     st <-
@@ -1135,6 +1149,9 @@ if(length(names(renewal.data)) == 8){
           initialdata = initialdata,
           doesmigrate = as.numeric(stock[[migrate.loc]][2]),
           doesmature =  as.numeric(stock[[mature.loc]][2]),
+          maturityfunction = maturity.function,
+          maturestocksandratios = maturestocksandratios,
+          coefficients = coefficients,
           doesmove = as.numeric(stock[[move.loc]][2]),
           doesrenew =  as.numeric(stock[[renew.loc]][2]),
           renewal = list(
@@ -1729,17 +1746,19 @@ read.gadget.grouping <- function(lik = read.gadget.likelihood(),
 ##'
 ##' .. content for \details{} ..
 ##' @title Gadget fit
-##' @param wgts
-##' @param main.file
-##' @param fleet.predict
-##' @param mat.par
-##' @param params.file
+##' @param wgts 
+##' @param main.file 
+##' @param fleet.predict 
+##' @param mat.par 
+##' @param params.file 
+##' @param f.age.range 
 ##' @return list of fit things
 ##' @author Bjarki Thor Elvarsson
 ##' @export
 gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
                        fleet.predict = data.frame(fleet='comm',ratio=1),
-                       mat.par=NULL, params.file=NULL){
+                       mat.par=NULL, params.file=NULL,
+                       f.age.range=NULL){
 
   main <- read.gadget.main(file = main.file)
 
@@ -1752,7 +1771,7 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
     resTable <- list()
     nesTable <- list()
     wgts <- 'FIT'
-    dir.create('FIT')
+    dir.create('FIT',showWarnings=FALSE)
     params <- read.gadget.parameters(params.file)
     lik <- read.gadget.likelihood(main$likelihoodfiles)
   }
@@ -1768,7 +1787,9 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
   main$printfiles <- sprintf('%s/printfile.fit',wgts)
   write.gadget.main(main,file = sprintf('%s/main.print',wgts))
   callGadget(s=1,
-             i = sprintf('%s/params.final',wgts),
+             i = ifelse(is.null(params.file),
+               sprintf('%s/params.final',wgts),
+               params.file),
              main = sprintf('%s/main.print',wgts))
   out <- read.printfiles(sprintf('%s/out.fit',wgts))
 
@@ -1788,8 +1809,15 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
           summarise, harv=sum(ratio*suit))$harv
   }
 
+  stock.full <- data.table(ldply(stocks,function(x){
+    mutate(out[[sprintf('%s.full',Rgadget:::getStockNames(x))]],
+           length=as.numeric(gsub('len','',length)))
+  }))
+  
   ## merge data and estimates
   if('surveyindices' %in% names(lik.dat$dat)){
+    
+    
     sidat <- ldply(names(lik.dat$dat$surveyindices),
                    function(x){
                      sidat <-
@@ -1805,6 +1833,20 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
                                     subset(lik$surveyindices,
                                            select=c(name,stocknames)),
                                     by='name')
+                     si.stocks <-
+                       unique(unlist(strsplit(unique(sidat$stocknames),'\t')))
+                     ## note this assumes length based survey indices atm 
+                     si.labels <- arrange(unique(sidat[c('length','lower','upper')]),
+                                          lower)
+                     sibio <-
+                       stock.full %>%
+                       filter(.id %in% si.stocks) %>%
+                       mutate(sigroup = cut(length,breaks=c(si.labels$lower,max(si.labels$upper)),
+                                labels=si.labels$length))%>%
+                       group_by(year,sigroup) %>%
+                       summarise(bio=sum(number*mean.weight)/sum(number))
+                     sidat <- merge(sidat,sibio,by.x=c('year','length'),
+                                    by.y=c('year','sigroup'))
                      return(sidat)
                    })
 
@@ -1836,10 +1878,10 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
                          observed = number.x/sum(number.x,na.rm=TRUE),
                          predicted = number.y/sum(number.y,na.rm=TRUE)) %>%
                   group_by(length,age,add=FALSE) %>%
-                  mutate(upper = (max(ifelse(is.na(upper),0.0,
-                                             upper))),
-                         lower = (max(ifelse(is.na(lower),0.0,
-                                             lower))),
+                  mutate(upper = as.integer(max(ifelse(is.na(upper),0.0,
+                           upper))),
+                         lower = as.integer(max(ifelse(is.na(lower),0.0,
+                           lower))),
                          avg.length = as.numeric((lower+upper)/2),
                          residuals = as.numeric(observed - predicted))
               ldist <- merge(ldist,
@@ -1854,13 +1896,19 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
 
 
   if(sum(grepl('.std',names(out),fixed = TRUE))>0){
+    
     res.by.year <-
       ldply(laply(stocks,function(x) x@stockname),function(x){
-        f.by.year <- ddply(subset(out[[sprintf('%s.std',x)]],
-                                  step == 1 & year < 2014), #### ATH!!!!
-                           ~year,
-                           summarise,
-                           F=max(Z-0.15,na.rm=TRUE)) ### ATH!!!!!!!!
+        if(is.null(f.age.range)){
+          f.age.range <- c(max(out[[sprintf('%s.prey',x)]]$age),
+                           max(out[[sprintf('%s.prey',x)]]$age))
+        }
+        f.by.year <- ddply(out[[sprintf('%s.prey',x)]],~year,summarise,
+                           catch=sum(biomass.consumed),
+                           num.catch=sum(number.consumed),
+                           F=mean(mortality[age>=min(f.age.range)&age<=max(f.age.range)]))
+                         
+                           
         bio.by.year <- ddply(subset(out[[sprintf('%s.full',x)]],
                                     step == 1),
                              ~year + area,
@@ -1881,11 +1929,6 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
       })
     res.by.year <- merge(res.by.year,stock.recruitment,all.x = TRUE,
                          by=c('year','stock'))
-    annual.catch <- ddply(catches,~year+stock, summarise,
-                          catch = sum(catch))
-
-    res.by.year <- merge(res.by.year,
-                         annual.catch,all.x = TRUE)
   } else {
     res.by.year <- NULL
   }
@@ -2020,10 +2063,10 @@ gadget.bootfit <- function(main = 'main', dparam.file = 'bsres_v1.RData',
     ddply(merge(get.gadget.suitability(fleets,x,l),fleet.predict),~l,
           summarise, harv=sum(ratio*suit))$harv
   }
-
+  
   res.by.year <-
     ldply(laply(stocks,function(x) x@stockname),function(x){
-      f.by.year <- ddply(bsprint[[sprintf('%s.std',x)]],
+      f.by.year <- ddply(bsprint[[sprintf('%s.prey',x)]],
                          ~year + .id,
                          summarise,
                          F=max(Z-0.15,na.rm=TRUE)) ### ATH!!!!!!!!
@@ -2072,10 +2115,10 @@ plot.gadget.fit <- function(fit,data = 'sidat',type='direct',dat.name=NULL){
       ggplot(subset(fit$likelihoodsummary,
                     year!='all'),
              aes(as.numeric(year), likelihood.value)) +
-      geom_point() + facet_wrap(~component) +theme_bw()+
+      geom_point() + facet_wrap(~component,scale='free_y') +theme_bw()+
       xlab('Year') + ylab('Score')
 
-  } else if(data=='sidat'){
+  } else if(data=='sidat' & type == 'direct'){
       ggplot(fit$sidat, aes(year,number.x)) +
       geom_point() +
       geom_line(aes(year,predict)) +
@@ -2089,13 +2132,25 @@ plot.gadget.fit <- function(fit,data = 'sidat',type='direct',dat.name=NULL){
       ylab('Index') + xlab('Year') +
       theme (panel.margin = unit(0,'cm'), plot.margin = unit(c(0,0,0,0),'cm'),
              strip.background = element_blank(), strip.text.x = element_blank())
+  } else if(data=='sidat' & type == 'bio'){
+    bio.tmp <- ddply(fit$sidat,~year + step,summarise,
+                 obs=sum(number.x*bio),prd=sum(predict*bio)) 
+    ggplot(bio.tmp, aes(year,obs)) +
+      geom_point() +
+      geom_line(aes(year,prd)) +
+      geom_linerange(data=subset(bio.tmp,year==max(year)),
+                     aes(year,ymax=obs,ymin=prd),col='green')+
+      facet_wrap(~step,scale='free_y',ncol=2) + theme_bw() +
+      ylab('Biomass index') + xlab('Year') +
+      theme (panel.margin = unit(0,'cm'), plot.margin = unit(c(0,0,0,0),'cm'),
+             strip.background = element_blank(), strip.text.x = element_blank())
 
   } else if(data=='catchdist.fleets'){
     if(type == 'direct'){
       if(is.null(dat.name)){
-        ldist.fit <- llply(unique(catchdist.fleets$name),
+        ldist.fit <- llply(unique(fit$catchdist.fleets$name),
                    function(x){
-                     dat <- subset(catchdist.fleets,name == x)
+                     dat <- subset(fit$catchdist.fleets,name == x)
                      if(length(unique(dat$age))==1){
                      ggplot(dat,aes(lower,predicted)) +
                      geom_line(aes(lower,observed),col='gray') +
@@ -2130,10 +2185,10 @@ plot.gadget.fit <- function(fit,data = 'sidat',type='direct',dat.name=NULL){
                             strip.text.x = element_blank()
                             )
                    }})
-        names(ldist.fit) <- unique(catchdist.fleets$name)
+        names(ldist.fit) <- unique(fit$catchdist.fleets$name)
         return(ldist.fit)
       } else {
-        dat <- subset(catchdist.fleets,name == dat.name)
+        dat <- subset(fit$catchdist.fleets,name == dat.name)
         if(length(unique(dat$age))==1){
           ggplot(dat,aes(lower,predicted)) +
           geom_line(aes(lower,observed),col='gray') +
@@ -2176,6 +2231,19 @@ plot.gadget.fit <- function(fit,data = 'sidat',type='direct',dat.name=NULL){
     }
 
 
-  }# else if()
-
+  } else if(data == 'res.by.year' & type == 'F'){
+    ggplot(fit$res.by.year,aes(year,F,col=stock)) + geom_line() +
+    theme_bw() + ylab('F') + xlab('Year')
+    
+  } else if(data == 'res.by.year' & type == 'rec'){
+    ggplot(fit$res.by.year,aes(year,recruitment/1e6,col=stock)) + geom_line() +
+    theme_bw() + ylab('Recruitment (in millions)') + xlab('Year')
+    
+  } else if(data == 'res.by.year' & type == 'total'){
+    ggplot(fit$res.by.year,aes(year,total.biomass/1e6,col=stock)) + geom_line() +
+    theme_bw() + ylab("Biomass (in '000 tons)") + xlab('Year')    
+  } else if(data == 'res.by.year' & type == 'catch'){
+    ggplot(fit$res.by.year,aes(year,catch/1e6,col=stock)) + geom_line() +
+    theme_bw() + ylab("Catch (in '000 tons)") + xlab('Year')    
+  }
 }
