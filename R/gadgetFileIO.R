@@ -1885,6 +1885,9 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
               ldist$name <- x
               ldist$age <- as.character(ldist$age)
               ldist$area <- as.character(ldist$area)
+              ldist$upper <- as.integer(ldist$upper)
+              ldist$lower <- as.integer(ldist$lower)
+              
               ldist <-
                 data.table(ldist) %>%
                   group_by(year, step,  area, add=FALSE) %>%

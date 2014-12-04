@@ -937,6 +937,8 @@ gadget.ypr <- function(params.file = 'params.in',
 
   ## File I/O
   dir.create(ypr,showWarnings = FALSE, recursive = TRUE)
+  dir.create(sprintf('%s/aggfiles',ypr),
+             showWarnings = FALSE, recursive = TRUE)
   main <- read.gadget.main(main.file)
   stocks <- read.gadget.stockfiles(main$stockfiles)
   fleet <- read.gadget.fleet(main$fleetfiles)
@@ -1082,25 +1084,29 @@ gadget.ypr <- function(params.file = 'params.in',
                                             ypr,x$stock),
                                           comment.char = ';')
                  
-                 names(stock.std) <-
+                 names(stock.prey) <-
                    c('year', 'step','area','age','length','number.consumed',
-                     'biomass.consumed','effort')
+                     'biomass.consumed','fishing.mortality')
+                 
 #                   c('year', 'step','area','age','number',
 #                     'mean.length', 'mean.weight', 'stddev.length',
 #                     'number.consumed', 'biomass.consumed')
-#                 stock.std$trial <-
-#                   rep(1:c(nrow(stock.std)/(length(unique(stock.std$step))*
-#                                            length(unique(stock.std$year)))),
-#                       each=length(unique(stock.std$year))*
-#                       length(unique(stock.std$step)))
-#                 stock.std <- merge(stock.std,
-#                                    data.frame(trial=1:length(effort),
-#                                               effort=effort),
-#                                    all.x=TRUE)
+                 stock.prey$trial <-
+                   rep(1:c(nrow(stock.prey)/(
+                     length(unique(stock.prey$area))*
+                     length(unique(stock.prey$step))*
+                     length(unique(stock.prey$year)))),
+                       each=length(unique(stock.prey$area))*
+                       length(unique(stock.prey$year))*
+                       length(unique(stock.prey$step)))
+                 stock.prey <- merge(stock.prey,
+                                    data.frame(trial=1:length(effort),
+                                               effort=effort),
+                                    all.x=TRUE)
                  ## clean up
                  file.remove(sprintf('%s/out/%s.prey',ypr,x$stock))
 #                 file.remove(sprintf('%s/out/%s.std0',ypr,x$stock))
-                 return(stock.std)
+                 return(stock.prey)
                })
 
   
