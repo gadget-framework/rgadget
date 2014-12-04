@@ -959,6 +959,8 @@ gadget.ypr <- function(params.file = 'params.in',
 
   main$areafile <- sprintf('%s/area',ypr)
   write.gadget.area(area,file=sprintf('%s/area',ypr))
+  write(sprintf('allareas %s',paste(area$areas,collapse=' ')),
+        file=sprintf('%s/aggfiles/allareas.agg',ypr))
   
   fleet <- llply(fleet,
                  function(x){
@@ -989,13 +991,26 @@ gadget.ypr <- function(params.file = 'params.in',
 
   ## basic printfile
 
+#  print.txt <-
+#    paste('[component]',
+#          'type\tstockstdprinter',
+#          'stockname\t%s',
+#          'printfile\t%s/out/%1$s.std',
+#          'yearsandsteps\tall all',
+#          sep = '\n')
   print.txt <-
     paste('[component]',
-          'type\tstockstdprinter',
-          'stockname\t%s',
-          'printfile\t%s/out/%1$s.std',
+          'type\tpredatorpreyprinter',
+          sprintf('predatornames\t%s',
+                  paste(fleets$fleet,collapse=' ')),          
+          'preynames\t%1$s',
+          'areaaggfile\t%2$s/aggfiles/allareas.agg',
+          'ageaggfile\t%2$s/aggfiles/%1$s.allages.agg',
+          'lenaggfile\t%2$s/aggfiles/%1$s.alllen.agg',
+          'printfile\t%2$s/out/%1$s.prey',
           'yearsandsteps\tall all',
           sep = '\n')
+
   printfile <- sprintf(print.txt,unique(fleet$prey$stock),
                        ypr)
 
@@ -1007,8 +1022,8 @@ gadget.ypr <- function(params.file = 'params.in',
   ## remove recruitment and initialdata from the stockfiles
 
   l_ply(stocks,function(x){
-    if(x@doesrenew==1){
-      x@initialdata[,3] <- 0 ## nothing in the beginning
+    x@initialdata[,3] <- 0 ## nothing in the beginning
+    if(x@doesrenew==1){      
       tmp <- subset(time.grid,step == 1)
       tmp <- mutate(tmp,
                     age = x@renewal.data[1,4],
@@ -1020,8 +1035,6 @@ gadget.ypr <- function(params.file = 'params.in',
       tmp$number[1] <- 100
       x@renewal.data <- tmp
       x@doesspawn <- 0
-      
-      
     }
     write(x,file=ypr)
   })
@@ -1060,27 +1073,33 @@ gadget.ypr <- function(params.file = 'params.in',
   out <- ddply(data.frame(stock = unique(fleet$prey$stock),tmp=1),
                'stock',
                function(x){
-                 system(sprintf("sed '/            0          0          0          0            0            0/d' %1$s/out/%2$s.std > %1$s/out/%2$s.std0",
-                                ypr,x$stock))
-                 stock.std <- read.table(file = sprintf("%1$s/out/%2$s.std0",
-                                           ypr,x$stock),
-                                         comment.char = ';')
+#                 system(sprintf("sed '/            0          0          0          0            0            0/d' %1$s/out/%2$s.std > %1$s/out/%2$s.std0",
+#                                ypr,x$stock))
+#                 stock.std <- read.table(file = sprintf("%1$s/out/%2$s.std0",
+#                                           ypr,x$stock),
+#                                         comment.char = ';')
+                 stock.prey <- read.table(file = sprintf("%1$s/out/%2$s.prey",
+                                            ypr,x$stock),
+                                          comment.char = ';')
+                 
                  names(stock.std) <-
-                   c('year', 'step','area','age','number',
-                     'mean.length', 'mean.weight', 'stddev.length',
-                     'number.consumed', 'biomass.consumed')
-                 stock.std$trial <-
-                   rep(1:c(nrow(stock.std)/(length(unique(stock.std$step))*
-                                            length(unique(stock.std$year)))),
-                       each=length(unique(stock.std$year))*
-                       length(unique(stock.std$step)))
-                 stock.std <- merge(stock.std,
-                                    data.frame(trial=1:length(effort),
-                                               effort=effort),
-                                    all.x=TRUE)
+                   c('year', 'step','area','age','length','number.consumed',
+                     'biomass.consumed','effort')
+#                   c('year', 'step','area','age','number',
+#                     'mean.length', 'mean.weight', 'stddev.length',
+#                     'number.consumed', 'biomass.consumed')
+#                 stock.std$trial <-
+#                   rep(1:c(nrow(stock.std)/(length(unique(stock.std$step))*
+#                                            length(unique(stock.std$year)))),
+#                       each=length(unique(stock.std$year))*
+#                       length(unique(stock.std$step)))
+#                 stock.std <- merge(stock.std,
+#                                    data.frame(trial=1:length(effort),
+#                                               effort=effort),
+#                                    all.x=TRUE)
                  ## clean up
-                 file.remove(sprintf('%s/out/%s.std',ypr,x$stock))
-                 file.remove(sprintf('%s/out/%s.std0',ypr,x$stock))
+                 file.remove(sprintf('%s/out/%s.prey',ypr,x$stock))
+#                 file.remove(sprintf('%s/out/%s.std0',ypr,x$stock))
                  return(stock.std)
                })
 

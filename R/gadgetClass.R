@@ -180,7 +180,7 @@ setClass('gadget-stock',
                         ## growth
                         doesgrow = 'numeric',
                         growth = 'gadget-growth',
-                        naturalmortality = 'numeric',
+                        naturalmortality = 'vector',
                         ## consumption
                         iseaten = 'numeric',
                         preyinfo = 'gadget-prey',
@@ -197,13 +197,13 @@ setClass('gadget-stock',
                         ## Maturation
                         doesmature = 'numeric',
                         maturityfunction = 'character',
-                        maturestocksandratios = 'list',
-                        coefficients = 'list',
+                        maturestocksandratios = 'character',
+                        coefficients = 'character',
                         maturitysteps = 'numeric',
                         maturitylengths = 'numeric',
                         ## movement between stocks
                         doesmove = 'numeric',
-                        transitionstocksandratios = 'data.frame',
+                        transitionstocksandratios = 'character',#'data.frame',
                         transitionstep = 'numeric',
                         ## renewal
                         doesrenew = 'numeric',
@@ -245,13 +245,13 @@ setClass('gadget-stock',
                         ## Maturation
                         doesmature = 0,
                         maturityfunction = '',
-                        maturestocksandratios = list(),
-                        coefficients = list(),
+                        maturestocksandratios = '',
+                        coefficients = '',
                         maturitysteps = 0,
                         maturitylengths = 0,
                         ## movement between stocks
                         doesmove = 0,
-                        transitionstocksandratios = data.frame(),
+                        transitionstocksandratios = '',#data.frame(),
                         transitionstep = 0,
                         ## renewal
                         doesrenew = 0,

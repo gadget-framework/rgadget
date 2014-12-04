@@ -148,7 +148,7 @@ setMethod("write",
         }
         init.head <- paste(sprintf('; initial (%s) file for %s created using rgadget at %s',
                                   init.type,x@stockname,Sys.Date()),
-                          paste(c('; ',names(x@initialdata)),collapse = '\t'),
+                          paste(c('; ',names(x@initialdata)),collapse = '-'),
                           sep = '\n')
         write(init.head,file = sprintf('%s/Data/%s.%s',file,x@stockname,init.type))
         write.table(x@initialdata,
@@ -252,12 +252,16 @@ setMethod("write",
                         sep='\t',collapse = '\n'),
                   sprintf('%sfile\t%s/Data/%s.rec',rec.type,file,x@stockname),
                   sep='\n')
+          write(sprintf('; renewal-file for stock %s\n; %s',
+                        x@stockname,paste(names(x@renewal.data),collapse='-')),
+                file = sprintf('%s/Data/%s.rec',file,x@stockname))
           write.table(x@renewal.data,
                       file = sprintf('%s/Data/%s.rec',
                         file,x@stockname),
                       row.names = FALSE,
                       col.names = FALSE,
-                      quote=FALSE)
+                      quote=FALSE,
+                      append=TRUE)
         }
 
         if(x@doesmature == 1){
@@ -266,9 +270,11 @@ setMethod("write",
                     x@maturityfunction,file)
           maturityfile <-
             paste(sprintf('; maturityfile for stock %s',x@stockname),
-                  sprintf('maturestocksandratios %s %s',
-                          names(x@maturestocksandratios),
-                          x@maturestocksandratios),
+                  sprintf('maturestocksandratios %s',
+                          paste(x@maturestocksandratios,collapse='\t')),
+#                  sprintf('maturestocksandratios %s %s',
+#                          names(x@maturestocksandratios),
+#                          x@maturestocksandratios),
                   sprintf('coefficients %s',
                           paste(x@coefficients,collapse='\t')),
                   sep='\n')
@@ -278,11 +284,11 @@ setMethod("write",
         if(x@doesmove == 1){
           stock.text['movement'] <-
             paste(sprintf('transitionstocksandratios %s',
-                          paste(x@maturestocksandratios$stock,
-                                x@maturestocksandratios$ratio,
+                          paste(x@transitionstocksandratios,#$stock,
+#                                x@transitionstocksandratios$ratio,
                                 collapse='\t')),
                   sprintf('transitionstep %s',x@transitionstep),
-                  collapse='\n')
+                  sep='\n')
         }
         write(paste(stock.text,collapse = '\n'),
               file = sprintf('%s/%s',file,x@stockname))

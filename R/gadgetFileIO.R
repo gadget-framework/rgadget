@@ -1108,18 +1108,28 @@ read.gadget.stockfiles <- function(stock.files){
     if(doesmature == 1){
       maturity.function <- tolower(stock[[mature.loc+1]][2])
       maturity.file <- strip.comments(stock[[mature.loc+2]][2])
-      if(maturity.function == 'continous'){
-        maturestocksandratios <- maturityfile[[1]][-1]
-        coefficients <- maturityfile[[2]][-1]
+      if(maturity.function == 'continuous'){
+        maturestocksandratios <- (maturity.file[[1]][-1])
+        coefficients <- (maturity.file[[2]][-1])
       }
         
     } else {
       maturity.function <- ''
-      maturestocksandratios <- list()
-      coefficients <- list()
+      maturestocksandratios <- ''
+      coefficients <- ''
     }
 
+    if(doesmature == 1){
+        transitionstocksandratios <- (stock[[move.loc+1]][-1])
+        transitionstep <- as.numeric(stock[[move.loc+2]][-1])
+        
+    } else {
+      transitionstocksandratios <- ''
+      transitionstep <- 0
+    }
 
+    
+    
     st <-
       new('gadget-stock',
           stockname = stock[[1]][2],
@@ -1133,7 +1143,7 @@ read.gadget.stockfiles <- function(stock.files){
           growthandeatlengths = read.table(stock[[9]][2],comment.char=';'),
           doesgrow = as.numeric(stock[[growth.loc]][2]),
           growth = growth.info(stock[growth.loc:(mort.loc-1)]),
-          naturalmortality = as.numeric(stock[[mort.loc]][-1]),
+          naturalmortality = merge.formula(stock[[mort.loc]][-1]),
           iseaten = as.numeric(stock[[mort.loc+1]][2]),
           preyinfo = prey.info(stock[(mort.loc+1):(eat.loc-1)]),
           doeseat = as.numeric(stock[[eat.loc]][2]),
@@ -1143,7 +1153,7 @@ read.gadget.stockfiles <- function(stock.files){
             minlength = stock[[init.loc + 3]][2],
             maxlength = stock[[init.loc + 4]][2],
             dl = ifelse(tolower(stock[[init.loc + 5]][1])=='dl',
-              stock[[init.loc + 5]][2],1),
+              stock[[init.loc + 5]][2],as.numeric(stock[[7]][2])),
             sdev = ifelse(tolower(stock[[init.loc + 6]][1])=='sdev',
               stock[[init.loc + 6]][2], 1)),
           initialdata = initialdata,
@@ -1153,6 +1163,8 @@ read.gadget.stockfiles <- function(stock.files){
           maturestocksandratios = maturestocksandratios,
           coefficients = coefficients,
           doesmove = as.numeric(stock[[move.loc]][2]),
+          transitionstocksandratios = transitionstocksandratios,
+          transitionstep = transitionstep,
           doesrenew =  as.numeric(stock[[renew.loc]][2]),
           renewal = list(
             minlength = ifelse(as.numeric(stock[[renew.loc]][2]) == 0,
