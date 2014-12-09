@@ -184,8 +184,9 @@ write.gadget.likelihood <- function(lik,file='likelihood',
     if('surveyindices' %in% comp$type){
       comp <-
         comp[intersect(c('name','type','datafile','sitype','biomass',
-                         'areaaggfile','lenaggfile','surveynames','fleetnames',
-                         'stocknames','fittype','slope','intercept'),
+                         'areaaggfile','ageaggfile','lenaggfile','surveynames',
+                         'fleetnames','stocknames','fittype','slope',
+                         'intercept'),
                        names(comp))]
     }
     comp <- na.omit(melt(merge(weights,comp,by='name',sort=FALSE),
