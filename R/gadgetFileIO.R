@@ -881,7 +881,7 @@ read.gadget.lik.out <- function(file='lik.out',suppress=FALSE){
 strip.comments <- function(file='main'){
   tmp <- unlist(llply(file,readLines))
   main <- sub('\t+$',' ',tmp)
-  main <- sub(' +$','',main)
+  main <- gsub("^\\s+|\\s+$", "", tmp) #sub(' +$','',main)
   main <- gsub('(','( ',main,fixed=TRUE)
   main <- gsub(')',' )',main,fixed=TRUE)
   main <- main[main!='']
@@ -1840,29 +1840,37 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
                        merge(lik.dat$dat$surveyindices[[x]],
                              out[[x]],
                              by.y=c('year','label','step','area'),
-                             by.x=c('year','length','step','area'),
+                             by.x=intersect(c('year','length','age',
+                               'step','area'),
+                               names(lik.dat$dat$surveyindices[[x]])),
                              all.y=TRUE)
-                     sidat$length <- paste(sidat$lower,
-                                           sidat$upper, sep = ' - ')
+                     if('length' %in% names(sidat)){
+                       sidat$length <- paste(sidat$lower,
+                                             sidat$upper, sep = ' - ')
+                     }
                      sidat$name <- x
                      sidat <- merge(sidat,
                                     subset(lik$surveyindices,
                                            select=c(name,stocknames)),
-                                    by='name')
+                                    by='name')                     
                      si.stocks <-
                        unique(unlist(strsplit(unique(sidat$stocknames),'\t')))
+                     if('length' %in% names(sidat)){
                      ## note this assumes length based survey indices atm 
-                     si.labels <- arrange(unique(sidat[c('length','lower','upper')]),
-                                          lower)
-                     sibio <-
-                       stock.full %>%
-                       filter(.id %in% si.stocks) %>%
-                       mutate(sigroup = cut(length,breaks=c(si.labels$lower,max(si.labels$upper)),
-                                labels=si.labels$length))%>%
-                       group_by(year,sigroup) %>%
-                       summarise(bio=sum(number*mean.weight)/sum(number))
+                       si.labels <-
+                         arrange(unique(sidat[c('length','lower','upper')]),
+                                 lower)
+                       sibio <-
+                         stock.full %>%
+                         filter(.id %in% si.stocks) %>%
+                         mutate(sigroup = cut(length,breaks=c(si.labels$lower,
+                                                     max(si.labels$upper)),
+                         labels=si.labels$length))%>%
+                         group_by(year,sigroup) %>%
+                         summarise(bio=sum(number*mean.weight)/sum(number))
                      sidat <- merge(sidat,sibio,by.x=c('year','length'),
                                     by.y=c('year','sigroup'))
+                     }
                      return(sidat)
                    })
 
