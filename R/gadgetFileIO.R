@@ -503,6 +503,19 @@ make.gadget.printfile <- function(main='main',output='out',
           'yearsandsteps\tall all',
           sep = '\n')
 
+  predator.prey <-
+    paste('[component]',
+          'type\tpredatorpreyprinter',
+          'predatornames\t%2$s',
+          'preynames\t%1$s',
+          sprintf('areaaggfile\t%s/%%1$s.area.agg',aggfiles),
+          sprintf('ageaggfile\t%s/%%1$s.age.agg',aggfiles),
+          sprintf('lenaggfile\t%s/%%1$s.alllen.agg',aggfiles),
+          sprintf('printfile\t%s/%%1$s.prey.%%2$s',output),
+          'yearsandsteps\tall all',
+          sep = '\n')
+  
+  
   dir.create(aggfiles, showWarnings = FALSE)
   dir.create(output, showWarnings = FALSE)
 
@@ -526,9 +539,18 @@ make.gadget.printfile <- function(main='main',output='out',
                                            function(x) x@stockname),
                             paste(fleets$fleet$fleet,collapse = ' ')),
                     collapse='\n'),
+              ';',
               sep='\n'),
         file=file)
 
+#  l_ply(stocks,
+#        function(x){
+#          if(isPredator(x)){
+#            write(paste(sprintf(predator.prey,getPreyNames(x),x@stockname),
+#                        collapse='\n;\n'),
+#                  file=file,append=TRUE)
+#          }
+#        })
 }
 
 ##' Read gadget printfile
@@ -1058,15 +1080,16 @@ read.gadget.stockfiles <- function(stock.files){
       if(length(tmp)==1){
         tmp <- new('gadget-predator')
       } else {
+        suit.loc <- grep('suitability',tmp)
         pref.loc <- grep('preference',tmp)
         maxcon.loc <- grep('maxconsumption',tmp)
         half.loc <- grep('halffeedingvalue',tmp)
-        suit <- ldply(2:(pref.loc-1),
+        suit <- ldply((suit.loc+1):(pref.loc-1),
                       function(x){
                         c(stock = tmp[[x]][1],
                           suitability = paste(tmp[[x]][-1],collapse=' '))
                       })
-        pref <- ldply(pref.loc,
+        pref <- ldply(pref.loc+1,
                       function(x){
                         c(stock = tmp[[x]][1],
                           preference = paste(tmp[[x]][-1],collapse=' '))
@@ -1508,6 +1531,8 @@ eval.gadget.formula <- function(gad.for,par){
   ldply(tmp,
         function(x){
           x <- x[!x=='']
+          x[x=='-'] <- "'-'("
+          x[x=='+'] <- "'+'("
           par.ind <- grep('#',x,fixed=TRUE)
           x <- gsub("*","prod(",x,fixed=TRUE)
           x <- gsub("/","'/'(",x,fixed=TRUE)
@@ -1689,7 +1714,7 @@ get.gadget.recruitment <- function(stocks,params){
   ldply(stocks, function(x){
     if(x@doesrenew == 1){
       na.omit(data.frame(stock = x@stockname,
-                         year=x@renewal.data$year,
+                         year=as.numeric(as.character(x@renewal.data$year)),
                          recruitment =
                          10000*unlist(eval.gadget.formula(x@renewal.data$number,
                                                           params))))
@@ -1868,8 +1893,8 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
                          labels=si.labels$length))%>%
                          group_by(year,sigroup) %>%
                          summarise(bio=sum(number*mean.weight)/sum(number))
-                     sidat <- merge(sidat,sibio,by.x=c('year','length'),
-                                    by.y=c('year','sigroup'))
+                       sidat <- merge(sidat,sibio,by.x=c('year','length'),
+                                      by.y=c('year','sigroup'),all.x=TRUE)
                      }
                      return(sidat)
                    })
@@ -1983,8 +2008,13 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
                                               comment.char=';'),
                                    warning = function(x) NULL,
                                    error = function(x) NULL)
-              names(len.agg)[1:3] <- c('length','agg.lower','agg.upper')
-              stockdist <- merge(stockdist,len.agg)
+              if(!is.null(len.agg)){
+                names(len.agg)[1:3] <- c('length','agg.lower','agg.upper')
+                stockdist <- merge(stockdist,len.agg)
+              } else {
+                stockdist$agg.lower <- as.integer(0)
+                stockdist$agg.upper <- as.integer(1e3)
+              }
               stockdist$name <- x
               stockdist <- data.table(stockdist)
               stockdist <-
@@ -2276,5 +2306,11 @@ plot.gadget.fit <- function(fit,data = 'sidat',type='direct',dat.name=NULL){
   } else if(data == 'res.by.year' & type == 'catch'){
     ggplot(fit$res.by.year,aes(year,catch/1e6,col=stock)) + geom_line() +
     theme_bw() + ylab("Catch (in '000 tons)") + xlab('Year')    
-  }
+  } else if(data == 'suitability') {
+    ggplot(fit$suitability,
+           aes(l,suit,lty=fleet)) +
+    geom_line() + theme_bw() + ylab('Suitability') + xlab('Length') +
+    theme(legend.position = c(0.8,0.25), legend.title = element_blank(),
+          plot.margin = unit(c(0,0,0,0),'cm')) 
+  } 
 }

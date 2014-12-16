@@ -625,6 +625,13 @@ setMethod('getPredatorNames','gadget-main',
                          })
             tmp[tmp!='']
           })
+setGeneric('getPreyNames',def=function(object){standardGeneric("getPreyNames")})
+setMethod('getPreyNames','gadget-stock',
+          function(object){
+            object@predator@suitability$stock
+          })
+
+
 
 setGeneric('getGrowth',def=function(object, par){standardGeneric("getGrowth")})
 setMethod('getGrowth', 'gadget-growth',

@@ -899,6 +899,7 @@ gadget.bootstrap <- function(bs.likfile = 'likelihood.bs',
 ##' @param effort The range of fishing mortality 
 ##' @param begin Start year of the simulation
 ##' @param end End year of the simulation 
+##' @param age.range at what age range should the YPR be calculated
 ##' @param fleets Data frame comtaining the fleet names and ratio in
 ##' future catches
 ##' @param ypr the folder containing the results from the yield per
@@ -913,8 +914,10 @@ gadget.ypr <- function(params.file = 'params.in',
                        main.file = 'main',
                        effort = seq(0, 1, by=0.01),
                        begin=1990,end=2020,
+                       age.range=NULL,
                        fleets = data.frame(fleet='comm',ratio=1),
                        ypr='YPR',
+                       ssb.stock=NULL,
                        check.previous = FALSE,
                        save.results = TRUE){
 
@@ -993,13 +996,6 @@ gadget.ypr <- function(params.file = 'params.in',
 
   ## basic printfile
 
-#  print.txt <-
-#    paste('[component]',
-#          'type\tstockstdprinter',
-#          'stockname\t%s',
-#          'printfile\t%s/out/%1$s.std',
-#          'yearsandsteps\tall all',
-#          sep = '\n')
   print.txt <-
     paste('[component]',
           'type\tpredatorpreyprinter',
@@ -1011,10 +1007,38 @@ gadget.ypr <- function(params.file = 'params.in',
           'lenaggfile\t%2$s/aggfiles/%1$s.alllen.agg',
           'printfile\t%2$s/out/%1$s.prey',
           'yearsandsteps\tall all',
-          sep = '\n')
+           sep = '\n')
 
-  printfile <- sprintf(print.txt,unique(fleet$prey$stock),
-                       ypr)
+  print.ssb <- NULL
+  if(!is.null(ssb.stock)){
+    if(sum(ssb.stock %in% names(stocks)) == length(ssb.stock)){     
+      print.ssb <-
+        paste('[component]',
+              'type\tstockprinter',
+              'stocknames\t%1$s',
+              'areaaggfile\t%2$s/aggfiles/allareas.agg',
+              'ageaggfile\t%2$s/aggfiles/%1$s.allages.agg',
+              'lenaggfile\t%2$s/aggfiles/%1$s.alllen.agg',
+              'printfile\t%2$s/out/%1$s.ssb',
+              'yearsandsteps\tall 1',
+              sep = '\n')
+
+    } else {
+      warning(sprintf('warning in gadget.ypr, SSB stock %s not found',
+                      ssb.stock))
+
+    }
+  }
+  
+  printfile <- paste(sprintf(print.txt,unique(fleet$prey$stock), ypr),
+                     collapse='\n;\n')
+  if(!is.null(ssb.stock)){
+    printfile <-
+      paste(printfile,
+            paste(sprintf(print.ssb,ssb.stock,ypr),
+                  collapse='\n;\n'),
+            sep='\n;\n')
+  }
 
   dir.create(sprintf('%s/out',ypr),showWarnings = FALSE, recursive = TRUE)
   main$printfiles <- sprintf('%s/printfile.ypr',ypr)
@@ -1075,11 +1099,6 @@ gadget.ypr <- function(params.file = 'params.in',
   out <- ddply(data.frame(stock = unique(fleet$prey$stock),tmp=1),
                'stock',
                function(x){
-#                 system(sprintf("sed '/            0          0          0          0            0            0/d' %1$s/out/%2$s.std > %1$s/out/%2$s.std0",
-#                                ypr,x$stock))
-#                 stock.std <- read.table(file = sprintf("%1$s/out/%2$s.std0",
-#                                           ypr,x$stock),
-#                                         comment.char = ';')
                  stock.prey <- read.table(file = sprintf("%1$s/out/%2$s.prey",
                                             ypr,x$stock),
                                           comment.char = ';')
@@ -1088,9 +1107,6 @@ gadget.ypr <- function(params.file = 'params.in',
                    c('year', 'step','area','age','length','number.consumed',
                      'biomass.consumed','fishing.mortality')
                  
-#                   c('year', 'step','area','age','number',
-#                     'mean.length', 'mean.weight', 'stddev.length',
-#                     'number.consumed', 'biomass.consumed')
                  stock.prey$trial <-
                    rep(1:c(nrow(stock.prey)/(
                      length(unique(stock.prey$area))*
@@ -1103,13 +1119,45 @@ gadget.ypr <- function(params.file = 'params.in',
                                     data.frame(trial=1:length(effort),
                                                effort=effort),
                                     all.x=TRUE)
+                 stock.prey$age <- stock.prey$year - begin +
+                   getMinage(stocks[[x$stock]])
                  ## clean up
                  file.remove(sprintf('%s/out/%s.prey',ypr,x$stock))
-#                 file.remove(sprintf('%s/out/%s.std0',ypr,x$stock))
+
                  return(stock.prey)
                })
+  if(!is.null(ssb.stock)){
+    ssb.out <- ldply(ssb.stock,function(x){
+      ssb.out <- read.table(file = sprintf("%1$s/out/%2$s.ssb",
+                              ypr,x), comment.char = ';')
+      file.remove(sprintf('%s/out/%s.ssb',ypr,x))
+      names(ssb.out) <-
+        c('year', 'step','area','age','length','number',
+          'biomass')
+      ssb.out$trial <-
+        rep(1:c(nrow(ssb.out)/(
+          length(unique(ssb.out$area))*
+          length(unique(ssb.out$step))*
+          length(unique(ssb.out$year)))),
+            each=length(unique(ssb.out$area))*
+            length(unique(ssb.out$year))*
+            length(unique(ssb.out$step)))
+      ssb.out <- merge(ssb.out,
+                       data.frame(trial=1:length(effort),
+                                  effort=effort),
+                       all.x=TRUE)
+      mutate(ddply(ssb.out,~effort,summarise,ssb=max(number*biomass)),
+             ssb.ratio=ssb/max(ssb))
 
+    })
+    
+  } else {
+    ssb.out <- NULL
+  }
   
+  if(!is.null(age.range)){
+    out <- subset(out,age >= min(age.range) & age <= max(age.range))
+  }
   res <- ddply(out,'effort',
                function(x) c(num=sum(x$number.consumed)/1e6,
                              bio=sum(x$biomass.consumed)/1e6))
@@ -1117,8 +1165,9 @@ gadget.ypr <- function(params.file = 'params.in',
   f0.1 <- res$effort[min(which(secant<0.1*secant[1]))]
   fmax <- min(res$effort[which(res$bio==max(res$bio,na.rm=TRUE))])
   res <- list(params=params,out=out,ypr=res,fmax=fmax,
-              f0.1=data.frame(f0.1=f0.1))
-
+              f0.1=f0.1,ssb=ssb.out)
+  
+  
   class(res) <- c('gadget.ypr',class(res))
   if(save.results){
     save(res, file = sprintf('%s/ypr.Rdata',ypr))
@@ -1135,20 +1184,31 @@ gadget.ypr <- function(params.file = 'params.in',
 ##' @author Bjarki Thor Elvarsson
 ##' @export
 plot.gadget.ypr <- function(ypr){
-  ggplot(ypr$ypr,aes(effort,bio)) +
-  geom_line() +
-  geom_segment(aes(x = effort,xend=effort,y=-Inf,yend=bio),
-               data=subset(ypr$ypr, effort == ypr$fmax)) +
-  geom_segment(aes(x = effort,xend=effort,y=-Inf,yend=bio),
-               data=subset(ypr$ypr, effort == ypr$f0.1$f0.1)) +
-  geom_text(data=subset(ypr$ypr,effort == ypr$fmax),
-            aes(label = sprintf('Fmax = %s',effort),
-                x = effort+0.04,y=0.2,angle=90)) +
-  geom_text(data=subset(ypr$ypr,effort == ypr$f0.1$f0.1),
-            aes(label = sprintf('F0.1 = %s',effort),
-                x = effort+0.04,y=0.2,angle=90)) +
-  theme_bw() +  xlab('Fishing mortality') + ylab('Yield per recruit') +
-  theme(legend.position='none',plot.margin = unit(c(0,0,0,0),'cm'))
+  if(!is.null(ypr$ssb)){
+    tmp <- merge(mutate(ypr$ypr,bio=bio/max(bio)),
+                 ypr$ssb)
+  } else {
+    tmp <- mutate(ypr$ypr,bio=bio/max(bio))
+  }
+  plo <- ggplot(tmp,aes(effort,bio)) +
+    geom_line() +
+    geom_segment(aes(x = effort,xend=effort,y=-Inf,yend=bio),
+                 data=subset(tmp, effort == ypr$fmax)) +
+    geom_segment(aes(x = effort,xend=effort,y=-Inf,yend=bio),
+                 data=subset(tmp, effort == ypr$f0.1)) +
+    geom_text(data=subset(tmp,effort == ypr$fmax),
+               aes(label = sprintf('Fmax = %s',effort),
+                   x = effort+0.04,y=0.2,angle=90)) +
+    geom_text(data=subset(tmp,effort == ypr$f0.1),
+              aes(label = sprintf('F0.1 = %s',effort),
+                  x = effort+0.04,y=0.2,angle=90)) +
+    theme_bw() +  xlab('Fishing mortality') + ylab('Yield per recruit') +
+    theme(legend.position='none',plot.margin = unit(c(0,0,0,0),'cm'))
+  if(!is.null(ypr$ssb)){
+    plo <- plo + geom_line(aes(effort,ssb.ratio),
+                            lty=2,col='gray')
+  }
+  return(plo)
 }
 
 ##' .. content for \description{} (no empty lines) ..
@@ -1220,7 +1280,6 @@ gadget.bootypr <- function(params.file='params.final',
 ##' @param check.previous 
 ##' @param save.results 
 ##' @param stochastic 
-##' @param mat.par 
 ##' @param rec.window 
 ##' @param compact 
 ##' @return list of results 
@@ -1238,7 +1297,6 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
                            check.previous = FALSE,
                            save.results = TRUE,
                            stochastic = TRUE,
-                           mat.par = NULL,
                            rec.window = NULL,
                            compact = TRUE){
   if(check.previous){
@@ -1250,15 +1308,8 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
 
   dir.create(pre,showWarnings = FALSE, recursive = TRUE)
   dir.create(sprintf('%s/aggfiles',pre), showWarnings = FALSE)
-  params <-
-    read.gadget.parameters(params.file)
-  rec <- subset(params,grepl('rec[0-9]+',switch))
 
-  ## need a more flexible definition of year
-  tmp <- gsub('rec','',rec$switch)
-  rec$year <- ifelse(str_length(tmp)==2,year(as.Date(tmp,'%y')),
-                     year(as.Date(tmp,'%Y')))
-  rec <- arrange(rec,year)
+
   
   ## read in model files
   main <- read.gadget.main(file = main.file)
@@ -1267,6 +1318,13 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
   area <- read.gadget.area(main$areafile)
   fleet <- read.gadget.fleet(main$fleetfiles)
   all.fleets <- paste(fleet$fleet$fleet,collapse = ' ')
+  params <-
+    read.gadget.parameters(params.file)
+  rec <- get.gadget.recruitment(stocks,params)                                      
+
+  ## need a more flexible definition of year
+  rec <- arrange(rec,year)
+  
   
   ## write agg files
   l_ply(stocks,
@@ -1287,7 +1345,8 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
   time.grid <- expand.grid(year = time$firstyear:time$lastyear,
                            step = 1:length(time$notimesteps),
                            area = area$areas)
-  
+
+  ## hmm check this at some point
   area$temperature <- mutate(time.grid,
                              temperature = 5)
 
@@ -1353,7 +1412,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
   
   if(stochastic){
     ## fit an AR model to the fitted recruiment
-    fitAR <- lm(tmp$value[-1]~head(tmp$value,-1))
+    fitAR <- lm(tmp$recruitment[-1]~head(tmp$recruitment,-1))
     coeffAR <- as.numeric(coefficients(fitAR))
     sdAR <- sd(resid(fitAR))
     
@@ -1361,9 +1420,11 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
     x <- array(pmax(rnorm(years*num.trials,coeffAR[1],sdAR),0),
                c(num.trials,years))
   } else {
-    x <- array(mean(tail(tmp$value,3)),c(num.trials,years))
+    x <- array(mean(tail(tmp$recruitment,3)),c(num.trials,years))
     coeffAR <- c(0,0,0)
   }
+
+  x <- x/1e4 ## recruits in Gadget are multiplied by 1e4
 
   rec.forward <-
     array(0,c(num.trials,years+1),
@@ -1372,7 +1433,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
 
 
   if(num.trials == 1){
-    rec.forward[1] <- tail(rec$value,1)
+    rec.forward[1] <- tail(rec$recruitment/1e4,1)
     for(i in 1:years){
       rec.forward[i+1] <- coeffAR[2]*rec.forward[i] + x[i]
     }
@@ -1392,15 +1453,10 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
                                             stringsAsFactors = FALSE),
                                  tail(tmp,-1))
     
-#    params.forward <- ldply(effort, function(x){
-#      params.forward$rgadget.effort <- x
-#      return(params.forward)
-#    })
-    
     write.gadget.parameters(params.forward,
                             file=sprintf('%s/params.forward', pre))
   } else {
-    rec.forward[,1] <- tail(rec$value,1)
+    rec.forward[,1] <- tail(rec$recruitment/1e4,1)
     for(i in 1:years){
       rec.forward[,i+1] <- coeffAR[2]*rec.forward[,i] + x[,i]
     }
@@ -1479,42 +1535,45 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
   ## Change the recruitment file
   if (spawnmodel == 'hockeystick' ){
     llply(stocks,function(x){
-      x@renewal.data <-
-        subset(x@renewal.data,year <  sim.begin)
-      
-      x@doesspawn <- 1
-      x@spawning = new('gadget-spawning',
-        spawnsteps = 1,
-        spawnareas = 1,
-        firstspawnyear = sim.begin,
-        lastspawnyear = sim.begin + years,
-        spawnstocksandratio = data.frame(stock=x@stockname,ratio=1),
-        proportionfunction = c(func='exponential',
-          mat.par[2],-mat.par[1]/mat.par[2]),
-        weightlossfunction = c(func='constant', 0),
-        recruitment = c(func='hockeystick',
-          sprintf('%s/hockey.rec', pre), '(* 1000000 #hockey.ssb )'),
-        stockparameters = data.frame(mean='22#recl',std.dev='3.8#recsdev',
-          alpha = 0.00000495, beta = 3.01793))
+      if(x@doesrenew==0){
+        sp.stock <- spawnvar$spawnratio$stock[1]
+        x@doesspawn <- 1
+        x@spawning = new('gadget-spawning',
+          spawnsteps = 1,
+          spawnareas = 1,
+          firstspawnyear = sim.begin,
+          lastspawnyear = sim.begin + years,
+          spawnstocksandratio = spawnvar$spawnratio,
+          proportionfunction = c(func='constant',1),
+          weightlossfunction = c(func='constant', 0),
+          recruitment = c(func='hockeystick',
+            sprintf('%s/hockey.rec', pre), '(* 1e6 #hockey.ssb )'),
+          stockparameters =
+          data.frame(mean=stocks[[sp.stock]]@renewal.data$mean[1],
+                     std.dev=stocks[[sp.stock]]@renewal.data$stddev[1],
+                     alpha = stocks[[sp.stock]]@renewal.data$alpha[1],
+                     beta = stocks[[sp.stock]]@renewal.data$beta[1]))
+        
+        
+        ## write time variable file
+        
+        time.var <-
+          data.frame(year = c(time$firstyear,sim.begin:(sim.begin+years)),
+                     step = 1,
+                     value = c(0, sprintf('(* 1e4 #rec%s)',
+                       sim.begin:
+                       (sim.begin+years))))
+        write('hockey.rec\ndata\n; year step value',
+              file = sprintf('%s/hockey.rec',pre))
+        
+        write.table(time.var, col.names = FALSE, row.names = FALSE,
+                    append = TRUE, file = sprintf('%s/hockey.rec',pre),
+                    quote = FALSE)
+      } else {
+        x@renewal.data <-
+          subset(x@renewal.data,year <  sim.begin)
+      }
       write(x,file=pre)
-
-      ## write time variable file
-      
-      time.var <-
-        data.frame(year = c(time$firstyear,sim.begin:(sim.begin+years)),
-                   step = x@renewal.data$V2[1],
-                   value = c(0,sprintf('(/ %s  (* 100 #hockey.ssb))',
-                     sprintf(gsub('rec[0-9]+',
-                                  'rec%s',
-                                  x@renewal.data$V5[1]),
-                             sim.begin:
-                             (sim.begin+years)))))
-      write('hockey.rec\ndata\n; year step value',
-            file = sprintf('%s/hockey.rec',pre))
-      
-      write.table(time.var, col.names = FALSE, row.names = FALSE,
-                  append = TRUE, file = sprintf('%s/hockey.rec',pre),
-                  quote = FALSE)
     })
 
     
@@ -1528,10 +1587,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
                               step = x@renewal.data$step[1],
                               area = x@renewal.data$area[1],
                               age = x@renewal.data$age[1],
-                              number = sprintf(gsub('rec[0-9]+',
-                                'rec%s',
-                                x@renewal.data$number[1]),
-                                rec.years),
+                              number = sprintf('#rec%s',rec.years),
                               mean = x@renewal.data$mean[1],
                               stddev = x@renewal.data$stddev[1],
                               alpha = x@renewal.data$alpha[1],
@@ -1572,19 +1628,10 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
           tmp$trial <- 1
         }
         tmp$length <- as.numeric(gsub('len','',tmp$length))
-        if(!is.null(mat.par)){
-          tmp <-
-            mutate(tmp,
-            
-                   ##               harv.bio = number*weight*expL50(params['L50Longline','value'],
-                   ##                 params['aLongline','value'],length),
-                   ssb = number*weight*logit(mat.par[1],mat.par[2],length))
-        }
         
-        if(compact & !is.null(mat.par)){
+        if(compact){
           tmp <- ddply(tmp,~year+step+trial+effort+stock,
                        summarise,
-                       ssb = sum(ssb),
                        total.bio = sum(number*weight)
                        )
         }
