@@ -24,8 +24,15 @@ setGeneric('getTimeSteps',def=function(x){standardGeneric("getTimeSteps")})
 setMethod('getTimeSteps','gadget-time',
           function(x) {
             year <- x@firstyear:x@lastyear
-            data.frame(year = rep(year,each = length(x@notimesteps)),
-                                 step = rep(seq(along = x@notimesteps), length(year)))
+            schedule <- data.frame(year = rep(year,
+                                     each = length(x@notimesteps)),
+                                   step = rep(seq(along = x@notimesteps),
+                                     length(year)))
+            subset(schedule,(year> x@firstyear & year < x@lastyear) |
+                   (year == x@firstyear & step >= x@firststep) |
+                   (year == x@lastyear & step <= x@laststep) )
+
+
           })
 
 ## area-file methods

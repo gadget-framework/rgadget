@@ -169,10 +169,10 @@ callGadget <- function(l=NULL,
         }
       }
     }
-    
+
     run.history <- NULL
   }
-  
+
   invisible(run.history)
 }
 
@@ -180,14 +180,14 @@ callGadget <- function(l=NULL,
 ##'
 ##' <details>
 ##' @title Call paramin
-##' @param i 
-##' @param func 
-##' @param opt 
-##' @param network 
-##' @param o 
-##' @param scale 
-##' @param condor 
-##' @param paramin.exe 
+##' @param i
+##' @param func
+##' @param opt
+##' @param network
+##' @param o
+##' @param scale
+##' @param condor
+##' @param paramin.exe
 ##' @return null
 ##' @author Bjarki Thor Elvarsson
 callParamin <- function(i='params.in',
@@ -218,7 +218,7 @@ callParamin <- function(i='params.in',
 ##' the respective variance.  If one (or more) components, other than
 ##' understocking and penalty, are 0 then the gadget optimisation with
 ##' the final weights will not be completed.
-##' 
+##'
 ##' In Taylor et. al an objective reweighting scheme for likelihood
 ##' components is described for cod in Icelandic waters. The authors
 ##' nota that the issue of component weighting has been discussed for
@@ -280,15 +280,15 @@ callParamin <- function(i='params.in',
 ##' @param resume.final logical should the final optimisation be
 ##' resumed (DEBUG)
 ##' @param wgts a string containing the path the folder where the
-##' interim weighting results should be stored. 
-##' @param grouping a list naming the groups of components that should be reweighted together. 
+##' interim weighting results should be stored.
+##' @param grouping a list naming the groups of components that should be reweighted together.
 ##' @param optinfofile optinfofile used in the reweighting
 ##' @param PBS Logical, should the gadget runs be defined to be run in pbs
 ##' scripts (defaults to FALSE).
 ##' @param qsub.script Name of cluster submission script.
 ##' @param run.base should the base (inverse initial SS) parameters be estimated
 ##' @param run.serial should the weighting run be run in parallel (used in
-##' bootstrap). 
+##' bootstrap).
 ##' @param method linear model or loess smoother used to calculate SI
 ##' weights outside the gadget model.
 ##' @param cv.floor a value for an optional floor for survey indices
@@ -325,19 +325,19 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
   if(!file.exists(params.file)) {
     stop('Parameter file not found')
   }
-  
+
   if(!file.exists(optinfofile)) {
     stop('Optinfofile not found')
   }
-  
+
   ## store the results in a special folder to prevent clutter
   dir.create(wgts,showWarnings=FALSE)
-  
+
   ## read model
   main <- read.gadget.main(main.file)
   if(!is.null(main$printfiles)) {
     printfile <- read.gadget.printfile(main$printfiles)
-  } else if(!is.null(main$printfile)){  
+  } else if(!is.null(main$printfile)){
     printfile <- read.gadget.printfile(main$printfile)
   } else {
     printfile <- NULL
@@ -348,7 +348,7 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
                                         comp=comp,
                                         inverse = inverse)
   }
-  
+
   ## initial run (to determine the initial run)
   main.init <- main
   main.init$printfiles <- NULL
@@ -359,7 +359,7 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
              o=paste(wgts,'lik.init',sep='/'),
              i=params.file,gadget.exe=gadget.exe)
 
-  
+
   ## degrees of freedom approximated by the number of datapoints
   lik.dat <- read.gadget.data(likelihood)
   restr <- !(likelihood$weights$type %in%
@@ -368,7 +368,7 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
   SS <- read.gadget.lik.out(paste(wgts,'lik.init',
                                   sep='/'))$data[likelihood$weights$name[restr]]
   ##' Survey indices get special treatment
-  ##' @title survey index weight 
+  ##' @title survey index weight
   ##' @param lik.dat Likelihood dataset
   ##' @return internal weights for the survey index components
   ##' @author Bjarki Thor Elvarsson
@@ -394,8 +394,8 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
     names(weights) <- names(lik.dat$dat$surveyindices)
     return(weights)
   }
-  
-  restr.SI <- subset(likelihood$weights,type == 'surveyindices')$name  
+
+  restr.SI <- subset(likelihood$weights,type == 'surveyindices')$name
   if(!rew.sI){
     if(is.null(grouping)){
       grouping <- list(SI=intersect(likelihood$weights$name,restr.SI))
@@ -403,20 +403,20 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
       grouping$SI <- intersect(likelihood$weights$name,restr.SI)
     }
     sIw <- sI.weights(lik.dat,method=method)
-  } 
+  }
   run.string <- c(likelihood$weights$name[restr&
                                           !(likelihood$weights$name %in%
                                             unlist(grouping))])
-  
+
   run.string <- as.list(run.string)
   names(run.string) <-
     c(likelihood$weights$name[restr&
                               !(likelihood$weights$name %in%
-                                unlist(grouping))])   
-  
+                                unlist(grouping))])
+
   run.string <- append(run.string,grouping)
 
-  
+
   ## Base run (with the inverse SS as weights)
   main.base <- main.init
   main.base$likelihoodfiles <- paste(wgts,'likelihood.base',sep='/')
@@ -424,14 +424,14 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
   likelihood.base <- likelihood
   likelihood.base$weights[names(SS),'weight'] <- 1/as.numeric(SS)
 
-  
+
   ##' Gadget set up stuff, needed for each component
   ##' @title run iterative
   ##' @param comp likelihood component
   ##' @return Sums of squares
   ##' @author Bjarki Thor Elvarsson
   run.iterative <- function(comp){
-    
+
     likelihood <- likelihood.base
     which.comp <- likelihood$weights$name %in% comp
     likelihood$weights$weight[which.comp] <-
@@ -470,7 +470,7 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
                PBS.name=paste(wgts,comp,sep='/'))
     print(sprintf('Comp %s completed',comp))
   }
-  ## 
+  ##
   if(!resume.final){
     ## run the bloody thing
     if(run.serial)
@@ -482,7 +482,7 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
 
   ## Do we want to run the final optimisation (only used for debug purposes,
   ## and the check should be removed in later revisions)
-  
+
   if(run.final){
     res <- ldply(run.string,
                  function(x){
@@ -496,8 +496,8 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
                  })
     row.names(res) <- res$.id
     res$.id <- NULL
-                                  
-    
+
+
     run.final <- function(comp){
       print(sprintf('Running %s',comp))
       callGadget(l=1,
@@ -525,14 +525,14 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
     df <- ldply(lik.dat$df,function(x) data.frame(df=x,comp=names(x)))
     SS <- mutate(join(SS,df),sigmahat = SS/df)
     SS$comp <- as.character(SS$comp)
-    
+
     ## final run
     write.files <- function(comp,weights){
       if(!is.null(cv.floor)){
         weights$sigmahat[weights$comp %in% restr.SI] <-
           pmax(weights$sigmahat[weights$comp %in% restr.SI],cv.floor)
       }
-      
+
       if(sum(weights$sigmahat == 0) >0){
         warning(sprintf('Perfect fit for component %s, weight 10*df used',
                         weights$comp[weights$sigmahat == 0]))
@@ -549,10 +549,10 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
       }
       main$likelihoodfiles <- sprintf('%s/likelihood.%s',wgts,comp)
       write.gadget.main(main,sprintf('%s/main.%s',wgts,comp))
-      
+
       likelihood <- likelihood.base
       likelihood$weights[weights$comp,'weight'] <- 1/weights$sigmahat
-      
+
       write.gadget.likelihood(likelihood,
                               file=sprintf('%s/likelihood.%s',wgts,comp))
     }
@@ -567,7 +567,7 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
       write.files('sIw',SS)
       comp <- as.list(c('final','sIw'))
     }
-    
+
     if(run.serial)
       lapply(comp,run.final)
     else
@@ -593,20 +593,20 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
 ##' @param file name of the input file with the initial point
 ##' @param outer.range The outer ranges of the parameter value
 ##' considered, defined in terms of percentages.
-##' @param outer.stepsize The increments/stepsize within in the outer range. 
+##' @param outer.stepsize The increments/stepsize within in the outer range.
 ##' @param inner.range Inner range where the finer mesh should be used
 ##' @param inner.stepsize Inner stepsize.
 ##' @param opt Will we be looking at only the optimized variables, or
 ##' all of them?
 ##' @param vars.all (logical) Will we be looking at all variables or
-##' just some? 
+##' just some?
 ##' @param var.names If only a few, which ones will they be? Can be
 ##' blank if we are using all variables
 ##' @param gadget.exe name of the gadget executable
 ##' @param sens.in name of the resulting gadget input file
 ##' @param lik.out a string containing the name of the likelihood
 ##' output file
-##' @param within.bounds should gadget be restricted to 
+##' @param within.bounds should gadget be restricted to
 ##' @param main.file string naming the gadget main file used
 ##' @param sens.dir a string naming the folder where the result and
 ##' temporary files are stored. The funciton will create the folder if
@@ -665,14 +665,14 @@ gadget.sensitivity <- function(file='params.out',
           pmax(pmin(params$upper[param.res],
                     p.range*params$value[param.res]),
                params$lower[param.res])
-      } else { 
+      } else {
         param.table[[name]][seat+1:length(p.range)] <-
           p.range*params$value[param.res]
       }
       seat <- seat+length(p.range)
     }
   } else {
-    param.table <- 
+    param.table <-
       within(ls(),
              for(name in params$switch[restr]){
                param.res <- params$switch==name
@@ -681,7 +681,7 @@ gadget.sensitivity <- function(file='params.out',
                         pmax(pmin(params$upper[param.res],
                                   p.range*params$value[param.res]),
                              params$lower[param.res]))
-               } else { 
+               } else {
                  assign(name,p.range*params$value[param.res])
                }
              })
@@ -704,7 +704,7 @@ gadget.sensitivity <- function(file='params.out',
   sens.data <- lik.sens$data
   sens.data$parameter <- row.names(param.table)
 #  attr(sens.data,'params') <- params
-#  attr(sens.data,'comps') <- 
+#  attr(sens.data,'comps') <-
   class(sens.data) <- c('gadgetSens',class(sens.data))
   return(sens.data)
 }
@@ -717,7 +717,7 @@ gadget.sensitivity <- function(file='params.out',
 ##' @return ggplot object
 ##' @export
 plot.gadgetSens <- function(sens,comp='score'){
-  
+
   sens$parameter <- sapply(strsplit(sens$parameter,'.',fixed=TRUE),
                            function(x) paste(x[-length(x)],collapse='.'))
   lik.comps <- attr(sens,'Likelihood components')
@@ -735,21 +735,21 @@ plot.gadgetSens <- function(sens,comp='score'){
       facet_wrap(~parameter,scale='free') +
         xlab('') + ylab('') +
           opts(axis.text.x=theme_text(angle=-90,hjust=0))
-                   
-  
+
+
   return(plo)
-  
+
 }
 
 ##' Phased minimization based on variables
-##' @title Gadget Phasing 
+##' @title Gadget Phasing
 ##' @param phase a dataframe where the columns indicate the parameters
 ##' that are to be optimised in that particular phase
 ##' @param params.in either a filename or gadget.parameters object
-##' containing the initial value for the optimisation. 
+##' containing the initial value for the optimisation.
 ##' @param main name of the main file used in the optimisation.
 ##' @param phase.dir output directory
-##' @param optinfofile 
+##' @param optinfofile
 ##' @return final optimised parameter values
 ##' @author Bjarki Thor Elvarsson
 ##' @export
@@ -784,20 +784,20 @@ gadget.phasing <- function(phase,params.in='params.in',main='main',
 ##' <description>
 ##'
 ##' <details>
-##' @title Bootstrap control 
-##' @param bs.likfile Likelihood template file 
+##' @title Bootstrap control
+##' @param bs.likfile Likelihood template file
 ##' @param bs.samples number (or vector of numbers) indicating what bootstrap
 ##' samples should be used
 ##' @param main Main file for the gagdet model
 ##' @param optinfofile optinfofile used in the optimization.
 ##' @param bs.wgts folder containing the resulting reweights
 ##' @param bs.data folder containing the bootstrap dataset obtain from the DW
-##' @param params.file 
+##' @param params.file
 ##' @param rew.sI should the survey indices be reweighted seperately
 ##' @param grouping list of grouped likelihood components
 ##' @param qsub.script name of the qsub script if the calculations is meant to be run on a cluser
-##' @param run.final logical, is this the final run or weighting run. 
-##' @param PBS logical, is this a cluster run? 
+##' @param run.final logical, is this the final run or weighting run.
+##' @param PBS logical, is this a cluster run?
 ##' @return NULL
 ##' @author Bjarki Thor Elvarsson
 ##' @export
@@ -823,7 +823,7 @@ gadget.bootstrap <- function(bs.likfile = 'likelihood.bs',
   if(!file.exists(params.file)) {
     stop('Parameter file not found')
   }
-  
+
   if(!file.exists(optinfofile)) {
     stop('Optinfofile not found')
   }
@@ -833,11 +833,11 @@ gadget.bootstrap <- function(bs.likfile = 'likelihood.bs',
   }
 
   ## Do stuff
-  
+
   dir.create(bs.wgts,showWarnings=FALSE)
   main <- read.gadget.main(main)
   bs.lik <- read.gadget.likelihood(bs.likfile)
-    
+
   foreach(i=bs.samples) %dopar% {
     print(i)
     dir.create(sprintf('%s/BS.%s',bs.wgts,i),showWarnings=FALSE)
@@ -864,7 +864,7 @@ gadget.bootstrap <- function(bs.likfile = 'likelihood.bs',
         write('sleep 6m',file=qsub.script,append=TRUE)
       else
         print(sprintf('# bootstrap sample %s',i))
-      
+
     } else {
       tmp <- gadget.iterative(main.file = bs.main.file,
                               params.file = params.file,
@@ -893,12 +893,12 @@ gadget.bootstrap <- function(bs.likfile = 'likelihood.bs',
 ##' Calculate yield per recruit of a stock in a Gadget model
 ##'
 ##' Assumes sed is present in the command line
-##' @title Gadget Yield per Recruit 
+##' @title Gadget Yield per Recruit
 ##' @param params.file Parameter file for the gagdet model
 ##' @param main.file Main file for the gagdet model
-##' @param effort The range of fishing mortality 
+##' @param effort The range of fishing mortality
 ##' @param begin Start year of the simulation
-##' @param end End year of the simulation 
+##' @param end End year of the simulation
 ##' @param age.range at what age range should the YPR be calculated
 ##' @param fleets Data frame comtaining the fleet names and ratio in
 ##' future catches
@@ -954,11 +954,11 @@ gadget.ypr <- function(params.file = 'params.in',
   time$firstyear <- begin
   time$laststep <- length(time$notimesteps)
   time$firststep <- 1
-  
+
   time.grid <- expand.grid(year = time$firstyear:time$lastyear,
                            step = 1:length(time$notimesteps),
                            area = area$areas)
-  
+
   area$temperature <- mutate(time.grid,
                              temperature = 5)
 
@@ -966,7 +966,7 @@ gadget.ypr <- function(params.file = 'params.in',
   write.gadget.area(area,file=sprintf('%s/area',ypr))
   write(sprintf('allareas %s',paste(area$areas,collapse=' ')),
         file=sprintf('%s/aggfiles/allareas.agg',ypr))
-  
+
   fleet <- llply(fleet,
                  function(x){
                    tmp <- subset(x,fleet %in% fleets$fleet)
@@ -987,10 +987,10 @@ gadget.ypr <- function(params.file = 'params.in',
               file=sprintf('%s/fleet.ypr',ypr),
               col.names=FALSE,row.names=FALSE,
               quote = FALSE)
-    
+
   main$fleetfiles <- sprintf('%s/fleet', ypr)
-  write.gadget.fleet(fleet,file=sprintf('%s/fleet', ypr)) 
-  
+  write.gadget.fleet(fleet,file=sprintf('%s/fleet', ypr))
+
   write.gadget.time(time,file=sprintf('%s/time.ypr',ypr))
   main$timefile <- sprintf('%s/time.ypr',ypr)
 
@@ -1000,7 +1000,7 @@ gadget.ypr <- function(params.file = 'params.in',
     paste('[component]',
           'type\tpredatorpreyprinter',
           sprintf('predatornames\t%s',
-                  paste(fleets$fleet,collapse=' ')),          
+                  paste(fleets$fleet,collapse=' ')),
           'preynames\t%1$s',
           'areaaggfile\t%2$s/aggfiles/allareas.agg',
           'ageaggfile\t%2$s/aggfiles/%1$s.allages.agg',
@@ -1011,7 +1011,7 @@ gadget.ypr <- function(params.file = 'params.in',
 
   print.ssb <- NULL
   if(!is.null(ssb.stock)){
-    if(sum(ssb.stock %in% names(stocks)) == length(ssb.stock)){     
+    if(sum(ssb.stock %in% names(stocks)) == length(ssb.stock)){
       print.ssb <-
         paste('[component]',
               'type\tstockprinter',
@@ -1029,7 +1029,7 @@ gadget.ypr <- function(params.file = 'params.in',
 
     }
   }
-  
+
   printfile <- paste(sprintf(print.txt,unique(fleet$prey$stock), ypr),
                      collapse='\n;\n')
   if(!is.null(ssb.stock)){
@@ -1049,7 +1049,7 @@ gadget.ypr <- function(params.file = 'params.in',
 
   l_ply(stocks,function(x){
     x@initialdata[,3] <- 0 ## nothing in the beginning
-    if(x@doesrenew==1){      
+    if(x@doesrenew==1){
       tmp <- subset(time.grid,step == 1)
       tmp <- mutate(tmp,
                     age = x@renewal.data[1,4],
@@ -1069,7 +1069,7 @@ gadget.ypr <- function(params.file = 'params.in',
                              laply(stocks,function(x) x@stockname))
 
   main$likelihoodfiles <- ';'
-  
+
   write.gadget.main(main,file=sprintf('%s/main.ypr',ypr))
 
   ## model parameters
@@ -1081,7 +1081,7 @@ gadget.ypr <- function(params.file = 'params.in',
   }
 
 
-  
+
   params.aug <- ldply(effort,
                       function(x){
                         tmp <- params
@@ -1095,18 +1095,18 @@ gadget.ypr <- function(params.file = 'params.in',
   callGadget(s=1,i=sprintf('%s/params.ypr',ypr),main=sprintf('%s/main.ypr',ypr))
 
   ## read output
-  
+
   out <- ddply(data.frame(stock = unique(fleet$prey$stock),tmp=1),
                'stock',
                function(x){
                  stock.prey <- read.table(file = sprintf("%1$s/out/%2$s.prey",
                                             ypr,x$stock),
                                           comment.char = ';')
-                 
+
                  names(stock.prey) <-
                    c('year', 'step','area','age','length','number.consumed',
                      'biomass.consumed','fishing.mortality')
-                 
+
                  stock.prey$trial <-
                    rep(1:c(nrow(stock.prey)/(
                      length(unique(stock.prey$area))*
@@ -1150,11 +1150,11 @@ gadget.ypr <- function(params.file = 'params.in',
              ssb.ratio=ssb/max(ssb))
 
     })
-    
+
   } else {
     ssb.out <- NULL
   }
-  
+
   if(!is.null(age.range)){
     out <- subset(out,age >= min(age.range) & age <= max(age.range))
   }
@@ -1166,13 +1166,13 @@ gadget.ypr <- function(params.file = 'params.in',
   fmax <- min(res$effort[which(res$bio==max(res$bio,na.rm=TRUE))])
   res <- list(params=params,out=out,ypr=res,fmax=fmax,
               f0.1=f0.1,ssb=ssb.out)
-  
-  
+
+
   class(res) <- c('gadget.ypr',class(res))
   if(save.results){
     save(res, file = sprintf('%s/ypr.Rdata',ypr))
   }
-  
+
   return(res)
 }
 ##' .. content for \description{} (no empty lines) ..
@@ -1215,16 +1215,16 @@ plot.gadget.ypr <- function(ypr){
 ##'
 ##' .. content for \details{} ..
 ##' @title Gadget bootstrap yield per recruit
-##' @param params.file 
-##' @param main.file 
-##' @param effort 
-##' @param begin 
-##' @param end 
-##' @param fleets 
-##' @param ypr 
-##' @param bs.wgts 
-##' @param bs.samples 
-##' @param .parallel 
+##' @param params.file
+##' @param main.file
+##' @param effort
+##' @param begin
+##' @param end
+##' @param fleets
+##' @param ypr
+##' @param bs.wgts
+##' @param bs.samples
+##' @param .parallel
 ##' @return yield per recruit for the bootstrap
 ##' @author Bjarki Thor Elvarsson
 ##' @export
@@ -1239,7 +1239,7 @@ gadget.bootypr <- function(params.file='params.final',
                            .parallel = TRUE){
   tmp <-
     llply(bs.samples,function(x){
-      
+
       tryCatch(gadget.ypr(params.file = sprintf('%s/BS.%s/%s',
                             bs.wgts,x,params.file),
                  main.file = sprintf('%s/BS.%s/%s',bs.wgts,x,main.file),
@@ -1249,7 +1249,7 @@ gadget.bootypr <- function(params.file='params.final',
                error = function(e){
                  print(sprintf('YPR run %s was corrupted',x))
                })
-      
+
     },.parallel = .parallel)
   print('ypr finished -- tidying up')
   names(tmp) <- sprintf('BS.%s',bs.samples)
@@ -1265,24 +1265,24 @@ gadget.bootypr <- function(params.file='params.final',
 ##'
 ##' .. content for \details{} ..
 ##' @title Gadget forward simulation
-##' @param years 
-##' @param params.file 
-##' @param main.file 
-##' @param pre 
-##' @param num.trials 
-##' @param fleets 
-##' @param biomass 
-##' @param effort 
-##' @param spawnmodel 
-##' @param spawnvar 
-##' @param selectedstocks 
-##' @param biomasslevel 
-##' @param check.previous 
-##' @param save.results 
-##' @param stochastic 
-##' @param rec.window 
-##' @param compact 
-##' @return list of results 
+##' @param years
+##' @param params.file
+##' @param main.file
+##' @param pre
+##' @param num.trials
+##' @param fleets
+##' @param biomass
+##' @param effort
+##' @param spawnmodel
+##' @param spawnvar
+##' @param selectedstocks
+##' @param biomasslevel
+##' @param check.previous
+##' @param save.results
+##' @param stochastic
+##' @param rec.window
+##' @param compact
+##' @return list of results
 ##' @author Bjarki Thor Elvarsson
 ##' @export
 gadget.forward <- function(years = 20,params.file = 'params.out',
@@ -1310,7 +1310,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
   dir.create(sprintf('%s/aggfiles',pre), showWarnings = FALSE)
 
 
-  
+
   ## read in model files
   main <- read.gadget.main(file = main.file)
   stocks <- read.gadget.stockfiles(main$stockfiles)
@@ -1320,28 +1320,28 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
   all.fleets <- paste(fleet$fleet$fleet,collapse = ' ')
   params <-
     read.gadget.parameters(params.file)
-  rec <- get.gadget.recruitment(stocks,params)                                      
+  rec <- get.gadget.recruitment(stocks,params)
 
   ## need a more flexible definition of year
   rec <- arrange(rec,year)
-  
-  
-  ## write agg files
+
+
+  ## Write agg files
   l_ply(stocks,
         function(x){
-          writeAggfiles(x,folder=sprintf('%s/aggfiles',pre))          
+          writeAggfiles(x,folder=sprintf('%s/aggfiles',pre))
         })
-  
+
   ## adapt model to include predictions
   sim.begin <- time$lastyear + 1
   rec <- subset(rec,year < sim.begin)
   if(nrow(rec) == 0)
     stop('No recruitment info found')
-  
-  time$lastyear <- sim.begin + years 
+
+  time$lastyear <- sim.begin + years
   write.gadget.time(time,file = sprintf('%s/time.pre',pre))
   main$timefile <- sprintf('%s/time.pre',pre)
-  
+
   time.grid <- expand.grid(year = time$firstyear:time$lastyear,
                            step = 1:length(time$notimesteps),
                            area = area$areas)
@@ -1369,8 +1369,8 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
                           quotalevel = paste(effort,collapse='\t'),
                           amount = sprintf('%s/fleet.pre', pre),
                           type = 'quotafleet')
-                           
-                           
+
+
   } else {
     fleet$fleet <- mutate(fleet$fleet,
                           fleet = sprintf('%s.pre',fleet),
@@ -1378,7 +1378,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
                           amount = sprintf('%s/fleet.pre', pre),
                           type = 'linearfleet')
   }
-  
+
   fleet$prey <- mutate(fleet$prey,
                        fleet = sprintf('%s.pre',fleet))
 
@@ -1387,7 +1387,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
     tmp <- mutate(subset(time.grid,
                          (year >= sim.begin | (year==(sim.begin-1) &
                                               step > time$laststep)) &
-                         area %in% fleet$fleet$livesonareas 
+                         area %in% fleet$fleet$livesonareas
                          ),
                   fleet = sprintf('%s.pre',x$fleet),
                   ratio = x$ratio)
@@ -1400,22 +1400,22 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
               file=sprintf('%s/fleet.pre',pre),
               col.names=FALSE,row.names=FALSE,
               quote = FALSE)
-    
+
   main$fleetfiles <- c(main$fleetfiles,sprintf('%s/fleet', pre))
-  write.gadget.fleet(fleet,file=sprintf('%s/fleet', pre)) 
+  write.gadget.fleet(fleet,file=sprintf('%s/fleet', pre))
 
   if(!is.null(rec.window)){
     tmp <- subset(rec,year < rec.window)
   } else {
     tmp <- rec
   }
-  
+
   if(stochastic){
     ## fit an AR model to the fitted recruiment
     fitAR <- lm(tmp$recruitment[-1]~head(tmp$recruitment,-1))
     coeffAR <- as.numeric(coefficients(fitAR))
     sdAR <- sd(resid(fitAR))
-    
+
     ## project next n years
     x <- array(pmax(rnorm(years*num.trials,coeffAR[1],sdAR),0),
                c(num.trials,years))
@@ -1443,8 +1443,8 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
     tmp <- mutate(rec.out,lower=0,upper=9999,optimise=0)
     tmp$year <- paste('rec',tmp$year,sep='')
     names(tmp)[1:2] <- c('switch','value')
-    
-    
+
+
     params <- subset(params, !(switch %in% tmp$switch))
     params.forward <- rbind.fill(params,
                                  data.frame(switch = 'rgadget.effort',
@@ -1452,7 +1452,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
                                             upper = 100, optimise = 0,
                                             stringsAsFactors = FALSE),
                                  tail(tmp,-1))
-    
+
     write.gadget.parameters(params.forward,
                             file=sprintf('%s/params.forward', pre))
   } else {
@@ -1463,11 +1463,11 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
 
     rec.out <- arrange(melt(rec.forward[,-1],value.name = 'recruitment'),
                        trial,year)
-  
+
     rec.forward <- as.data.frame(rec.forward[,-1])
     names(rec.forward) <-
       paste('rec',sim.begin:(sim.begin+years-1),sep='')
-    
+
     tmp <- as.data.frame(t(params$value))
     names(tmp) <- params$switch
     params.forward <- cbind(tmp,rec.forward)
@@ -1508,25 +1508,25 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
           'printfile        %2$s/out/catch.%1$s.lw',
           'yearsandsteps    all all',
           sep = '\n')
-                    
-  
+
+
   printfile <-
     paste(
       paste(sprintf(catch.print, unique(fleet$prey$stock), pre,
                     paste(all.fleets, paste(fleet$fleet$fleet,collapse=' '))),
             collapse='\n'),
       paste(sprintf(print.txt,unique(fleet$prey$stock),
-                    pre), 
+                    pre),
             collapse = '\n'),
       ';',
       '[component]',
       'type\tlikelihoodsummaryprinter',
       'printfile\t.jnk',
       sep = '\n')
-  
-  
+
+
   dir.create(sprintf('%s/out/',pre),showWarnings = FALSE, recursive = TRUE)
-  
+
   main$printfiles <- sprintf('%s/printfile',pre)
   write(printfile,file = sprintf('%s/printfile',pre))
 
@@ -1553,10 +1553,10 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
                      std.dev=stocks[[sp.stock]]@renewal.data$stddev[1],
                      alpha = stocks[[sp.stock]]@renewal.data$alpha[1],
                      beta = stocks[[sp.stock]]@renewal.data$beta[1]))
-        
-        
+
+
         ## write time variable file
-        
+
         time.var <-
           data.frame(year = c(time$firstyear,sim.begin:(sim.begin+years)),
                      step = 1,
@@ -1565,7 +1565,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
                        (sim.begin+years))))
         write('hockey.rec\ndata\n; year step value',
               file = sprintf('%s/hockey.rec',pre))
-        
+
         write.table(time.var, col.names = FALSE, row.names = FALSE,
                     append = TRUE, file = sprintf('%s/hockey.rec',pre),
                     quote = FALSE)
@@ -1575,52 +1575,61 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
       }
       write(x,file=pre)
     })
-
-    
-
-  } else { 
+  } else {
     llply(stocks,function(x){
       rec.years <- sim.begin:(sim.begin+years)
-      x@renewal.data <-
-        rbind.fill(subset(x@renewal.data,year < sim.begin),
-                   data.frame(year = rec.years,
-                              step = x@renewal.data$step[1],
-                              area = x@renewal.data$area[1],
-                              age = x@renewal.data$age[1],
-                              number = sprintf('#rec%s',rec.years),
-                              mean = x@renewal.data$mean[1],
-                              stddev = x@renewal.data$stddev[1],
-                              alpha = x@renewal.data$alpha[1],
-                              beta = x@renewal.data$beta[1],
-                              stringsAsFactors = FALSE))
-      
+      if(x@doesrenew==1){
+        x@renewal.data <-
+          rbind.fill(subset(x@renewal.data,year < sim.begin),
+                     data.frame(year = rec.years,
+                                step = x@renewal.data$step[1],
+                                area = x@renewal.data$area[1],
+                                age = x@renewal.data$age[1],
+                                number = sprintf('#rec%s',rec.years),
+                                mean = x@renewal.data$mean[1],
+                                stddev = x@renewal.data$stddev[1],
+                                alpha = x@renewal.data$alpha[1],
+                                beta = x@renewal.data$beta[1],
+                                stringsAsFactors = FALSE))
+      }
       write(x,file=pre)
     })
   }
-    
+
   main$stockfiles <- paste(sprintf('%s/%s',pre,
                              laply(stocks,function(x) x@stockname)),
                            collapse = ' ')
-                             
-  
+
+
   write.gadget.main(main,file=sprintf('%s/main.pre',pre))
 
 
   callGadget(s = 1, i = sprintf('%s/params.forward',pre),
              main = sprintf('%s/main.pre',pre))
+
+  time <- new('gadget-time',
+              firstyear = time$firstyear,
+              firststep = time$firststep,
+              lastyear = time$lastyear,
+              laststep = time$laststep,
+              notimesteps = time$notimesteps)
+
+
+
   out <- list(
     lw = ldply(unique(fleet$prey$stock),
       function(x){
+        numsteps <- nrow(subset(getTimeSteps(time),step==1))
         tmp <- read.table(sprintf('%s/out/%s.lw',pre,x),
                           comment.char = ';')
         file.remove(sprintf('%s/out/%s.lw',pre,x))
         names(tmp) <-  c('year', 'step', 'area', 'age',
                          'length', 'number', 'weight')
         tmp$stock <- x
-        if(num.trials > 1){    
-          tmp2 <- length(unique(tmp$area))*
-            length(unique(tmp$length))*length(unique(tmp$year))
-          
+        if(num.trials > 1){
+          tmp2 <- length(unique(tmp$area))*numsteps*
+            length(unique(tmp$length))
+
           tmp <- cbind(trial = rep(1:num.trials,each = tmp2),
                        effort = rep(effort,each = tmp2*num.trials),
                        tmp)
@@ -1628,7 +1637,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
           tmp$trial <- 1
         }
         tmp$length <- as.numeric(gsub('len','',tmp$length))
-        
+
         if(compact){
           tmp <- ddply(tmp,~year+step+trial+effort+stock,
                        summarise,
@@ -1637,9 +1646,10 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
         }
         return(tmp)
       }),
-    catch = 
+    catch =
     ldply(unique(fleet$prey$stock),
           function(x){
+            numsteps <- nrow(getTimeSteps(time))
             tmp <-
               read.table(sprintf('%s/out/catch.%s.lw',pre,x),
                          comment.char = ';')
@@ -1648,21 +1658,19 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
                              'length', 'number.consumed',
                              'biomass.consumed','mortality')
             tmp$stock <- x
-            
-            if(num.trials > 1){    
-              
+
+            if(num.trials > 1){
+
               tmp2 <- length(unique(tmp$area))*
-                length(unique(tmp$length))*
-                  length(unique(tmp$step))*
-                    length(unique(tmp$year))                          
-              
+                  numsteps
+
               tmp <-
                 cbind(trial=rep(1:num.trials,each = tmp2),
                       effort = rep(effort,each = tmp2*num.trials),
                       tmp)
             }
             return(tmp)
-          }),      
+          }),
     recruitment = rec.out
     )
   if(save.results){
@@ -1675,20 +1683,20 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
 ##'
 ##' .. content for \details{} ..
 ##' @title Gadget bootstrap forward
-##' @param years 
-##' @param params.file 
-##' @param main.file 
-##' @param pre 
-##' @param effort 
-##' @param fleets 
-##' @param num.trials 
-##' @param bs.wgts 
-##' @param bs.samples 
-##' @param check.previous 
-##' @param rec.window 
-##' @param mat.par 
-##' @param stochastic 
-##' @param .parallel 
+##' @param years
+##' @param params.file
+##' @param main.file
+##' @param pre
+##' @param effort
+##' @param fleets
+##' @param num.trials
+##' @param bs.wgts
+##' @param bs.samples
+##' @param check.previous
+##' @param rec.window
+##' @param mat.par
+##' @param stochastic
+##' @param .parallel
 ##' @return list of bootstrap results
 ##' @author Bjarki Thor Elvarsson
 ##' @export
@@ -1720,7 +1728,7 @@ gadget.bootforward <- function(years = 20,
                        mat.par = mat.par,
                        stochastic=stochastic,
                        save.results = FALSE)
-      
+
     },.parallel = .parallel)
   names(tmp) <- sprintf('BS.%s',bs.samples)
 
