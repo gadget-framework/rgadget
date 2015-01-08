@@ -483,8 +483,8 @@ suitability <- function(params,
     S <- as.data.frame.table(S,responseName = 'suit')
     if(normalize)
       S$suit <- S$suit/max(S$suit)
-    S$L <- as.numeric(S$L)
-    S$l <- as.numeric(S$l)
+    S$L <- as.numeric(as.character(S$L))
+    S$l <- as.numeric(as.character(S$l))
   } else {
     dimnames(S) <- list(sprintf('Pred_length_%s',L),
                         sprintf('Prey_length_%s',l))

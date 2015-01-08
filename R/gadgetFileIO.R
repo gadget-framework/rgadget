@@ -95,7 +95,7 @@ read.gadget.likelihood <- function(files='likelihood'){
   name.loc <- comp.loc+3
   weights <- NULL
   common <- c('name','weight','type','datafile','areaaggfile','lenaggfile',
-              'ageaggfile','sitype','function')
+              'ageaggfile','sitype','function','preyaggfile')
   tmp.func <- function(comp){
     loc <- grep(paste('[ \t]',tolower(comp),sep=''),tolower(lik[name.loc]))
     if(sum(loc)==0){
@@ -682,6 +682,15 @@ read.gadget.data <- function(likelihood){
       return(read.table(x,stringsAsFactors=FALSE,comment.char=';'))
     }
   }
+
+  read.preyagg <- function(x){
+    tmp <- readLines(x)
+    loc <- grep('lengths',tmp)
+    tmp2 <- read.table(text=tmp[grepl('lengths',tmp)])
+    tmp2$V1 <- tmp[loc-2]
+    return(tmp2)
+  }
+  
   read.func <- function(x){
 
     dat <- tryCatch(read.table(x$datafile,comment.char=';'),
@@ -697,6 +706,11 @@ read.gadget.data <- function(likelihood){
                         warning = function(x) NULL,
                         error = function(x) NULL)
 
+    prey.agg <- tryCatch(read.preyagg(x$preyaggfile),
+                         warning = function(x) NULL,
+                         error = function(x) NULL)
+
+    
     if(x$type=='catchdistribution'){
       names(dat) <- c('year','step','area','age','length','number')
     }
@@ -757,6 +771,19 @@ read.gadget.data <- function(likelihood){
       names(len.agg)[1:3] <- c('length','lower','upper')
       dat <- merge(dat,len.agg,all.x=TRUE)
     }
+    if('predator' %in% names(dat)){
+      names(len.agg)[1:3] <- c('predator','lower','upper')
+      dat <- merge(dat,len.agg,all.x=TRUE)
+    }
+    if('prey' %in% names(dat)){
+      names(prey.agg)[1:3] <- c('prey','prey.lower','prey.upper')
+      dat <- merge(dat,prey.agg,all.x=TRUE)
+    }
+    attr(dat,'len.agg') <- len.agg
+    attr(dat,'pred.agg') <- len.agg
+    attr(dat,'age.agg') <- age.agg
+    attr(dat,'prey.agg') <- prey.agg
+    attr(dat,'area.agg') <- area.agg
     return(dat)
   }
 
@@ -1841,7 +1868,9 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
                                                     getLengthGroups(x)),
                              stock == x@stockname)
                     })
-#  stock.growth <- get.gadget.growth(stocks,params,age.based=TRUE)
+  stock.growth <- tryCatch(get.gadget.growth(stocks,params,age.based=TRUE),
+                           warning = function(x) NULL,
+                           error = function(x) NULL)
   stock.recruitment <- get.gadget.recruitment(stocks,params)
 
   harv.suit <- function(l,stockname){
@@ -1913,9 +1942,9 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
 
               ldist <-
                 merge(lik.dat$dat$catchdistribution[[x]],
-                      out[[x]],
+                      join(out[[x]],attr(lik.dat$dat$catchdistribution[[x]],'len.agg')),
                       by=c('length', 'year',
-                        'step', 'area','age'),
+                        'step', 'area','age','upper','lower'),
                       all.y=TRUE)
               ldist$name <- x
               ldist$age <- as.character(ldist$age)
@@ -2000,51 +2029,64 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
             function(x){
               stockdist <-
                 merge(lik.dat$dat$stockdistribution[[x]],
-                      out[[x]],
+                      join(out[[x]],attr(lik.dat$dat$stockdistribution[[x]],'len.agg')),
                       by=c('length', 'year',
-                        'step', 'area','age','stock'),
+                        'step', 'area','age','stock','upper','lower'),
                       all.y=TRUE)
-              len.agg <-  tryCatch(read.table(lik$stockdistribution$lenaggfile,
-                                              stringsAsFactors=FALSE,
-                                              comment.char=';'),
-                                   warning = function(x) NULL,
-                                   error = function(x) NULL)
-              if(!is.null(len.agg)){
-                names(len.agg)[1:3] <- c('length','agg.lower','agg.upper')
-                stockdist <- merge(stockdist,len.agg)
-              } else {
-                stockdist$agg.lower <- as.integer(0)
-                stockdist$agg.upper <- as.integer(1e3)
-              }
+
               stockdist$name <- x
               stockdist <- data.table(stockdist)
               stockdist <-
-                stockdist[,c('obs.ratio','pred.ratio','upper',
-                             'lower','avg.length') :=
+                stockdist[,c('obs.ratio','pred.ratio',
+                             'avg.length') :=
                           list(obs.ratio = number.x/sum(number.x,na.rm=TRUE),
                                pred.ratio = number.y/sum(number.y),
-                               upper = max(ifelse(is.na(upper),
-                                 agg.upper,upper)),
-                               lower = max(ifelse(is.na(lower),
-                                 agg.lower,lower)),
+#                               upper = max(ifelse(is.na(upper),
+#                                 agg.upper,upper)),
+#                               lower = max(ifelse(is.na(lower),
+#                                 agg.lower,lower)),
                                length2 = (lower+upper)/2),
                           by = list(year, step, area, age, length)]
-              stockdist <- stockdist[,c('agg.upper','agg.lower'):=NULL,]
+              #stockdist <- stockdist[,c('agg.upper','agg.lower'):=NULL,]
               stockdist <- merge(stockdist,
                                  subset(lik$stockdistribution,
                                         select=c(name,fleetnames,stocknames)),
                                  by='name')
               return(stockdist)
             })
+              
+    
   } else {
     stockdist <- NULL
   }
 
 
+   if('stomachcontent' %in% names(lik.dat$dat)){
+    stomachcontent <-
+      ldply(names(lik.dat$dat$stomachcontent),
+            function(x){
+
+              dat <-
+                merge(lik.dat$dat$stomachcontent[[x]],
+                      join(join(out[[x]],
+                                attr(lik.dat$dat$stomachcontent[[x]],'prey.agg')),
+                           attr(lik.dat$dat$stomachcontent[[x]],'pred.agg')),
+                      all.y=TRUE) %>%
+                mutate(obs=ratio/sum(ratio,na.rm=TRUE),
+                       pred=number/sum(number,na.rm=TRUE),
+                       prey.length = (prey.lower+prey.upper)/2,
+                       pred.length = (lower+upper)/2,
+                       component=x)
+            })
+    
+  } else {
+    stomachcontent <- NULL
+  }
+
   out <- list(sidat = sidat, resTable = resTable, nesTable = nesTable,
-              suitability = gss.suit, #stock.growth = stock.growth,
+              suitability = gss.suit, stock.growth = stock.growth,
               stock.recruiment = stock.recruitment,
-              res.by.year = res.by.year,
+              res.by.year = res.by.year, stomachcontent = stomachcontent,
               likelihoodsummary = out$likelihoodsummary,
               catchdist.fleets = catchdist.fleets, stockdist = stockdist,
               SS = SS)
@@ -2253,8 +2295,8 @@ plot.gadget.fit <- function(fit,data = 'sidat',type='direct',dat.name=NULL){
       } else {
         dat <- subset(fit$catchdist.fleets,name == dat.name)
         if(length(unique(dat$age))==1){
-          ggplot(dat,aes(lower,predicted)) +
-          geom_line(aes(lower,observed),col='gray') +
+          ggplot(dat,aes(avg.length,predicted)) +
+          geom_line(aes(avg.length,observed),col='gray') +
                      facet_wrap(~year+step) + theme_bw() + geom_line() +
                      geom_text(data=mutate(subset(dat,
                                lower==min(lower)),y=Inf),
