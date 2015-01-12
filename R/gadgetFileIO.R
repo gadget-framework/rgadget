@@ -690,7 +690,7 @@ read.gadget.data <- function(likelihood){
     tmp2$V1 <- tmp[loc-2]
     return(tmp2)
   }
-  
+
   read.func <- function(x){
 
     dat <- tryCatch(read.table(x$datafile,comment.char=';'),
@@ -710,7 +710,7 @@ read.gadget.data <- function(likelihood){
                          warning = function(x) NULL,
                          error = function(x) NULL)
 
-    
+
     if(x$type=='catchdistribution'){
       names(dat) <- c('year','step','area','age','length','number')
     }
@@ -1116,7 +1116,7 @@ read.gadget.stockfiles <- function(stock.files){
                         c(stock = tmp[[x]][1],
                           suitability = paste(tmp[[x]][-1],collapse=' '))
                       })
-        pref <- ldply(pref.loc+1,
+        pref <- ldply((pref.loc+1):(maxcon.loc-1),
                       function(x){
                         c(stock = tmp[[x]][1],
                           preference = paste(tmp[[x]][-1],collapse=' '))
@@ -1124,7 +1124,7 @@ read.gadget.stockfiles <- function(stock.files){
         tmp <- new('gadget-predator',
                    suitability = suit,
                    preference = pref,
-                   maxconsumption = as.numeric(tmp[[maxcon.loc]][2]),
+                   maxconsumption = as.numeric(tmp[[maxcon.loc]][-1]),
                    halffeedingvalue = as.numeric(tmp[[half.loc]][2]))
       }
       return(tmp)
@@ -1169,8 +1169,8 @@ read.gadget.stockfiles <- function(stock.files){
       maturestocksandratios <- ''
       coefficients <- ''
     }
-
-    if(doesmature == 1){
+    doesmove <- as.numeric(stock[[move.loc]][2])
+    if(doesmove == 1){
         transitionstocksandratios <- (stock[[move.loc+1]][-1])
         transitionstep <- as.numeric(stock[[move.loc+2]][-1])
 
@@ -1178,6 +1178,53 @@ read.gadget.stockfiles <- function(stock.files){
       transitionstocksandratios <- ''
       transitionstep <- 0
     }
+
+    doesmigrate <- as.numeric(stock[[migrate.loc]][2])
+    if(doesmigrate == 1){
+        yearstep <- read.table(stock[[migrate.loc+1]][-1],
+                               stringsAsFactors=FALSE)
+        tmp <- strip.comments(stock[[migrate.loc+2]][-1])
+        mat.loc <- grep('[migrationmatrix]',tmp,fixed=TRUE)
+        tyler <- diff(mat.loc)[1]
+        migrationratio <-
+          llply(mat.loc,  ## all puns intended;)
+                function(x){
+                  laply((x+2):(x+tyler-1),
+                        function(y){merge.formula(tmp[[y]])})
+                })
+        names(migrationratio) <- laply(mat.loc,function(x){ tmp[[x+1]][2]})
+    } else {
+      migrationratio <- list()
+      transitionstocksandratios <- ''
+      yearstep <- data.frame()
+    }
+
+    doesspawn <- as.numeric(stock[[spawn.loc]][2])
+    if(doesspawn == 1){
+      tmp <- strip.comments(stock[[spawn.loc+1]][2])
+      ssar <- tmp[[5]][-1]
+      nssar <- 2*(1:(length(ssar)/2))-1
+      ssar <- data.frame(stock=ssar[nssar],ratio=ssar[1+nssar])
+      stockparameters <- as.data.frame(t(merge.formula(tmp[[10]][-1])))
+      names(stockparameters) <- c('mean','std.dev','alpha','beta')
+      spawning <-
+        new('gadget-spawning',
+            spawnsteps = as.numeric(tmp[[1]][-1]),
+            spawnareas = as.numeric(tmp[[2]][-1]),
+            firstspawnyear = as.numeric(tmp[[3]][-1]),
+            lastspawnyear = as.numeric(tmp[[4]][-1]),
+            spawnstocksandratio = ssar,
+            proportionfunction = merge.formula(tmp[[6]][-1]),
+            mortalityfunction = merge.formula(tmp[[7]][-1]),
+            weightlossfunction = merge.formula(tmp[[8]][-1]),
+            recruitment = merge.formula(tmp[[9]][-1]),
+            stockparameters = stockparameters)
+
+
+    } else {
+      spawning <- new('gadget-spawning')
+    }
+
 
 
 
@@ -1209,6 +1256,8 @@ read.gadget.stockfiles <- function(stock.files){
               stock[[init.loc + 6]][2], 1)),
           initialdata = initialdata,
           doesmigrate = as.numeric(stock[[migrate.loc]][2]),
+          yearstep = yearstep,
+          migrationratio = migrationratio,
           doesmature =  as.numeric(stock[[mature.loc]][2]),
           maturityfunction = maturity.function,
           maturestocksandratios = maturestocksandratios,
@@ -1226,6 +1275,7 @@ read.gadget.stockfiles <- function(stock.files){
               as.numeric(stock[[renew.loc + 2]][2]))),
           renewal.data = renewal.data,
           doesspawn = as.numeric(stock[[spawn.loc]][2]),
+          spawning = spawning,
           doesstray = ifelse(length(stray.loc)==0,
             0,as.numeric(stock[[stray.loc]][2]))
           )
@@ -1868,7 +1918,8 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
                                                     getLengthGroups(x)),
                              stock == x@stockname)
                     })
-  stock.growth <- tryCatch(get.gadget.growth(stocks,params,age.based=TRUE),
+  stock.growth <-
+    tryCatch(get.gadget.growth(stocks,params,age.based=TRUE),
                            warning = function(x) NULL,
                            error = function(x) NULL)
   stock.recruitment <- get.gadget.recruitment(stocks,params)
@@ -1884,6 +1935,11 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
     mutate(out[[sprintf('%s.full',getStockNames(x))]],
            length=as.numeric(gsub('len','',length)))
   }))
+
+  stock.std <- data.table(ldply(stocks,function(x){
+    out[[sprintf('%s.std',getStockNames(x))]]
+  }))
+
 
   ## merge data and estimates
   if('surveyindices' %in% names(lik.dat$dat)){
@@ -1942,7 +1998,9 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
 
               ldist <-
                 merge(lik.dat$dat$catchdistribution[[x]],
-                      join(out[[x]],attr(lik.dat$dat$catchdistribution[[x]],'len.agg')),
+                      join(out[[x]],
+                           attr(lik.dat$dat$catchdistribution[[x]],'len.agg'),
+                           by='length'),
                       by=c('length', 'year',
                         'step', 'area','age','upper','lower'),
                       all.y=TRUE)
@@ -2029,7 +2087,9 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
             function(x){
               stockdist <-
                 merge(lik.dat$dat$stockdistribution[[x]],
-                      join(out[[x]],attr(lik.dat$dat$stockdistribution[[x]],'len.agg')),
+                      join(out[[x]],
+                           attr(lik.dat$dat$stockdistribution[[x]],'len.agg'),
+                           by='length'),
                       by=c('length', 'year',
                         'step', 'area','age','stock','upper','lower'),
                       all.y=TRUE)
@@ -2054,8 +2114,8 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
                                  by='name')
               return(stockdist)
             })
-              
-    
+
+
   } else {
     stockdist <- NULL
   }
@@ -2069,16 +2129,19 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
               dat <-
                 merge(lik.dat$dat$stomachcontent[[x]],
                       join(join(out[[x]],
-                                attr(lik.dat$dat$stomachcontent[[x]],'prey.agg')),
-                           attr(lik.dat$dat$stomachcontent[[x]],'pred.agg')),
+                                attr(lik.dat$dat$stomachcontent[[x]],
+                                     'prey.agg'),
+                                by='prey'),
+                           attr(lik.dat$dat$stomachcontent[[x]],'pred.agg'),
+                           by='predator'),
                       all.y=TRUE) %>%
-                mutate(obs=ratio/sum(ratio,na.rm=TRUE),
-                       pred=number/sum(number,na.rm=TRUE),
+                mutate(observed=ratio/sum(ratio,na.rm=TRUE),
+                       preditcted=number/sum(number,na.rm=TRUE),
                        prey.length = (prey.lower+prey.upper)/2,
                        pred.length = (lower+upper)/2,
                        component=x)
             })
-    
+
   } else {
     stomachcontent <- NULL
   }
@@ -2089,7 +2152,8 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
               res.by.year = res.by.year, stomachcontent = stomachcontent,
               likelihoodsummary = out$likelihoodsummary,
               catchdist.fleets = catchdist.fleets, stockdist = stockdist,
-              SS = SS)
+              out.fit=out, SS = SS,
+              stock.full = stock.full, stock.std = stock.std)
   class(out) <- c('gadget.fit',class(out))
   save(out,file=sprintf('%s/WGTS.Rdata',wgts))
   return(out)

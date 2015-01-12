@@ -226,7 +226,7 @@ setMethod("write",
                       row.names = FALSE,
                       col.names = FALSE,
                       quote=FALSE)
-          file.remove(sprintf('%s/Data/%s.migratio',file,x@stockname))
+          write('; migratio file',sprintf('%s/Data/%s.migratio',file,x@stockname))
           l_ply(names(x@migrationratio),
                 function(y){
                   migratio <- sprintf('%s/Data/%s.migratio',file,x@stockname)
@@ -273,8 +273,8 @@ setMethod("write",
 
         if(x@doesmature == 1){
           stock.text['maturity'] <-
-            sprintf('maturityfunction\t%s\nmaturityfile\t%s/maturity',
-                    x@maturityfunction,file)
+            sprintf('maturityfunction\t%s\nmaturityfile\t%s/%s.maturity',
+                    x@maturityfunction,file,x@stockname)
           maturityfile <-
             paste(sprintf('; maturityfile for stock %s',x@stockname),
                   sprintf('maturestocksandratios %s',
@@ -285,7 +285,7 @@ setMethod("write",
                   sprintf('coefficients %s',
                           paste(x@coefficients,collapse='\t')),
                   sep='\n')
-          write(maturityfile,file=sprintf('%s/maturity',file))
+          write(maturityfile,file=sprintf('%s/%s.maturity',file,x@stockname))
 
         }
         if(x@doesmove == 1){
@@ -306,12 +306,14 @@ setMethod("toString",
           signature(x = "gadget-predator"),
           function (x, ...)
           {
-            tmp <- x@suitability
-            tmp <- paste(tmp$stock,tmp$func,sapply(tmp$parameters,
-                                            function(x) paste(x,collapse='\t')),
-                         sep = '\t',collapse = '\n')
+            tmp <- paste(x@suitability$stock,x@suitability$suitability,
+                         sep='\t',collapse='\n')
+
+#            tmp <- paste(tmp$stock,tmp$func,sapply(tmp$parameters,
+#                                            function(x) paste(x,collapse='\t')),
+#                         sep = '\t',collapse = '\n')
             pred.text <-
-              paste(sprintf('suitabiliy\n%s',tmp),
+              paste(sprintf('suitability\n%s',tmp),
                     sprintf('preference\n%s',
                             paste(x@preference$stock,
                                   x@preference$preference,
@@ -465,20 +467,22 @@ setMethod("write",
           {
             spawn.text <-
               paste(sprintf('; spawning file created using Rgadget at %s',Sys.Date()),
-                    sprintf('spawnsteps\t%s', x@spawnsteps),
-                    sprintf('spawnareas\t%s', x@spawnareas),
+                    sprintf('spawnsteps\t%s', paste(x@spawnsteps,collapse='\t')),
+                    sprintf('spawnareas\t%s', paste(x@spawnareas,collapse='\t')),
                     sprintf('firstspawnyear\t%s', x@firstspawnyear),
                     sprintf('lastspawnyear\t%s',  x@lastspawnyear),
-                    paste('spawnstocksandratios',x@spawnstocksandratio$stock,
-                          x@spawnstocksandratio$ratio,sep='\t',collapse ='\n'),
-                    sprintf('proportionfunction\t%s\t%s',
-                          x@proportionfunction['func'],paste(x@proportionfunction[-1],collapse='\t')),
-                    sprintf('mortalityfunction\t%s\t%s',
-                            x@mortalityfunction['func'],paste(x@mortalityfunction[-1],collapse='\t')),
-                    sprintf('weightlossfunction\t%s\t%s',
-                            x@weightlossfunction['func'],paste(x@weightlossfunction[-1],collapse='\t')),
-                    sprintf('recruitment\t%s\t%s',
-                            x@recruitment['func'],paste(x@recruitment[-1],collapse='\t')),
+                    paste('spawnstocksandratios',
+                          paste(x@spawnstocksandratio$stock,
+                                x@spawnstocksandratio$ratio,sep='\t',collapse ='\t'),
+                          sep='\t'),
+                    sprintf('proportionfunction\t%s',
+                            paste(x@proportionfunction,collapse='\t')),
+                    sprintf('mortalityfunction\t%s',
+                            paste(x@mortalityfunction,collapse='\t')),
+                    sprintf('weightlossfunction\t%s',
+                            paste(x@weightlossfunction,collapse='\t')),
+                    sprintf('recruitment\t%s',
+                            paste(x@recruitment,collapse='\t')),
 
                     sprintf('stockparameters\t%s\t%s\t%s\t%s',
                             x@stockparameters$mean,

@@ -1424,7 +1424,6 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
     coeffAR <- c(0,0,0)
   }
 
-  x <- x/1e4 ## recruits in Gadget are multiplied by 1e4
 
   rec.forward <-
     array(0,c(num.trials,years+1),
@@ -1433,14 +1432,14 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
 
 
   if(num.trials == 1){
-    rec.forward[1] <- tail(rec$recruitment/1e4,1)
+    rec.forward[1] <- tail(rec$recruitment,1)
     for(i in 1:years){
       rec.forward[i+1] <- coeffAR[2]*rec.forward[i] + x[i]
     }
 
     rec.out <- data.frame(year=sim.begin:(sim.begin+years),
-                          recruitment=as.numeric(tail(rec.forward,years)))
-    tmp <- mutate(rec.out,lower=0,upper=9999,optimise=0)
+                          recruitment=as.numeric(tail(rec.forward/1e4,years)))
+    tmp <- mutate(rec.out,lower=0,upper=recruitment+1,optimise=0)
     tmp$year <- paste('rec',tmp$year,sep='')
     names(tmp)[1:2] <- c('switch','value')
 
@@ -1456,12 +1455,12 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
     write.gadget.parameters(params.forward,
                             file=sprintf('%s/params.forward', pre))
   } else {
-    rec.forward[,1] <- tail(rec$recruitment/1e4,1)
+    rec.forward[,1] <- tail(rec$recruitment,1)
     for(i in 1:years){
       rec.forward[,i+1] <- coeffAR[2]*rec.forward[,i] + x[,i]
     }
 
-    rec.out <- arrange(melt(rec.forward[,-1],value.name = 'recruitment'),
+    rec.out <- arrange(melt(rec.forward[,-1]/1e4,value.name = 'recruitment'),
                        trial,year)
 
     rec.forward <- as.data.frame(rec.forward[,-1])
@@ -1582,14 +1581,14 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
         x@renewal.data <-
           rbind.fill(subset(x@renewal.data,year < sim.begin),
                      data.frame(year = rec.years,
-                                step = x@renewal.data$step[1],
-                                area = x@renewal.data$area[1],
-                                age = x@renewal.data$age[1],
+                                step = tail(x@renewal.data$step,1),
+                                area = tail(x@renewal.data$area,1),
+                                age = tail(x@renewal.data$age,1),
                                 number = sprintf('#rec%s',rec.years),
-                                mean = x@renewal.data$mean[1],
-                                stddev = x@renewal.data$stddev[1],
-                                alpha = x@renewal.data$alpha[1],
-                                beta = x@renewal.data$beta[1],
+                                mean = tail(x@renewal.data$mean,1),
+                                stddev = tail(x@renewal.data$stddev,1),
+                                alpha = tail(x@renewal.data$alpha,1),
+                                beta = tail(x@renewal.data$beta,1),
                                 stringsAsFactors = FALSE))
       }
       write(x,file=pre)
@@ -1635,6 +1634,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
                        tmp)
         } else {
           tmp$trial <- 1
+          tmp$effort <- effort
         }
         tmp$length <- as.numeric(gsub('len','',tmp$length))
 

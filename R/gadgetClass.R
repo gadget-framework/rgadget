@@ -1,8 +1,8 @@
 #' Gadget growth
-#' 
-#' @slot growthfunction 
+#'
+#' @slot growthfunction
 #' @slot growthimplementation
-#' @slot growthparameters 
+#' @slot growthparameters
 #' @slot wgrowthparameters
 #' @slot lgrowthparameters
 #' @slot weightgrowthdata
@@ -24,7 +24,7 @@ setClass('gadget-growth',
                         areaeffect = 'vector',
                         ## growth implementation
                         beta = 'vector',
-                        maxlengthgroupgrowth = 'vector'                        
+                        maxlengthgroupgrowth = 'vector'
                         ),
          prototype(growthfunction = '',
                         growthimplementation = 'betabinomial',
@@ -38,7 +38,7 @@ setClass('gadget-growth',
                         areaeffect = vector(),
                         ## growth implementation
                         beta = vector(),
-                        maxlengthgroupgrowth = vector()                        
+                        maxlengthgroupgrowth = vector()
          ),
          #package = 'rgadget',
 #         validity = function(x){
@@ -46,7 +46,7 @@ setClass('gadget-growth',
 #             if(length(x@growthparameters)!=4)
 #               stop('Growth-parameters misspecified for lengthvbsimple
 #                    should be 4')
-#           else 
+#           else
 #             return(TRUE)
 #         }
          )
@@ -106,7 +106,7 @@ setClass('gadget-time',
              stop('laststep not in the range of timesteps')
            return(TRUE)
          }
-      ) 
+      )
 
 setClass('gadget-area',
          representation(areas = 'numeric', ## vector of area identifiers
@@ -151,7 +151,7 @@ setClass('gadget-spawning',
                         mortalityfunction = 'vector',
                         weightlossfunction = 'vector',
                         recruitment = 'vector',
-                        stockparameters = 'data.frame'),         
+                        stockparameters = 'data.frame'),
          prototype(spawnsteps = 0,
                    spawnareas = 0,
                    firstspawnyear = 0,
@@ -161,7 +161,7 @@ setClass('gadget-spawning',
                    mortalityfunction = c(func = 'constant', alpha = 0),
                    weightlossfunction = c(func = 'constant', alpha = 0),
                    recruitment = c(func = 'simplessb', mu = 1),
-                   stockparameters = data.frame(mean = NULL, sttdev = NULL, 
+                   stockparameters = data.frame(mean = NULL, sttdev = NULL,
                                                 alpha = NULL, beta = NULL))
          )
 
@@ -209,7 +209,7 @@ setClass('gadget-stock',
                         doesrenew = 'numeric',
                         renewal = 'list',
                         renewal.data = 'data.frame',
-                        ## spawning 
+                        ## spawning
                         doesspawn = 'numeric',
                         spawning = 'gadget-spawning',
                         ## straying -- to be implemented
@@ -294,6 +294,6 @@ setClass('gadget-main',
          ##package = 'rgadget'
          )
 
-                        
+
 
 
