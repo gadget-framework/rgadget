@@ -79,6 +79,7 @@
 ##' opt <- gadget.options
 ##' ## change the length of the simulation to 13 years
 ##' opt$numobs <- 13
+##' @export
 gadget.options <- function(type=c('simple2stock','spawning')){
   opt <- list(
 #############################################################
@@ -343,6 +344,7 @@ derivedOptions <- function(opt){
 ##' opt <- gadget.options()
 ##' gm <- gadget.skeleton(time=opt$time,area=opt$area,
 ##'                       stocks=opt$stocks,fleets=opt$fleets)
+##' @export
 gadget.skeleton <- function(time,area,stocks,fleets){
   ## Definition of time
   time <- new('gadget-time',

@@ -2091,7 +2091,8 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
                            attr(lik.dat$dat$stockdistribution[[x]],'len.agg'),
                            by='length'),
                       by=c('length', 'year',
-                        'step', 'area','age','stock','upper','lower'),
+                        'step', 'area','age',
+                        'stock','upper','lower'),
                       all.y=TRUE)
 
               stockdist$name <- x
