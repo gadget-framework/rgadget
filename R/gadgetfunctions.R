@@ -1,11 +1,3 @@
-library(reshape2)
-library(plyr)
-library(parallel)
-#library(doMC)
-#library(foreach)
-#registerDoMC()
-#source('gadgetFileIO.R')
-
 ##' This function sets up all necessary switches and calls gadget from R
 ##' and attempts to read the runtime output from gadget. This has currently
 ##' only been tested on unix based platforms (but should in principle work on
@@ -68,7 +60,7 @@ library(parallel)
 ##' @param printfinal Name of the file to which the final model
 ##' information should be saved.
 ##' @param gadget.exe path to the gadget executable, if it is not in
-##' the path
+##' the path or defined by .Options$gadget.path
 ##' @param PBS Logical, should, instead of running gadget directly,
 ##' a pbs script be
 ##' generated that can be submitted to a cluster queue (defaults to FALSE).
@@ -77,6 +69,7 @@ library(parallel)
 ##' (not wether or not this works on windows).
 ##' @param PBS.name Name of the pbs script (.sh will be appended).
 ##' @param qsub.output The directory where the output from the script is stored
+##' @param ignore.stderr should error output be ignored
 ##' @return the run history
 ##' @export
 callGadget <- function(l=NULL,
@@ -99,9 +92,13 @@ callGadget <- function(l=NULL,
                        PBS=FALSE,
                        qsub.script=NULL,
                        PBS.name='run',
-                       qsub.output='output'
+                       qsub.output='output',
+                       ignore.stderr=TRUE
                        ){
-
+    
+    if(!is.null(.Options$gadget.path)){
+        gadget.exe=.Options$gadget.path
+    }
 
   switches <- paste(ifelse(is.null(l),'','-l'),
                     ifelse(is.null(s),'','-s'),
@@ -124,7 +121,8 @@ callGadget <- function(l=NULL,
 
   run.string <- paste(gadget.exe,switches)
   if(!PBS){
-    run.history <- try(system(run.string,intern=TRUE,ignore.stderr=TRUE))
+    run.history <- try(system(run.string,intern=TRUE,
+                              ignore.stderr=ignore.stderr))
   } else {
     if(file.exists(sprintf('%s.sh',PBS.name))){
       write(run.string, file=sprintf('%s.sh',PBS.name),append=TRUE)
@@ -473,11 +471,16 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
   ##
   if(!resume.final){
     ## run the bloody thing
-    if(run.serial)
-      res <- lapply(run.string,run.iterative)
-    else
-      res <- mclapply(run.string,run.iterative,
-                      mc.cores = detectCores(logical = TRUE))
+    if(run.serial){
+        res <- lapply(run.string,run.iterative)
+    } else if(Sys.info()[['sysname']]=='Windows'){
+        cl <- makeCluster(detectCores(logical=TRUE))
+        res <- parLapply(cl,run.string,run.iterative)
+        stopCluster(cl)
+    } else {
+        res <- mclapply(run.string,run.iterative,
+                        mc.cores = detectCores(logical = TRUE))
+    }
   }
 
   ## Do we want to run the final optimisation (only used for debug purposes,
@@ -568,10 +571,15 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
       comp <- as.list(c('final','sIw'))
     }
 
-    if(run.serial)
-      lapply(comp,run.final)
-    else
-      mclapply(comp,run.final)
+    if(run.serial){
+        lapply(comp,run.final)
+    } else if(Sys.info()[['sysname']]=='Windows'){
+        cl <- makeCluster(detectCores(logical=TRUE))
+        res <- parLapply(cl,run.string,run.final)
+        stopCluster(cl)
+    } else {
+        mclapply(comp,run.final)
+    }
 
   } else {
     comp <- NULL

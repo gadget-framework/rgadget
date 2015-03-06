@@ -1,9 +1,3 @@
-library(plyr)
-library(reshape2)
-library(lubridate)
-library(stringr)
-library(data.table)
-
 ##' This function reads in the gadget output files defined in
 ##' printfiles. This is a quick and dirty implementation that has been
 ##' designed to read a few nice examples, so it may work for some instances
@@ -82,6 +76,7 @@ read.printfiles <- function(path='.',suppress=FALSE){
 ##' @param files a vector of character strings containing the names of the likelihood files
 ##' @return object of class gadget.likelihood, i.e. a list containing the various likelihood components
 ##' @author Bjarki ??r Elvarsson
+##' @export
 read.gadget.likelihood <- function(files='likelihood'){
   lik <- NULL
   for(file in files){
@@ -170,6 +165,7 @@ read.gadget.likelihood <- function(files='likelihood'){
 ##' @param bs.sample (for bootstrap), appends the appropriate replicate number to data file
 ##' @return character string corresponding to the likelihood file (if desired)
 ##' @author Bjarki ??r Elvarsson
+##' @export
 write.gadget.likelihood <- function(lik,file='likelihood',
                                     data.folder=NULL, bs.sample=NULL){
   lik.text <- sprintf('; Likelihood file - created in Rgadget\n; %s - %s',
@@ -217,6 +213,7 @@ write.gadget.likelihood <- function(lik,file='likelihood',
 ##' @param lik2 likelihood object
 ##' @return merged gadget likelihood object
 ##' @author Bjarki Thor Elvarsson
+##' @export
 merge.gadget.likelihood <- function(lik1,lik2){
   tmp <- within(list(),
                 for(comp in unique(c(names(lik1),names(lik2)))){
@@ -235,6 +232,7 @@ merge.gadget.likelihood <- function(lik1,lik2){
 ##' @param inverse (logical) should inverse selection be applied
 ##' @return likelihood object
 ##' @author Bjarki Thor Elvarsson
+##' @export
 get.gadget.likelihood <- function(likelihood,comp,inverse=FALSE){
   if(inverse)
     weights <- subset(likelihood$weights,!(name %in% comp))
@@ -263,6 +261,7 @@ get.gadget.likelihood <- function(likelihood,comp,inverse=FALSE){
 ##' @param file main file location
 ##' @return object of class gadget.main
 ##' @author Bjarki ??r Elvarsson
+##' @export
 read.gadget.main <- function(file='main'){
   if(!file.exists(file)) {
     stop('Main file not found')
@@ -288,6 +287,7 @@ read.gadget.main <- function(file='main'){
 ##' @param file name of main file
 ##' @return text of the main file (if desired)
 ##' @author Bjarki ??r Elvarsson
+##' @export
 write.gadget.main <- function(main,file='main'){
   main.text <- sprintf('; main file for gadget - created in Rgadget\n; %s - %s',
                        file,date())
@@ -341,6 +341,7 @@ clear.spaces <- function(text){
 ##' @param file parameter file
 ##' @return dataframe
 ##' @author Bjarki  Thor Elvarsson
+##' @export
 read.gadget.parameters <- function(file='params.in'){
 
   params <- tryCatch(read.table(file,header=TRUE,
@@ -422,6 +423,7 @@ read.gadget.parameters <- function(file='params.in'){
 ##' should a line based parameter (used when evaluating gadget on a matrix) be used.
 ##' @return a string containing the text of the params file (if desired)
 ##' @author Bjarki ??r Elvarsson
+##' @export
 write.gadget.parameters <- function(params,file='params.out',columns=TRUE){
   input.text <-
     paste("; input file for the gadget model",
@@ -450,6 +452,7 @@ write.gadget.parameters <- function(params,file='params.out',columns=TRUE){
 ##' @param file name of resulting printfile
 ##' @return gadget.mainfile object
 ##' @author Bjarki Thor Elvarsson
+##' @export
 make.gadget.printfile <- function(main='main',output='out',
                                   aggfiles='print.aggfiles',
                                   file='printfile'){
@@ -673,6 +676,7 @@ read.gadget.results <- function(grouping=list(),
 ##' @param likelihood object of class gadget.likelihood
 ##' @return list of dataframes and degress of freedom
 ##' @author Bjarki ??r Elvarsson
+##' @export
 read.gadget.data <- function(likelihood){
   read.agg <- function(x, first = FALSE){
 
@@ -812,6 +816,7 @@ read.gadget.data <- function(likelihood){
 ##' @param file location of the optinfofile
 ##' @return optinfo object
 ##' @author Bjarki ??r Elvarsson
+##' @export
 read.gadget.optinfo <- function(file='optinfofile'){
   optinfo <- readLines(file)
   optinfo <- na.omit(sapply(strsplit(optinfo,';'),function(x) x[1]))
@@ -872,6 +877,7 @@ write.gadget.optinfo<-function(optinfo,file='optinfofile'){
 ##' (l?kelihood components) and data (dataframe with the parameter values,
 ##' likelihood component values and the final score.
 ##' @author Bjarki Thor Elvarsson, Hoskuldur Bjornsson
+##' @export
 read.gadget.lik.out <- function(file='lik.out',suppress=FALSE){
   if(!file.exists(file)){
     return(NULL)
@@ -943,9 +949,7 @@ strip.comments <- function(file='main'){
 }
 
 
-##' <description>
-##'
-##' <details>
+##' Read in a Gadget model to a gadget-main object
 ##' @title read gadget main
 ##' @param main.file location of the main file
 ##' @return mainfile object
@@ -1006,9 +1010,8 @@ read.gadget.model <- function(main.file='main',model.name='Gadget-model'){
   return(gadget.model)
 }
 
-##' <description>
-##'
-##' <details>
+
+##' Read in Gadget stockfiles 
 ##' @title read gadget stock
 ##' @param stock.files
 ##' @return list of gadget-stock objects
@@ -1634,6 +1637,7 @@ eval.gadget.formula <- function(gad.for,par){
 ##' @param header logical, should the header be read from the file
 ##' @return data.frame with
 ##' @author Bjarki Thor Elvarsson
+##' @export
 read.gadget.table <- function(file,header=FALSE){
   dat <- strip.comments(file)
   if(class(dat) == 'list')
@@ -1660,9 +1664,10 @@ read.gadget.table <- function(file,header=FALSE){
 ##' @param fleet.file
 ##' @return fleet file object
 ##' @author Bjarki Þór Elvarsson
+##' @export
 read.gadget.fleet <- function(fleet.file='fleet'){
   fleet <- strip.comments(fleet.file)
-  comp.loc <- grep('fleetcomponent',fleet)
+  comp.loc <- grep('fleetcomponent|component',fleet)
   suit.loc <- grep('suitability',fleet)
   fleet.dat <-
     data.frame(fleet = laply(fleet[comp.loc+1],function(x) x[2]),
@@ -1787,6 +1792,7 @@ get.gadget.growth <- function(stocks,params,dt=0.25,age.based=FALSE){
 ##' @param params
 ##' @return recruitment by year
 ##' @author Bjarki Thor Elvarsson
+##' @export
 get.gadget.recruitment <- function(stocks,params){
   ldply(stocks, function(x){
     if(x@doesrenew == 1){
@@ -1809,6 +1815,7 @@ get.gadget.recruitment <- function(stocks,params){
 ##' @param params
 ##' @return catches by year + step
 ##' @author Bjarki Thor Elvarsson
+##' @export
 get.gadget.catches <- function(fleets,params){
   tmp <- ddply(fleets$fleet,~fleet,
                function(x){

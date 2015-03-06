@@ -1,85 +1,23 @@
-##' This function creates a list of default values of all necessary switches
-##' for the RGadget simulation. The user can then change the
-##' values of the switches and use the changed list as input to RGadget.
-##' Here the default values for consumption (predation and fleet operations),
-##' migration, maturation (via stock 'movement'), number of areas and their
-##' basic properties, various attributes of the sub stocks such as age, length
-##' and weight along with growth parameters. Also length of the simulation is
-##' given a default value.
-##' If the user wants to change the default values he will need to make the
-##' changes on the resulting list.
+##' This function creates a list of default values of all necessary
+##' switches for gadget.simulation and gadget.skeleton functions. The
+##' user can then change the values of the switches and use the
+##' changed list as input to those functions.  Here the default values for
+##' consumption (predation and fleet operations), migration,
+##' maturation (via stock 'movement'), number of areas and their basic
+##' properties, various attributes of the sub stocks such as age,
+##' length and weight along with growth parameters. Also length of the
+##' simulation is given a default value.  If the user wants to change
+##' the default values he will need to make the changes on the
+##' resulting list.
 ##' @title Gagdet options
 ##' @return a list of swithes
-##' \item{stocks}{names of the stocks in the simulation}
-##' \item{doeseat}{Does the 'mature' stock eat the 'immature'}
-##' \item{doescatchsurv}{Is there a survey fleet}
-##' \item{doescatchcomm}{Is there a commercial fleet}
-##' \item{doesmigrateimm}{Does the immature stock migrate}
-##' \item{doesmigratemat}{Does the mature stock migrate}
-##' \item{immMigration}{Migration matrix for the immmature substock}
-##' \item{matMigration}{Migration matrix for the mature substock}
-##' \item{doesfuncmigrate}{(migration) pde's used to describe migration.}
-##' \item{diffusion}{(migration) diffusion parameter}
-##' \item{driftx}{(migration) drift in x coordinate}
-##' \item{drifty}{(migration) drift in y coordinate}
-##' \item{doesmove}{Does the immature stock mature into the mature stock}
-##' \item{numofareas}{Number of gadget areas}
-##' \item{probarea}{A vector of proportions in a given area, assumed equal for both stocks}
-##' \item{areasize}{Size of the gadget area (assumed equal for all areas}
-##' \item{area.temperature}{Average temperature of the area}
-##' \item{immminage}{Minimum age of the immmature stock}
-##' \item{immmaxage}{Maximum age of the immmature stock}
-##' \item{matminage}{Minimum age of the mature stock}
-##' \item{matmaxage}{Maximum age of the mature stock}
-##' \item{minlen}{Minimum length of both stocks}
-##' \item{maxlen}{Maximum length of both stocks}
-##' \item{lengthgrouplen}{Size of each lengthgroup. We assume the size of the 
-##' lengthgroups is the same for both stocks.}
-##' \item{a}{a in the length-weight relationship a*l^b}
-##' \item{b}{b in the length-weight relationship a*l^b}
-##' \item{sigma}{The standard deviation of length at i years old. 
-##' This vector must the same length as the number of ages.}
-##' \item{n}{Number of recruits per year.}
-##' \item{murec}{If specified this will be the meanlength of recruits}
-##' \item{lsup}{L-infinity. Bertalanffy growth parameters lsup, and k for 
-##' the growth function (used for all ages > 1)}
-##' \item{binn}{binn is the maximum updating length}
-##' \item{beta}{Beta for beta-binomial}
-##' \item{numobs}{number of years observed}
-##' \item{numoftimesteps}{number of timesteps in each year}
-##' \item{z}{z is the natural mortality constant used to calculate the size 
-##' of the initial population for age 2 +}
-##' \item{spalpha}{alpha for the predation suitability function}
-##' \item{spbeta}{beta for the predation suitability function}
-##' \item{spagamma}{gamma for the predation suitability function}
-##' \item{spdelta}{delta for the predation suitability function}
-##' \item{m0}{m0 for the maximum consumption}
-##' \item{m3}{m3 for the maximum consumption}
-##' \item{H}{H The density (biomass per area unit) of available food at which 
-##' the predator can consume half maximum consumption}
-##' \item{otherfrac}{the fraction of otherfood that is eaten}
-##' \item{otherfood}{The maximum portion consumed, in Gadget it is 0.95, this is 
-##' known as understocking in Gadget}
-##' \item{survstep}{timestep(s) for the survey}
-##' \item{commstep}{timestep(s) for the commercial effort}
-##' \item{salphasurv}{for the suitability function - survey}
-##' \item{sbetasurv}{for the suitability function - survey}
-##' \item{survfleettype}{Fleettype for the survey}
-##' \item{survmultiplicative}{For the fleettype}
-##' \item{Fysurv}{Fishing effort of the survey}
-##' \item{surv.catches}{What stocks does the survey fleet catch from}
-##' \item{salphacomm}{for the suitability function - commerical catch}
-##' \item{sbetacomm}{for the suitability function - commercial catch}
-##' \item{commfleettype}{Fleettype for the commercial catch}
-##' \item{comm.catches}{What stocks does the commercial fleet catch from}
-##' \item{commmultiplicative}{For the fleettype}
-##' \item{Fycomm}{Fishing effort of the commercial catch}
-##' @author Bjarki Thor Elvarsson, Asta Jenny Sigurdardottir and Elinborg Ingunn Olafsdottir
+##' @author Bjarki Thor Elvarsson
 ##' @examples
 ##' opt <- gadget.options
 ##' ## change the length of the simulation to 13 years
 ##' opt$numobs <- 13
 ##' @export
+##' @param type 
 gadget.options <- function(type=c('simple2stock','spawning')){
   opt <- list(
 #############################################################
@@ -254,85 +192,12 @@ gadget.options <- function(type=c('simple2stock','spawning')){
   return(opt)
 }
 
-##' This function is a helper function for RGadget.
-##' it calculates additional options and switches that can be derived from
-##' the gadget options lists.
-##' @title Derived options
-##' @param opt gadget options list
-##' @return augmented gadget options list
-derivedOptions <- function(opt){
-  within(opt,{
-    time$lengthoftimesteps <- 12/time$numoftimesteps  
-    if(length(area$probarea) < area$numofareas){
-      area$probarea <- rep(1,area$numofareas)/area$numofareas
-      warning('length(opt$area$probarea)<opt$area$numofareas - 
-              equal initial area probabilites assumed')
-    }
-    for(stock in names(stocks)){
-      if(stocks[[stock]]$doesrenew==1){
-        if(length(stocks[[stock]]$doesrenew)==1){
-          stocks[[stock]]$n <- 
-            rep(c(stocks[[stock]]$n,rep(0,time$numoftimesteps)),time$numobs)
-        } else if(length(stocks[[stock]]$doesrenew)==time$numobs){
-          stocks[[stock]]$n <- as.numeric(rbind(stocks[[stock]]$n,
-                                                array(0,c(time$numoftimesteps-1,time$numobs))))
-        } else if(length(stocks[[stock]]$doesrenew)!=time$numobs*time$numoftimesteps){
-          warning('Recruitment vector has length less the total number of timesteps. Expect errors.')
-        }
-      }
-      if(length(stocks[[stock]]$M)){
-        stocks[[stock]]$M <- rep(stocks[[stock]]$M,
-                                 stocks[[stock]]$maxage-stocks[[stock]]$minage+1)   
-      } else if (length(stocks[[stock]]$M) != stocks[[stock]]$maxage-
-                   stocks[[stock]]$minage+1) {
-        warning('Natural mortality ill defined')
-      }
-      if(stocks[[stock]]$doeseat==1){
-        if(length(stocks[[stock]]$otherfood)==1){
-          stocks[[stock]]$otherfood <- 
-            rep(stocks[[stock]]$otherfood,
-                time$numobs*time$numoftimesteps*area$numofareas)
-          dim(stocks[[stock]]$otherfood) <- 
-            c(time$numofareas,time$numobs*time$numoftimesteps)
-        }
-      } 
-      stocks[[stock]]$l <- seq(stocks[[stock]]$minlen,
-                               stocks[[stock]]$maxlen,
-                               stocks[[stock]]$dl)
-      
-      stocks[[stock]]$numoflgroups <- length(stocks[[stock]]$l)-1
-      stocks[[stock]]$lt <- (stocks[[stock]]$l[2:length(stocks[[stock]]$l)]+
-                               stocks[[stock]]$l[1:(length(stocks[[stock]]$l)-1)])/2
-      
-      stocks[[stock]]$w <- stocks[[stock]]$weight['a']*
-        stocks[[stock]]$lt^stocks[[stock]]$weight['b']
-      
-      if(stocks[[stock]]$doesgrow == 1){
-        stocks[[stock]]$mu <- stocks[[stock]]$growth['linf']*
-          (1-exp(-stocks[[stock]]$growth['k']*1:stocks[[stock]]$maxage))
-      }
-      if(!is.null(stocks[[stock]]$murec)){
-        stocks[[stock]]$mu[1] <- stocks[[stock]]$murec
-      }
-      
-      if(stocks[[stock]]$doeseat == 1){      
-        stocks[[stock]]$maxConsumption <- 
-          stocks[[stock]]$m0*stocks[[stock]]$lt^stocks[[stock]]$m3*12*time$dt 
-      }
-      if(area$numofareas==1){
-        stocks[[stock]]$doesmigrate <- 0
-      } 
-    }
-    for(fleet in names(fleets)){
-      fleets[[fleet]]$Fy <- rep(fleets[[fleet]]$Fy, 
-                                time$numobs/length(fleets[[fleet]]$Fy))
-    }
-    time$dt <- 1/time$numoftimesteps
-  })
-}
-##' .. content for \description{} (no empty lines) ..
+##' Build gadget model object based on simple lists
 ##'
-##' .. content for \details{} ..
+##' Gadget skeleton, as the names suggests, creates a gadget-main
+##' object, as S4 class, that can be used to create model input files
+##' or drive the simple Gadget-like simulator implemented in
+##' gadget.simulate
 ##' @title Gadget skeleton
 ##' @param time list describing the time step of the model
 ##' @param area list describing the spatial grid of the model
