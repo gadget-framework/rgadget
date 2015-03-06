@@ -328,6 +328,7 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
     stop('Optinfofile not found')
   }
 
+  
   ## store the results in a special folder to prevent clutter
   dir.create(wgts,showWarnings=FALSE)
 
@@ -347,6 +348,12 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
                                         inverse = inverse)
   }
 
+  ## ensure that grouped components exist
+  tmp <- unlist(grouping)
+  if(length(tmp) != length(intersect(tmp,likelihood$weigths$name))){
+      stop('Error - invalid grouping')
+  }
+  
   ## initial run (to determine the initial run)
   main.init <- main
   main.init$printfiles <- NULL
@@ -405,7 +412,7 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
   run.string <- c(likelihood$weights$name[restr&
                                           !(likelihood$weights$name %in%
                                             unlist(grouping))])
-
+  
   run.string <- as.list(run.string)
   names(run.string) <-
     c(likelihood$weights$name[restr&

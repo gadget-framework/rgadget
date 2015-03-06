@@ -13,10 +13,7 @@ read.gadget.stockfiles(stock.files)
 list of gadget-stock objects
 }
 \description{
-<description>
-}
-\details{
-<details>
+Read in Gadget stockfiles
 }
 \author{
 Bjarki Thor Elvarsson

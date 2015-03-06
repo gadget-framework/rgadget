@@ -13,10 +13,7 @@ read.gadget.model(main.file = "main", model.name = "Gadget-model")
 mainfile object
 }
 \description{
-<description>
-}
-\details{
-<details>
+Read in a Gadget model to a gadget-main object
 }
 \author{
 Bjarki Thor Elvarsson
