@@ -1847,15 +1847,17 @@ read.gadget.grouping <- function(lik = read.gadget.likelihood(),
   tmp <-
     ldply(lik.tmp$name,
           function(x){
-            text <- gsub('params.','',
-                        grep('params',list.files(wgts),value = TRUE))
-            x1 <- gsub('.','\\.',x,fixed=TRUE)
-            x1 <- paste('(',x1,'[[:punct:]]','|',x1,'$)',sep='')
-            pos <- grep(x1,text)
-            data.frame(name = x,
-                       pos = pos,
-                       ord = regexpr(x,text[pos])[1],
-                       stringsAsFactors=FALSE)
+              text <- gsub('params.','',
+                           grep('params',list.files(wgts),
+                                value = TRUE))
+              x1 <- gsub('.','\\.',x,fixed=TRUE)
+              x1 <- paste('([[:punct:]]|^)',x1,'([[:punct:]]|$)',
+                          sep='')
+              pos <- grep(x1,text)
+              data.frame(name = x,
+                         pos = pos,
+                         ord = regexpr(x,text[pos])[1],
+                         stringsAsFactors=FALSE)
           })
   tmp <- arrange(tmp,pos,ord)
   grouping <- dlply(tmp,~pos,function(x) as.character(x$name))
