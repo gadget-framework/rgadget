@@ -350,7 +350,7 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
 
   ## ensure that grouped components exist
   tmp <- unlist(grouping)
-  if(length(tmp) != length(intersect(tmp,likelihood$weigths$name))){
+  if(length(tmp) != length(intersect(tmp,likelihood$weights$name))){
       stop('Error - invalid grouping')
   }
   
