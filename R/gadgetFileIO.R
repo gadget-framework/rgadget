@@ -456,10 +456,11 @@ write.gadget.parameters <- function(params,file='params.out',columns=TRUE){
 make.gadget.printfile <- function(main='main',output='out',
                                   aggfiles='print.aggfiles',
                                   file='printfile'){
-  main <- read.gadget.main(main)
-  lik <- read.gadget.likelihood(main$likelihoodfiles)
-  stocks <- read.gadget.stockfiles(main$stockfiles)
-  fleets <- read.gadget.fleet(main$fleetfiles)
+    
+    main <- read.gadget.main(main)
+    lik <- read.gadget.likelihood(main$likelihoodfiles)
+    stocks <- read.gadget.stockfiles(main$stockfiles)
+    fleets <- read.gadget.fleet(main$fleetfiles)
 
   header <-
     paste(sprintf('; gadget printfile, created in %s',Sys.Date()),
@@ -531,7 +532,7 @@ make.gadget.printfile <- function(main='main',output='out',
                  subset(lik$weights,
                         !(type %in% c('understocking','penalty',
                                       'migrationpenalty')))[['name']])
-  write(paste(header,paste(txt,collapse='\n'),
+  write.unix(paste(header,paste(txt,collapse='\n'),
               paste(sprintf(stock.std,laply(stocks,
                                             function(x) x@stockname)),
                     collapse='\n'),
@@ -544,7 +545,7 @@ make.gadget.printfile <- function(main='main',output='out',
                     collapse='\n'),
               ';',
               sep='\n'),
-        file=file)
+        f=file)
 
 #  l_ply(stocks,
 #        function(x){
@@ -1983,8 +1984,9 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
                        sibio <-
                          stock.full %>%
                          filter(.id %in% si.stocks) %>%
-                         mutate(sigroup = cut(length,breaks=c(si.labels$lower,
-                                                     max(si.labels$upper)),
+                         mutate(sigroup = cut(length,
+                                    breaks=c(si.labels$lower,
+                                        max(si.labels$upper)),
                          labels=si.labels$length))%>%
                          group_by(year,sigroup) %>%
                          summarise(bio=sum(number*mean.weight)/sum(number))
@@ -2431,4 +2433,11 @@ plot.gadget.fit <- function(fit,data = 'sidat',type='direct',dat.name=NULL){
     theme(legend.position = c(0.8,0.25), legend.title = element_blank(),
           plot.margin = unit(c(0,0,0,0),'cm'))
   }
+}
+
+
+write.unix <- function(x,f){
+    f <- file(f,open='wb')
+    write(x,file=f)
+    close(f)
 }
