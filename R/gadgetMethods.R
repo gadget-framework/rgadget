@@ -17,7 +17,7 @@ setMethod("write",
                           paste(x@notimesteps,collapse=' ')),
                     sep='\t'),
               sep='\n')
-      write(time.file,file=file)
+      write.unix(time.file,f=file)
     }
 )
 setGeneric('getTimeSteps',def=function(x){standardGeneric("getTimeSteps")})
@@ -68,7 +68,7 @@ setMethod("write",
       header <- paste(sprintf('; prey aggregation file for %s',x@name),
                       sprintf('; created using rgadget at %s', Sys.Date()),
                       sep = '\n')
-      write(header,file = sprintf('%s/aggfiles/%s.prey.agg',file,x@name))
+      write.unix(header,f = sprintf('%s/aggfiles/%s.prey.agg',file,x@name))
       write.table(x@preylengths,file = sprintf('%s/aggfiles/%s.prey.agg',file,x@name),
             col.names=FALSE,append=TRUE,
             quote=FALSE,sep='\t',row.names=FALSE)
@@ -94,7 +94,7 @@ setMethod("write",
                         x@stockname,Sys.Date()),
                 paste(c('; ',names(x@refweight)),collapse = '\t'),
                 sep = '\n')
-        write(ref.head,file = sprintf('%s/Data/%s.refweigthfile',
+        write.unix(ref.head,f = sprintf('%s/Data/%s.refweigthfile',
                          file,x@stockname))
         tmp <- x@refweight
 #        tmp[,2] <- round(tmp[,2])
@@ -116,14 +116,15 @@ setMethod("write",
                                   x@stockname,Sys.Date()),
                           paste(c('; ',names(lenAgg)),collapse = '\t'),
                           sep = '\n')
-        write(agg.head,file = sprintf('%s/aggfiles/%s.len.agg',file,x@stockname))
+        write.unix(agg.head,f = sprintf('%s/aggfiles/%s.len.agg',file,x@stockname))
 
         write.table(lenAgg,
                     file = sprintf('%s/aggfiles/%s.len.agg',file,x@stockname),
                     col.names=FALSE,append=TRUE,
                     quote=FALSE,sep='\t',row.names=FALSE)
 
-        write(agg.head,file = sprintf('%s/aggfiles/%s.alllen.agg',file,x@stockname))
+        write.unix(agg.head,
+                   f = sprintf('%s/aggfiles/%s.alllen.agg',file,x@stockname))
         write.table(alllenAgg,
                     file = sprintf('%s/aggfiles/%s.alllen.agg',file,x@stockname),
                     col.names=FALSE,append=TRUE,
@@ -132,14 +133,16 @@ setMethod("write",
         ## age agg file
         ageAgg <- data.frame(label = x@minage:x@maxage,
                              age = x@minage:x@maxage)
-        write(agg.head,file = sprintf('%s/aggfiles/%s.age.agg',file,x@stockname))
+        write.unix(agg.head,
+                   f = sprintf('%s/aggfiles/%s.age.agg',file,x@stockname))
         write.table(ageAgg,
                     file = sprintf('%s/aggfiles/%s.age.agg',file,x@stockname),
                     col.names=FALSE,append=TRUE,
                     quote=FALSE,sep='\t',row.names=FALSE)
         allagesAgg <- data.frame(label = 'allages',
                                  age = paste(x@minage:x@maxage,collapse = '\t'))
-        write(agg.head,file = sprintf('%s/aggfiles/%s.allages.agg',file,x@stockname))
+        write.unix(agg.head,
+                   f = sprintf('%s/aggfiles/%s.allages.agg',file,x@stockname))
         write.table(allagesAgg,
                     file = sprintf('%s/aggfiles/%s.allages.agg',file,x@stockname),
                     col.names=FALSE,append=TRUE,
@@ -157,7 +160,8 @@ setMethod("write",
                                   init.type,x@stockname,Sys.Date()),
                           paste(c('; ',names(x@initialdata)),collapse = '-'),
                           sep = '\n')
-        write(init.head,file = sprintf('%s/Data/%s.%s',file,x@stockname,init.type))
+        write.unix(init.head,
+                   f = sprintf('%s/Data/%s.%s',file,x@stockname,init.type))
         write.table(x@initialdata,
                     file = sprintf('%s/Data/%s.%s',file,x@stockname,init.type),
                     col.names=FALSE,append=TRUE,
@@ -226,12 +230,13 @@ setMethod("write",
                       row.names = FALSE,
                       col.names = FALSE,
                       quote=FALSE)
-          write('; migratio file',sprintf('%s/Data/%s.migratio',file,x@stockname))
+          write.unix('; migratio file',
+                     sprintf('%s/Data/%s.migratio',file,x@stockname))
           l_ply(names(x@migrationratio),
                 function(y){
                   migratio <- sprintf('%s/Data/%s.migratio',file,x@stockname)
-                  write(sprintf('[migrationmatrix]\nname\t%s',y),
-                        file = migratio, append = TRUE)
+                  write.unix(sprintf('[migrationmatrix]\nname\t%s',y),
+                        f = migratio, append = TRUE)
                   write.table(x@migrationratio[[y]],file= migratio,
                               append = TRUE,
                               row.names = FALSE,
@@ -259,9 +264,9 @@ setMethod("write",
                         sep='\t',collapse = '\n'),
                   sprintf('%sfile\t%s/Data/%s.rec',rec.type,file,x@stockname),
                   sep='\n')
-          write(sprintf('; renewal-file for stock %s\n; %s',
-                        x@stockname,paste(names(x@renewal.data),collapse='-')),
-                file = sprintf('%s/Data/%s.rec',file,x@stockname))
+          write.unix(sprintf('; renewal-file for stock %s\n; %s',
+                             x@stockname,paste(names(x@renewal.data),collapse='-')),
+                     f = sprintf('%s/Data/%s.rec',file,x@stockname))
           write.table(x@renewal.data,
                       file = sprintf('%s/Data/%s.rec',
                         file,x@stockname),
@@ -285,7 +290,7 @@ setMethod("write",
                   sprintf('coefficients %s',
                           paste(x@coefficients,collapse='\t')),
                   sep='\n')
-          write(maturityfile,file=sprintf('%s/%s.maturity',file,x@stockname))
+          write.unix(maturityfile,f=sprintf('%s/%s.maturity',file,x@stockname))
 
         }
         if(x@doesmove == 1){
@@ -297,8 +302,8 @@ setMethod("write",
                   sprintf('transitionstep %s',x@transitionstep),
                   sep='\n')
         }
-        write(paste(stock.text,collapse = '\n'),
-              file = sprintf('%s/%s',file,x@stockname))
+        write.unix(paste(stock.text,collapse = '\n'),
+                   f = sprintf('%s/%s',file,x@stockname))
     }
 )
 
@@ -394,10 +399,10 @@ setMethod("write",
                   col.names=FALSE,
                   quote=FALSE,sep='\t',row.names=FALSE)
       if(file.exists(sprintf('%s/fleets',file))){
-        write(paste(fleet.text,collapse='\n'),file=sprintf('%s/fleets',file),
-              append = TRUE)
+          write.unix(paste(fleet.text,collapse='\n'),f=sprintf('%s/fleets',file),
+                     append = TRUE)
       } else {
-        write(paste(fleet.text,collapse='\n'),file=sprintf('%s/fleets',file))
+        write.unix(paste(fleet.text,collapse='\n'),f=sprintf('%s/fleets',file))
       }
       invisible(fleet.text)
     }
@@ -412,7 +417,7 @@ setMethod("write",
       loc <- sprintf('%s/%s',file,x@model.name)
       dir.create(loc, showWarnings = FALSE, recursive = TRUE)
       ## writing ecosystem files
-      write(x@area, file = sprintf('%s/area',loc))
+      write.unix(x@area, f = sprintf('%s/area',loc))
       ## area aggregation files
       allareasAgg <- data.frame(label = 'allareas',areas = paste(x@area@areas,collapse = '\t'))
       dir.create(sprintf('%s/aggfiles',loc),showWarnings = FALSE, recursive = TRUE)
@@ -420,16 +425,16 @@ setMethod("write",
                   file = sprintf('%s/aggfiles/allareas.agg',loc),
                   col.names=FALSE,append=FALSE,
                   quote=FALSE,sep='\t',row.names=FALSE)
-      write(x@time, file = sprintf('%s/time',loc))
+      write.unix(x@time, f = sprintf('%s/time',loc))
       if(length(x@print) > 0)
-        write(x@print, file = sprintf('%s/printfile',loc))
+        write.unix(x@print, f = sprintf('%s/printfile',loc))
       for(stock in x@stocks)
-        write(stock,file = loc)
+        write.unix(stock,f = loc)
 #      write(x@tags,file = sprintf('%s/tagfile',loc))
 #      write(x@otherfood, file = sprintf('%s/otherfood',loc))
       file.remove(sprintf('%s/fleets',loc))
       for(fleet in x@fleets)
-        write(fleet,file=loc)
+          write.unix(fleet,f=loc)
       ## Likelihood files
       ##write(x@likelhood, file = sprintf('%s/likelihood'))
 
@@ -455,7 +460,7 @@ setMethod("write",
                      sprinft('likelihoodfiles\t%s/likelihood',loc),';'),
               sep='\n'
               )
-      write(main.text,file=sprintf('%s/main',loc))
+      write.unix(main.text,f=sprintf('%s/main',loc))
       invisible(main.text)
             }
 )
@@ -490,7 +495,7 @@ setMethod("write",
                             x@stockparameters$alpha,
                             x@stockparameters$beta),
                     sep = '\n')
-              write(spawn.text,file = file)
+              write.unix(spawn.text,f = file)
           }
           )
 
@@ -830,7 +835,7 @@ setMethod('writeAggfiles','gadget-stock',
                             x@stockname,Sys.Date()),
                     paste(c('; ',names(lenAgg)),collapse = '\t'),
                     sep = '\n')
-            write(agg.head,file = sprintf('%s/%s.len.agg',folder,
+            write.unix(agg.head,f = sprintf('%s/%s.len.agg',folder,
                              x@stockname))
 
             write.table(lenAgg,
@@ -843,7 +848,7 @@ setMethod('writeAggfiles','gadget-stock',
             alllenAgg <- data.frame(length = 'alllen',
                                     min = min(lengths),
                                     max = max(lengths))
-            write(agg.head,file = sprintf('%s/%s.alllen.agg',folder,
+            write.unix(agg.head,f = sprintf('%s/%s.alllen.agg',folder,
                              x@stockname))
             write.table(alllenAgg,
                         file = sprintf('%s/%s.alllen.agg',folder,x@stockname),
@@ -853,7 +858,7 @@ setMethod('writeAggfiles','gadget-stock',
             ## age agg file
             ageAgg <- data.frame(label = x@minage:x@maxage,
                                  age = x@minage:x@maxage)
-            write(agg.head,file = sprintf('%s/%s.age.agg',folder,x@stockname))
+            write.unix(agg.head,f = sprintf('%s/%s.age.agg',folder,x@stockname))
             write.table(ageAgg,
                         file = sprintf('%s/%s.age.agg',folder,x@stockname),
                         col.names=FALSE,append=TRUE,
@@ -863,7 +868,7 @@ setMethod('writeAggfiles','gadget-stock',
             allagesAgg <- data.frame(label = 'allages',
                                      age = paste(x@minage:x@maxage,
                                        collapse = '\t'))
-            write(agg.head,file = sprintf('%s/%s.allages.agg',folder,
+            write.unix(agg.head,f = sprintf('%s/%s.allages.agg',folder,
                              x@stockname))
             write.table(allagesAgg,
                         file = sprintf('%s/%s.allages.agg',folder,x@stockname),
@@ -874,7 +879,7 @@ setMethod('writeAggfiles','gadget-stock',
                                     x@livesonareas,
                                     sep = ''),
                                   area = x@livesonareas)
-            write(agg.head,file = sprintf('%s/%s.area.agg',folder,
+            write.unix(agg.head,f = sprintf('%s/%s.area.agg',folder,
                              x@stockname))
             write.table(areaAgg,
                         file = sprintf('%s/%s.area.agg',folder,x@stockname),

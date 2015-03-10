@@ -201,9 +201,9 @@ write.gadget.likelihood <- function(lik,file='likelihood',
                       sep='\n')
   }
   if(!is.null(bs.sample))
-    write(sprintf(lik.text,bs.sample),file=file)
+    write.unix(sprintf(lik.text,bs.sample),f=file)
   else
-    write(lik.text,file=file)
+    write.unix(lik.text,f=file)
   invisible(lik.text)
 }
 
@@ -317,7 +317,7 @@ write.gadget.main <- function(main,file='main'){
           paste('likelihoodfiles',
                 paste(main$likelihoodfiles,collapse='\t')),
           sep='\n')
-  write(main.text,file=file)
+  write.unix(main.text,f=file)
   invisible(main.text)
 }
 
@@ -433,9 +433,9 @@ write.gadget.parameters <- function(params,file='params.out',columns=TRUE){
           sep='\n')
 
   if(!columns)
-    write(paste(c('switches',names(params)),collapse='\t'),file=file)
+    write.unix(paste(c('switches',names(params)),collapse='\t'),f=file)
   else
-    write(input.text,file)
+    write.unix(input.text,file)
   write.table(params,file=file,
               quote=FALSE, row.names=FALSE, col.names=FALSE,
               append=TRUE, sep="\t")
@@ -607,7 +607,7 @@ write.gadget.printfile <- function(print,file='prinfile',output.dir='out'){
                               sep='\t',collapse='\n'),
                         sep='\n')
   }
-  write(print.text,file)
+  write.unix(print.text,file)
   invisible(print.text)
 }
 
@@ -865,7 +865,7 @@ write.gadget.optinfo<-function(optinfo,file='optinfofile'){
                   sep='\t\t',collapse='\n'),
             sep='\n')
   }
-  write(opt.text,file=file)
+  write.unix(opt.text,f=file)
   invisible(opt.text)
 }
 
@@ -1327,7 +1327,7 @@ write.gadget.area <- function(area,file='area'){
           'temperature',
           '; year - step - area - temperature',
           sep='\n')
-  write(area.file,file=file)
+  write.unix(area.file,f=file)
   write.table(area$temperature,file=file,col.names=FALSE,append=TRUE,
               quote=FALSE,sep='\t',row.names=FALSE)
 }
@@ -1373,7 +1373,7 @@ write.gadget.time <- function(time,file='time'){
                       paste(time$notimesteps,collapse=' ')),
                 sep='\t'),
           sep='\n')
-  write(time.file,file=file)
+  write.unix(time.file,f=file)
 }
 
 ##' Gadget Penalty file
@@ -1384,7 +1384,7 @@ write.gadget.penalty <- function(file='penaltyfile'){
                    "; switch - power - lower - upper",
                    "default\t2\t10000\t10000 ; defaults",
                    sep='\n')
-  write(penalty,file=file)
+  write.unix(penalty,f=file)
 }
 
 
@@ -1731,9 +1731,9 @@ write.gadget.fleet <- function(fleet,file='fleet'){
                                   sep='\n'),
                             tmp$suitability)
 
-  write(sprintf(base.text,tmp$type,tmp$fleet,tmp$livesonareas,
-                tmp$multiplicative,tmp$suitability, tmp$amount),
-        file=file)
+  write.unix(sprintf(base.text,tmp$type,tmp$fleet,tmp$livesonareas,
+                     tmp$multiplicative,tmp$suitability, tmp$amount),
+             f=file)
 
 }
 
@@ -2436,8 +2436,8 @@ plot.gadget.fit <- function(fit,data = 'sidat',type='direct',dat.name=NULL){
 }
 
 
-write.unix <- function(x,f){
+write.unix <- function(x,f,...){
     f <- file(f,open='wb')
-    write(x,file=f)
+    write(x,file=f,...)
     close(f)
 }

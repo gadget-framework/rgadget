@@ -125,7 +125,7 @@ callGadget <- function(l=NULL,
                               ignore.stderr=ignore.stderr))
   } else {
     if(file.exists(sprintf('%s.sh',PBS.name))){
-      write(run.string, file=sprintf('%s.sh',PBS.name),append=TRUE)
+      write.unix(run.string, f=sprintf('%s.sh',PBS.name),append=TRUE)
       qsub.script <- NULL
     } else {
       PBS.header <-
@@ -148,7 +148,7 @@ callGadget <- function(l=NULL,
       PBS.script <- paste(PBS.header,
                           run.string,
                           sep='\n')
-      write(PBS.script, file=sprintf('%s.sh',PBS.name))
+      write.unix(PBS.script, f=sprintf('%s.sh',PBS.name))
       Sys.chmod(sprintf('%s.sh',PBS.name),mode = '0777')
       if(!is.null(qsub.script)){
         dir.create(qsub.output)
@@ -156,13 +156,13 @@ callGadget <- function(l=NULL,
           sprintf('# %1$s\nqsub -N gadget-%2$s -o %3$s/%4$s.txt %2$s.sh \n',
                   date(),PBS.name,qsub.output,gsub('/','.',PBS.name))
         if(file.exists(qsub.script)){
-          write(qsub.string,file=qsub.script,append=TRUE)
+          write.unix(qsub.string,f=qsub.script,append=TRUE)
         } else {
           header <-
             paste('#!/bin/bash',
                   sprintf('# created by Rgadget at %s',date()),
                   sep='\n')
-          write(paste(header,qsub.string,sep='\n'),file=qsub.script)
+          write.unix(paste(header,qsub.string,sep='\n'),f=qsub.script)
           Sys.chmod(qsub.script,mode = '0777')
         }
       }
@@ -705,7 +705,7 @@ gadget.sensitivity <- function(file='params.out',
   }
   param.table <- unique(param.table)
   header <- paste('switches',paste(names(param.table),collapse='\t'),sep='\t')
-  write(header,file=sens.in)
+  write.unix(header,f=sens.in)
   write.table(param.table,file=sens.in,col.names=FALSE,append=TRUE,
               quote=FALSE,sep='\t',row.names=FALSE)
   main <- read.gadget.main(main.file)
@@ -874,9 +874,9 @@ gadget.bootstrap <- function(bs.likfile = 'likelihood.bs',
                               run.final = FALSE,
                               run.serial = TRUE)
       if(PBS)
-        write(sprintf('# bootstrap sample %s',i),file=qsub.script,append=TRUE)
+        write.unix(sprintf('# bootstrap sample %s',i),f=qsub.script,append=TRUE)
       if(i > 100 & PBS)
-        write('sleep 6m',file=qsub.script,append=TRUE)
+        write.unix('sleep 6m',f=qsub.script,append=TRUE)
       else
         print(sprintf('# bootstrap sample %s',i))
 
@@ -894,9 +894,9 @@ gadget.bootstrap <- function(bs.likfile = 'likelihood.bs',
                               run.serial = TRUE,
                               cv.floor = cv.floor)
       if(PBS)
-        write(sprintf('# bootstrap sample %s',i),file=qsub.script,append=TRUE)
+        write.unix(sprintf('# bootstrap sample %s',i),f=qsub.script,append=TRUE)
       if(i > 100 & PBS)
-        write('sleep 6m',file=qsub.script,append=TRUE)
+          write.unix('sleep 6m',f=qsub.script,append=TRUE)
       else
         print(sprintf('# bootstrap (final) sample %s',i))
 
@@ -979,8 +979,8 @@ gadget.ypr <- function(params.file = 'params.in',
 
   main$areafile <- sprintf('%s/area',ypr)
   write.gadget.area(area,file=sprintf('%s/area',ypr))
-  write(sprintf('allareas %s',paste(area$areas,collapse=' ')),
-        file=sprintf('%s/aggfiles/allareas.agg',ypr))
+  write.unix(sprintf('allareas %s',paste(area$areas,collapse=' ')),
+             f=sprintf('%s/aggfiles/allareas.agg',ypr))
 
   fleet <- llply(fleet,
                  function(x){
@@ -1057,7 +1057,7 @@ gadget.ypr <- function(params.file = 'params.in',
 
   dir.create(sprintf('%s/out',ypr),showWarnings = FALSE, recursive = TRUE)
   main$printfiles <- sprintf('%s/printfile.ypr',ypr)
-  write(printfile,file=sprintf('%s/printfile.ypr',ypr))
+  write.unix(printfile,f=sprintf('%s/printfile.ypr',ypr))
 
 
   ## remove recruitment and initialdata from the stockfiles
@@ -1542,7 +1542,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
   dir.create(sprintf('%s/out/',pre),showWarnings = FALSE, recursive = TRUE)
 
   main$printfiles <- sprintf('%s/printfile',pre)
-  write(printfile,file = sprintf('%s/printfile',pre))
+  write.unix(printfile,f = sprintf('%s/printfile',pre))
 
   main$likelihoodfiles <- ';'
 
@@ -1577,8 +1577,8 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
                      value = c(0, sprintf('(* 1e4 #rec%s)',
                        sim.begin:
                        (sim.begin+years))))
-        write('hockey.rec\ndata\n; year step value',
-              file = sprintf('%s/hockey.rec',pre))
+        write.unix('hockey.rec\ndata\n; year step value',
+                   f = sprintf('%s/hockey.rec',pre))
 
         write.table(time.var, col.names = FALSE, row.names = FALSE,
                     append = TRUE, file = sprintf('%s/hockey.rec',pre),
@@ -1587,7 +1587,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
         x@renewal.data <-
           subset(x@renewal.data,year <  sim.begin)
       }
-      write(x,file=pre)
+      write.unix(x,f=pre)
     })
   } else {
     llply(stocks,function(x){
