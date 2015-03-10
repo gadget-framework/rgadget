@@ -2437,14 +2437,14 @@ plot.gadget.fit <- function(fit,data = 'sidat',type='direct',dat.name=NULL){
 }
 
 
-write.unix <- function(x,f,...){
-    f <- file(f,open='wb')
+write.unix <- function(x,f,append=FALSE,...){
+    f <- file(f,open=ifelse(append,'ab','wb'))
     write(x,file=f,...)
     close(f)
 }
 
 write.gadget.table <- function(x,file='',append=FALSE,...){
     f <- file(file,open=ifelse(append,'ab','wb'))
-    write.table(x,file=f,...)
+    write.table(x,file=f,eol='\n',...)
     close(f)
 }
