@@ -51,7 +51,7 @@ setMethod("write",
               '; year - step - area - temperature',
               sep='\n')
       write(area.file,file=file)
-      write.table(x@temperature,file=file,col.names=FALSE,append=TRUE,
+      write.gadget.table(x@temperature,file=file,col.names=FALSE,append=TRUE,
                   quote=FALSE,sep='\t',row.names=FALSE)
 
     }
@@ -69,7 +69,7 @@ setMethod("write",
                       sprintf('; created using rgadget at %s', Sys.Date()),
                       sep = '\n')
       write.unix(header,f = sprintf('%s/aggfiles/%s.prey.agg',file,x@name))
-      write.table(x@preylengths,file = sprintf('%s/aggfiles/%s.prey.agg',file,x@name),
+      write.gadget.table(x@preylengths,file = sprintf('%s/aggfiles/%s.prey.agg',file,x@name),
             col.names=FALSE,append=TRUE,
             quote=FALSE,sep='\t',row.names=FALSE)
       paste(sprintf('preylengths\t%s/aggfiles/%s.prey.agg',file,x@name),
@@ -98,7 +98,7 @@ setMethod("write",
                          file,x@stockname))
         tmp <- x@refweight
 #        tmp[,2] <- round(tmp[,2])
-        write.table(tmp,
+        write.gadget.table(tmp,
                     file = sprintf('%s/Data/%s.refweigthfile',file,x@stockname),
                     col.names=FALSE,append=TRUE,
                     quote=FALSE,sep='\t',row.names=FALSE)
@@ -118,14 +118,14 @@ setMethod("write",
                           sep = '\n')
         write.unix(agg.head,f = sprintf('%s/aggfiles/%s.len.agg',file,x@stockname))
 
-        write.table(lenAgg,
+        write.gadget.table(lenAgg,
                     file = sprintf('%s/aggfiles/%s.len.agg',file,x@stockname),
                     col.names=FALSE,append=TRUE,
                     quote=FALSE,sep='\t',row.names=FALSE)
 
         write.unix(agg.head,
                    f = sprintf('%s/aggfiles/%s.alllen.agg',file,x@stockname))
-        write.table(alllenAgg,
+        write.gadget.table(alllenAgg,
                     file = sprintf('%s/aggfiles/%s.alllen.agg',file,x@stockname),
                     col.names=FALSE,append=TRUE,
                     quote=FALSE,sep='\t',row.names=FALSE)
@@ -135,7 +135,7 @@ setMethod("write",
                              age = x@minage:x@maxage)
         write.unix(agg.head,
                    f = sprintf('%s/aggfiles/%s.age.agg',file,x@stockname))
-        write.table(ageAgg,
+        write.gadget.table(ageAgg,
                     file = sprintf('%s/aggfiles/%s.age.agg',file,x@stockname),
                     col.names=FALSE,append=TRUE,
                     quote=FALSE,sep='\t',row.names=FALSE)
@@ -143,7 +143,7 @@ setMethod("write",
                                  age = paste(x@minage:x@maxage,collapse = '\t'))
         write.unix(agg.head,
                    f = sprintf('%s/aggfiles/%s.allages.agg',file,x@stockname))
-        write.table(allagesAgg,
+        write.gadget.table(allagesAgg,
                     file = sprintf('%s/aggfiles/%s.allages.agg',file,x@stockname),
                     col.names=FALSE,append=TRUE,
                     quote=FALSE,sep='\t',row.names=FALSE)
@@ -162,7 +162,7 @@ setMethod("write",
                           sep = '\n')
         write.unix(init.head,
                    f = sprintf('%s/Data/%s.%s',file,x@stockname,init.type))
-        write.table(x@initialdata,
+        write.gadget.table(x@initialdata,
                     file = sprintf('%s/Data/%s.%s',file,x@stockname,init.type),
                     col.names=FALSE,append=TRUE,
                     quote=FALSE,sep='\t',row.names=FALSE)
@@ -225,7 +225,7 @@ setMethod("write",
             paste(sprintf('yearstepfile\t%s/Data/%s.yearstep',file,x@stockname),
                   sprintf('defineratios\t%s/Data/%s.migratio',file,x@stockname),
                   sep = '\n')
-          write.table(x@yearstep,
+          write.gadget.table(x@yearstep,
                       file = sprintf('%s/Data/%s.yearstep',file,x@stockname),
                       row.names = FALSE,
                       col.names = FALSE,
@@ -237,7 +237,7 @@ setMethod("write",
                   migratio <- sprintf('%s/Data/%s.migratio',file,x@stockname)
                   write.unix(sprintf('[migrationmatrix]\nname\t%s',y),
                         f = migratio, append = TRUE)
-                  write.table(x@migrationratio[[y]],file= migratio,
+                  write.gadget.table(x@migrationratio[[y]],file= migratio,
                               append = TRUE,
                               row.names = FALSE,
                               col.names = FALSE,
@@ -267,7 +267,7 @@ setMethod("write",
           write.unix(sprintf('; renewal-file for stock %s\n; %s',
                              x@stockname,paste(names(x@renewal.data),collapse='-')),
                      f = sprintf('%s/Data/%s.rec',file,x@stockname))
-          write.table(x@renewal.data,
+          write.gadget.table(x@renewal.data,
                       file = sprintf('%s/Data/%s.rec',
                         file,x@stockname),
                       row.names = FALSE,
@@ -395,7 +395,7 @@ setMethod("write",
       else
         fleet.text <- fleet.text[names(fleet.text) != 'empty']
 
-      write.table(x@amount,file=sprintf('%s/Data/%s.amount',file,x@name),
+      write.gadget.table(x@amount,file=sprintf('%s/Data/%s.amount',file,x@name),
                   col.names=FALSE,
                   quote=FALSE,sep='\t',row.names=FALSE)
       if(file.exists(sprintf('%s/fleets',file))){
@@ -421,7 +421,7 @@ setMethod("write",
       ## area aggregation files
       allareasAgg <- data.frame(label = 'allareas',areas = paste(x@area@areas,collapse = '\t'))
       dir.create(sprintf('%s/aggfiles',loc),showWarnings = FALSE, recursive = TRUE)
-      write.table(allareasAgg,
+      write.gadget.table(allareasAgg,
                   file = sprintf('%s/aggfiles/allareas.agg',loc),
                   col.names=FALSE,append=FALSE,
                   quote=FALSE,sep='\t',row.names=FALSE)
@@ -838,7 +838,7 @@ setMethod('writeAggfiles','gadget-stock',
             write.unix(agg.head,f = sprintf('%s/%s.len.agg',folder,
                              x@stockname))
 
-            write.table(lenAgg,
+            write.gadget.table(lenAgg,
                         file = sprintf('%s/%s.len.agg',folder,
                           x@stockname),
                         col.names=FALSE,append=TRUE,
@@ -850,7 +850,7 @@ setMethod('writeAggfiles','gadget-stock',
                                     max = max(lengths))
             write.unix(agg.head,f = sprintf('%s/%s.alllen.agg',folder,
                              x@stockname))
-            write.table(alllenAgg,
+            write.gadget.table(alllenAgg,
                         file = sprintf('%s/%s.alllen.agg',folder,x@stockname),
                         col.names=FALSE,append=TRUE,
                         quote=FALSE,sep='\t',row.names=FALSE)
@@ -859,7 +859,7 @@ setMethod('writeAggfiles','gadget-stock',
             ageAgg <- data.frame(label = x@minage:x@maxage,
                                  age = x@minage:x@maxage)
             write.unix(agg.head,f = sprintf('%s/%s.age.agg',folder,x@stockname))
-            write.table(ageAgg,
+            write.gadget.table(ageAgg,
                         file = sprintf('%s/%s.age.agg',folder,x@stockname),
                         col.names=FALSE,append=TRUE,
                         quote=FALSE,sep='\t',row.names=FALSE)
@@ -870,7 +870,7 @@ setMethod('writeAggfiles','gadget-stock',
                                        collapse = '\t'))
             write.unix(agg.head,f = sprintf('%s/%s.allages.agg',folder,
                              x@stockname))
-            write.table(allagesAgg,
+            write.gadget.table(allagesAgg,
                         file = sprintf('%s/%s.allages.agg',folder,x@stockname),
                         col.names=FALSE,append=TRUE,
                         quote=FALSE,sep='\t',row.names=FALSE)
@@ -881,7 +881,7 @@ setMethod('writeAggfiles','gadget-stock',
                                   area = x@livesonareas)
             write.unix(agg.head,f = sprintf('%s/%s.area.agg',folder,
                              x@stockname))
-            write.table(areaAgg,
+            write.gadget.table(areaAgg,
                         file = sprintf('%s/%s.area.agg',folder,x@stockname),
                         col.names=FALSE,append=TRUE,
                         quote=FALSE,sep='\t',row.names=FALSE)

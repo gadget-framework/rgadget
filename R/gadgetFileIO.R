@@ -436,9 +436,10 @@ write.gadget.parameters <- function(params,file='params.out',columns=TRUE){
     write.unix(paste(c('switches',names(params)),collapse='\t'),f=file)
   else
     write.unix(input.text,file)
-  write.table(params,file=file,
+  write.gadget.table(params,file=file,
               quote=FALSE, row.names=FALSE, col.names=FALSE,
               append=TRUE, sep="\t")
+             
 
 }
 
@@ -1328,8 +1329,8 @@ write.gadget.area <- function(area,file='area'){
           '; year - step - area - temperature',
           sep='\n')
   write.unix(area.file,f=file)
-  write.table(area$temperature,file=file,col.names=FALSE,append=TRUE,
-              quote=FALSE,sep='\t',row.names=FALSE)
+  write.gadget.table(area$temperature,file=file,col.names=FALSE,append=TRUE,
+                     quote=FALSE,sep='\t',row.names=FALSE)
 }
 ##' <description>
 ##'
@@ -2439,5 +2440,11 @@ plot.gadget.fit <- function(fit,data = 'sidat',type='direct',dat.name=NULL){
 write.unix <- function(x,f,...){
     f <- file(f,open='wb')
     write(x,file=f,...)
+    close(f)
+}
+
+write.gadget.table <- function(x,file='',append=FALSE,...){
+    f <- file(file,open=ifelse(append,'ab','wb'))
+    write.table(x,file=f,...)
     close(f)
 }

@@ -706,7 +706,7 @@ gadget.sensitivity <- function(file='params.out',
   param.table <- unique(param.table)
   header <- paste('switches',paste(names(param.table),collapse='\t'),sep='\t')
   write.unix(header,f=sens.in)
-  write.table(param.table,file=sens.in,col.names=FALSE,append=TRUE,
+  write.gadget.table(param.table,file=sens.in,col.names=FALSE,append=TRUE,
               quote=FALSE,sep='\t',row.names=FALSE)
   main <- read.gadget.main(main.file)
   main$printfiles <- NULL
@@ -998,7 +998,7 @@ gadget.ypr <- function(params.file = 'params.in',
   })
 
 
-  write.table(fleet.predict[c('year','step','area','fleet','ratio')],
+  write.gadget.table(fleet.predict[c('year','step','area','fleet','ratio')],
               file=sprintf('%s/fleet.ypr',ypr),
               col.names=FALSE,row.names=FALSE,
               quote = FALSE)
@@ -1410,7 +1410,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
   })
 
 
-  write.table(arrange(fleet.predict[c('year','step','area','fleet','ratio')],
+  write.gadget.table(arrange(fleet.predict[c('year','step','area','fleet','ratio')],
                       year,step,area),
               file=sprintf('%s/fleet.pre',pre),
               col.names=FALSE,row.names=FALSE,
@@ -1580,7 +1580,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
         write.unix('hockey.rec\ndata\n; year step value',
                    f = sprintf('%s/hockey.rec',pre))
 
-        write.table(time.var, col.names = FALSE, row.names = FALSE,
+        write.gadget.table(time.var, col.names = FALSE, row.names = FALSE,
                     append = TRUE, file = sprintf('%s/hockey.rec',pre),
                     quote = FALSE)
       } else {
