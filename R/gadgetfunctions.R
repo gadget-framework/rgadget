@@ -485,7 +485,38 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
     ## run the bloody thing
     if(run.serial){
         res <- lapply(run.string,run.iterative)
-    } else if(!is.null(cl)){        
+    } else if(!is.null(cl)){
+        ## nasty hack I know (stolen from http://www.r-bloggers.com/implementing-mclapply-on-windows-a-primer-on-embarrassingly-parallel-computation-on-multicore-systems-with-r/ )
+
+        loaded.package.names <- c(
+            ## Base packages
+            sessionInfo()$basePkgs,
+            ## Additional packages
+            names( sessionInfo()$otherPkgs ))
+        
+        this.env <- environment()
+        while( identical( this.env, globalenv() ) == FALSE ) {
+            clusterExport(cl,
+                          ls(all.names=TRUE, env=this.env),
+                          envir=this.env)
+            this.env <- parent.env(environment())
+        }
+        ## repeat for the global environment
+        clusterExport(cl,
+                      ls(all.names=TRUE, env=globalenv()),
+                      envir=globalenv())
+        
+        ## Load the libraries on all the clusters
+        ## N.B. length(cl) returns the number of clusters
+        parLapply( cl, 1:length(cl), function(xx){
+            lapply(loaded.package.names, function(yy) {
+                ## N.B. the character.only option of 
+                ##      require() allows you to give the 
+                ##      name of a package as a string. 
+                require(yy , character.only=TRUE)})
+        })
+        
+        
         res <- parLapply(cl,run.string,run.iterative)
     } else {
         res <- mclapply(run.string,run.iterative,
