@@ -295,10 +295,13 @@ callParamin <- function(i='params.in',
 ##' used in the model (if NULL use all)
 ##' @param inverse should inverse selection be used for likelihood
 ##' components
+##' @param cl cluster references, used to parallelize this function on
+##' Windows or on a actual cluster. Make sure that Rgadget is loaded on all nodes.
 ##' @return a matrix containing the weights of the likelihood
 ##' components at each iteration (defaults to FALSE).
 ##' @author Bjarki Þór Elvarsson
 ##' @export
+##' @example 
 gadget.iterative <- function(main.file='main',gadget.exe='gadget',
                              params.file='params.in',
                              rew.sI=FALSE,
@@ -314,7 +317,9 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
                              method = 'lm',
                              cv.floor=NULL,
                              comp=NULL,
-                             inverse=FALSE) {
+                             inverse=FALSE,
+                             cl=NULL) {
+
   ## Ensure all files exist
   if(!file.exists(main.file)) {
     stop('Main file not found')
@@ -480,10 +485,8 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
     ## run the bloody thing
     if(run.serial){
         res <- lapply(run.string,run.iterative)
-    } else if(Sys.info()[['sysname']]=='Windows'){
-        cl <- makeCluster(detectCores(logical=TRUE))
+    } else if(!is.null(cl)){        
         res <- parLapply(cl,run.string,run.iterative)
-        stopCluster(cl)
     } else {
         res <- mclapply(run.string,run.iterative,
                         mc.cores = detectCores(logical = TRUE))
@@ -1453,8 +1456,9 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
     }
 
     rec.out <- data.frame(year=sim.begin:(sim.begin+years),
-                          recruitment=as.numeric(tail(rec.forward/1e4,years)))
-    tmp <- mutate(rec.out,lower=0,upper=recruitment+1,optimise=0)
+                          recruitment=as.numeric(tail(rec.forward,years)))
+    tmp <- mutate(rec.out,recuitment=recruitment,
+                  lower=0,upper=recruitment+1,optimise=0)
     tmp$year <- paste('rec',tmp$year,sep='')
     names(tmp)[1:2] <- c('switch','value')
 
@@ -1466,6 +1470,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
                                             upper = 100, optimise = 0,
                                             stringsAsFactors = FALSE),
                                  tail(tmp,-1))
+                                 
 
     write.gadget.parameters(params.forward,
                             file=sprintf('%s/params.forward', pre))
@@ -1475,7 +1480,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
       rec.forward[,i+1] <- coeffAR[2]*rec.forward[,i] + x[,i]
     }
 
-    rec.out <- arrange(melt(rec.forward[,-1]/1e4,value.name = 'recruitment'),
+    rec.out <- arrange(melt(rec.forward[,-1],value.name = 'recruitment'),
                        trial,year)
 
     rec.forward <- as.data.frame(rec.forward[,-1])
@@ -1599,7 +1604,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
                                 step = tail(x@renewal.data$step,1),
                                 area = tail(x@renewal.data$area,1),
                                 age = tail(x@renewal.data$age,1),
-                                number = sprintf('#rec%s',rec.years),
+                                number = sprintf('(* 0.0001 #rec%s )',rec.years),
                                 mean = tail(x@renewal.data$mean,1),
                                 stddev = tail(x@renewal.data$stddev,1),
                                 alpha = tail(x@renewal.data$alpha,1),
