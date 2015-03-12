@@ -417,7 +417,7 @@ setMethod("write",
       loc <- sprintf('%s/%s',file,x@model.name)
       dir.create(loc, showWarnings = FALSE, recursive = TRUE)
       ## writing ecosystem files
-      write.unix(x@area, f = sprintf('%s/area',loc))
+      write(x@area, f = sprintf('%s/area',loc))
       ## area aggregation files
       allareasAgg <- data.frame(label = 'allareas',areas = paste(x@area@areas,collapse = '\t'))
       dir.create(sprintf('%s/aggfiles',loc),showWarnings = FALSE, recursive = TRUE)
@@ -425,16 +425,18 @@ setMethod("write",
                   file = sprintf('%s/aggfiles/allareas.agg',loc),
                   col.names=FALSE,append=FALSE,
                   quote=FALSE,sep='\t',row.names=FALSE)
-      write.unix(x@time, f = sprintf('%s/time',loc))
+      write(x@time, file = sprintf('%s/time',loc))
       if(length(x@print) > 0)
-        write.unix(x@print, f = sprintf('%s/printfile',loc))
+        write(x@print, file = sprintf('%s/printfile',loc))
       for(stock in x@stocks)
-        write.unix(stock,f = loc)
+        write(stock,file = loc)
 #      write(x@tags,file = sprintf('%s/tagfile',loc))
 #      write(x@otherfood, file = sprintf('%s/otherfood',loc))
-      file.remove(sprintf('%s/fleets',loc))
+      if(file.exists(sprintf('%s/fleets',loc))){
+        file.remove(sprintf('%s/fleets',loc))
+      }
       for(fleet in x@fleets)
-          write.unix(fleet,f=loc)
+          write(fleet,file=loc)
       ## Likelihood files
       ##write(x@likelhood, file = sprintf('%s/likelihood'))
 

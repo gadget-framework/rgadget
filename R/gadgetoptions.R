@@ -36,7 +36,7 @@ gadget.options <- function(type=c('simple2stock','spawning')){
            M=0.2,
            doeseat = 0,
            iseaten = 1,
-           doesmigrate = 1,
+           doesmigrate = 0,
            Migration = array(c(1,0,.4,.6,.6,.4,0,1,
              .6,.4,0,1,1,0,.4,.6),
              c(2,2,4)),
@@ -46,8 +46,9 @@ gadget.options <- function(type=c('simple2stock','spawning')){
            driftx = NULL,
            drifty = NULL,
            lambda = NULL,
+           doesmature = 0,
            doesmove = 1,
-           transitionstocksandratios = data.frame(stock='mat',ratio=1),
+           transitionstocksandratios = 'mat  1',
            transitionstep = 1,
            doesspawn = 0,
            livesonareas=1,
@@ -61,7 +62,7 @@ gadget.options <- function(type=c('simple2stock','spawning')){
            weight = c(a=10^(-5),
              b=3),
            doesrenew = 1,
-           renewal=list(minage=4,maxage=30),
+           renewal=list(minlength=4,maxlength=30),
            doesspawn = 0,
            renewal.step = 1,
            ## The standard deviation of length at i years old
@@ -97,7 +98,7 @@ gadget.options <- function(type=c('simple2stock','spawning')){
            otherfrac=0.8,
            otherfood=50000,
            iseaten = 1,
-           doesmigrate = 1,
+           doesmigrate = 0,
            Migration = array(c(1,0,.4,.6,.6,.4,0,1,
              .6,.4,0,1,1,0,.4,.6),
              c(2,2,4)),
@@ -108,6 +109,7 @@ gadget.options <- function(type=c('simple2stock','spawning')){
            drifty = NULL,
            lambda = NULL,
            doesmove = 0,
+           doesmature = 0,
            doesspawn = 0,
            livesonareas=1,
            doesgrow = 1,
@@ -290,21 +292,21 @@ gadget.skeleton <- function(time,area,stocks,fleets){
                            mean =  rep(mu[x$minage:x$maxage],
                              getNumOfAreas(area)), 
                            stddev = x$sigma[x$minage:x$maxage],
-                           alpha = x$weight['a'],
-                           beta = x$weight['b'])
+                           alpha = as.numeric(x$weight['a']),
+                           beta = as.numeric(x$weight['b']))
         if(x$doesrenew==1){ 
           if(is.null(x$renewal.data)){
             x$renewal.data <- 
-              mutate(subset(getTimeSteps(time), 
-                            step == x$renewal.step),
-                     area = 1:getNumOfAreas(area),
-                     
-                     age = x$minage,
-                     number = x$n,
-                     mean = mu[x$minage],
-                     stddev = x$sigma[x$minage],
-                     a = x$weight['a'],
-                     b = x$weight['b'])
+              plyr:::mutate(subset(getTimeSteps(time), 
+                                   step == x$renewal.step),
+                            area = 1:getNumOfAreas(area),
+                            
+                            age = x$minage,
+                            number = x$n,
+                            mean = mu[x$minage],
+                            stddev = x$sigma[x$minage],
+                            a = x$weight['a'],
+                            b = x$weight['b'])
           }          
         }else {
           x$renewal.data <- data.frame()
@@ -312,7 +314,7 @@ gadget.skeleton <- function(time,area,stocks,fleets){
         }
         
         if(x$doesmove==0){
-          x$transitionstocksandratios <- data.frame()
+          x$transitionstocksandratios <- ''
           x$transitionstep <- 0
         }
         if(x$doesspawn==1){
@@ -340,8 +342,8 @@ gadget.skeleton <- function(time,area,stocks,fleets){
           maturitysteps <- x$maturitysteps
         } else {
           maturityfunction <- ''
-          maturestocksandratios <- list()
-          coefficients <- list()
+          maturestocksandratios <- '' 
+          coefficients <-''
           maturitysteps <- 0
         }
          
