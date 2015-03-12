@@ -1738,6 +1738,35 @@ write.gadget.fleet <- function(fleet,file='fleet'){
 
 }
 
+
+make.gadget.fleet <- function(name='comm',
+                              type='totalfleet',                     
+                              suitability = 'exponential',
+                              fleet.data = data.frame(area=1).
+                              ...){
+    suitability <-
+        switch(suitability,
+               andersenfleet = paste(sprintf('#%s.%s',name,paste('p',1:6)),
+                   collapse = ' '),
+               andersen = paste(sprintf('#%s.%s',name,paste('p',1:5)),
+                   collapse = ' '),
+               exponential = paste(sprintf('#%s.%s',name,c('alpha','beta',
+                   'gamma','delta')),
+                   collapse = ' '),
+               exponentiall50 = paste(sprintf('#%s.%s',name,c('alpha','l50')),
+                   collapse = ' '),
+               richards = paste(sprintf('#%s.%s',name,paste('p',1:5)),
+                   collapse = ' '),
+               straightline = sprintf('#%s.%s',name,'alpha'),
+               gamma = paste(sprintf('#%s.%s',name,paste('p',1:5),
+                   collapse = ' ')))
+    
+    
+    new('gadget-fleet',name=name,type=type,
+        livesonareas=unique(fleet.data$area),
+        amount = fleet.data, suitability = suitability,...)
+})
+
 ##' .. content for \description{} (no empty lines) ..
 ##'
 ##' .. content for \details{} ..
