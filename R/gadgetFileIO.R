@@ -1742,9 +1742,13 @@ write.gadget.fleet <- function(fleet,file='fleet'){
 make.gadget.fleet <- function(name='comm',
                               type='totalfleet',                     
                               suitability = 'exponential',
-                              fleet.data = data.frame(area=1).
+                              fleet.data = data.frame(area=1),
+                              stocknames = '',
                               ...){
-    suitability <-
+    if(stocknames == ''){
+        stop('No stockname supplied')
+    }
+    params <-
         switch(suitability,
                andersenfleet = paste(sprintf('#%s.%s',name,paste('p',1:6)),
                    collapse = ' '),
@@ -1761,11 +1765,15 @@ make.gadget.fleet <- function(name='comm',
                gamma = paste(sprintf('#%s.%s',name,paste('p',1:5),
                    collapse = ' ')))
     
-    
+    fleet.data$fleetname <- name
     new('gadget-fleet',name=name,type=type,
-        livesonareas=unique(fleet.data$area),
-        amount = fleet.data, suitability = suitability,...)
-})
+        livesonareas=as.numeric(unique(fleet.data$area)),
+        amount = fleet.data[c('year','step','area','fleetname',
+            'number')],
+        suitability = data.frame(stock=stocknames,
+            suitability=suitability,params=params),
+        ...)
+}
 
 ##' .. content for \description{} (no empty lines) ..
 ##'

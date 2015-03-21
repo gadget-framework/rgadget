@@ -1,25 +1,24 @@
 ## Time file methods
+setGeneric('gadget_dir_write',def=function(x){standardGeneric('gadget_dir_write')})
+setMethod("gadget_dir_write",
+          signature(x = "gadget-time"),
+          function (x) {
+              header <- sprintf('; time file created in Rgadget\n; %s - %s',
+                                file,Sys.Date())
+              time.file <-
+                  paste(header,
+                        paste('firstyear',x@firstyear,sep='\t'),
+                        paste('firststep',x@firststep,sep='\t'),
+                        paste('lastyear',x@lastyear,sep='\t'),
+                        paste('laststep',x@laststep,sep='\t'),
+                        paste('notimesteps',
+                              paste(length(x@notimesteps),
+                                    paste(x@notimesteps,collapse=' ')),
+                              sep='\t'),
+                        sep='\n')
+              write.unix(time.file,f=sprintf('%s/time',gd$dir))
+          })
 
-setMethod("write",
-    signature(x = "gadget-time"),
-    function (x, file = "data", ncolumns = if (is.character(x)) 1 else 5,
-        append = FALSE, sep = " ")
-    {
-      header <- sprintf('; time file created in Rgadget\n; %s - %s',file,Sys.Date())
-      time.file <-
-        paste(header,
-              paste('firstyear',x@firstyear,sep='\t'),
-              paste('firststep',x@firststep,sep='\t'),
-              paste('lastyear',x@lastyear,sep='\t'),
-              paste('laststep',x@laststep,sep='\t'),
-              paste('notimesteps',
-                    paste(length(x@notimesteps),
-                          paste(x@notimesteps,collapse=' ')),
-                    sep='\t'),
-              sep='\n')
-      write.unix(time.file,f=file)
-    }
-)
 setGeneric('getTimeSteps',def=function(x){standardGeneric("getTimeSteps")})
 setMethod('getTimeSteps','gadget-time',
           function(x) {
@@ -37,11 +36,9 @@ setMethod('getTimeSteps','gadget-time',
 
 ## area-file methods
 
-setMethod("write",
+setMethod("gadget_dir_write",
     signature(x = "gadget-area"),
-    function (x, file = "data", ncolumns = if (is.character(x)) 1 else 5,
-        append = FALSE, sep = " ")
-    {
+    function (x) {
       header <- sprintf('; time file created in Rgadget\n; %s - %s',file,Sys.Date())
       area.file <-
         paste(header,
@@ -50,43 +47,41 @@ setMethod("write",
               'temperature',
               '; year - step - area - temperature',
               sep='\n')
-      write(area.file,file=file)
-      write.gadget.table(x@temperature,file=file,col.names=FALSE,append=TRUE,
-                  quote=FALSE,sep='\t',row.names=FALSE)
-
-    }
-)
+      write(area.file,file=sprintf('%s/area',gd$dir))
+      write.gadget.table(x@temperature,file=gd$dir,col.names=FALSE,append=TRUE,
+                         quote=FALSE,sep='\t',row.names=FALSE)
+      
+  })
+          
 
 ## stockfile methods
 
-setMethod("write",
+setMethod("gadget_dir_write",
     signature(x = "gadget-prey"),
-    function (x, file = "data", ncolumns = if (is.character(x)) 1 else 5,
-        append = FALSE, sep = " ")
-    {
-      dir.create(sprintf('%s/aggfiles',file), showWarnings = FALSE, recursive = TRUE)
+    function (x) {
+      dir.create(sprintf('%s/Aggfiles',gd$dir),
+                 showWarnings = FALSE, recursive = TRUE)
       header <- paste(sprintf('; prey aggregation file for %s',x@name),
                       sprintf('; created using rgadget at %s', Sys.Date()),
                       sep = '\n')
-      write.unix(header,f = sprintf('%s/aggfiles/%s.prey.agg',file,x@name))
-      write.gadget.table(x@preylengths,file = sprintf('%s/aggfiles/%s.prey.agg',file,x@name),
-            col.names=FALSE,append=TRUE,
-            quote=FALSE,sep='\t',row.names=FALSE)
-      paste(sprintf('preylengths\t%s/aggfiles/%s.prey.agg',file,x@name),
+      write.unix(header,f = sprintf('%s/Aggfiles/%s.prey.agg',gd$dir,x@name))
+      write.gadget.table(x@preylengths,
+                         file = sprintf('%s/Aggfiles/%s.prey.agg',gd$dir,x@name),
+                         col.names=FALSE,append=TRUE,
+                         quote=FALSE,sep='\t',row.names=FALSE)
+      paste(sprintf('preylengths\tAggfiles/%s.prey.agg',x@name),
             sprintf('energycontent\t%s',x@energycontent),
             sep = '\n')
-    }
-)
+  })
+          
 
 
-setMethod("write",
+setMethod("gadget_dir_write",
     signature(x = "gadget-stock"),
-    function (x, file = "data", ncolumns = if (is.character(x)) 1 else 5,
-        append = FALSE, sep = " ")
-    {
-        dir.create(sprintf('%s/Data', file),
+    function (x){
+        dir.create(sprintf('%s/Data', gd$dir),
                    showWarnings = FALSE, recursive = TRUE)
-        dir.create(sprintf('%s/aggfiles', file),
+        dir.create(sprintf('%s/Aggfiles', gd$dir),
                    showWarnings = FALSE, recursive = TRUE)
 
         ref.head <-
@@ -95,11 +90,11 @@ setMethod("write",
                 paste(c('; ',names(x@refweight)),collapse = '\t'),
                 sep = '\n')
         write.unix(ref.head,f = sprintf('%s/Data/%s.refweigthfile',
-                         file,x@stockname))
+                         gd$dir,x@stockname))
         tmp <- x@refweight
 #        tmp[,2] <- round(tmp[,2])
         write.gadget.table(tmp,
-                    file = sprintf('%s/Data/%s.refweigthfile',file,x@stockname),
+                    file = sprintf('%s/Data/%s.refweigthfile',gd$dir,x@stockname),
                     col.names=FALSE,append=TRUE,
                     quote=FALSE,sep='\t',row.names=FALSE)
 
@@ -116,17 +111,17 @@ setMethod("write",
                                   x@stockname,Sys.Date()),
                           paste(c('; ',names(lenAgg)),collapse = '\t'),
                           sep = '\n')
-        write.unix(agg.head,f = sprintf('%s/aggfiles/%s.len.agg',file,x@stockname))
+        write.unix(agg.head,f = sprintf('%s/Aggfiles/%s.len.agg',gd$dir,x@stockname))
 
         write.gadget.table(lenAgg,
-                    file = sprintf('%s/aggfiles/%s.len.agg',file,x@stockname),
+                    file = sprintf('%s/Aggfiles/%s.len.agg',gd$dir,x@stockname),
                     col.names=FALSE,append=TRUE,
                     quote=FALSE,sep='\t',row.names=FALSE)
 
         write.unix(agg.head,
-                   f = sprintf('%s/aggfiles/%s.alllen.agg',file,x@stockname))
+                   f = sprintf('%s/Aggfiles/%s.alllen.agg',gd$dir,x@stockname))
         write.gadget.table(alllenAgg,
-                    file = sprintf('%s/aggfiles/%s.alllen.agg',file,x@stockname),
+                    file = sprintf('%s/Aggfiles/%s.alllen.agg',gd$dir,x@stockname),
                     col.names=FALSE,append=TRUE,
                     quote=FALSE,sep='\t',row.names=FALSE)
 
@@ -134,17 +129,17 @@ setMethod("write",
         ageAgg <- data.frame(label = x@minage:x@maxage,
                              age = x@minage:x@maxage)
         write.unix(agg.head,
-                   f = sprintf('%s/aggfiles/%s.age.agg',file,x@stockname))
+                   f = sprintf('%s/Aggfiles/%s.age.agg',gd$dir,x@stockname))
         write.gadget.table(ageAgg,
-                    file = sprintf('%s/aggfiles/%s.age.agg',file,x@stockname),
+                    file = sprintf('%s/Aggfiles/%s.age.agg',gd$dir,x@stockname),
                     col.names=FALSE,append=TRUE,
                     quote=FALSE,sep='\t',row.names=FALSE)
         allagesAgg <- data.frame(label = 'allages',
                                  age = paste(x@minage:x@maxage,collapse = '\t'))
         write.unix(agg.head,
-                   f = sprintf('%s/aggfiles/%s.allages.agg',file,x@stockname))
+                   f = sprintf('%s/Aggfiles/%s.allages.agg',gd$dir,x@stockname))
         write.gadget.table(allagesAgg,
-                    file = sprintf('%s/aggfiles/%s.allages.agg',file,x@stockname),
+                    file = sprintf('%s/Aggfiles/%s.allages.agg',gd$dir,x@stockname),
                     col.names=FALSE,append=TRUE,
                     quote=FALSE,sep='\t',row.names=FALSE)
 
@@ -161,15 +156,17 @@ setMethod("write",
                           paste(c('; ',names(x@initialdata)),collapse = '-'),
                           sep = '\n')
         write.unix(init.head,
-                   f = sprintf('%s/Data/%s.%s',file,x@stockname,init.type))
+                   f = sprintf('%s/Modelfiles/%s.%s',gd$dir,x@stockname,init.type))
         write.gadget.table(x@initialdata,
-                    file = sprintf('%s/Data/%s.%s',file,x@stockname,init.type),
+                    file = sprintf('%s/Modelfiles/%s.%s',
+                        gd$dir,x@stockname,init.type),
                     col.names=FALSE,append=TRUE,
                     quote=FALSE,sep='\t',row.names=FALSE)
 
 
         stock.text <-
-          c(sprintf('; stock definition file for %s created using rgadget',x@stockname),
+          c(sprintf('; stock definition file for %s created using rgadget',
+                    x@stockname),
             sprintf('; at %s',Sys.Date()),
             ';',
             sprintf('stockname\t%s',x@stockname),
@@ -179,8 +176,8 @@ setMethod("write",
             sprintf('minlength\t%s',x@minlength),
             sprintf('maxlength\t%s',x@maxlength),
             sprintf('dl\t%s',x@dl),
-            sprintf('refweightfile\t%s/Data/%s.refweigthfile',file,x@stockname),
-            sprintf('growthandeatlengths\t%s/aggfiles/%s.len.agg',file,x@stockname),
+            sprintf('refweightfile\tData/%s.refweigthfile',x@stockname),
+            sprintf('growthandeatlengths\tAggfiles/%s.len.agg',x@stockname),
             sprintf('doesgrow\t%s',x@doesgrow),
             growth = ';',
             sprintf('naturalmortality\t%s',paste(x@naturalmortality,collapse = '\t')),
@@ -192,7 +189,7 @@ setMethod("write",
             paste(c('minage', 'maxage', 'minlength',
                     'maxlength', 'dl', 'sdev'),
                   x@initialconditions,sep ='\t',collapse = '\n'),
-            sprintf('%sfile\t%s/Data/%s.%1$s',init.type,file,x@stockname),
+            sprintf('%sfile\tModelfiles/%s.%1$s',init.type,x@stockname),
             sprintf('doesmigrate\t%s',x@doesmigrate),
             migration = ';',
             sprintf('doesmature\t%s',x@doesmature),
@@ -209,32 +206,33 @@ setMethod("write",
           stock.text['growth'] <- toString(x@growth)
         }
         if(x@iseaten == 1){
-          stock.text['eaten'] <- write(x@preyinfo,file=file)
+          stock.text['eaten'] <- gadget_dir_write(gd,x@preyinfo)
         }
         if(x@doeseat == 1){
           stock.text['eat'] <- toString(x@predator)
         }
         if(x@doesspawn == 1){
-          stock.text['spawning'] <- sprintf('spawnfile\t%s/Data/%s.spawnfile',
-                                            file, x@stockname)
-          write(x@spawning,file = sprintf('%s/Data/%s.spawnfile',file,
-                             x@stockname))
+            stock.text['spawning'] <- sprintf('spawnfile\tModelfiles/%s.spawnfile',
+                                              x@stockname)
+            write.unix(toString(x@spawning),f=sprintf('%s/Modelfiles/%s.spawnfile', 
+                                                gd$dir,x@stockname))
         }
         if(x@doesmigrate == 1){
           stock.text['migration'] <-
-            paste(sprintf('yearstepfile\t%s/Data/%s.yearstep',file,x@stockname),
-                  sprintf('defineratios\t%s/Data/%s.migratio',file,x@stockname),
+            paste(sprintf('yearstepfile\tModelfiles/%s.yearstep',x@stockname),
+                  sprintf('defineratios\tModelfiles/%s.migratio',x@stockname),
                   sep = '\n')
           write.gadget.table(x@yearstep,
-                      file = sprintf('%s/Data/%s.yearstep',file,x@stockname),
+                      file = sprintf('%s/Modelfiles/%s.yearstep',gd$dir,x@stockname),
                       row.names = FALSE,
                       col.names = FALSE,
                       quote=FALSE)
           write.unix('; migratio file',
-                     sprintf('%s/Data/%s.migratio',file,x@stockname))
+                     sprintf('%s/Modelfiles/%s.migratio',gd$dir,x@stockname))
           l_ply(names(x@migrationratio),
                 function(y){
-                  migratio <- sprintf('%s/Data/%s.migratio',file,x@stockname)
+                  migratio <- sprintf('%s/Modelfiles/%s.migratio',
+                                      gd$dir,x@stockname)
                   write.unix(sprintf('[migrationmatrix]\nname\t%s',y),
                         f = migratio, append = TRUE)
                   write.gadget.table(x@migrationratio[[y]],file= migratio,
@@ -262,24 +260,24 @@ setMethod("write",
                               function(x)
                               paste(x,collapse=' ')),
                         sep='\t',collapse = '\n'),
-                  sprintf('%sfile\t%s/Data/%s.rec',rec.type,file,x@stockname),
+                  sprintf('%sfile\tModelfiles/%s.rec',rec.type,x@stockname),
                   sep='\n')
           write.unix(sprintf('; renewal-file for stock %s\n; %s',
                              x@stockname,paste(names(x@renewal.data),collapse='-')),
-                     f = sprintf('%s/Data/%s.rec',file,x@stockname))
+                     f = sprintf('%s/Modelfiles/%s.rec',gd$dir,x@stockname))
           write.gadget.table(x@renewal.data,
-                      file = sprintf('%s/Data/%s.rec',
-                        file,x@stockname),
-                      row.names = FALSE,
-                      col.names = FALSE,
-                      quote=FALSE,
-                      append=TRUE)
+                             file = sprintf('%s/Data/%s.rec',
+                                 gd$dir,x@stockname),
+                             row.names = FALSE,
+                             col.names = FALSE,
+                             quote=FALSE,
+                             append=TRUE)
         }
 
         if(x@doesmature == 1){
           stock.text['maturity'] <-
-            sprintf('maturityfunction\t%s\nmaturityfile\t%s/%s.maturity',
-                    x@maturityfunction,file,x@stockname)
+            sprintf('maturityfunction\t%s\nmaturityfile\tModelfiles/%s.maturity',
+                    x@maturityfunction,x@stockname)
           maturityfile <-
             paste(sprintf('; maturityfile for stock %s',x@stockname),
                   sprintf('maturestocksandratios %s',
@@ -290,7 +288,8 @@ setMethod("write",
                   sprintf('coefficients %s',
                           paste(x@coefficients,collapse='\t')),
                   sep='\n')
-          write.unix(maturityfile,f=sprintf('%s/%s.maturity',file,x@stockname))
+          write.unix(maturityfile,f=sprintf('%s/Modelfiles/%s.maturity',
+                                      gd$dir,x@stockname))
 
         }
         if(x@doesmove == 1){
@@ -303,7 +302,7 @@ setMethod("write",
                   sep='\n')
         }
         write.unix(paste(stock.text,collapse = '\n'),
-                   f = sprintf('%s/%s',file,x@stockname))
+                   f = sprintf('%s/%s',gd$dir,x@stockname))
     }
 )
 
@@ -358,13 +357,11 @@ setMethod("toString",
           }
           )
 
-
-setMethod("write",
+setMethod("gadget_dir_write",
     signature(x = "gadget-fleet"),
-    function (x, file = "data", ncolumns = if (is.character(x)) 1 else 5,
-        append = FALSE, sep = " ")
-    {
-      header <- sprintf('; fleet file created in Rgadget\n; %s - %s\n[fleetcomponent]',file,Sys.Date())
+    function (x){
+      header <- sprintf('; fleet file created in Rgadget\n; %s - %s\n[fleetcomponent]',
+                        gd$dir,Sys.Date())
       ## default text
       fleet.text <-
         c(header = header,
@@ -378,7 +375,7 @@ setMethod("write",
                         x@suitability$params,
                         collapse='\n')),
           empty = '; empty space -- move along nothing to see here',
-          amount = sprintf('amount\t%s/Data/%s.amount',file,x@name),
+          amount = sprintf('amount\tData/%s.amount',x@name),
           ';')
 
       if(tolower(x@type) == 'quotafleet')
@@ -391,87 +388,96 @@ setMethod("write",
         fleet.text['empty'] <-
           sprintf('catchability\n%s',
                   paste(paste(x@catchability$stock,
-                              x@catchability$catchabilty,sep='\t'),collapse = '\n'))
+                              x@catchability$catchabilty,sep='\t'),
+                        collapse = '\n'))
       else
         fleet.text <- fleet.text[names(fleet.text) != 'empty']
+      dir.create(sprintf('%s/Data/',gd$dir),showWarnings = FALSE, recursive = TRUE)
+      dir.create(sprintf('%s/Modelfiles/',gd$dir),
+                 showWarnings = FALSE, recursive = TRUE)
 
-      write.gadget.table(x@amount,file=sprintf('%s/Data/%s.amount',file,x@name),
+      write.gadget.table(x@amount,file=sprintf('%s/Data/%s.amount',
+                                      gd$dir,x@name),
                   col.names=FALSE,
                   quote=FALSE,sep='\t',row.names=FALSE)
-      if(file.exists(sprintf('%s/fleets',file))){
-          write.unix(paste(fleet.text,collapse='\n'),f=sprintf('%s/fleets',file),
+      if(file.exists(sprintf('%s/Modelfiles/fleets',gd$dir))){
+          write.unix(paste(fleet.text,collapse='\n'),
+                     f=sprintf('%s/Modelfiles/fleets',gd$dir),
                      append = TRUE)
       } else {
-        write.unix(paste(fleet.text,collapse='\n'),f=sprintf('%s/fleets',file))
+        write.unix(paste(fleet.text,collapse='\n'),
+                   f=sprintf('%s/Modelfiles/fleets',gd$dir))
       }
       invisible(fleet.text)
     }
-)
+) 
 
-
-setMethod("write",
+##' .. content for \description{} (no empty lines) ..
+##'
+##' .. content for \details{} ..
+##' @title 
+##' @return 
+##' @author Bjarki Thor Elvarsson
+setMethod("gadget_dir_write",
     signature(x = "gadget-main"),
-    function (x, file = "gadget-models", ncolumns = if (is.character(x)) 1 else 5,
-        append = FALSE, sep = " ")
-    {
-      loc <- sprintf('%s/%s',file,x@model.name)
+    function (x) {
+      loc <- gd$dir
       dir.create(loc, showWarnings = FALSE, recursive = TRUE)
       ## writing ecosystem files
-      write(x@area, f = sprintf('%s/area',loc))
+      gadget_dir_write(gd,x@area)
       ## area aggregation files
-      allareasAgg <- data.frame(label = 'allareas',areas = paste(x@area@areas,collapse = '\t'))
-      dir.create(sprintf('%s/aggfiles',loc),showWarnings = FALSE, recursive = TRUE)
+      allareasAgg <- data.frame(label = 'allareas',
+                                areas = paste(x@area@areas,collapse = '\t'))
+      dir.create(sprintf('%s/Aggfiles',loc),showWarnings = FALSE, recursive = TRUE)
       write.gadget.table(allareasAgg,
-                  file = sprintf('%s/aggfiles/allareas.agg',loc),
-                  col.names=FALSE,append=FALSE,
-                  quote=FALSE,sep='\t',row.names=FALSE)
-      write(x@time, file = sprintf('%s/time',loc))
+                         file = sprintf('%s/Aggfiles/allareas.agg',loc),
+                         col.names=FALSE,append=FALSE,
+                         quote=FALSE,sep='\t',row.names=FALSE)
+      gadget_dir_write(gd,x@time)
       if(length(x@print) > 0)
-        write(x@print, file = sprintf('%s/printfile',loc))
+        gadget_dir_write(gd,x@print)
       for(stock in x@stocks)
-        write(stock,file = loc)
+        gadget_dir_write(gd,stock)
 #      write(x@tags,file = sprintf('%s/tagfile',loc))
 #      write(x@otherfood, file = sprintf('%s/otherfood',loc))
-      if(file.exists(sprintf('%s/fleets',loc))){
-        file.remove(sprintf('%s/fleets',loc))
+      if(file.exists(sprintf('%s/fleets',gd$dir))){
+        file.remove(sprintf('%s/fleets',gd$dir))
       }
       for(fleet in x@fleets)
-          write(fleet,file=loc)
+          gadget_dir_write(gd,fleet)
       ## Likelihood files
       ##write(x@likelhood, file = sprintf('%s/likelihood'))
 
       main.text <-
         paste(sprintf('; main file for the %s model',x@model.name),
               sprintf('; created using rgadget at %s',Sys.Date()),
-              sprintf('timefile\t%s/time',loc),
-              sprintf('areafile\t%s/area',loc),
+              sprintf('timefile\ttime',loc),
+              sprintf('areafile\tarea',loc),
               sprintf('printfiles\t%s',
                       ifelse(length(x@print)>0,'printfile',';')),
               '[stock]',
               sprintf('stockfiles\t%s',
-                      paste(sapply(x@stocks,function(x) paste(loc,x@stockname,sep='/')),
-                            collapse='\t')),
+                      paste(getStockNames(x),collapse='\t')),
               '[tagging]',
-              ifelse(nrow(x@tags@tag.experiments)>0,'tagfiles\ttags',';'),
+              ifelse(nrow(x@tags@tag.experiments)>0,'tagfiles\tModelfiles/tags',';'),
               '[otherfood]',
-              ifelse(length(x@otherfood)>0,'otherfoodfiles\totherfood',';'),
+              ifelse(length(x@otherfood)>0,
+                     'otherfoodfiles\tModelfiles/otherfood',';'),
               '[fleet]',
-              ifelse(length(x@fleets)>0,sprintf('fleetfiles\t%s/fleets',loc),';'),
+              ifelse(length(x@fleets)>0,sprintf('fleetfiles\tModelfiles/fleets'),';'),
               '[likelihood]',
               ifelse(length(x@likelihood)>0,
-                     sprinft('likelihoodfiles\t%s/likelihood',loc),';'),
+                     'likelihoodfiles\tlikelihood',';'),
               sep='\n'
               )
-      write.unix(main.text,f=sprintf('%s/main',loc))
+      write.unix(main.text,f=sprintf('%s/main',gd$dir))
       invisible(main.text)
-            }
-)
+  }) 
+          
 
-setMethod("write",
+setMethod("toString",
           signature(x = "gadget-spawning"),
-          function (x, file = "data", ncolumns = if (is.character(x)) 1 else 5,
-                    append = FALSE, sep = " ")
-          {
+          function (x){
             spawn.text <-
               paste(sprintf('; spawning file created using Rgadget at %s',Sys.Date()),
                     sprintf('spawnsteps\t%s', paste(x@spawnsteps,collapse='\t')),
@@ -497,7 +503,7 @@ setMethod("write",
                             x@stockparameters$alpha,
                             x@stockparameters$beta),
                     sep = '\n')
-              write.unix(spawn.text,f = file)
+            return(spawn.text)
           }
           )
 

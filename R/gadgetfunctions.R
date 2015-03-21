@@ -1,4 +1,4 @@
-##' This function sets up all necessary switches and calls gadget from R
+##' Thi function sets up all necessary switches and calls gadget from R
 ##' and attempts to read the runtime output from gadget. This has currently
 ##' only been tested on unix based platforms (but should in principle work on
 ##' windows, given that gadget can be compiled).
@@ -486,7 +486,7 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
     if(run.serial){
         res <- lapply(run.string,run.iterative)
     } else if(!is.null(cl)){
-        ## nasty hack I know (stolen from http://www.r-bloggers.com/implementing-mclapply-on-windows-a-primer-on-embarrassingly-parallel-computation-on-multicore-systems-with-r/ )
+        ## nasty hack, I know (stolen from http://www.r-bloggers.com/implementing-mclapply-on-windows-a-primer-on-embarrassingly-parallel-computation-on-multicore-systems-with-r/ )
 
         loaded.package.names <- c(
             ## Base packages
@@ -519,6 +519,7 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
         
         res <- parLapply(cl,run.string,run.iterative)
     } else {
+        
         res <- mclapply(run.string,run.iterative,
                         mc.cores = detectCores(logical = TRUE))
     }
