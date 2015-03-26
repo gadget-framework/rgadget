@@ -2461,7 +2461,10 @@ plot.gadget.fit <- function(fit,data = 'sidat',type='direct',dat.name=NULL){
   } else if(data == 'res.by.year' & type == 'total'){
     ggplot(fit$res.by.year,aes(year,total.biomass/1e6,col=stock)) + geom_line() +
     theme_bw() + ylab("Biomass (in '000 tons)") + xlab('Year')
-  } else if(data == 'res.by.year' & type == 'catch'){
+} else if(data == 'res.by.year' & type == 'ssb'){
+    ggplot(fit$res.by.year,aes(year,ssb/1e6,col=stock)) + geom_line() +
+    theme_bw() + ylab("SSB (in '000 tons)") + xlab('Year')
+} else if(data == 'res.by.year' & type == 'catch'){
     ggplot(fit$res.by.year,aes(year,catch/1e6,col=stock)) + geom_line() +
     theme_bw() + ylab("Catch (in '000 tons)") + xlab('Year')
   } else if(data == 'suitability') {

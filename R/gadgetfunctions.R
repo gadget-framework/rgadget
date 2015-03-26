@@ -1,4 +1,4 @@
-##' Thi function sets up all necessary switches and calls gadget from R
+##' This function sets up all necessary switches and calls gadget from R
 ##' and attempts to read the runtime output from gadget. This has currently
 ##' only been tested on unix based platforms (but should in principle work on
 ##' windows, given that gadget can be compiled).
@@ -1348,7 +1348,9 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
                            save.results = TRUE,
                            stochastic = TRUE,
                            rec.window = NULL,
-                           compact = TRUE){
+                           compact = TRUE,
+                           mat.par=c(0,0),
+                           gd=list(dir='.',rel.dir='PRE')){
   if(check.previous){
     if(file.exists(sprintf('%s/out.Rdata',pre))){
       load(sprintf('%s/out.Rdata',pre))
@@ -1357,7 +1359,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
   }
 
   dir.create(pre,showWarnings = FALSE, recursive = TRUE)
-  dir.create(sprintf('%s/aggfiles',pre), showWarnings = FALSE)
+  dir.create(sprintf('%s/Aggfiles',pre), showWarnings = FALSE)
 
 
 
@@ -1379,7 +1381,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
   ## Write agg files
   l_ply(stocks,
         function(x){
-          writeAggfiles(x,folder=sprintf('%s/aggfiles',pre))
+          writeAggfiles(x,folder=sprintf('%s/Aggfiles',pre))
         })
 
   ## adapt model to include predictions
@@ -1501,7 +1503,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
                                             value = effort,lower = 0.0001,
                                             upper = 100, optimise = 0,
                                             stringsAsFactors = FALSE),
-                                 tail(tmp,-1))
+                                 tail(tmp[names(params)],-1))
                                  
 
     write.gadget.parameters(params.forward,
@@ -1540,9 +1542,9 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
     paste('[component]',
           'type             stockprinter',
           'stocknames       %1$s',
-          'areaaggfile      %2$s/aggfiles/%1$s.area.agg',
-          'ageaggfile       %2$s/aggfiles/%1$s.allages.agg',
-          'lenaggfile       %2$s/aggfiles/%1$s.len.agg',
+          'areaaggfile      %2$s/Aggfiles/%1$s.area.agg',
+          'ageaggfile       %2$s/Aggfiles/%1$s.allages.agg',
+          'lenaggfile       %2$s/Aggfiles/%1$s.len.agg',
           'printfile        %2$s/out/%1$s.lw',
           'printatstart     0',
           'yearsandsteps    all 1',
@@ -1553,9 +1555,9 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
           'type\t\tpredatorpreyprinter',
           'predatornames\t\t%3$s',
           'preynames\t\t%1$s',
-          'areaaggfile      %2$s/aggfiles/%1$s.area.agg',
-          'ageaggfile       %2$s/aggfiles/%1$s.allages.agg',
-          'lenaggfile       %2$s/aggfiles/%1$s.alllen.agg',
+          'areaaggfile      %2$s/Aggfiles/%1$s.area.agg',
+          'ageaggfile       %2$s/Aggfiles/%1$s.allages.agg',
+          'lenaggfile       %2$s/Aggfiles/%1$s.alllen.agg',
           'printfile        %2$s/out/catch.%1$s.lw',
           'yearsandsteps    all all',
           sep = '\n')
@@ -1643,7 +1645,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
                                 beta = tail(x@renewal.data$beta,1),
                                 stringsAsFactors = FALSE))
       }
-      write(x,file=pre)
+      gadget_dir_write(x)
     })
   }
 
@@ -1681,20 +1683,24 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
           tmp2 <- length(unique(tmp$area))*numsteps*
             length(unique(tmp$length))
 
-          tmp <- cbind(trial = rep(1:num.trials,each = tmp2),
-                       effort = rep(effort,each = tmp2*num.trials),
+          tmp <- cbind(trial = as.factor(rep(1:num.trials,each = tmp2)),
+                       effort = as.factor(rep(effort,each = tmp2*num.trials)),
                        tmp)
         } else {
-          tmp$trial <- 1
-          tmp$effort <- effort
+            tmp2 <- length(unique(tmp$area))*numsteps*
+            length(unique(tmp$length))
+
+            tmp$trial <- as.factor(1)
+            tmp$effort <- as.factor(rep(effort,each=tmp2))
         }
         tmp$length <- as.numeric(gsub('len','',tmp$length))
 
         if(compact){
           tmp <- ddply(tmp,~year+step+trial+effort+stock,
                        summarise,
-                       total.bio = sum(number*weight)
-                       )
+                       total.bio = sum(number*weight),
+                       ssb = sum(logit(mat.par[1],mat.par[2],
+                           length)*number*weight))
         }
         return(tmp)
       }),
@@ -1710,25 +1716,58 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
                              'length', 'number.consumed',
                              'biomass.consumed','mortality')
             tmp$stock <- x
-
+            
             if(num.trials > 1){
 
               tmp2 <- length(unique(tmp$area))*
                   numsteps
 
               tmp <-
-                cbind(trial=rep(1:num.trials,each = tmp2),
-                      effort = rep(effort,each = tmp2*num.trials),
+                cbind(trial=as.factor(rep(1:num.trials,each = tmp2)),
+                      effort = as.factor(rep(effort,each = tmp2*num.trials)),
                       tmp)
+            } else {
+                tmp$trial <- as.factor(1)
+                tmp2 <- length(unique(tmp$area))*
+                    numsteps
+                tmp$effort <- as.factor(rep(effort,each=tmp2))
             }
             return(tmp)
           }),
-    recruitment = rec.out
+      recruitment = rec.out,
+      num.trials = num.trials,
+      stochastic = stochastic,
+      sim.begin = sim.begin
     )
+  class(out) <- c('gadget.forward',class(out))
   if(save.results){
     save(out,file = sprintf('%s/out.Rdata',pre))
   }
   return(out)
+}
+
+
+plot.gadget.forward <- function(gadfor,type='catch',quotayear=FALSE){
+    if(type=='catch'){
+        ggplot(ddply(gadfor$catch,~year+effort+trial,summarise,
+                     catch=sum(biomass.consumed)/1e6),
+               aes(year,catch,col=effort,lty=trial)) +
+        geom_rect(aes(ymin=-Inf,ymax=Inf,
+                      xmin=gadfor$sim.begin,xmax=Inf),
+                  fill='gray',col='white')+
+        geom_line()+ theme_bw() +
+        ylab("Catch (in '000 tons)") + xlab('Year')     
+    } else if(type=='ssb'){
+        ggplot(ddply(gadfor$lw,~year,summarise,ssb=sum(ssb)/1e6),
+               aes(year,catch,col=effort,lty=trial)) +
+        geom_bar(stat=='identity') + theme_bw() +
+        ylab("SSB (in '000 tons)") + xlab('Year')     
+    } else if(type=='rec'){
+        ggplot(ddply(gadfor$recruitment,~year,summarise,catch=sum(catch)),
+               aes(year,catch,col=effort,lty=trial)) +
+        geom_bar(stat='identity') + theme_bw() +
+        ylab("Recruitment (in millions)") + xlab('Year')     
+    }
 }
 
 ##' .. content for \description{} (no empty lines) ..
