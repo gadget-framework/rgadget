@@ -19,7 +19,7 @@ survey.index <- function(stock.dat,split,sigma=0,alpha=1,beta=1){
 
 ldist <- function(stock.dat,sigma=0,dl=1){
   stock.dat$lgroup <- cut(stock.dat$length,
-                          seq(min(stock.dat$length),
+                          seq(min(stock.dat$length)-1,
                               max(stock.dat$length),
                               by=dl))
   ldist <- stock.dat %>%
@@ -36,7 +36,7 @@ ldist <- function(stock.dat,sigma=0,dl=1){
 
 aldist <- function(stock.dat,sigma=0,dl=1){
   stock.dat$lgroup <- cut(stock.dat$length,
-                          seq(min(stock.dat$length),
+                          seq(min(stock.dat$length)-1,
                               max(stock.dat$length)+1,
                               by=dl))
   aldist <- stock.dat %>%

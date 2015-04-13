@@ -456,12 +456,7 @@ setMethod("gadget_dir_write",
     }
 ) 
 
-##' .. content for \description{} (no empty lines) ..
-##'
-##' .. content for \details{} ..
-##' @title 
-##' @return 
-##' @author Bjarki Thor Elvarsson
+
 setMethod("gadget_dir_write",
     signature(x = "gadget-main"),
     function (x) {
@@ -842,7 +837,7 @@ setMethod('getRecruitment','gadget-stock',
           function(object,par){ ## a bit of a hack
             tmp <- as.data.frame(apply(object@renewal.data,2,
                                        function(x){
-                                         eval.gadget.formula(x,par)
+                                         eval.gadget.formula(x,par)$V1
                                        }))
             names(tmp) <- names(object@renewal.data)
             tmp$number <- 1e4*tmp$number
