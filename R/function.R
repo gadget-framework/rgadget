@@ -94,8 +94,11 @@ whaleCatch <- function(N,NTagged,quota,salpha,sbeta){
 ##' @param mu mean length for all ages
 ##' @param sigma standard deviation of length for all ages
 ##' @param l lengthgroups
+##' @param par gadget parameters objects  
 ##' @return a matrix of dimension length(mu) X (length(l)-1)
-distr <- function(mu,sigma,l) {
+distr <- function(mu,sigma,l,par=data.frame()) {
+    mu <- eval.gadget.formula(mu,par)$V1
+    sigma <- eval.gadget.formula(sigma,par)$V1
   fi <- (pnorm(rep(l[-1],each=length(sigma)),mu,sigma)-
          pnorm(rep(l[-length(l)],each=length(sigma)),mu,sigma))
   dim(fi) <- c(length(sigma),length(l)-1)
@@ -536,3 +539,38 @@ Births <- function(B,N,A,z,K){
   }
   return(b)
 }
+
+
+spawnfunc <- function(type='simplessb',N,W,p,...){
+    fecundity <- function(N,W,p,a,l){
+        R <- p[1]*sum(outer(l^p[2],a^p[3])*N^p[4]*W^p[5])
+        return(R)
+    }
+    simplessb <- function(N,W,p){
+        R <- p[1]*sum(N*W)
+        return(R)
+    }
+    ricker <- function(N,W,p){
+        S <- sum(N*W)
+        R <- p[1]*S*exp(-p[2]*S)
+        return(R)
+    }
+    bevertonholt <- function(N,W,p){
+        S <- sum(N*W)
+        R <- p[1]*S/(p[2] + S)
+        return(R)
+    }
+    if(type=='simplessb'){
+        return(simplessb(N,W,p))
+    }
+    if(type=='fecundity'){
+        return(fecundity(N,W,p,...))
+    }
+    if(type=='ricker'){
+        return(ricker(N,W,p))
+    }
+    if(type=='bevertonholt'){
+        return(bevertonholt(N,W,p))
+    }
+}
+

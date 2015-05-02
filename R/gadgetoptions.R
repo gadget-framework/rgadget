@@ -27,53 +27,54 @@ gadget.options <- function(type=c('simple2stock','spawning')){
 #
     stocks = 
     list(imm=list(name='imm',
-           init.abund = 1e6*exp(-(1:3)*0.2),
-           minage = 1,
-           maxage = 3,
-           minlength = 5,
-           maxlength = 90,
-           dl = 1,
-           M=0.2,
-           doeseat = 0,
-           iseaten = 1,
-           doesmigrate = 0,
-           Migration = array(c(1,0,.4,.6,.6,.4,0,1,
-             .6,.4,0,1,1,0,.4,.6),
-             c(2,2,4)),
-           ## density dependent migration
-           doesfuncmigrate = 0,
-           diffusion = NULL,
-           driftx = NULL,
-           drifty = NULL,
-           lambda = NULL,
-           doesmature = 0,
-           doesmove = 1,
-           transitionstocksandratios = 'mat  1',
-           transitionstep = 1,
-           doesspawn = 0,
-           livesonareas=1,
-           doesgrow = 1,
-           growth = c(linf=115,
-             k=0.09,
-             ## binn is maximum updating length
-             binn=15,
-             ## Beta for beta-binomial
-             beta=200),
-           weight = c(a=10^(-5),
-             b=3),
-           doesrenew = 1,
-           renewal=list(minlength=4,maxlength=30),
-           doesspawn = 0,
-           renewal.step = 1,
-           ## The standard deviation of length at i years old
-           ## This vector must the same length as the number of ages.
-           sigma=c(2.2472, 2.8982, 4.0705, 4.9276,
-             5.5404, 5.8072, 6.0233, 8, 9, 9),
-           ## number of recruits
-           n = 1e6,
-           ## Meanlength for the recruits
-           murec=NULL
-           ),
+             init.abund = 1e6*exp(-(1:3)*0.2),
+             minage = 1,
+             maxage = 3,
+             minlength = 5,
+             maxlength = 90,
+             dl = 1,
+             M=0.2,
+             doeseat = 0,
+             iseaten = 1,
+             doesmigrate = 0,
+             Migration = array(c(1,0,.4,.6,.6,.4,0,1,
+                 .6,.4,0,1,1,0,.4,.6),
+                 c(2,2,4)),
+             ## density dependent migration
+             doesfuncmigrate = 0,
+             diffusion = NULL,
+             driftx = NULL,
+             drifty = NULL,
+             lambda = NULL,
+             doesmature = 0,
+             doesmove = 1,
+             transitionstocksandratios = 'mat  1',
+             transitionstep = 1,
+             doesspawn = 0,
+             livesonareas=1,
+             doesgrow = 1,
+             growth = c(linf=115,
+                 k=0.09,
+                 ## binn is maximum updating length
+                 binn=15,
+                 ## Beta for beta-binomial
+                 beta=200,
+                 recl=0),
+             weight = c(a=10^(-5),
+                 b=3),
+             doesrenew = 1,
+             renewal=list(minlength=4,maxlength=30),
+             doesspawn = 0,
+             renewal.step = 1,
+             ## The standard deviation of length at i years old
+             ## This vector must the same length as the number of ages.
+             sigma=c(2.2472, 2.8982, 4.0705, 4.9276,
+                 5.5404, 5.8072, 6.0233, 8, 9, 9),
+             ## number of recruits
+             n = 1e6,
+             ## Meanlength for the recruits
+             murec=NULL
+             ),
          mat = list(name='mat',
            init.abund = 1e6*exp(-(4:10)*0.2),
            minage = 4,
@@ -118,7 +119,8 @@ gadget.options <- function(type=c('simple2stock','spawning')){
              ## binn is maximum updating length
              binn=15,
              ## Beta for beta-binomial
-             beta=200),
+             beta=200,
+               recl=0),
            weight = c(a=10^(-5),
              b=3),
            doesrenew = 0,
@@ -189,6 +191,27 @@ gadget.options <- function(type=c('simple2stock','spawning')){
     opt$stocks$mat$lastspawnyear <- opt$time$lastyear
     opt$stocks$mat$spawnmu <- 0.36 ## warning this is based on number of spawners not biomass as in Gadget
   }
+
+  if(type=='ricker'){
+      opt$stocks$imm$doesrenew <- 0
+      opt$stocks$mat$doesspawn <- 1
+      opt$stocks$mat$spawnsteps <- 1
+      opt$stocks$mat$spawnareas <- 1
+      opt$stocks$mat$firstspawnyear <- opt$time$firstyear
+      opt$stocks$mat$lastspawnyear <- opt$time$lastyear
+      opt$stocks$mat$spawnfunc <- 'ricker'
+      opt$stocks$mat$spawnparameters <- c(p1=1,
+                                          p2=3.5e-11)
+  }
+
+  if(type=='simple1stock'){
+      opt$stocks$mat <- NULL
+      opt$stocks$imm$init.abund <- 1e6*exp(-(1:10)*0.2)
+      opt$stocks$imm$maxage <- 10
+      opt$stocks$imm$doesmove <- 0
+      opt$fleets$surv$suitability <- subset(opt$fleets$surv$suitability, stock=='imm')
+      opt$fleets$comm$suitability <- subset(opt$fleets$comm$suitability, stock=='imm')
+  }
   
   class(opt) <- c('gadget.options',class(opt))
   return(opt)
@@ -242,15 +265,21 @@ gadget.skeleton <- function(time,area,stocks,fleets){
   ## stock definitions
   stocks <- 
     llply(stocks,function(x){
-      print(x$name)
+        print(x$name)
         Growth <- new('gadget-growth',
                       growthfunction = 'lengthvbsimple',
                       growthparameters = c(x$growth[c('linf','k')],x$weight),
                       beta = x$growth['beta'], 
                       maxlengthgroupgrowth = x$growth['binn'])
-        
-        mu <- sprintf('( * %s (-  1 (exp (* (* -1 %s) %s))))',
-                      x$growth['linf'],x$growth['k'],1:x$maxage)
+        if(!is.na(x$growth['recl']) & x$growth['recl']>0){
+            t0 <- sprintf('(+ %s (log (- 1 (/ %s %s))))',x$minage,
+                          x$growth['recl'],
+                          x$growth['linf'])
+        } else {
+            t0 <- 0
+        }
+        mu <- sprintf('( * %s (-  1 (exp (* (* -1 %s ) (- %s %s)))))',
+                      x$growth['linf'],x$growth['k'],1:x$maxage,t0)
 #                      x$growth['linf'] * (1 - exp(-x$growth['k'] * 1:x$maxage))
         
         refweight <- mutate(data.frame(length = seq(x$minlength,x$maxlength,by=x$dl)),
@@ -327,9 +356,10 @@ gadget.skeleton <- function(time,area,stocks,fleets){
                            proportionfunction = c(func = 'constant', alpha = 1),
                            mortalityfunction = c(func = 'constant', alpha = 0),
                            weightlossfunction = c(func = 'constant', alpha = 0),
-                           recruitment = data.frame(func = 'simplessb', mu = x$spawnmu),
-                           stockparameters = data.frame(mean = mu[x$minage],
-                             sttdev = x$sigma[x$minage], 
+                           recruitment = c(func = x$spawnfunc,
+                               mu = x$spawnparameters),
+                           stockparameters = data.frame(mean = mu[1],
+                             stddev = x$sigma[1], 
                              alpha = x$weight['a'], beta = x$weight['b']))
         } else {
           spawndata <- new('gadget-spawning')

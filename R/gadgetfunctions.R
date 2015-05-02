@@ -990,7 +990,7 @@ gadget.ypr <- function(params.file = 'params.in',
 
   ## File I/O
   dir.create(ypr,showWarnings = FALSE, recursive = TRUE)
-  dir.create(sprintf('%s/aggfiles',ypr),
+  dir.create(sprintf('%s/Aggfiles',ypr),
              showWarnings = FALSE, recursive = TRUE)
   main <- read.gadget.main(main.file)
   stocks <- read.gadget.stockfiles(main$stockfiles)
@@ -1015,7 +1015,7 @@ gadget.ypr <- function(params.file = 'params.in',
   main$areafile <- sprintf('%s/area',ypr)
   write.gadget.area(area,file=sprintf('%s/area',ypr))
   write.unix(sprintf('allareas %s',paste(area$areas,collapse=' ')),
-             f=sprintf('%s/aggfiles/allareas.agg',ypr))
+             f=sprintf('%s/Aggfiles/allareas.agg',ypr))
 
   fleet <- llply(fleet,
                  function(x){
@@ -1052,9 +1052,9 @@ gadget.ypr <- function(params.file = 'params.in',
           sprintf('predatornames\t%s',
                   paste(fleets$fleet,collapse=' ')),
           'preynames\t%1$s',
-          'areaaggfile\t%2$s/aggfiles/allareas.agg',
-          'ageaggfile\t%2$s/aggfiles/%1$s.allages.agg',
-          'lenaggfile\t%2$s/aggfiles/%1$s.alllen.agg',
+          'areaaggfile\t%2$s/Aggfiles/allareas.agg',
+          'ageaggfile\t%2$s/Aggfiles/%1$s.allages.agg',
+          'lenaggfile\t%2$s/Aggfiles/%1$s.alllen.agg',
           'printfile\t%2$s/out/%1$s.prey',
           'yearsandsteps\tall all',
            sep = '\n')
@@ -1066,9 +1066,9 @@ gadget.ypr <- function(params.file = 'params.in',
         paste('[component]',
               'type\tstockprinter',
               'stocknames\t%1$s',
-              'areaaggfile\t%2$s/aggfiles/allareas.agg',
-              'ageaggfile\t%2$s/aggfiles/%1$s.allages.agg',
-              'lenaggfile\t%2$s/aggfiles/%1$s.alllen.agg',
+              'areaaggfile\t%2$s/Aggfiles/allareas.agg',
+              'ageaggfile\t%2$s/Aggfiles/%1$s.allages.agg',
+              'lenaggfile\t%2$s/Aggfiles/%1$s.alllen.agg',
               'printfile\t%2$s/out/%1$s.ssb',
               'yearsandsteps\tall 1',
               sep = '\n')

@@ -4,19 +4,33 @@
 ##' @param sigma sigma for a log-normal noise for the indicies
 ##' @return Dataframe with the survey indices 
 ##' @author Bjarki Þór Elvarsson
-survey.index <- function(stock.dat,split,sigma=0,alpha=1,beta=1){
+##' @export
+survey.index <- function(stock.dat,split,sigma=0,alpha=0,beta=1){
   ##Calculates the total catch  
   
   stock.dat$SIgroup <- cut(stock.dat$length,split)
   sidat <- stock.dat %>%
     group_by(SIgroup,year,step) %>%
-    summarise(SI=sum(num))
-  if(sigma!=0){
-    sidat$SI <- sidat$SI*exp(rnorm(nrow(sidat),0,sigma^2)-sigma^2/2)
+    summarise(SI=exp(alpha)*sum(num)^beta)
+  if(sum(abs(sigma))!=0){
+      if(length(sigma) == (length(split)-1)){
+          sigma <- rep(sigma,each=length(unique(sidat$year)))
+      }
+      sidat$SI <- sidat$SI*exp(rnorm(nrow(sidat),0,sigma^2)-sigma^2/2)
   }
   return(sidat)
 }
 
+##' .. content for \description{} (no empty lines) ..
+##'
+##' .. content for \details{} ..
+##' @title Length distributions
+##' @param stock.dat 
+##' @param sigma 
+##' @param dl 
+##' @return 
+##' @author Bjarki Thor Elvarsson
+##' @export
 ldist <- function(stock.dat,sigma=0,dl=1){
   stock.dat$lgroup <- cut(stock.dat$length,
                           seq(min(stock.dat$length),
@@ -26,6 +40,7 @@ ldist <- function(stock.dat,sigma=0,dl=1){
     group_by(lgroup,year,step) %>%
       summarise(num=sum(num))
   if(sigma!=0){
+      
     ldist$num <- ldist$num*exp(rnorm(nrow(ldist),0,sigma^2)-sigma^2/2)
   }
   ldist <- ldist %>%
@@ -33,7 +48,16 @@ ldist <- function(stock.dat,sigma=0,dl=1){
     mutate(p=num/sum(num))
   return(ldist)
 }
-
+##' .. content for \description{} (no empty lines) ..
+##'
+##' .. content for \details{} ..
+##' @title Age length dist
+##' @param stock.dat 
+##' @param sigma 
+##' @param dl 
+##' @return 
+##' @author Bjarki Thor Elvarsson
+##' @export
 aldist <- function(stock.dat,sigma=0,dl=1){
   stock.dat$lgroup <- cut(stock.dat$length,
                           seq(min(stock.dat$length),
@@ -50,7 +74,14 @@ aldist <- function(stock.dat,sigma=0,dl=1){
     mutate(p=num/sum(num))
   return(aldist)
 }
-
+##' .. content for \description{} (no empty lines) ..
+##'
+##' .. content for \details{} ..
+##' @title toDataFrame
+##' @param sim 
+##' @return 
+##' @author Bjarki Thor Elvarsson
+##' @export
 toDataFrame <- function(sim){
   worker.fun <- function(x){
     tmp <- as.data.frame.table(x,responseName='num',
