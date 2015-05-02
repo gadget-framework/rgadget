@@ -183,6 +183,7 @@ gadget.simulate <- function(gm, params=data.frame(),
                     })
       
       
+#<<<<<<< HEAD
       ## migration matrix
       stkMig <- llply(gm@stocks,
                       function(x){
@@ -271,6 +272,16 @@ gadget.simulate <- function(gm, params=data.frame(),
                                       stkMig[[stock]][,,curr.step])
                   }
               }
+
+        if(gm@stocks[[stock]]@doesmove == 1){
+          tmp <- clear.spaces(gm@stocks[[stock]]@transitionstocksandratios)
+          tmp <- data.frame(stocks=tmp[2*1:(length(tmp)/2)-1],
+                            ratios=as.numeric(tmp[2*1:(length(tmp)/2)]))          
+          for(stkInd in 1:nrow(tmp)){
+            stkArr[[tmp[stkInd,1]]][,,getMinage(gm@stocks[[tmp[stkInd,1]]]),i] <-
+              stkArr[[tmp[stkInd,1]]][,,getMinage(gm@stocks[[tmp[stkInd,1]]]),i] + 
+              stkArr[[stock]][,,getMaxage(gm@stocks[[stock]]),i-1]*tmp[stkInd,2]
+
           }
           
           

@@ -301,7 +301,14 @@ callParamin <- function(i='params.in',
 ##' components at each iteration (defaults to FALSE).
 ##' @author Bjarki Þór Elvarsson
 ##' @export
-##' @example 
+##' @examples \dontrun{
+##' tmp <- gadget.iterative(rew.sI=TRUE,
+##'                         grouping=list(sind=c('si2039','si4069','si70110'),
+##'                         survey=c('ldist.survey','alkeys.survey'),
+##'                         catch=c('ldist.catch','alkeys.catch')),
+##'                         params.file='params.base',
+##'                         wgts='WGTS')
+##' }
 gadget.iterative <- function(main.file='main',gadget.exe='gadget',
                              params.file='params.in',
                              rew.sI=FALSE,

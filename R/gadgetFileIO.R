@@ -1608,7 +1608,8 @@ merge.formula <- function(txt){
 ##' @param par gadget parameters object
 ##' @return a vector of evaluated gadget formulas
 ##' @author Bjarki Thor Elvarsson
-eval.gadget.formula <- function(gad.for,par){
+##' @export
+eval.gadget.formula <- function(gad.for,par=data.frame()){
   tmp <- strsplit(gsub(')',' )',gsub('(','',gad.for,fixed=TRUE)),' ')
   ldply(tmp,
         function(x){
