@@ -99,19 +99,19 @@ gadget.simulate <- function(gm, params=data.frame(),
     } else {
       tmp <- 0
     }
-
+    
     initData <- subset(getInitData(x,params),
                        age %in% (getMinage(x)+tmp):getMaxage(x))
     lg <- getLengthGroups(x)
     lg <- c(min(lg)-x@dl,lg)
-#    print(x@stockname)
+    #    print(x@stockname)
     stk[getAreas(gm),,(getMinage(x)+tmp):getMaxage(x),1] <- 
       acast(ddply(initData,~age+area,function(y){
         data.frame(length = lg[-1],
                    num=y$age.factor*
                      distr(y$mean,y$stddev,lg,params))
-        }),
-        area~length~age,value.var='num')[getAreas(gm),,]
+      }),
+      area~length~age,value.var='num')[getAreas(gm),,]
     
     ## recruitment
     if(x@doesrenew == 1){
@@ -128,7 +128,7 @@ gadget.simulate <- function(gm, params=data.frame(),
     }
     return(stk)
   })  
-
+  
   dt <- (gm@time@notimesteps)/12
   
   ## Natural (unexplained) mortality
@@ -138,7 +138,7 @@ gadget.simulate <- function(gm, params=data.frame(),
     outer(diag(c(rep(0,getMinage(x)-1),exp(-mort))),dt,'^')
   })
   
-
+  
   # Defines the catch matrices
   fleetArr <- llply(stkArr, function(x){
     tmp <- 0*((1:getNumFleets(gm))%o%x)
@@ -148,12 +148,12 @@ gadget.simulate <- function(gm, params=data.frame(),
   })
   
   fleetSuit <- getFleetSuitability(gm,params)
-
+  
   W  <- llply(gm@stocks,function(x) {
-      l <- getLengthGroups(x)
-      getWeight(x,l,params)
+    l <- getLengthGroups(x)
+    getWeight(x,l,params)
   })
-
+  
   stockSpawn <- getSpawnFunc(gm,params)
   
   #################################
@@ -163,206 +163,195 @@ gadget.simulate <- function(gm, params=data.frame(),
   
   # Consumptions of other stocks
   
-      if(getNumPredators(gm)>0){
-          EatArr <- llply(stkArr, function(x){
-              tmp <- (1:getNumStocks(gm))%o%x
-              dimnames(tmp)[[1]] <- getStockNames(gm)
-              names(dimnames(tmp))[1] <- 'Predator'
-              tmp
-          })    
-          predSuit <- getPredatorSelection(gm)
-      } else {
-          EatArr <- NULL
-          predSuit <- NULL
-      } 
+  if(getNumPredators(gm)>0){
+    EatArr <- llply(stkArr, function(x){
+      tmp <- (1:getNumStocks(gm))%o%x
+      dimnames(tmp)[[1]] <- getStockNames(gm)
+      names(dimnames(tmp))[1] <- 'Predator'
+      tmp
+    })    
+    predSuit <- getPredatorSelection(gm)
+  } else {
+    EatArr <- NULL
+    predSuit <- NULL
+  } 
+  
+  ## Length update matrix
+  stkG <- llply(gm@stocks,
+                function(x){
+                  getGrowth(x,params)
+                })
+  
+  
+  #<<<<<<< HEAD
+  ## migration matrix
+  stkMig <- llply(gm@stocks,
+                  function(x){
+                    if(x@doesmigrate == 1){
+                      getMigrationMatrix(x,params)
+                    } else {
+                      NA
+                    }
+                  })
+  
+  
+  clock <- getTimeSteps(gm@time)
+  for(i in 1:nrow(clock))    {
+    ##  print(i)
+    curr.step <- clock$step[i]
+    curr.year <- clock$year[i]
+    
+    if(curr.step != 1){    
+      for(stock in getStockNames(gm)){ 
+        stkArr[[stock]][,,,i] <- stkArr[[stock]][,,,i-1]
+      }
+    } else if(i>1) { 
+      ###### if we are in timestep 1 we have to update age ######
       
-      ## Length update matrix
-      stkG <- llply(gm@stocks,
-                    function(x){
-                        getGrowth(x,params)
-                    })
+      for(stock in getStockNames(gm)){
+        minage <- getMinage(gm@stocks[[stock]])  
+        maxage <- getMaxage(gm@stocks[[stock]])
+        
+        stkArr[[stock]][,,-(1:minage),i] <- 
+          stkArr[[stock]][,,minage:(maxage-1),i-1]
+        
+        ## plus groups
+        if(gm@stocks[[stock]]@doesmove != 1){
+          stkArr[[stock]][,,maxage,i] <-
+            stkArr[[stock]][,,maxage,i] + 
+            stkArr[[stock]][,,maxage,i-1]
+        }
+      }
       
-      
-#<<<<<<< HEAD
-      ## migration matrix
-      stkMig <- llply(gm@stocks,
-                      function(x){
-                          if(x@doesmigrate == 1){
-                              getMigrationMatrix(x,params)
-                          } else {
-                              NA
-                          }
-                      })
-      
-      
-      clock <- getTimeSteps(gm@time)
-      for(i in 1:nrow(clock))    {
-            ##  print(i)
-          curr.step <- clock$step[i]
-          curr.year <- clock$year[i]
-          
-          if(curr.step != 1){    
-              for(stock in getStockNames(gm)){ 
-                  stkArr[[stock]][,,,i] <- stkArr[[stock]][,,,i-1]
-              }
-          } else if(i>1) { 
-###### if we are in timestep 1 we have to update age ######
+      for(stock in getStockNames(gm)){
+        ##print(stock)
+        ## hack for one area
+        if(gm@stocks[[stock]]@doesspawn == 1){
+          if(curr.step %in% gm@stocks[[stock]]@spawning@spawnsteps){
+            tmp <- gm@stocks[[stock]]@spawning@spawnstocksandratio
+            tmp$stock <- as.character(tmp$stock)
+            for(stkInd in 1:nrow(tmp)){
+              lg <- getLengthGroups(gm@stocks[[tmp[stkInd,1]]])
+              total.num <- tmp[stkInd,2]*
+                stockSpawn[[stock]](aaply(stkArr[[stock]],
+                                          c(2,4),sum)[,i],i)
+              y <- gm@stocks[[stock]]@spawning@stockparameters
               
-              for(stock in getStockNames(gm)){
-                  minage <- getMinage(gm@stocks[[stock]])  
-                  maxage <- getMaxage(gm@stocks[[stock]])
-                 
-                  stkArr[[stock]][,,-(1:minage),i] <- 
-                      stkArr[[stock]][,,minage:(maxage-1),i-1]
-                  
-                  ## plus groups
-                  if(gm@stocks[[stock]]@doesmove != 1){
-                      stkArr[[stock]][,,maxage,i] <-
-                          stkArr[[stock]][,,maxage,i] + 
-                              stkArr[[stock]][,,maxage,i-1]
-                  }
-              }
-              
-              for(stock in getStockNames(gm)){
-                  ##print(stock)
-                  ## hack for one area
-                  if(gm@stocks[[stock]]@doesspawn == 1){
-                      if(curr.step %in% gm@stocks[[stock]]@spawning@spawnsteps){
-                          tmp <- gm@stocks[[stock]]@spawning@spawnstocksandratio
-                          tmp$stock <- as.character(tmp$stock)
-                          for(stkInd in 1:nrow(tmp)){
-                              lg <- getLengthGroups(gm@stocks[[tmp[stkInd,1]]])
-                              total.num <- tmp[stkInd,2]*
-                                  stockSpawn[[stock]](aaply(stkArr[[stock]],
-                                                           c(2,4),sum)[,i],i)
-                              y <- gm@stocks[[stock]]@spawning@stockparameters
-                              
-                              stkArr[[tmp[stkInd,1]]][1,-1,getMinage(gm@stocks[[tmp[stkInd,1]]]),i] <-
-                                  acast(data.frame(length = lg[-1],
-                                                   num=total.num*
-                                                   distr(y$mean,y$stddev,lg,
-                                                         params)),
-                                        area~length,value.var='num')
-                          }
-                      }
-                  }
-                  
-                  if(gm@stocks[[stock]]@doesmove == 1){
-                      tmp <-
-                          unlist(strsplit(gm@stocks[[stock]]@transitionstocksandratios,
-                                          '  '))
-                      tmp <- data.frame(stock=tmp[2*(1:(length(tmp)/2))-1],
-                                        ratio=as.numeric(tmp[2*(1:(length(tmp)/2))]))
-                      tmp$stock <- as.character(tmp$stock)
-                      for(stkInd in 1:nrow(tmp)){
-                          stkArr[[tmp[stkInd,1]]][,,getMinage(gm@stocks[[tmp[stkInd,1]]]),i] <-
-                              stkArr[[tmp[stkInd,1]]][,,getMinage(gm@stocks[[tmp[stkInd,1]]]),i] + 
-                                  stkArr[[stock]][,,getMaxage(gm@stocks[[stock]]),i-1]*tmp[stkInd,2]
-                      }
-                  }
-                  
-              }
-              
-              
-              if(getNumOfAreas(gm)>1){
-                  for(stock in getStockNames(gm)){
-                      if(gm@stocks[[stock]]@doesmigrate==1)
-                          stkArr[[stock]][,,,i] <-
-                              migrate(stkArr[[stock]][,,,i-1],
-                                      stkMig[[stock]][,,curr.step])
-                  }
-              }
-
+              stkArr[[tmp[stkInd,1]]][1,-1,getMinage(gm@stocks[[tmp[stkInd,1]]]),i] <-
+                acast(data.frame(length = lg[-1],
+                                 num=total.num*
+                                   distr(y$mean,y$stddev,lg,
+                                         params)),
+                      area~length,value.var='num')
+            }
+          }
+        }
+        
         if(gm@stocks[[stock]]@doesmove == 1){
           tmp <- clear.spaces(gm@stocks[[stock]]@transitionstocksandratios)
-          tmp <- data.frame(stocks=tmp[2*1:(length(tmp)/2)-1],
-                            ratios=as.numeric(tmp[2*1:(length(tmp)/2)]))          
+          tmp <- data.frame(stock=tmp[2*(1:(length(tmp)/2))-1],
+                            ratio=as.numeric(tmp[2*(1:(length(tmp)/2))]))
+          tmp$stock <- as.character(tmp$stock)
           for(stkInd in 1:nrow(tmp)){
             stkArr[[tmp[stkInd,1]]][,,getMinage(gm@stocks[[tmp[stkInd,1]]]),i] <-
               stkArr[[tmp[stkInd,1]]][,,getMinage(gm@stocks[[tmp[stkInd,1]]]),i] + 
               stkArr[[stock]][,,getMaxage(gm@stocks[[stock]]),i-1]*tmp[stkInd,2]
-
           }
-          
-          
-############
-          ## Consumption calculations
-    
-          if(getNumPredators(gm) > 0){
-              for(stock in getStockNames(gm)){ 
-                  if(gm@stocks[[stock]]@doeseat == 1){
-                      for(prey in names(predSuit[[stock]])){
-                          EatArr[[prey]][stock,,,,i] <-
-                              eat(stkArr[[prey]],stkArr[[stock]],i,
-                                  predSuit[[stock]][[prey]])
-                      }
-                      
-                  }
-              } 
-          }
-    
-    for(fleet in getFleetNames(gm)){
-      tmp <- subset(gm@fleets[[fleet]]@amount,
-                    year==curr.year & step == curr.step)
+        }
+        
+      }
       
-      if(nrow(tmp)>0){
+      
+      if(getNumOfAreas(gm)>1){
         for(stock in getStockNames(gm)){
-          if(stock %in% gm@fleets[[fleet]]@suitability$stock){
-            l <- getLengthGroups(gm@stocks[[stock]])
-            suit <- array(as.numeric(fleetSuit[[fleet]][[stock]](l)),
-                          dim = c(length(l),getMaxage(gm@stocks[[stock]])))
-            if(gm@fleets[[fleet]]@type == 'linearfleet'){
-              fleetArr[[stock]][fleet,tmp$area,,,i] <- 
-                as.numeric(tmp$Fy)*dt[curr.step]*
-                stkArr[[stock]][tmp$area,,,i]*suit
-              
-            } else if (gm@fleets[[fleet]]@type == 'totalfleet'){
-              w  <- getWeight(gm@stocks[[stock]],l,params)
-              harv.biomass <- 
-                sum(stkArr[[stock]][tmp$area,,,i]*suit*w)
-              fleetArr[[stock]][fleet,tmp$area,,,i] <- 
-                (as.numeric(tmp$amount)*
-                   stkArr[[stock]][tmp$area,,,i]*suit)/harv.biomass
-                                    
-            }            
-          }
-        }    
+          if(gm@stocks[[stock]]@doesmigrate==1)
+            stkArr[[stock]][,,,i] <-
+            migrate(stkArr[[stock]][,,,i-1],
+                    stkMig[[stock]][,,curr.step])
+        }
       }
-    }
-    
-  #############
-  # Overconsumption check
-  tempC<-adjustconsumption(catches = fleetArr,
-                           predation = EatArr,
-                           stocks = stkArr,
-                           i = i,
-                           maxratioconsumed)
-                                  
-  #############
-  # Subtract Consumption from stock
-  for(stock in getStockNames(gm)){
-    stkArr[[stock]][,,,i] <- stkArr[[stock]][,,,i] - tempC[[stock]]      
-    x <- gm@stocks[[stock]]
-    for(area in 1:getNumOfAreas(gm)){
-      for(age in getMinage(x):getMaxage(x)){
-        stkArr[[stock]][area,,age,i] <- 
-          t(stkG[[stock]](dt[curr.step]))%*%
-          stkArr[[stock]][area,,age,i]%*%
-          M[[stock]][age,age,curr.step]    
-      }
-    }
-  }
-
-
-
-  ###########
-  # Length update and natural mortality
       
-  ###########
-  # Recruits
-     
+      
+      
+      
+      ############
+      ## Consumption calculations
+      
+      if(getNumPredators(gm) > 0){
+        for(stock in getStockNames(gm)){ 
+          if(gm@stocks[[stock]]@doeseat == 1){
+            for(prey in names(predSuit[[stock]])){
+              EatArr[[prey]][stock,,,,i] <-
+                eat(stkArr[[prey]],stkArr[[stock]],i,
+                    predSuit[[stock]][[prey]])
+            }
+            
+          }
+        } 
+      }
+      
+      for(fleet in getFleetNames(gm)){
+        tmp <- subset(gm@fleets[[fleet]]@amount,
+                      year==curr.year & step == curr.step)
+        
+        if(nrow(tmp)>0){
+          for(stock in getStockNames(gm)){
+            if(stock %in% gm@fleets[[fleet]]@suitability$stock){
+              l <- getLengthGroups(gm@stocks[[stock]])
+              suit <- array(as.numeric(fleetSuit[[fleet]][[stock]](l)),
+                            dim = c(length(l),getMaxage(gm@stocks[[stock]])))
+              if(gm@fleets[[fleet]]@type == 'linearfleet'){
+                fleetArr[[stock]][fleet,tmp$area,,,i] <- 
+                  as.numeric(tmp$Fy)*dt[curr.step]*
+                  stkArr[[stock]][tmp$area,,,i]*suit
+                
+              } else if (gm@fleets[[fleet]]@type == 'totalfleet'){
+                w  <- getWeight(gm@stocks[[stock]],l,params)
+                harv.biomass <- 
+                  sum(stkArr[[stock]][tmp$area,,,i]*suit*w)
+                fleetArr[[stock]][fleet,tmp$area,,,i] <- 
+                  (as.numeric(tmp$amount)*
+                     stkArr[[stock]][tmp$area,,,i]*suit)/harv.biomass
+                
+              }            
+            }
+          }    
+        }
+      }
+      
+      #############
+      # Overconsumption check
+      tempC<-adjustconsumption(catches = fleetArr,
+                               predation = EatArr,
+                               stocks = stkArr,
+                               i = i,
+                               maxratioconsumed)
+      
+      #############
+      # Subtract Consumption from stock
+      for(stock in getStockNames(gm)){
+        stkArr[[stock]][,,,i] <- stkArr[[stock]][,,,i] - tempC[[stock]]      
+        x <- gm@stocks[[stock]]
+        for(area in 1:getNumOfAreas(gm)){
+          for(age in getMinage(x):getMaxage(x)){
+            stkArr[[stock]][area,,age,i] <- 
+              t(stkG[[stock]](dt[curr.step]))%*%
+              stkArr[[stock]][area,,age,i]%*%
+              M[[stock]][age,age,curr.step]    
+          }
+        }
+      }
+      
+      
+      
+      ###########
+      # Length update and natural mortality
+      
+      ###########
+      # Recruits
+      
     }
-
+  }  
   
   sim <- list(gm=gm,
               stkArr=stkArr,
@@ -371,5 +360,7 @@ gadget.simulate <- function(gm, params=data.frame(),
               params = params)
   class(sim) <- c('gadget.sim',class(sim))
   return(sim)
+  
 }
-
+  
+    

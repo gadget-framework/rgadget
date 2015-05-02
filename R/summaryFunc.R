@@ -28,7 +28,7 @@ survey.index <- function(stock.dat,split,sigma=0,alpha=0,beta=1){
 ##' @param stock.dat 
 ##' @param sigma 
 ##' @param dl 
-##' @return 
+##' @return data.frame
 ##' @author Bjarki Thor Elvarsson
 ##' @export
 ldist <- function(stock.dat,sigma=0,dl=1){
@@ -55,7 +55,7 @@ ldist <- function(stock.dat,sigma=0,dl=1){
 ##' @param stock.dat 
 ##' @param sigma 
 ##' @param dl 
-##' @return 
+##' @return data.frame
 ##' @author Bjarki Thor Elvarsson
 ##' @export
 aldist <- function(stock.dat,sigma=0,dl=1){
@@ -79,7 +79,7 @@ aldist <- function(stock.dat,sigma=0,dl=1){
 ##' .. content for \details{} ..
 ##' @title toDataFrame
 ##' @param sim 
-##' @return 
+##' @return data.frame
 ##' @author Bjarki Thor Elvarsson
 ##' @export
 toDataFrame <- function(sim){

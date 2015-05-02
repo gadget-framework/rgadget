@@ -959,10 +959,9 @@ gadget.bootstrap <- function(bs.likfile = 'likelihood.bs',
 ##' @param age.range at what age range should the YPR be calculated
 ##' @param fleets Data frame comtaining the fleet names and ratio in
 ##' future catches
-##' @param ypr the folder containing the results from the yield per
-##' recruit
 ##' @param check.previous check if the analysis have been done before
 ##' @param save.results should the results be saved?
+##' @param gd gadget directory object
 ##' @return a list containing the yield per recruit by F, estimate of
 ##' Fmax and F0.1
 ##' @author Bjarki Thor Elvarsson
@@ -973,11 +972,12 @@ gadget.ypr <- function(params.file = 'params.in',
                        begin=1990,end=2020,
                        age.range=NULL,
                        fleets = data.frame(fleet='comm',ratio=1),
-                       ypr='YPR',
                        ssb.stock=NULL,
                        check.previous = FALSE,
-                       save.results = TRUE){
-
+                       save.results = TRUE,
+                       gd=list(dir='.',rel.dir='YPR')){
+  ypr <- paste(gd$dir,gd$rel.dir,sep='/')
+  
   ## ensure that files exist
   if(!file.exists(params.file)) {
     stop('Parameter file not found')
@@ -1119,7 +1119,7 @@ gadget.ypr <- function(params.file = 'params.in',
       x@renewal.data <- tmp
       x@doesspawn <- 0
     }
-    write(x,file=ypr)
+    gadget_dir_write(x)
   })
 
   main$stockfiles <- sprintf('%s/%s',ypr,
@@ -1325,7 +1325,6 @@ gadget.bootypr <- function(params.file='params.final',
 ##' @param years
 ##' @param params.file
 ##' @param main.file
-##' @param pre
 ##' @param num.trials
 ##' @param fleets
 ##' @param biomass
@@ -1343,7 +1342,7 @@ gadget.bootypr <- function(params.file='params.final',
 ##' @author Bjarki Thor Elvarsson
 ##' @export
 gadget.forward <- function(years = 20,params.file = 'params.out',
-                           main.file = 'main', pre = 'PRE', num.trials = 10,
+                           main.file = 'main', num.trials = 10,
                            fleets = data.frame(fleet='comm',ratio = 1),
                            biomass = FALSE,
                            effort = 0.2,
@@ -1358,6 +1357,9 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
                            compact = TRUE,
                            mat.par=c(0,0),
                            gd=list(dir='.',rel.dir='PRE')){
+  
+  pre <- paste(gd$dir,gd$rel.dir,sep='/') 
+  
   if(check.previous){
     if(file.exists(sprintf('%s/out.Rdata',pre))){
       load(sprintf('%s/out.Rdata',pre))
@@ -1633,7 +1635,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
         x@renewal.data <-
           subset(x@renewal.data,year <  sim.begin)
       }
-      write.unix(x,f=pre)
+      gadget_dir_write(x)
     })
   } else {
     llply(stocks,function(x){

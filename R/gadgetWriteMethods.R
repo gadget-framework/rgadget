@@ -418,8 +418,8 @@ setMethod("gadget_dir_write",
 ##' .. content for \description{} (no empty lines) ..
 ##'
 ##' .. content for \details{} ..
-##' @title 
-##' @return 
+##' @title Write gadget main
+##' @return NULL
 ##' @author Bjarki Thor Elvarsson
 setMethod("gadget_dir_write",
     signature(x = "gadget-main"),
