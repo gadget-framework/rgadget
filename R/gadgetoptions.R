@@ -429,7 +429,7 @@ gadget.skeleton <- function(time,area,stocks,fleets){
   ## fleet operations
 
   
-  fleets <- llply(opt$fleets,
+  fleets <- llply(fleets,
                   function(x){
                     if(x$type %in% c('linearfleet','effortfleet')){
                       fleetdat <- 

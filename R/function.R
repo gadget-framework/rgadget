@@ -99,14 +99,14 @@ whaleCatch <- function(N,NTagged,quota,salpha,sbeta){
 distr <- function(mu,sigma,l,par=data.frame()) {
     mu <- eval.gadget.formula(mu,par)$V1
     sigma <- eval.gadget.formula(sigma,par)$V1
-  fi <- (pnorm(rep(l[-1],each=length(sigma)),mu,sigma)-
-         pnorm(rep(l[-length(l)],each=length(sigma)),mu,sigma))
-  dim(fi) <- c(length(sigma),length(l)-1)
-  fi[,1] <- pnorm(rep(l[2],length(sigma)),mu,sigma)
-  fi[,length(l)-1] <- (1-pnorm(rep(l[length(l)-1],
-                                   length(sigma)),mu,sigma))
-
-  return(t(fi))
+    fi <- (pnorm(rep(l[-1],each=length(sigma)),mu,sigma)-
+           pnorm(rep(l[-length(l)],each=length(sigma)),mu,sigma))
+    dim(fi) <- c(length(sigma),length(l)-1)
+    fi[,1] <- pnorm(rep(l[2],length(sigma)),mu,sigma)
+    fi[,length(l)-1] <- (1-pnorm(rep(l[length(l)-1],
+                                     length(sigma)),mu,sigma))
+    
+    return(t(fi))
 }
 
 
