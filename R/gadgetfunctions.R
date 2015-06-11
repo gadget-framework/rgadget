@@ -1119,7 +1119,7 @@ gadget.ypr <- function(params.file = 'params.in',
       x@renewal.data <- tmp
       x@doesspawn <- 0
     }
-    gadget_dir_write(x)
+    gadget_dir_write(gd,x)
   })
 
   main$stockfiles <- sprintf('%s/%s',ypr,
@@ -1635,7 +1635,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
         x@renewal.data <-
           subset(x@renewal.data,year <  sim.begin)
       }
-      gadget_dir_write(x)
+      gadget_dir_write(gd,x)
     })
   } else {
     llply(stocks,function(x){
@@ -1654,7 +1654,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
                                 beta = tail(x@renewal.data$beta,1),
                                 stringsAsFactors = FALSE))
       }
-      gadget_dir_write(x)
+      gadget_dir_write(gd,x)
     })
   }
 

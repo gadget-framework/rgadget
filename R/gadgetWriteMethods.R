@@ -1,9 +1,9 @@
-setGeneric('gadget_dir_write',def=function(x){standardGeneric('gadget_dir_write')})
+setGeneric('gadget_dir_write',def=function(gd,x){standardGeneric('gadget_dir_write')})
 setMethod("gadget_dir_write",
-          signature(x = "gadget-time"),
-          function (x) {
+          signature(gd = 'list', x = "gadget-time"),
+          function (gd,x) {
               header <- sprintf('; time file created in Rgadget\n; %s - %s',
-                                file,Sys.Date())
+                                gd$dir,Sys.Date())
               time.file <-
                   paste(header,
                         paste('firstyear',x@firstyear,sep='\t'),
@@ -19,9 +19,9 @@ setMethod("gadget_dir_write",
           })
 
 setMethod("gadget_dir_write",
-    signature(x = "gadget-area"),
-    function (x) {
-      header <- sprintf('; time file created in Rgadget\n; %s - %s',file,Sys.Date())
+    signature(gd = 'list', x = "gadget-area"),
+    function (gd,x) {
+      header <- sprintf('; area file created in Rgadget\n; %s - %s',gd$dir,Sys.Date())
       area.file <-
         paste(header,
               paste('areas',paste(x@areas,collapse=' '),sep='\t'),
@@ -30,7 +30,8 @@ setMethod("gadget_dir_write",
               '; year - step - area - temperature',
               sep='\n')
       write(area.file,file=sprintf('%s/area',gd$dir))
-      write.gadget.table(x@temperature,file=gd$dir,col.names=FALSE,append=TRUE,
+      write.gadget.table(x@temperature,file=sprintf('%s/area',gd$dir),
+                         col.names=FALSE,append=TRUE,
                          quote=FALSE,sep='\t',row.names=FALSE)
       
   })
@@ -39,8 +40,8 @@ setMethod("gadget_dir_write",
 ## stockfile methods
 
 setMethod("gadget_dir_write",
-    signature(x = "gadget-prey"),
-    function (x) {
+    signature(gd = 'list', x = "gadget-prey"),
+    function (gd,x) {
         if(is.null(gd$rel.dir)){
             rel.dir <- gd$dir
             gd$rel.dir <- ''
@@ -68,11 +69,11 @@ setMethod("gadget_dir_write",
 
 
 setMethod("gadget_dir_write",
-    signature(x = "gadget-stock"),
-    function (x){
+    signature(gd = 'list', x = "gadget-stock"),
+    function (gd,x){
         if(is.null(gd$rel.dir)){
             rel.dir <- gd$dir
-            gd$rel.dir <- ''
+            gd$rel.dir <- '.'
         } else {
             rel.dir <- paste(gd$dir,gd$rel.dir,sep='/')
             gd$rel.dir <- paste0(gd$rel.dir,'/')
@@ -225,7 +226,7 @@ setMethod("gadget_dir_write",
           stock.text['growth'] <- toString(x@growth)
         }
         if(x@iseaten == 1){
-          stock.text['eaten'] <- gadget_dir_write(x@preyinfo)
+          stock.text['eaten'] <- gadget_dir_write(gd,x@preyinfo)
         }
         if(x@doeseat == 1){
           stock.text['eat'] <- toString(x@predator)
@@ -361,8 +362,8 @@ setMethod("toString",
           )
 
 setMethod("gadget_dir_write",
-    signature(x = "gadget-fleet"),
-    function (x){
+    signature(gd = 'list',x = "gadget-fleet"),
+    function (gd,x){
       header <- sprintf('; fleet file created in Rgadget\n; %s - %s\n[fleetcomponent]',
                         gd$dir,Sys.Date())
       ## default text
@@ -422,8 +423,8 @@ setMethod("gadget_dir_write",
 ##' @return NULL
 ##' @author Bjarki Thor Elvarsson
 setMethod("gadget_dir_write",
-    signature(x = "gadget-main"),
-    function (x) {
+    signature(gd = 'list', x = "gadget-main"),
+    function (gd,x) {
       loc <- gd$dir
       dir.create(loc, showWarnings = FALSE, recursive = TRUE)
       ## writing ecosystem files
