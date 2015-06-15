@@ -73,7 +73,7 @@ setMethod("gadget_dir_write",
     function (gd,x){
         if(is.null(gd$rel.dir)){
             rel.dir <- gd$dir
-            gd$rel.dir <- '.'
+            gd$rel.dir <- './'
         } else {
             rel.dir <- paste(gd$dir,gd$rel.dir,sep='/')
             gd$rel.dir <- paste0(gd$rel.dir,'/')

@@ -185,6 +185,16 @@ write.gadget.likelihood <- function(lik,file='likelihood',
                          'intercept'),
                        names(comp))]
     }
+    ## same with catchdistribution
+    if('catchdistribution' %in% comp$type){
+        comp <-
+        comp[intersect(c('name','type','datafile','function','aggregationlevel',
+                         'overconsumption','epsilon','areaaggfile','ageaggfile',
+                         'lenaggfile','fleetnames','stocknames'),
+                       names(comp))]
+    }
+        
+    
     comp <- na.omit(melt(merge(weights,comp,by='name',sort=FALSE),
                          id.vars = 'name'))
     comp.text <- ddply(comp,'name',function(x){
@@ -681,12 +691,12 @@ read.gadget.results <- function(grouping=list(),
 ##' @export
 read.gadget.data <- function(likelihood){
   read.agg <- function(x, first = FALSE){
-
-    if(first){
-      return(sapply(strsplit(readLines(x),'[\t ]'),function(x) x[1]))
-    }  else {
-      return(read.table(x,stringsAsFactors=FALSE,comment.char=';'))
-    }
+      
+      if(first){
+          return(sapply(strsplit(readLines(x),'[\t ]'),function(x) x[1]))
+      }  else {
+          return(read.table(x,stringsAsFactors=FALSE,comment.char=';'))
+      }
   }
 
   read.preyagg <- function(x){
