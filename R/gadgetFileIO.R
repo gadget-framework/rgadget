@@ -472,91 +472,91 @@ make.gadget.printfile <- function(main='main',output='out',
     lik <- read.gadget.likelihood(main$likelihoodfiles)
     stocks <- read.gadget.stockfiles(main$stockfiles)
     fleets <- read.gadget.fleet(main$fleetfiles)
-
-  header <-
-    paste(sprintf('; gadget printfile, created in %s',Sys.Date()),
-          '[component]',
-          'type\tlikelihoodsummaryprinter',
-          sprintf('printfile\t%s/likelihoodsummary', output),
-          ';',sep='\n')
-
-
-  lik.template <-
-    paste('[component]',
-          'type\tlikelihoodprinter',
-          'likelihood\t%1$s',
-          sprintf('printfile\t%s/%%1$s',output),
-          ';', sep='\n')
-
-
-  stock.std <-
-    paste('[component]',
-          'type\tstockstdprinter',
-          'stockname\t%1$s',
-          sprintf('printfile\t%s/%%1$s.std',output),
-          'yearsandsteps\t all 1',sep='\n')
-
-  stock.full <-
-    paste('[component]',
-          'type\tstockprinter',
-          'stocknames\t%1$s',
-          sprintf('areaaggfile\t%s/%%1$s.area.agg',aggfiles),
-          sprintf('ageaggfile\t%s/%%1$s.allages.agg',aggfiles),
-          sprintf('lenaggfile\t%s/%%1$s.len.agg',aggfiles),
-          sprintf('printfile\t%s/%%1$s.full',output),
-          'yearsandsteps\t all 1',sep='\n')
-
-  predator <-
-    paste('[component]',
-          'type\tpredatorpreyprinter',
-          'predatornames\t%2$s',
-          'preynames\t%1$s',
-          sprintf('areaaggfile\t%s/%%1$s.area.agg',aggfiles),
-          sprintf('ageaggfile\t%s/%%1$s.age.agg',aggfiles),
-          sprintf('lenaggfile\t%s/%%1$s.alllen.agg',aggfiles),
-          sprintf('printfile\t%s/%%1$s.prey',output),
-          'yearsandsteps\tall all',
-          sep = '\n')
-
-  predator.prey <-
-    paste('[component]',
-          'type\tpredatorpreyprinter',
-          'predatornames\t%2$s',
-          'preynames\t%1$s',
-          sprintf('areaaggfile\t%s/%%1$s.area.agg',aggfiles),
-          sprintf('ageaggfile\t%s/%%1$s.age.agg',aggfiles),
-          sprintf('lenaggfile\t%s/%%1$s.alllen.agg',aggfiles),
-          sprintf('printfile\t%s/%%1$s.prey.%%2$s',output),
-          'yearsandsteps\tall all',
-          sep = '\n')
-
-
-  dir.create(aggfiles, showWarnings = FALSE)
-  dir.create(output, showWarnings = FALSE)
-
-  l_ply(stocks,
-        function(x){
-          writeAggfiles(x,folder=aggfiles)
-        })
-
-  txt <- sprintf(lik.template,
-                 subset(lik$weights,
-                        !(type %in% c('understocking','penalty',
-                                      'migrationpenalty')))[['name']])
-  write.unix(paste(header,paste(txt,collapse='\n'),
-              paste(sprintf(stock.std,laply(stocks,
-                                            function(x) x@stockname)),
-                    collapse='\n'),
-              paste(sprintf(stock.full,laply(stocks,
-                                            function(x) x@stockname)),
-                    collapse='\n'),
-              paste(sprintf(predator,laply(stocks,
-                                           function(x) x@stockname),
-                            paste(fleets$fleet$fleet,collapse = ' ')),
-                    collapse='\n'),
-              ';',
-              sep='\n'),
-        f=file)
+    
+    header <-
+        paste(sprintf('; gadget printfile, created in %s',Sys.Date()),
+              '[component]',
+              'type\tlikelihoodsummaryprinter',
+              sprintf('printfile\t%s/likelihoodsummary', output),
+              ';',sep='\n')
+    
+    
+    lik.template <-
+        paste('[component]',
+              'type\tlikelihoodprinter',
+              'likelihood\t%1$s',
+              sprintf('printfile\t%s/%%1$s',output),
+              ';', sep='\n')
+    
+    
+    stock.std <-
+        paste('[component]',
+              'type\tstockstdprinter',
+              'stockname\t%1$s',
+              sprintf('printfile\t%s/%%1$s.std',output),
+              'yearsandsteps\t all 1',sep='\n')
+    
+    stock.full <-
+        paste('[component]',
+              'type\tstockprinter',
+              'stocknames\t%1$s',
+              sprintf('areaaggfile\t%s/%%1$s.area.agg',aggfiles),
+              sprintf('ageaggfile\t%s/%%1$s.allages.agg',aggfiles),
+              sprintf('lenaggfile\t%s/%%1$s.len.agg',aggfiles),
+              sprintf('printfile\t%s/%%1$s.full',output),
+              'yearsandsteps\t all 1',sep='\n')
+    
+    predator <-
+        paste('[component]',
+              'type\tpredatorpreyprinter',
+              'predatornames\t%2$s',
+              'preynames\t%1$s',
+              sprintf('areaaggfile\t%s/%%1$s.area.agg',aggfiles),
+              sprintf('ageaggfile\t%s/%%1$s.age.agg',aggfiles),
+              sprintf('lenaggfile\t%s/%%1$s.alllen.agg',aggfiles),
+              sprintf('printfile\t%s/%%1$s.prey',output),
+              'yearsandsteps\tall all',
+              sep = '\n')
+    
+    predator.prey <-
+        paste('[component]',
+              'type\tpredatorpreyprinter',
+              'predatornames\t%2$s',
+              'preynames\t%1$s',
+              sprintf('areaaggfile\t%s/%%1$s.area.agg',aggfiles),
+              sprintf('ageaggfile\t%s/%%1$s.age.agg',aggfiles),
+              sprintf('lenaggfile\t%s/%%1$s.alllen.agg',aggfiles),
+              sprintf('printfile\t%s/%%1$s.prey.%%2$s',output),
+              'yearsandsteps\tall all',
+              sep = '\n')
+    
+    
+    dir.create(aggfiles, showWarnings = FALSE)
+    dir.create(output, showWarnings = FALSE)
+    
+    l_ply(stocks,
+          function(x){
+              writeAggfiles(x,folder=aggfiles)
+          })
+    
+    txt <- sprintf(lik.template,
+                   subset(lik$weights,
+                          !(type %in% c('understocking','penalty',
+                                        'migrationpenalty')))[['name']])
+    write.unix(paste(header,paste(txt,collapse='\n'),
+                     paste(sprintf(stock.std,laply(stocks,
+                                                   function(x) x@stockname)),
+                           collapse='\n'),
+                     paste(sprintf(stock.full,laply(stocks,
+                                                    function(x) x@stockname)),
+                           collapse='\n'),
+                     paste(sprintf(predator,laply(stocks,
+                                                  function(x) x@stockname),
+                                   paste(fleets$fleet$fleet,collapse = ' ')),
+                           collapse='\n'),
+                     ';',
+                     sep='\n'),
+               f=file)
 
 #  l_ply(stocks,
 #        function(x){
@@ -649,7 +649,7 @@ read.gadget.results <- function(grouping=list(),
   grouping <- read.gadget.grouping(lik=likelihood,wgts=wgts)
   comp.tmp <- subset(likelihood$weights,
                      !(type %in% c('penalty','understocking',
-                                   'migrationpenalty'))&
+                                   'migrationpenalty','catchinkilos'))&
                      !(name %in% unlist(grouping)))$name
   comp <- within(grouping,
                  for(item in comp.tmp){
@@ -703,7 +703,7 @@ read.gadget.data <- function(likelihood){
     tmp <- readLines(x)
     loc <- grep('lengths',tmp)
     tmp2 <- read.table(text=tmp[grepl('lengths',tmp)])
-    tmp2$V1 <- tmp[loc-2]
+    tmp2$V1 <- clear.spaces(tmp[loc-2])
     return(tmp2)
   }
 
@@ -949,11 +949,11 @@ strip.comments <- function(file='main'){
   tmp <- unlist(llply(file,readLines))
   main <- sub('\t+$',' ',tmp)
   main <- gsub("^\\s+|\\s+$", "", tmp) #sub(' +$','',main)
+  comments <- main[grepl(';',substring(main,1,1))]
+  main <- main[!grepl(';',substring(main,1,1))]
   main <- gsub('(','( ',main,fixed=TRUE)
   main <- gsub(')',' )',main,fixed=TRUE)
   main <- main[main!='']
-  comments <- main[grepl(';',substring(main,1,1))]
-  main <- main[!grepl(';',substring(main,1,1))]
   main <- sapply(strsplit(main,';'),function(x) x[1])
   main <- clear.spaces(main)
 #  attr(main,'comments') <- comments
@@ -1074,7 +1074,7 @@ read.gadget.stockfiles <- function(stock.files){
           tmp$stepeffect <- vector()
         if(is.null(tmp$areaeffect))
           tmp$areaeffect <- vector()
-        if(tmp$growthfunction == 'lengthvbsimple'){
+        if(tolower(tmp$growthfunction) == 'lengthvbsimple'){
           tmp <- new('gadget-growth',
                      growthfunction = tmp$growthfunction,
                      ## growthfunction parameters
@@ -1174,21 +1174,27 @@ read.gadget.stockfiles <- function(stock.files){
     if(doesmature == 1){
       maturity.function <- tolower(stock[[mature.loc+1]][2])
       maturity.file <- strip.comments(stock[[mature.loc+2]][2])
-      if(maturity.function == 'continuous'){
-        maturestocksandratios <- (maturity.file[[1]][-1])
-        coefficients <- (maturity.file[[2]][-1])
-      }
-
+      maturestocksandratios <- (maturity.file[[1]][-1])
+      coefficients <- (maturity.file[[2]][-1])
+      maturitylengths <- ''
+      maturitysteps <- ''
+      if(tolower(maturity.function) == 'fixedlength'){
+          maturitylengths <- (maturity.file[[3]][-1])
+      } else if(tolower(maturity.function) != 'continuous'){
+          maturitysteps <- (maturity.file[[3]][-1])
+      } 
+  
     } else {
       maturity.function <- ''
       maturestocksandratios <- ''
       coefficients <- ''
-    }
+      maturitylengths <- ''
+      maturitysteps <- ''
+  }
     doesmove <- as.numeric(stock[[move.loc]][2])
     if(doesmove == 1){
         transitionstocksandratios <- (stock[[move.loc+1]][-1])
         transitionstep <- as.numeric(stock[[move.loc+2]][-1])
-
     } else {
       transitionstocksandratios <- ''
       transitionstep <- 0
@@ -1277,6 +1283,8 @@ read.gadget.stockfiles <- function(stock.files){
           maturityfunction = maturity.function,
           maturestocksandratios = maturestocksandratios,
           coefficients = coefficients,
+          maturitysteps = maturitysteps,
+          maturitylengths = maturitylengths,
           doesmove = as.numeric(stock[[move.loc]][2]),
           transitionstocksandratios = transitionstocksandratios,
           transitionstep = transitionstep,
@@ -1892,7 +1900,7 @@ read.gadget.grouping <- function(lik = read.gadget.likelihood(),
                                  wgts = 'WGTS'){
   lik.tmp <- subset(lik$weights,
                     !(type %in% c('penalty','understocking',
-                                  'migrationpenalty')))
+                                  'migrationpenalty','catchinkilos')))
 
   tmp <-
     ldply(lik.tmp$name,
@@ -2188,19 +2196,20 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
             function(x){
 
               dat <-
-                merge(lik.dat$dat$stomachcontent[[x]],
-                      join(join(out[[x]],
-                                attr(lik.dat$dat$stomachcontent[[x]],
-                                     'prey.agg'),
-                                by='prey'),
-                           attr(lik.dat$dat$stomachcontent[[x]],'pred.agg'),
-                           by='predator'),
-                      all.y=TRUE) %>%
-                mutate(observed=ratio/sum(ratio,na.rm=TRUE),
-                       preditcted=number/sum(number,na.rm=TRUE),
-                       prey.length = (prey.lower+prey.upper)/2,
-                       pred.length = (lower+upper)/2,
-                       component=x)
+                  merge(lik.dat$dat$stomachcontent[[x]],
+                        join(join(out[[x]],
+                                  attr(lik.dat$dat$stomachcontent[[x]],
+                                       'prey.agg'),
+                                  by='prey'),
+                             attr(lik.dat$dat$stomachcontent[[x]],'pred.agg'),
+                             by='predator'),
+                        all.y=TRUE) %>%
+                            group_by(year,step,predator) %>%
+                            mutate(observed=ratio/sum(ratio,na.rm=TRUE),
+                                   predicted=number/sum(number,na.rm=TRUE),
+                                   prey.length = (prey.lower+prey.upper)/2,
+                                   pred.length = (lower+upper)/2,
+                                   component=x)
             })
 
   } else {
