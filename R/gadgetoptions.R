@@ -229,7 +229,7 @@ gadget.options <- function(type=c('simple2stock','spawning')){
 ##' @param stocks list describing the stocks of the model
 ##' @param fleets list describing the fleets
 ##' @return gadget-model class
-##' @author Bjarki Þór Elvarsson
+##' @author Bjarki ÃžÃ³r Elvarsson
 ##' @examples
 ##' opt <- gadget.options()
 ##' gm <- gadget.skeleton(time=opt$time,area=opt$area,
@@ -271,7 +271,7 @@ gadget.skeleton <- function(time,area,stocks,fleets){
                       growthparameters = c(x$growth[c('linf','k')],x$weight),
                       beta = x$growth['beta'], 
                       maxlengthgroupgrowth = x$growth['binn'])
-        if(!is.na(x$growth['recl']) & x$growth['recl']>0){
+        if(!is.na(x$growth['recl']) & (x$growth['recl']>0 | is.character(x$growth['recl']))){
             t0 <- sprintf('(+ %s (log (- 1 (/ %s %s))))',x$minage,
                           x$growth['recl'],
                           x$growth['linf'])
@@ -279,7 +279,7 @@ gadget.skeleton <- function(time,area,stocks,fleets){
             t0 <- 0
         }
         mu <- sprintf('( * %s (-  1 (exp (* (* -1 %s ) (- %s %s)))))',
-                      x$growth['linf'],x$growth['k'],1:x$maxage,t0)
+                      x$growth['linf'],x$growth['k'],x$minage:x$maxage,t0)
 #                      x$growth['linf'] * (1 - exp(-x$growth['k'] * 1:x$maxage))
         
         refweight <- mutate(data.frame(length = seq(x$minlength,x$maxlength,by=x$dl)),
