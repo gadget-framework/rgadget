@@ -318,7 +318,7 @@ gadget.skeleton <- function(time,area,stocks,fleets){
                                       each = x$maxage - x$minage + 1), 
                            age.factor = alive,               
                            area.factor = 1, 
-                           mean =  rep(mu[x$minage:x$maxage],
+                           mean =  rep(mu,
                              getNumOfAreas(area)), 
                            stddev = x$sigma[x$minage:x$maxage],
                            alpha = as.numeric(x$weight['a']),
