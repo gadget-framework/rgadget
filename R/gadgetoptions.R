@@ -313,6 +313,11 @@ gadget.skeleton <- function(time,area,stocks,fleets){
                             error = rep(x$init.abund[1],getNumOfAreas(area)*
                               (x$maxage - x$minage + 1)))
         }
+        if(length(x$sigma)==1)
+            x$sigma <- rep(x$sigma,length(x$minage:x$maxage))
+        if(length(x$sigma)>length(x$minage:x$maxage))
+            x$sigma <- x$sigma[1:length(x$minage:x$maxage)]
+        
         init <- data.frame(age = x$minage:x$maxage, 
                            area = rep(1:getNumOfAreas(area),
                                       each = x$maxage - x$minage + 1), 
@@ -320,7 +325,7 @@ gadget.skeleton <- function(time,area,stocks,fleets){
                            area.factor = 1, 
                            mean =  rep(mu,
                              getNumOfAreas(area)), 
-                           stddev = x$sigma[x$minage:x$maxage],
+                           stddev = x$sigma,
                            alpha = as.numeric(x$weight['a']),
                            beta = as.numeric(x$weight['b']))
         if(x$doesrenew==1){ 
@@ -332,8 +337,8 @@ gadget.skeleton <- function(time,area,stocks,fleets){
                             
                             age = x$minage,
                             number = x$n,
-                            mean = mu[x$minage],
-                            stddev = x$sigma[x$minage],
+                            mean = mu[1],
+                            stddev = x$sigma[1],
                             a = x$weight['a'],
                             b = x$weight['b'])
           }          

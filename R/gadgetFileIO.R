@@ -686,12 +686,12 @@ read.gadget.results <- function(grouping=list(),
 ##' Read data used by the various components
 ##' @title Read likelihood data
 ##' @param likelihood object of class gadget.likelihood
+##' @param debug should debug information be printed
 ##' @return list of dataframes and degress of freedom
 ##' @author Bjarki ??r Elvarsson
 ##' @export
-read.gadget.data <- function(likelihood){
-  read.agg <- function(x, first = FALSE){
-      
+read.gadget.data <- function(likelihood,debug=FALSE){
+  read.agg <- function(x, first = FALSE){      
       if(first){
           return(sapply(strsplit(readLines(x),'[\t ]'),function(x) x[1]))
       }  else {
@@ -708,22 +708,24 @@ read.gadget.data <- function(likelihood){
   }
 
   read.func <- function(x){
-
+      if(debug){
+          print(sprintf('reading datafile %s',x$datafile))
+      }
     dat <- tryCatch(read.table(x$datafile,comment.char=';'),
                     error = function(x) NULL)
 
     area.agg <- tryCatch(read.agg(x$areaaggfile, first = TRUE),
-                         warning = function(x) NULL,
+#                         warning = function(x) NULL,
                          error = function(x) NULL)
     age.agg <- tryCatch(read.agg(x$ageaggfile, first = TRUE),
-                        warning = function(x) NULL,
+#                        warning = function(x) NULL,
                         error = function(x) NULL)
     len.agg <- tryCatch(read.agg(x$lenaggfile),
-                        warning = function(x) NULL,
+#                        warning = function(x) NULL,
                         error = function(x) NULL)
 
     prey.agg <- tryCatch(read.preyagg(x$preyaggfile),
-                         warning = function(x) NULL,
+#                         warning = function(x) NULL,
                          error = function(x) NULL)
 
 
@@ -1856,7 +1858,7 @@ get.gadget.recruitment <- function(stocks,params){
     if(x@doesrenew == 1){
       na.omit(data.frame(stock = x@stockname,
                          year=as.numeric(as.character(x@renewal.data$year)),
-                         recruitment =
+                         recruitment = 
                          10000*unlist(eval.gadget.formula(x@renewal.data$number,
                                                           params))))
     } else {

@@ -1383,8 +1383,8 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
     read.gadget.parameters(params.file)
   rec <- get.gadget.recruitment(stocks,params)
 
-  ## need a more flexible definition of year
-  rec <- arrange(rec,year)
+
+  rec <- arrange(rec,stock,year)
 
 
   ## Write agg files
