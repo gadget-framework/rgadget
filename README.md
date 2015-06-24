@@ -10,7 +10,7 @@ output and rudimentary plots.
 
 Prerequisites
 -------------
-Gadget obviously, can be obtained from www.hafro.is/gadget
+Gadget obviously, can be obtained from github.com/hafro/gadget
 
 Installing
 ----------
