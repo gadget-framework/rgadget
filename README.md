@@ -10,7 +10,7 @@ output and rudimentary plots.
 
 Prerequisites
 -------------
-Gadget obviously, can be obtained from www.hafro.is/gadget
+Gadget obviously, can be obtained from github.com/hafro/gadget
 
 Installing
 ----------
@@ -26,3 +26,10 @@ Simple example (more to come):
 	# read fit data:
 	fit <- gadget.fit()
 	plot(fit)
+
+Acknowledgements
+----------------
+
+This project has received funding from the European Union’s Seventh Framework
+Programme for research, technological development and demonstration under grant
+agreement no.613571.
