@@ -183,6 +183,7 @@ gadget.options <- function(type=c('simple2stock','spawning')){
         Fy=0.2)))
 
   if(type=='spawning'){
+     
     opt$stocks$imm$doesrenew <- 0
     opt$stocks$mat$doesspawn <- 1
     opt$stocks$mat$spawnsteps <- 1
@@ -235,7 +236,7 @@ gadget.options <- function(type=c('simple2stock','spawning')){
 ##' gm <- gadget.skeleton(time=opt$time,area=opt$area,
 ##'                       stocks=opt$stocks,fleets=opt$fleets)
 ##' @export
-gadget.skeleton <- function(time,area,stocks,fleets){
+gadget.skeleton <- function(time,area,stocks,fleets=NULL){
   ## Definition of time
   time <- new('gadget-time',
               firstyear = time$firstyear,
@@ -263,6 +264,9 @@ gadget.skeleton <- function(time,area,stocks,fleets){
               temperature = area.temp)
   
   ## stock definitions
+
+  ## recruitment age
+  rec.age <- min(sapply(stocks,function(x) x$minage))
   stocks <- 
     llply(stocks,function(x){
         print(x$name)
@@ -271,19 +275,24 @@ gadget.skeleton <- function(time,area,stocks,fleets){
                       growthparameters = c(x$growth[c('linf','k')],x$weight),
                       beta = x$growth['beta'], 
                       maxlengthgroupgrowth = x$growth['binn'])
-        if(!is.na(x$growth['recl']) & (x$growth['recl']>0 | is.character(x$growth['recl']))){
-            t0 <- sprintf('(+ %s (log (- 1 (/ %s %s))))',x$minage,
+        if(!is.na(x$growth['recl']) & (x$growth['recl']>0 |
+                                       is.character(x$growth['recl']))){
+            t0 <- sprintf('(+ %s (/ (log (- 1 (/ %s %s))) %s))',rec.age,
                           x$growth['recl'],
-                          x$growth['linf'])
+                          x$growth['linf'],
+                          x$growth['k'])
         } else {
             t0 <- 0
         }
-        mu <- sprintf('( * %s (-  1 (exp (* (* -1 %s ) (- %s %s)))))',
-                      x$growth['linf'],x$growth['k'],x$minage:x$maxage,t0)
+        mu.string <- '( * %s (-  1 (exp (* (* -1 %s ) (- %s %s)))))'
+        mu <- sprintf(mu.string,
+                      x$growth['linf'],x$growth['k'],
+                      x$minage:x$maxage,t0)
 #                      x$growth['linf'] * (1 - exp(-x$growth['k'] * 1:x$maxage))
         
-        refweight <- mutate(data.frame(length = seq(x$minlength,x$maxlength,by=x$dl)),
-                            weight =  x$weight['a']*length^x$weight['b'])
+        refweight <- mutate(data.frame(length = seq(x$minlength,
+                                           x$maxlength,by=x$dl)),
+                            weight = x$weight['a']*length^x$weight['b'])
         lengths <- refweight$length
         lenAgg <- data.frame(length = paste('len',tail(lengths,-1), sep = ''),
                              min = head(lengths,-1),
@@ -309,15 +318,21 @@ gadget.skeleton <- function(time,area,stocks,fleets){
             rep(x$init.abund,getNumOfAreas(area))  
         } else {
           warning('length init.abund is not a multiple of num. stock agegroups')
-          alive <- tryCatch(rep(x$init.abund[1:(x$maxage - x$minage + 1)],getNumOfAreas(area)),
+          alive <- tryCatch(rep(x$init.abund[1:(x$maxage - x$minage + 1)],
+                                getNumOfAreas(area)),
                             error = rep(x$init.abund[1],getNumOfAreas(area)*
-                              (x$maxage - x$minage + 1)))
+                                (x$maxage - x$minage + 1)))
         }
-        if(length(x$sigma)==1)
+        if(length(x$sigma)==1) {
             x$sigma <- rep(x$sigma,length(x$minage:x$maxage))
-        if(length(x$sigma)>length(x$minage:x$maxage))
+        } else if(length(x$sigma) >= x$maxage & x$minage>0){
+            recsigma <- x$sigma[1]
+            x$sigma <- x$sigma[x$minage:x$maxage]
+        } else if(length(x$sigma)>length(x$minage:x$maxage)) {
             x$sigma <- x$sigma[1:length(x$minage:x$maxage)]
-        
+        } else {
+            stop('Error -- initial sigma useless')
+        }
         init <- data.frame(age = x$minage:x$maxage, 
                            area = rep(1:getNumOfAreas(area),
                                       each = x$maxage - x$minage + 1), 
@@ -338,7 +353,7 @@ gadget.skeleton <- function(time,area,stocks,fleets){
                             age = x$minage,
                             number = x$n,
                             mean = mu[1],
-                            stddev = x$sigma[1],
+                            stddev = recsigma,
                             a = x$weight['a'],
                             b = x$weight['b'])
           }          
@@ -363,8 +378,10 @@ gadget.skeleton <- function(time,area,stocks,fleets){
                            weightlossfunction = c(func = 'constant', alpha = 0),
                            recruitment = c(func = x$spawnfunc,
                                mu = x$spawnparameters),
-                           stockparameters = data.frame(mean = mu[1],
-                             stddev = x$sigma[1], 
+                           stockparameters = data.frame(mean = sprintf(mu.string,
+                                                            x$growth['linf'],
+                                                            x$growth['k'],1,t0),
+                             stddev = recsigma, 
                              alpha = x$weight['a'], beta = x$weight['b']))
         } else {
           spawndata <- new('gadget-spawning')
@@ -379,7 +396,7 @@ gadget.skeleton <- function(time,area,stocks,fleets){
           maturityfunction <- ''
           maturestocksandratios <- '' 
           coefficients <-''
-          maturitysteps <- 0
+          maturitysteps <- '0'
         }
          
       if(length(x$M)==1){
@@ -433,35 +450,38 @@ gadget.skeleton <- function(time,area,stocks,fleets){
   
   ## fleet operations
 
-  
-  fleets <- llply(fleets,
-                  function(x){
-                    if(x$type %in% c('linearfleet','effortfleet')){
-                      fleetdat <- 
-                        mutate(area.temp[c('year','step','area')],
-                               fleet=x$name,
-                               Fy=x$Fy)
-                      fleetdat <- subset(fleetdat,step==x$catchstep)
-                    } else {
-                      fleetdat <- x$amount
-                    }
-                      
-                    tmp <- ddply(x$suitability,~stock,function(x)
-                                 c(params=paste(x[,-(1:2)],collapse=' ')))
-                    fleet.suit <- data.frame(fleet=x$name,
-                                             stock=x$suitability$stock,
-                                             suitability = x$suitability$suitability,
-                                             params = tmp$params)
-                    new('gadget-fleet',
-                        name = x$name,
-                        type = x$type,
-                        livesonareas = x$livesonareas,
-                        multiplicative = 1,
-                        suitability = fleet.suit,
-                        amount = fleetdat
-                    )
-                  }
-                  )
+  if(!is.null(fleets)){
+      fleets <- llply(fleets,
+                      function(x){
+                          if(x$type %in% c('linearfleet','effortfleet')){
+                              fleetdat <- 
+                                  mutate(area.temp[c('year','step','area')],
+                                         fleet=x$name,
+                                         Fy=x$Fy)
+                              fleetdat <- subset(fleetdat,step==x$catchstep)
+                          } else {
+                              fleetdat <- x$amount
+                          }
+                          
+                          tmp <- ddply(x$suitability,~stock,function(x)
+                                       c(params=paste(x[,-(1:2)],collapse=' ')))
+                          fleet.suit <- data.frame(fleet=x$name,
+                                                   stock=x$suitability$stock,
+                                                   suitability = x$suitability$suitability,
+                                                   params = tmp$params)
+                          new('gadget-fleet',
+                              name = x$name,
+                              type = x$type,
+                              livesonareas = x$livesonareas,
+                              multiplicative = 1,
+                              suitability = fleet.suit,
+                              amount = fleetdat
+                              )
+                      }
+                      )
+  } else {
+      fleets <- new('gadget-fleet')
+  }
   
   model <- new('gadget-main',
                  model.name='gadget-model',
@@ -476,3 +496,4 @@ gadget.skeleton <- function(time,area,stocks,fleets){
   )
   
 }
+

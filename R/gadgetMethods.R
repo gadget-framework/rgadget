@@ -60,6 +60,24 @@ setMethod('getMinage','gadget-main',
             return(minage)
           })
 
+
+
+setGeneric('getMaxlength',def=function(object){standardGeneric("getMaxlength")})
+setMethod('getMaxlength','gadget-stock', function(object) return(object@maxlength))
+setMethod('getMaxlength','gadget-main',
+          function(object){
+            maxlength <- max(laply(object@stocks,getMaxlength))
+            return(maxlength)
+          })
+
+setGeneric('getMinlength',def=function(object){standardGeneric("getMinlength")})
+setMethod('getMinlength','gadget-stock', function(object) return(object@minlength))
+setMethod('getMinlength','gadget-main',
+          function(object){
+            minlength <- min(laply(object@stocks,getMinlength))
+            return(minlength)
+          })
+
 setGeneric('getNumStocks',def=function(object){standardGeneric("getNumStocks")})
 setMethod('getNumStocks','gadget-main',
           function(object) length(object@stocks))
@@ -70,11 +88,7 @@ setMethod('getStockNames','gadget-stock',
 setMethod('getStockNames','gadget-main',
           function(object) laply(object@stocks,getStockNames))
 
-setMethod('getMinage','gadget-main',
-          function(object){
-            stockNames <- laply(object@stocks,getStockNames)
-            return(stockNames)
-          })
+
 
 
 setGeneric('getNumOfAreas',def=function(object){standardGeneric("getNumOfAreas")})
@@ -281,10 +295,10 @@ setMethod('getSpawnFunc','gadget-stock',
                   type <- object@spawning@recruitment[1]                      
                   function(n,i=1){
                       pp <- laply(p,function(x){
-                          if(length(x)>1 & length(x) >= i){
-                              x[i]
+                          if(length(x)>1){
+                              x[min(length(x),i)]
                           } else {
-                              x[length(x)]
+                              x
                           }
                       })
                       spawnfunc(type,n,w,pp,l)

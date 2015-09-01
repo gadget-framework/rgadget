@@ -108,7 +108,7 @@ gadget.simulate <- function(gm, params=data.frame(),
     stk[getAreas(gm),,(getMinage(x)+tmp):getMaxage(x),1] <- 
       acast(ddply(initData,~age+area,function(y){
         data.frame(length = lg[-1],
-                   num=y$age.factor*
+                   num=y$age.factor*y$area.factor*
                      distr(y$mean,y$stddev,lg,params))
       }),
       area~length~age,value.var='num')[getAreas(gm),,]
@@ -222,6 +222,10 @@ gadget.simulate <- function(gm, params=data.frame(),
               
           }
           
+
+      }
+      
+      if(curr.step==1){
           ## Spawning
           for(stock in getStockNames(gm)){
               ## print(stock)
@@ -234,7 +238,7 @@ gadget.simulate <- function(gm, params=data.frame(),
                           lg <- getLengthGroups(gm@stocks[[tmp[stkInd,1]]])
                           total.num <- tmp[stkInd,2]*
                               stockSpawn[[stock]](aaply(stkArr[[stock]],
-                                                        c(2,4),sum)[,i],i)
+                                                        c(2,4),sum)[,i],curr.year)
                           y <- gm@stocks[[stock]]@spawning@stockparameters
                           
                           stkArr[[tmp[stkInd,1]]][1,-1,getMinage(gm@stocks[[tmp[stkInd,1]]]),i] <-
@@ -247,7 +251,11 @@ gadget.simulate <- function(gm, params=data.frame(),
                       }
                   }
               }
-              
+          }
+      }
+
+      if(curr.step == 1 & i > 1 ){
+          for(stock in getStockNames(gm)){
               ## Maturation through movement
               if(gm@stocks[[stock]]@doesmove == 1){
                   tmp <- clear.spaces(gm@stocks[[stock]]@transitionstocksandratios)

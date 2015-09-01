@@ -1471,6 +1471,8 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
     tmp <- rec
   }
 
+  ## fix this for multi--species
+  
   if(stochastic){
     ## fit an AR model to the fitted recruiment
     fitAR <- lm(tmp$recruitment[-1]~head(tmp$recruitment,-1))
@@ -1490,7 +1492,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
     array(0,c(num.trials,years+1),
           dimnames=list(trial=1:num.trials,
             year=sim.begin:(sim.begin+years)))
-
+  
 
   if(num.trials == 1){
     rec.forward[1] <- tail(rec$recruitment,1)
@@ -1546,6 +1548,8 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
                               pre),
                             columns = FALSE)
   }
+  ## end fix
+  
   ## create the output files
   print.txt <-
     paste('[component]',
