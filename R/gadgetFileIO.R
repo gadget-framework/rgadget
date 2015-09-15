@@ -1984,9 +1984,10 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
   catches <- get.gadget.catches(fleets,params)
   gss.suit <- ldply(stocks,
                     function(x){
-                      subset(get.gadget.suitability(fleets,params,
-                                                    getLengthGroups(x)),
-                             stock == x@stockname)
+                        tryCatch(subset(get.gadget.suitability(fleets,params,
+                                                        getLengthGroups(x)),
+                                        stock == x@stockname),
+                                 error = function(y) 0)
                     })
   stock.growth <-
     tryCatch(get.gadget.growth(stocks,params,age.based=TRUE),
@@ -1995,12 +1996,17 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
   stock.recruitment <- get.gadget.recruitment(stocks,params)
 
   harv.suit <- function(l,stockname){
-    ddply(merge(subset(get.gadget.suitability(fleets,params,l),
-                       stock==stockname),
-                fleet.predict),~l,
-          summarise, harv=sum(ratio*suit))$harv
+      tryCatch(ddply(merge(
+          subset(get.gadget.suitability(fleets,params,l),
+                 stock==stockname),
+          fleet.predict),~l,
+                     summarise, harv=sum(ratio*suit))$harv,
+               error = function(x){
+                   print('warning -- fleet parameters could not be read')
+                   return(0)
+               })
   }
-
+  
   stock.full <- data.table(ldply(stocks,function(x){
     mutate(out[[sprintf('%s.full',getStockNames(x))]],
            length=as.numeric(gsub('len','',length)))
