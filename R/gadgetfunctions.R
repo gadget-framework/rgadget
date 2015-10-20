@@ -588,7 +588,7 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
       if(sum(weights$sigmahat == 0) >0){
         warning(sprintf('Perfect fit for component %s, weight 10*df used',
                         weights$comp[weights$sigmahat == 0]))
-        weigths$sigmahat[weights$sigmahat == 0] <- 0.1
+        weights$sigmahat[weights$sigmahat == 0] <- 0.1
       }
 
       main <- main.base
@@ -1466,7 +1466,11 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
   write.gadget.fleet(fleet,file=sprintf('%s/fleet', pre))
 
   if(!is.null(rec.window)){
-    tmp <- subset(rec,year < rec.window)
+    if(length(rec.window)==1){
+      tmp <- subset(rec,year < rec.window)
+    } else {
+      tmp <- subset(rec,year < max(rec.window) & year > min(rec.window))
+    }
   } else {
     tmp <- rec
   }

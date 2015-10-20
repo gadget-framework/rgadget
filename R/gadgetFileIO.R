@@ -1219,7 +1219,7 @@ read.gadget.stockfiles <- function(stock.files){
         names(migrationratio) <- laply(mat.loc,function(x){ tmp[[x+1]][2]})
     } else {
       migrationratio <- list()
-      transitionstocksandratios <- ''
+#      transitionstocksandratios <- ''
       yearstep <- data.frame()
     }
 
@@ -1971,17 +1971,20 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
 
   main$printfiles <- sprintf('%s/printfile.fit',wgts)
   write.gadget.main(main,file = sprintf('%s/main.print',wgts))
+  
   callGadget(s=1,
              i = ifelse(is.null(params.file),
                sprintf('%s/params.final',wgts),
                params.file),
              main = sprintf('%s/main.print',wgts),
              o = sprintf('%s/SS.print',wgts))
+  
   out <- read.printfiles(sprintf('%s/out.fit',wgts))
   SS <- read.gadget.lik.out(sprintf('%s/SS.print',wgts))
   stocks <- read.gadget.stockfiles(main$stockfiles)
   fleets <- read.gadget.fleet(main$fleetfiles)
   catches <- get.gadget.catches(fleets,params)
+  
   gss.suit <- ldply(stocks,
                     function(x){
                         tryCatch(subset(get.gadget.suitability(fleets,params,
@@ -2016,6 +2019,29 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
     out[[sprintf('%s.std',getStockNames(x))]]
   }))
 
+  fleet.catches <- 
+    ddply(fleets$fleet,~fleet,function(x){
+      tmp <- 
+        read.table(file=x$amount,comment.char = ';')
+      names(tmp) <- 
+        c('year','step','area','fleet','amount')
+      tmp$amount <- as.numeric(tmp$amount)
+      filter(tmp,fleet == x$fleet)
+    }) %>% 
+    data.table()
+  
+  
+  fleet.info <- 
+    stock.full %>%
+    mutate(area = as.numeric(gsub('area','',area))) %>%
+    left_join(data.table(select(gss.suit,.id,length=l,suit,fleet,stock))) %>%
+    group_by(year,step,area,fleet) %>%
+    summarise(harv.bio = sum(suit*number*mean.weight)) %>%
+    left_join(fleet.catches %>% group_by(year,fleet,area) %>% summarise(amount=sum(amount))) %>%
+    group_by(year,step,area,fleet) %>%
+    mutate(amount = ifelse(is.na(amount),0,amount),
+           harv.rate = amount/harv.bio)
+    
 
   ## merge data and estimates
   if('surveyindices' %in% names(lik.dat$dat)){
@@ -2231,7 +2257,8 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
               likelihoodsummary = out$likelihoodsummary,
               catchdist.fleets = catchdist.fleets, stockdist = stockdist,
               out.fit=out, SS = SS,
-              stock.full = stock.full, stock.std = stock.std)
+              stock.full = stock.full, stock.std = stock.std,
+              fleet.info = fleet.info)
   class(out) <- c('gadget.fit',class(out))
   save(out,file=sprintf('%s/WGTS.Rdata',wgts))
   return(out)
@@ -2488,22 +2515,29 @@ plot.gadget.fit <- function(fit,data = 'sidat',type='direct',dat.name=NULL){
 
   } else if(data == 'res.by.year' & type == 'total'){
     ggplot(fit$res.by.year,aes(year,total.biomass/1e6,col=stock)) + geom_line() +
-    theme_bw() + ylab("Biomass (in '000 tons)") + xlab('Year')
-} else if(data == 'res.by.year' & type == 'ssb'){
+      theme_bw() + ylab("Biomass (in '000 tons)") + xlab('Year')
+  } else if(data == 'res.by.year' & type == 'ssb'){
     ggplot(fit$res.by.year,aes(year,ssb/1e6,col=stock)) + geom_line() +
-    theme_bw() + ylab("SSB (in '000 tons)") + xlab('Year')
-} else if(data == 'res.by.year' & type == 'catch'){
+      theme_bw() + ylab("SSB (in '000 tons)") + xlab('Year')
+  } else if(data == 'res.by.year' & type == 'catch'){
     ggplot(fit$res.by.year,aes(year,catch/1e6,col=stock)) + geom_line() +
-    theme_bw() + ylab("Catch (in '000 tons)") + xlab('Year')
-} else if(data == 'res.by.year' & type == 'num.catch'){
+      theme_bw() + ylab("Catch (in '000 tons)") + xlab('Year')
+  } else if(data == 'res.by.year' & type == 'num.catch'){
     ggplot(fit$res.by.year,aes(year,num.catch/1e6,col=stock)) + geom_line() +
-    theme_bw() + ylab("Catch in numbers (millions)") + xlab('Year')
-} else if(data == 'suitability') {
+      theme_bw() + ylab("Catch in numbers (millions)") + xlab('Year')
+  } else if(data == 'suitability') {
     ggplot(fit$suitability,
            aes(l,suit,lty=fleet)) +
-    geom_line() + theme_bw() + ylab('Suitability') + xlab('Length') +
-    theme(legend.position = c(0.8,0.25), legend.title = element_blank(),
-          plot.margin = unit(c(0,0,0,0),'cm'))
+      geom_line() + theme_bw() + ylab('Suitability') + xlab('Length') +
+      theme(legend.position = c(0.8,0.25), legend.title = element_blank(),
+            plot.margin = unit(c(0,0,0,0),'cm'))
+  } else if(data == 'growth') {
+    ggplot(fit$stock.growth,
+           aes(age,length)) + 
+      geom_line() +
+      theme_bw() + ylab('Length') + xlab('Age') +
+      theme(legend.position = c(0.25,0.75), legend.title = element_blank(),
+            plot.margin = unit(c(0,0,0,0),'cm'))
   }
 }
 
