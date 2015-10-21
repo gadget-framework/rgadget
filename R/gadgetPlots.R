@@ -33,6 +33,7 @@ plot.gadget.fit <- function(fit,data = 'sidat',type='direct',dat.name=NULL){
       ylab('Index') + xlab('Year') +
       theme (panel.margin = unit(0,'cm'), plot.margin = unit(c(0,0,0,0),'cm'),
              strip.background = element_blank(), strip.text.x = element_blank())
+    
   } else if(data=='sidat' & type == 'bio'){
     bio.tmp <- ddply(fit$sidat,~year + step,summarise,
                      obs=sum(number.x*bio),prd=sum(predict*bio))
@@ -45,6 +46,16 @@ plot.gadget.fit <- function(fit,data = 'sidat',type='direct',dat.name=NULL){
       ylab('Biomass index') + xlab('Year') +
       theme (panel.margin = unit(0,'cm'), plot.margin = unit(c(0,0,0,0),'cm'),
              strip.background = element_blank(), strip.text.x = element_blank())
+    
+  } else if(data == 'sidat' & type == 'x-y' ) {
+    ggplot(fit$sidat,aes(number.x,predict,label=year)) + geom_text() + 
+      facet_wrap(~name+sse+slope,scale='free') + theme_bw() + ylab('Predicted value') + 
+      xlab('Observed') + geom_hline(data=filter(fit$sidat,year==max(year)),
+                                    aes(yintercept=predict),col='green') + 
+      geom_vline(data=filter(fit$sidat,year==max(year)),aes(xintercept=predict),col='green') + 
+      geom_text(aes(-Inf,Inf,label=name),vjust=2,hjust=-0.5) + 
+      theme(panel.margin = unit(0,'cm'), plot.margin = unit(c(0,0,0,0),'cm'),
+            strip.background = element_blank(), strip.text.x = element_blank())
     
   } else if(data=='catchdist.fleets'){
     if(type == 'direct'){
