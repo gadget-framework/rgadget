@@ -475,7 +475,7 @@ suitability <- function(params,
   } else if(tolower(type) == 'gamma'){
 
     S <- array(rep((l/((params[1] - 1)*params[2]*params[3]))^(params[1] -1) *
-                   exp(params[1] - 1 - 1/(params[2]*params[3])),
+                   exp(params[1] - 1 - l/(params[2]*params[3])),
                    each = length(L)),
                c(length(L),length(l)))
   } else {
