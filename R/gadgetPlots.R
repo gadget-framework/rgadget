@@ -154,6 +154,10 @@ plot.gadget.fit <- function(fit,data = 'sidat',type='direct',dat.name=NULL){
     ggplot(fit$res.by.year,aes(year,total.biomass/1e6,col=stock)) + geom_line() +
       theme_bw() + ylab("Biomass (in '000 tons)") + xlab('Year')
     
+  } else if(data == 'res.by.year' & type == 'num.total'){
+    ggplot(fit$res.by.year,aes(year,total.number/1e6,col=stock)) + geom_line() +
+      theme_bw() + ylab("Abundance (in millions)") + xlab('Year')
+    
   } else if(data == 'res.by.year' & type == 'ssb'){
     ggplot(fit$res.by.year,aes(year,ssb/1e6,col=stock)) + geom_line() +
       theme_bw() + ylab("SSB (in '000 tons)") + xlab('Year')
