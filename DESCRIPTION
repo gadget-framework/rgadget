@@ -18,5 +18,8 @@ Depends:
     lubridate,
     stringr,
     grid
+Suggests:
+    unittest (>= 1.2)
 License: GPL
 LazyLoad: yes
+LazyData: true
