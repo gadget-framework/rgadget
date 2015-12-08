@@ -1206,6 +1206,7 @@ read.gadget.stockfiles <- function(stock.files){
     doesmigrate <- as.numeric(stock[[migrate.loc]][2])
     if(doesmigrate == 1){
         yearstep <- read.table(stock[[migrate.loc+1]][-1],
+                               comment.char = ';',
                                stringsAsFactors=FALSE)
         tmp <- strip.comments(stock[[migrate.loc+2]][-1])
         mat.loc <- grep('[migrationmatrix]',tmp,fixed=TRUE)
