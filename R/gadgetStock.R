@@ -36,48 +36,6 @@
 # In this case, having a "data" parameter invokes gadget_stockfile_refweight() or
 # equivalent to build the S4 class.
 
-setClass('gadget-stockfile',
-    representation(
-        stockname = 'character',
-        livesonareas = 'numeric',
-        minage = 'numeric',
-        maxage = 'numeric',
-        minlength = 'numeric',
-        maxlength = 'numeric',
-        dl = 'numeric',
-        refweight  = 'data.frame',
-        growthandeatlengths = 'data.frame',
-
-        growth = 'gadget-stockfile-growth',
-        consumption = 'gadget-stockfile-consumption',
-        initialconditions = 'gadget-stockfile-initialconditions',
-        migration = 'gadget-stockfile-migration',
-        maturation = 'gadget-stockfile-maturation',
-        movement = 'gadget-stockfile-movement',
-        renewal = 'gadget-stockfile-renewal',
-        spawning = 'gadget-stockfile-spawning',
-        straying = 'gadget-stockfile-straying'),
-    prototype(
-        stockname = '',
-        livesonareas = NULL,
-        minage = NULL,
-        maxage = NULL,
-        minlength = NULL,
-        maxlength = NULL,
-        dl = NULL,
-        refweight  = data.frame(),
-        growthandeatlengths = data.frame(),
-
-        growth = new('gadget-stockfile-growth'),
-        consumption = new('gadget-stockfile-consumption'),
-        initialconditions = new('gadget-stockfile-initialconditions'),
-        migration = new('gadget-stockfile-migration'),
-        maturation = new('gadget-stockfile-maturation'),
-        movement = new('gadget-stockfile-movement'),
-        renewal = new('gadget-stockfile-renewal'),
-        spawning = new('gadget-stockfile-spawning'),
-        straying = new('gadget-stockfile-straying')))
-
 setClass('gadget-stockfile-growth',
     representation(
         doesgrow = 'numeric',
@@ -98,7 +56,7 @@ setClass('gadget-stockfile-consumption',
         iseaten = 1,
         preyinfo = new('gadget-prey'),
         doeseat = 0,
-        predator = new('gadget-predator'))
+        predator = new('gadget-predator')))
 
 setClass('gadget-stockfile-initialconditions',
     representation(
@@ -150,15 +108,15 @@ setClass('gadget-stockfile-renewal',
     representation(
         doesrenew = 'numeric',
         renewal = 'list',
-        renewal.data = 'data.frame',
+        renewal.data = 'data.frame'),
     prototype(
         doesrenew = 1,
         renewal = list(),
-        renewal.data = data.frame(),
+        renewal.data = data.frame()))
 
 setClass('gadget-stockfile-spawning',
     representation(
-        spawning = 'gadget-spawning',
+        doesspawn = 'numeric',
         spawnsteps = 'numeric',
         spawnareas = 'numeric',
         firstspawnyear = 'numeric',
@@ -192,7 +150,49 @@ setClass('gadget-stockfile-straying',
         proportionfunction = 'vector'),
     prototype(
         doesstray = 0,
-        straysteps = 'numeric',
-        strayareas = 'numeric',
+        straysteps = 0,
+        strayareas = 0,
         straystocksandratios = 'vector',
         proportionfunction = 'vector'))
+
+setClass('gadget-stockfile',
+    representation(
+        stockname = 'character',
+        livesonareas = 'numeric',
+        minage = 'numeric',
+        maxage = 'numeric',
+        minlength = 'numeric',
+        maxlength = 'numeric',
+        dl = 'numeric',
+        refweight  = 'data.frame',
+        growthandeatlengths = 'data.frame',
+
+        growth = 'gadget-stockfile-growth',
+        consumption = 'gadget-stockfile-consumption',
+        initialconditions = 'gadget-stockfile-initialconditions',
+        migration = 'gadget-stockfile-migration',
+        maturation = 'gadget-stockfile-maturation',
+        movement = 'gadget-stockfile-movement',
+        renewal = 'gadget-stockfile-renewal',
+        spawning = 'gadget-stockfile-spawning',
+        straying = 'gadget-stockfile-straying'),
+    prototype(
+        stockname = '',
+        livesonareas = NULL,
+        minage = NULL,
+        maxage = NULL,
+        minlength = NULL,
+        maxlength = NULL,
+        dl = NULL,
+        refweight  = data.frame(),
+        growthandeatlengths = data.frame(),
+
+        growth = new('gadget-stockfile-growth'),
+        consumption = new('gadget-stockfile-consumption'),
+        initialconditions = new('gadget-stockfile-initialconditions'),
+        migration = new('gadget-stockfile-migration'),
+        maturation = new('gadget-stockfile-maturation'),
+        movement = new('gadget-stockfile-movement'),
+        renewal = new('gadget-stockfile-renewal'),
+        spawning = new('gadget-stockfile-spawning'),
+        straying = new('gadget-stockfile-straying')))
