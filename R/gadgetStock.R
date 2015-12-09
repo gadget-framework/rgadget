@@ -5,19 +5,19 @@
 #
 # Example: Create a stock from scratch:- 
 # gadget_stock_skeleton('stock_name', age = c(10, 50)) %>%
-#     insert('spawning', spawnsteps = 1) %>%
-#     clear('renewal') %>%
+#     component('spawning', spawnsteps = 1) %>%
+#     component('renewal', NULL) %>%
 #     gadget_dir_write(gd)
 #
 # Example: Read in a stock file, modify and write back
 # gadget_read_stock('stock_name', gd) %>%
-#     clear('renewal') %>%
+#     component('renewal', NULL) %>%
 #     gadget_dir_write(gd)
 #
 # Where fhe following functions are defined thus:-
-# * insert(stock, name, ...) is approximately:-
+# * component(stock, name, ...) at simplest is:-
 #     slots(stock, name) <- new(paste0('gadget-stockfile-', name), ...)
-# * clear(stock, name) is approximately:-
+# * component(stock, NULL) is approximately:-
 #     slots(stock, name) <- new(paste0('gadget-stockfile-', name), does(name) = 0)
 # * gadget_stock_skeleton(name, ...) is extracted from gadget.skeleton,
 #   generating S4 class.
@@ -30,9 +30,9 @@
 # * gadget_stockfile_initialconditions(stock_name, data)
 # * gadget_stockfile_recruitment(stock_name, data)
 # ...could have invoked via:-
-# * insert('refweight', data = data)
-# * insert('spawning', data = data)
-# * insert('recruitment', data = data)
+# * component('refweight', data = data)
+# * component('spawning', data = data)
+# * component('recruitment', data = data)
 # In this case, having a "data" parameter invokes gadget_stockfile_refweight() or
 # equivalent to build the S4 class.
 
