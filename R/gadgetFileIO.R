@@ -1906,9 +1906,10 @@ read.gadget.grouping <- function(lik = read.gadget.likelihood(),
                     !(type %in% c('penalty','understocking',
                                   'migrationpenalty','catchinkilos')))
 
-  tmp <-
-    ldply(lik.tmp$name,
-          function(x){
+  tmp <- 
+    tryCatch(
+      ldply(lik.tmp$name,
+            function(x){
               text <- gsub('params.','',
                            grep('params',list.files(wgts),
                                 value = TRUE))
@@ -1920,7 +1921,9 @@ read.gadget.grouping <- function(lik = read.gadget.likelihood(),
                          pos = pos,
                          ord = regexpr(x,text[pos])[1],
                          stringsAsFactors=FALSE)
-          })
+            }),
+    error=function(e) stop('Error when reading likelihood grouping from WGTS, some components are missing. 
+                           Has iterative reweighting been completed?'))
   tmp <- arrange(tmp,pos,ord)
   grouping <- dlply(tmp,~pos,function(x) as.character(x$name))
   names(grouping) <- unlist(llply(grouping,function(x) paste(x,collapse='.')))
@@ -2147,24 +2150,28 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
           f.age.range <- c(max(out[[sprintf('%s.prey',x)]]$age),
                            max(out[[sprintf('%s.prey',x)]]$age))
         }
-        f.by.year <- ddply(out[[sprintf('%s.prey',x)]],~year,summarise,
-                           catch=sum(biomass.consumed),
-                           num.catch=sum(number.consumed),
-                           F=mean(mortality[age>=min(f.age.range)&age<=max(f.age.range)]))
+        f.by.year <- 
+          out[[sprintf('%s.prey',x)]] %>%
+          group_by(year,area) %>%
+          summarise(catch=sum(biomass.consumed),
+                    num.catch=sum(number.consumed),
+                    F=mean(mortality[age>=min(f.age.range)&age<=max(f.age.range)]))
 
 
-        bio.by.year <- out[[sprintf('%s.full',x)]] %>%
-            filter(step == 1) %>%
-            group_by(year,area) %>%
-            summarise(total.number = sum(number),
-                      total.biomass = sum(number*mean.weight),
-                      harv.biomass =
+        bio.by.year <- 
+          out[[sprintf('%s.full',x)]] %>%
+          filter(step == 1) %>%
+          group_by(year,area) %>%
+          summarise(total.number = sum(number),
+                    total.biomass = sum(number*mean.weight),
+                    harv.biomass =
                       sum(mean.weight*
-                          harv.suit(as.numeric(gsub('len','',length)),x)*
-                          number),
-                      ssb = sum(mean.weight*logit(mat.par[1],
-                          mat.par[2],as.numeric(gsub('len','',length)))*
-                          number)) 
+                            harv.suit(as.numeric(gsub('len','',length)),x)*
+                            number),
+                    ssb = sum(mean.weight*logit(mat.par[1],
+                                                mat.par[2],
+                                                as.numeric(gsub('len','',length)))*
+                                number)) 
 
         bio <- merge(f.by.year,bio.by.year)
         bio$stock <- x
