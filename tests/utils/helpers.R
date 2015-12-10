@@ -1,5 +1,6 @@
 cmp <- function(a, b) {
-    if(identical(all.equal(a,b, tolerance = 1e-6), TRUE)) return(TRUE)
+    cmp_test <- all.equal(a,b, tolerance = 1e-6)
+    if(identical(cmp_test, TRUE)) return(TRUE)
 
     if (file.exists(Sys.which('git'))) {
         totmp <- function(x) {
@@ -11,17 +12,19 @@ cmp <- function(a, b) {
             return(f)
         }
 
-        return(suppressWarnings(system2(
+        diff_output <- suppressWarnings(system2(
             Sys.which('git'),
             c("diff", "--no-index", "--color-words", totmp(a), totmp(b)),
             input = "",
-            stdout = TRUE, stderr = TRUE)))
+            stdout = TRUE, stderr = TRUE))
+        if (length(diff_output) > 0) return(diff_output)
     }
 
     return(c(
         capture.output(str(a)),
         "... does not equal...",
-        capture.output(str(b))
+        capture.output(str(b)),
+        cmp_test
     ))
 }
 cmp_error <- function(exp, expected_regexp) {
