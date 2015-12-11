@@ -139,6 +139,83 @@ ok_group("Can create new stocks with some default content", {
             "[likelihood]",
         NULL)
     )), "Added new stock file, left old one alone")
+
+    gadgetstock('codmat', path, missingOkay = TRUE) %>%
+        gadget_update('doesmigrate', 
+            yearstepfile = gadgetfile('data/yearstepfile', components = list(
+                data.frame(year = 1998, step = 1:4, matrix = 'codmat-migration'))),
+            definematrices = gadgetfile('data/migratematrix', components = list(
+                migrationmatrix = list(name = 'codmat-migration'),
+                data.frame(1:4, 1:4, 1:4, 1:4)))) %>%
+        write.gadget.file(path)
+    ok(cmp(dir_list(path), list(
+        codimm = c(
+            ver_string,
+            "stockname\tcodimm",
+            "livesonareas\t",
+            "minage\t2",
+            "maxage\t6",
+            "minlength\t10",
+            "maxlength\t20",
+            "dl\t",
+            "refweightfile\t",
+            "growthandeatlengths\t",
+            "doesgrow\t0", "naturalmortality\t0", "iseaten\t0",
+            "doeseat\t1", "maxconsumption\t100", "halffeedingvalue\t70",
+            "initialconditions",
+            "doesmigrate\t0", "doesmature\t0", "doesmove\t0",
+            "doesrenew\t0", "doesspawn\t0", "doesstray\t0",
+        NULL),
+        codmat = c(
+            ver_string,
+            "stockname\tcodmat",
+            "livesonareas\t",
+            "minage\t",
+            "maxage\t",
+            "minlength\t",
+            "maxlength\t",
+            "dl\t",
+            "refweightfile\t",
+            "growthandeatlengths\t",
+            "doesgrow\t0", "naturalmortality\t0", "iseaten\t0", "doeseat\t0",
+            "initialconditions",
+            "doesmigrate\t1", "yearstepfile\tdata/yearstepfile", "definematrices\tdata/migratematrix",
+            "doesmature\t0", "doesmove\t0",
+            "doesrenew\t0", "doesspawn\t0", "doesstray\t0",
+        NULL),
+        "data/migratematrix" = c(
+            ver_string,
+            "[migrationmatrix]",
+            "name\tcodmat-migration",
+            "; -- data --",
+            "; X1.4\tX1.4.1\tX1.4.2\tX1.4.3",
+            "1\t1\t1\t1",
+            "2\t2\t2\t2",
+            "3\t3\t3\t3",
+            "4\t4\t4\t4",
+        NULL),
+        "data/yearstepfile" = c(
+            ver_string,
+            "; -- data --",
+            "; year\tstep\tmatrix",
+            "1998\t1\tcodmat-migration",
+            "1998\t2\tcodmat-migration",
+            "1998\t3\tcodmat-migration",
+            "1998\t4\tcodmat-migration",
+        NULL),
+        main = c(
+            ver_string,
+            "timefile\t",
+            "areafile\t",
+            "printfiles\t; Required comment",
+            "[stock]",
+            "stockfiles\tcodimm\tcodmat",
+            "[tagging]",
+            "[otherfood]",
+            "[fleet]",
+            "[likelihood]",
+        NULL)
+    )), "Added new stock file, left old one alone")
 })
 
 # TODO: Tests for mfdb-derived data
