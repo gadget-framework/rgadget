@@ -4,8 +4,7 @@
 \alias{gadgetfile}
 \title{Construct a new gadgetfile S3 object}
 \usage{
-gadgetfile(file_name, file_type = "generic", components = list(),
-  data = NULL)
+gadgetfile(file_name, file_type = "generic", components = list())
 }
 \arguments{
 \item{file_name}{Filename the output should be written to / read from}
@@ -15,8 +14,6 @@ See \code{Rgadget::gadget_filetypes} for recognised types.
 Setting this will enable any quirks of that particular file type,}
 
 \item{components}{A list of lists, representing each component.}
-
-\item{data}{A data.frame representing the tabular data at the end of a file.}
 }
 \value{
 A gadgetfile S3 class, use \code{write.gadget.file} to write it to disk
@@ -37,9 +34,10 @@ key2	value
 [component3_name]
 key	value
   . . .
-; preamble before the data section
+; preamble before the data component
+[data_component]
 ; -- data --
-a	b	c
+; a	b	c
 1	2	3
 }
 
