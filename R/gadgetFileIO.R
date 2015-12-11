@@ -42,9 +42,21 @@ read.printfiles <- function(path='.',suppress=FALSE){
     }
     pos <- grep('Regression information',tmp)
     if(length(pos)!=0){
-      regr <- read.table(text=gsub('; ','',
-                           tmp[(pos+1):length(tmp)]))[c(1,3,5,7)]
-      names(regr) <- c('label','intercept','slope','sse')
+      areas <- 
+        gsub('; Regression information for area ','',tmp[pos]) %>%
+        cbind(areas=.,n=diff(c(pos,length(tmp)+1))-1) %>%
+        as.data.frame() %>%
+        split(.$areas) %>%
+        map(function(x) data.frame(areas=rep(x$areas,x$n))) %>%
+        bind_rows()
+      
+      regr.txt <- 
+        tmp[-c(1:min(pos-1),pos)] %>%
+        gsub('; ','',.) %>%
+        paste(.,areas$areas)
+      
+      regr <- read.table(text=regr.txt)[c(1,3,5,7,8)]
+      names(regr) <- c('label','intercept','slope','sse','area')
       data <- merge(data,regr)
       data <- mutate(data,
                      predict = exp(intercept)*number^slope) ## 1000 hmm
