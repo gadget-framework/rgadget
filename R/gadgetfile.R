@@ -53,6 +53,23 @@ gadgetfile <- function (file_name, file_type = "generic", components = list()) {
         class = c("gadgetfile", "list"))
 }
 
+#' Update gadget components
+#'
+#' Update a component within this file.
+#'
+#' @param gf		The gadgetfile object to update
+#' @param component	The component to update
+#' @param ...		Keys to update.
+#'
+#' @details
+#' For more information, see a specific implementation:
+#' \enumerate{
+#'   \item \link{gadget_update.gadgetstock}
+#' }
+#'
+#' @export
+gadget_update <- function(gf, component, ...) UseMethod("gadget_update", gf)
+
 #' Recognised GADGET file types and their quirks
 #'
 #' \describe{
