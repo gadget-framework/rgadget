@@ -50,7 +50,7 @@ gadgetfile <- function (file_name, file_type = "generic", components = list()) {
         names = names(components),
         file_name = file_name,
         file_config = get_filetype(file_type),
-        class = "gadgetfile")
+        class = c("gadgetfile", "list"))
 }
 
 #' Recognised GADGET file types and their quirks
@@ -111,7 +111,7 @@ print.gadgetfile <- function (x, ...) {
             # properties are in key\tvalue1\tvalue2... form
             for (i in seq_len(length(comp))) {
                 cat(names(comp)[[i]], "\t", sep = "")
-                cat(if (class(comp[[i]]) == "gadgetfile") attr(comp[[i]], 'file_name') else comp[[i]], sep = "\t")
+                cat(if ("gadgetfile" %in% class(comp[[i]])) attr(comp[[i]], 'file_name') else comp[[i]], sep = "\t")
 
                 if (length(attr(comp[[i]], "comment")) > 0) {
                     if (length(comp[[i]]) > 0) cat("\t\t")
@@ -150,7 +150,7 @@ write.gadget.file <- function(path, obj, mainfile = 'main') {
     # For each component, inspect for any stored gadgetfiles and write these out first
     for (comp in obj) {
         if (is.list(comp)) for (field in comp) {
-            if (class(field) == "gadgetfile") {
+            if ("gadgetfile" %in% class(field)) {
                 write.gadget.file(path, field, mainfile = mainfile)
             }
         }
