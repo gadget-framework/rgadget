@@ -20,7 +20,7 @@ test_loopback <- function(..., file_type = "generic") {
     writeLines(c(...), con = file.path(dir, file_name))
 
     gf <- read.gadget.file(dir, file_name, file_type = file_type)
-    write.gadget.file(dir, gf)
+    write.gadget.file(gf, dir)
     return(dir_list(dir)[[file_name]])
 }
 
@@ -45,10 +45,10 @@ ok_group("Can generate gadgetfile objects", {
 ok_group("Can write arbitary data files", {
     dir <- tempfile()
 
-    write.gadget.file(dir, gadgetfile("wobble", components = list(list(
+    write.gadget.file(gadgetfile("wobble", components = list(list(
         cabbage = "yes",
         potatoes = c("1 potato", "2 potato", "3 potato", "4!"),
-        sprouts = 'Like, "Eeeew!"'))))
+        sprouts = 'Like, "Eeeew!"'))), dir)
     ok(cmp(dir_list(dir), list(
         wobble = c(
             ver_string,
@@ -58,8 +58,8 @@ ok_group("Can write arbitary data files", {
         NULL)
     )), "Wrote out simple gadget file")
 
-    write.gadget.file(dir, gadgetfile("sub/wabble",
-        components = list(list(cabbage = "no"))))
+    write.gadget.file(gadgetfile("sub/wabble",
+        components = list(list(cabbage = "no"))), dir)
     ok(cmp(dir_list(dir), list(
         "sub/wabble" = c(
             ver_string,
@@ -73,9 +73,9 @@ ok_group("Can write arbitary data files", {
         NULL)
     )), "Wrote out extra file in subdir")
 
-    write.gadget.file(dir, gadgetfile("sub/wabble", components = list(list(
+    write.gadget.file(gadgetfile("sub/wabble", components = list(list(
         cabbage = "ick",
-        cauliflower = "yum"))))
+        cauliflower = "yum"))), dir)
     ok(cmp(dir_list(dir), list(
         "sub/wabble" = c(
             ver_string,
@@ -99,7 +99,7 @@ ok_group("Can add components and preambles", {
             component = structure(list(name = "component1"), preamble = list("The first component", "I like it")),
             component = structure(list(name = "component2"), preamble = "The second component (with the same name)"),
             tea = structure(list(milk = 1, sugars = 2), preamble = "Tea, please")))
-    write.gadget.file(dir, gf)
+    write.gadget.file(gf, dir)
 
     ok(cmp(dir_list(dir), list(
         wibble = c(
@@ -125,7 +125,7 @@ ok_group("Can include tabular data", {
     dir <- tempfile()
     gf <- gadgetfile("wabble",
         components = list(data.frame(a = c(1,3), b = c(2,5))))
-    write.gadget.file(dir, gf)
+    write.gadget.file(gf, dir)
 
     ok(cmp(dir_list(dir), list(
         wabble = c(
@@ -154,7 +154,7 @@ ok_group("Can nest gadgetfile objects", {
         "secondcourse\tcourses/dessert",
     NULL)), "Wrote filenames for gadgetfile values")
 
-    write.gadget.file(dir, dinner)
+    write.gadget.file(dinner, dir)
     ok(cmp(dir_list(dir), list(
         "courses/dessert" = c(
             ver_string,
@@ -378,9 +378,9 @@ ok_group("Implicit component labels", {
 ok_group("Writing to mainfile", {
     dir <- tempfile()
 
-    write.gadget.file(dir, gadgetfile("wobble",
+    write.gadget.file(gadgetfile("wobble",
         components = list(list(cabbage = "definitely")),
-        file_type = "area"))
+        file_type = "area"), dir)
     ok(cmp(dir_list(dir), list(
         main = c(
             ver_string,
@@ -399,9 +399,9 @@ ok_group("Writing to mainfile", {
         NULL)
     )), "Added area file to mainfile")
 
-    write.gadget.file(dir, gadgetfile("wubble",
+    write.gadget.file(gadgetfile("wubble",
         components = list(list(cabbage = "nah")),
-        file_type = "area"))
+        file_type = "area"), dir)
     ok(cmp(dir_list(dir), list(
         main = c(
             ver_string,
@@ -424,9 +424,9 @@ ok_group("Writing to mainfile", {
         NULL)
     )), "Extra area file replaces old")
 
-    write.gadget.file(dir, gadgetfile("wobble",
+    write.gadget.file(gadgetfile("wobble",
         components = list(list(cabbage = "please")),
-        file_type = "area"), mainfile = NULL)
+        file_type = "area"), dir, mainfile = NULL)
     ok(cmp(dir_list(dir), list(
         main = c(
             ver_string,
@@ -449,12 +449,12 @@ ok_group("Writing to mainfile", {
         NULL)
     )), "Don't update mainfile if we disable it")
 
-    write.gadget.file(dir, gadgetfile("likelihood/bubble",
+    write.gadget.file(gadgetfile("likelihood/bubble",
         components = list(list(cabbage = "twice")),
-        file_type = "likelihood"))
-    write.gadget.file(dir, gadgetfile("likelihood/bobble",
+        file_type = "likelihood"), dir)
+    write.gadget.file(gadgetfile("likelihood/bobble",
         components = list(list(cabbage = "thrice")),
-        file_type = "likelihood"))
+        file_type = "likelihood"), dir)
     ok(cmp(dir_list(dir), list(
         "likelihood/bobble" = c(
             ver_string,

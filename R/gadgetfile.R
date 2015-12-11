@@ -134,11 +134,11 @@ print.gadgetfile <- function (x, ...) {
 
 #' Write gadgetfile to disk, including any dependant files, and update the mainfile
 #'
-#' @param path		Base directory to write out to
 #' @param obj		gadgetfile object to write
+#' @param path		Base directory to write out to
 #' @param mainfile	The name of the directories mainfile (or NULL to disable mainfile updating)
 #' @export
-write.gadget.file <- function(path, obj, mainfile = 'main') {
+write.gadget.file <- function(obj, path, mainfile = 'main') {
     file_name <- attr(obj, 'file_name')
     file_config <- attr(obj, 'file_config')
 
@@ -151,7 +151,7 @@ write.gadget.file <- function(path, obj, mainfile = 'main') {
     for (comp in obj) {
         if (is.list(comp)) for (field in comp) {
             if ("gadgetfile" %in% class(field)) {
-                write.gadget.file(path, field, mainfile = mainfile)
+                write.gadget.file(field, path, mainfile = mainfile)
             }
         }
     }
@@ -349,5 +349,5 @@ gadget_mainfile_update <- function (
     mfile$likelihood$likelihoodfiles <- swap(mfile$likelihood$likelihoodfiles, likelihoodfiles)
 
     # Write file back out again
-    if (made_change) write.gadget.file(path, mfile)
+    if (made_change) write.gadget.file(mfile, path)
 }
