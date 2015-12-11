@@ -17,7 +17,8 @@ Depends:
     parallel,
     lubridate,
     stringr,
-    grid
+    grid,
+    purrr
 Suggests:
     unittest (>= 1.2)
 License: GPL
