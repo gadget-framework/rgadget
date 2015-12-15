@@ -77,6 +77,8 @@ gadgetstock <- function(stock_name, path, missingOkay = FALSE) {
 #' naturalmortality is slightly different. It takes a single vector with one value per-age-group.
 #' It will be pre-populated with 0.2 for each age group.
 #'
+#' doesgrow / growth can be populated with default values with \code{gadget_update(gs, 'growth', 1)}
+#'
 #' @examples
 #' path <- './model'
 #' gadgetstock('codimm', path, missingOkay = TRUE) %>%  # Create a skeleton if missing
@@ -119,6 +121,19 @@ gadget_update.gadgetstock <- function(gf, component, ...) {
             # Only argument is null, so turn this off.
             gf[[component]] <- structure(list(0), names = c(component), class=c("gadgetstock_component", "list"))
         }
+
+    } else if (component == 'doesgrow' && isTRUE(all.equal(args, list(1)))) {
+        # Populate doesgrow with defaults
+        gf$doesgrow <- list(
+            doesgrow = 1,
+            growthfunction = 'lengthvbsimple',
+            growthparameters = c(
+                linf = paste0('#', gf[[1]]$stockname, '.Linf'),
+                k = '( * 0.001 #k)',
+                '#walpha',
+                '#wbeta'),
+            beta = '(* 10 #bbin)',
+            maxlengthgroupgrowth = 15)
 
     } else if (component == 1 && isTRUE(all.equal(names(args), c('data')))) {
         for (col in c('age', 'length')) {
