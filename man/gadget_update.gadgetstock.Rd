@@ -28,14 +28,19 @@ on the data. How depends in which component:
   \item{doesrenew} The query should contain year, step, area, age, length, number, mean columns
 }
 Finally, any other value of \code{...} will update the relevant keys/values in that component.
+
+naturalmortality is slightly different. It takes a single vector with one value per-age-group.
+It will be pre-populated with 0.2 for each age group.
 }
 \examples{
-gd <- './model'
-gadgetstock('codimm', gd, missingOkay = TRUE) \%>\%  # Create a skeleton if missing
+path <- './model'
+gadgetstock('codimm', path, missingOkay = TRUE) \%>\%  # Create a skeleton if missing
    gadget_update('stock', minage = 2, maxage = 4) \%>\%
    gadget_update('stock', stockname = 'codmat') \%>\%  # Will change the name of the file we write
    gadget_update('initialconditions', data = agg_file) \%>\%
+   gadget_update('doesmigrate', yearstepfile = gadgetfile('data/yearstepfile', components = list(
+                                  data.frame(year = 1998, step = 1:4, matrix = 'codmat-migration')))) \%>\%
    gadget_update('doesrenew', 0) \%>\%
-   write.gadget.file(gd)
+   write.gadget.file(path)
 }
 
