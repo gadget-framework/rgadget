@@ -56,7 +56,7 @@ ok_group("Can create new stocks with some default content", {
 
     gadgetstock('codimm', path, missingOkay = FALSE) %>%
         gadget_update('stock', maxage = 6, minlength = 10, maxlength = 20) %>%
-        gadget_update('doesrenew', 0) %>% # Doesn't renew anymore
+        gadget_update('renewal', 0) %>% # Doesn't renew anymore, we use component name alias
         write.gadget.file(path)
     ok(cmp(dir_list(path), list(
         codimm = c(

@@ -87,7 +87,20 @@ gadgetstock <- function(stock_name, path, missingOkay = FALSE) {
 #' @export
 gadget_update.gadgetstock <- function(gf, component, ...) {
     args <- list(...)
-    component <- if(component == 'stock') 1 else component
+    # Resolve any aliases to what's used in GADGET
+    comp_alias <- list(
+        stock = 1,  # i.e. the first unlabelled component
+        migration = 'doesmigrate',
+        growth = 'doesgrow',
+        mortality = 'naturalmortality',
+        prey = 'iseaten',
+        predator = 'doeseat',
+        migration = 'doesmigrate',
+        maturation = 'doesmature',
+        movement = 'doesmove',
+        recruitment = 'doesrenew',
+        renewal = 'doesrenew')[[component]]
+    if (!is.null(comp_alias)) component <- comp_alias
 
     if (isTRUE(all.equal(args, list(0)))) {
         if (component == 'initialconditions') {
