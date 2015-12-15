@@ -33,7 +33,9 @@ ok_group("Can create new stocks with some default content", {
             "dl\t",
             "refweightfile\t",
             "growthandeatlengths\t",
-            "doesgrow\t0", "naturalmortality\t0", "iseaten\t0",
+            "doesgrow\t0",
+            "naturalmortality\t0.2\t0.2\t0.2",
+            "iseaten\t0",
             "doeseat\t1", "maxconsumption\t100", "halffeedingvalue\t70",
             "initialconditions",
             "doesmigrate\t0", "doesmature\t0", "doesmove\t0",
@@ -70,7 +72,9 @@ ok_group("Can create new stocks with some default content", {
             "dl\t",
             "refweightfile\t",
             "growthandeatlengths\t",
-            "doesgrow\t0", "naturalmortality\t0", "iseaten\t0",
+            "doesgrow\t0",
+            "naturalmortality\t0.2\t0.2\t0.2\t0.2\t0.2", # NB: Now with extra defaults
+            "iseaten\t0",
             "doeseat\t1", "maxconsumption\t100", "halffeedingvalue\t70",
             "initialconditions",
             "doesmigrate\t0", "doesmature\t0", "doesmove\t0",
@@ -104,7 +108,9 @@ ok_group("Can create new stocks with some default content", {
             "dl\t",
             "refweightfile\t",
             "growthandeatlengths\t",
-            "doesgrow\t0", "naturalmortality\t0", "iseaten\t0",
+            "doesgrow\t0",
+            "naturalmortality\t0.2\t0.2\t0.2\t0.2\t0.2",
+            "iseaten\t0",
             "doeseat\t1", "maxconsumption\t100", "halffeedingvalue\t70",
             "initialconditions",
             "doesmigrate\t0", "doesmature\t0", "doesmove\t0",
@@ -121,7 +127,9 @@ ok_group("Can create new stocks with some default content", {
             "dl\t",
             "refweightfile\t",
             "growthandeatlengths\t",
-            "doesgrow\t0", "naturalmortality\t0", "iseaten\t0", "doeseat\t0",
+            "doesgrow\t0",
+            "naturalmortality\t",
+            "iseaten\t0", "doeseat\t0",
             "initialconditions",
             "doesmigrate\t0", "doesmature\t0", "doesmove\t0",
             "doesrenew\t0", "doesspawn\t0", "doesstray\t0",
@@ -160,7 +168,9 @@ ok_group("Can create new stocks with some default content", {
             "dl\t",
             "refweightfile\t",
             "growthandeatlengths\t",
-            "doesgrow\t0", "naturalmortality\t0", "iseaten\t0",
+            "doesgrow\t0",
+            "naturalmortality\t0.2\t0.2\t0.2\t0.2\t0.2",
+            "iseaten\t0",
             "doeseat\t1", "maxconsumption\t100", "halffeedingvalue\t70",
             "initialconditions",
             "doesmigrate\t0", "doesmature\t0", "doesmove\t0",
@@ -177,7 +187,10 @@ ok_group("Can create new stocks with some default content", {
             "dl\t",
             "refweightfile\t",
             "growthandeatlengths\t",
-            "doesgrow\t0", "naturalmortality\t0", "iseaten\t0", "doeseat\t0",
+            "doesgrow\t0",
+            "naturalmortality\t",
+            "iseaten\t0",
+            "doeseat\t0",
             "initialconditions",
             "doesmigrate\t1", "yearstepfile\tdata/yearstepfile", "definematrices\tdata/migratematrix",
             "doesmature\t0", "doesmove\t0",
@@ -225,6 +238,50 @@ ok_group("Can detect some GADGET errors", {
     ok(cmp_error(
         gadget_update(s, 'idontexist', minage = 2, maxage = 4),
         "idontexist.*stock.*doesmigrate"), "Noticed bad stock name, suggested proper ones")
+
+})
+
+ok_group("Can populate naturalmortality", {
+    path <- tempfile()
+
+    gadgetstock('codimm', path, missingOkay = TRUE) %>%  # Create a skeleton if missing
+        gadget_update('stock', minage = 2, maxage = 10) %>%
+        gadget_update('naturalmortality', c(0.5, 0.8)) %>%
+        write.gadget.file(path)
+    ok(cmp(dir_list(path), list(
+        codimm = c(
+            ver_string,
+            "stockname\tcodimm",
+            "livesonareas\t",
+            "minage\t2",
+            "maxage\t10",
+            "minlength\t",
+            "maxlength\t",
+            "dl\t",
+            "refweightfile\t",
+            "growthandeatlengths\t",
+            "doesgrow\t0",
+            "naturalmortality\t0.5\t0.8\t0.2\t0.2\t0.2\t0.2\t0.2\t0.2\t0.2",
+            "iseaten\t0",
+            "doeseat\t0",
+            "initialconditions",
+            "doesmigrate\t0", "doesmature\t0", "doesmove\t0",
+            "doesrenew\t0",
+            "doesspawn\t0", "doesstray\t0",
+        NULL),
+        main = c(
+            ver_string,
+            "timefile\t",
+            "areafile\t",
+            "printfiles\t; Required comment",
+            "[stock]",
+            "stockfiles\tcodimm",
+            "[tagging]",
+            "[otherfood]",
+            "[fleet]",
+            "[likelihood]",
+        NULL)
+    )), "naturalmortality as long as age-groups, values given at start")
 
 })
 

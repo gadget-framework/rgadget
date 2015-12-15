@@ -46,7 +46,7 @@ gadgetstock <- function(stock_name, path, missingOkay = FALSE) {
             growthandeatlengths = NULL)
         for (comp in c('doesgrow', 'naturalmortality', 'iseaten', 'doeseat', 'initialconditions',
                        'doesmigrate', 'doesmature', 'doesmove', 'doesrenew', 'doesspawn', 'doesstray')) {
-            gf <- gadget_update(gf, comp, 0)
+            gf <- gadget_update(gf, comp, if (comp == 'naturalmortality') c() else 0)
         }
     }
 
@@ -73,6 +73,9 @@ gadgetstock <- function(stock_name, path, missingOkay = FALSE) {
 #'   \item{doesrenew} The query should contain year, step, area, age, length, number, mean columns 
 #' }
 #' Finally, any other value of \code{...} will update the relevant keys/values in that component.
+#'
+#' naturalmortality is slightly different. It takes a single vector with one value per-age-group.
+#' It will be pre-populated with 0.2 for each age group.
 #'
 #' @examples
 #' path <- './model'
@@ -128,6 +131,8 @@ gadget_update.gadgetstock <- function(gf, component, ...) {
         gf[[1]]$maxage <- max(unlist(agg_prop(attr(data, 'age'), "max")))
         gf[[1]]$minlength <- min(unlist(agg_prop(attr(data, 'length'), "min")))
         gf[[1]]$maxlength <- max(unlist(agg_prop(attr(data, 'length'), "max")))
+        # Update naturalmortality defaults
+        gf <- gadget_update(gf, 'naturalmortality', c())
 
     } else if (component == 'refweight' && isTRUE(all.equal(names(args), c('data')))) {
         data <- args$data
@@ -192,7 +197,16 @@ gadget_update.gadgetstock <- function(gf, component, ...) {
             maxlength = max(unlist(agg_prop(attr(data, 'length'), "max"))),
             dl = min(unlist(agg_prop(attr(data, 'length'), "diff"))),
             numberfile = gadget_file(paste0('Modelfiles/', stock_name, '.rec.number'), file_type = "data", data = numberfile))
-    
+
+    } else if (component == 'naturalmortality') {
+        # Assume size of age groups is 1
+        extra_age_groups <- gf[[1]]$maxage - gf[[1]]$minage + 1 - length(args[[1]])
+        if(length(extra_age_groups) != 1) extra_age_groups <- 0
+
+        gf$naturalmortality <- list(naturalmortality = c(
+            args[[1]], rep(0.2, times = extra_age_groups),
+            NULL))
+
     } else {
         # Update the selected component with variables provided
         for (n in names(args)) {
@@ -208,6 +222,9 @@ gadget_update.gadgetstock <- function(gf, component, ...) {
         if (component == 1 && 'stockname' %in% names(args)) {
             # Stockname changed, so update the file name we use
             attr(gf, 'file_name') <- args$stockname
+        } else if (component == 1 && ('minage' %in% names(args) || 'maxage' %in% names(args))) {
+            # Update naturalmortality defaults
+            gf <- gadget_update(gf, 'naturalmortality', c())
         }
     }
 
