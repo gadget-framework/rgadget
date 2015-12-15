@@ -87,20 +87,27 @@ gadgetstock <- function(stock_name, path, missingOkay = FALSE) {
 #' @export
 gadget_update.gadgetstock <- function(gf, component, ...) {
     args <- list(...)
-    # Resolve any aliases to what's used in GADGET
-    comp_alias <- list(
+
+    # Check component name, resolving any aliases
+    comp_aliases <- list(
         stock = 1,  # i.e. the first unlabelled component
-        migration = 'doesmigrate',
-        growth = 'doesgrow',
-        mortality = 'naturalmortality',
-        prey = 'iseaten',
-        predator = 'doeseat',
-        migration = 'doesmigrate',
-        maturation = 'doesmature',
-        movement = 'doesmove',
-        recruitment = 'doesrenew',
-        renewal = 'doesrenew')[[component]]
-    if (!is.null(comp_alias)) component <- comp_alias
+        doesgrow = 'doesgrow', growth = 'doesgrow',
+        naturalmortality = 'naturalmortality', mortality = 'naturalmortality',
+        iseaten = 'iseaten', prey = 'iseaten',
+        doeseat = 'doeseat', predator = 'doeseat',
+        initialconditions = 'initialconditions',
+        doesmigrate = 'doesmigrate', migration = 'doesmigrate',
+        doesmature = 'doesmature', maturation = 'doesmature',
+        doesmove = 'doesmove', movement = 'doesmove',
+        doesrenew = 'doesrenew', recruitment = 'doesrenew', renewal = 'doesrenew',
+        doesspawn = 'doesspawn', spawning = 'doesspawn',
+        doesstray = 'doesstray', straying = 'doesstray',
+        null = NULL)
+    if (is.null(comp_aliases[[component]])) stop(
+        "Unknown component '", component, "'. ",
+        "Expected one of: ", paste(names(comp_aliases), collapse = ", "),
+        "")
+    component <- comp_aliases[[component]]
 
     if (isTRUE(all.equal(args, list(0)))) {
         if (component == 'initialconditions') {

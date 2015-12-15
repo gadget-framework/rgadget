@@ -218,4 +218,14 @@ ok_group("Can create new stocks with some default content", {
     )), "Added new stock file, left old one alone")
 })
 
+ok_group("Can detect some GADGET errors", {
+    path <- tempfile()
+
+    s <- gadgetstock('codimm', path, missingOkay = TRUE)
+    ok(cmp_error(
+        gadget_update(s, 'idontexist', minage = 2, maxage = 4),
+        "idontexist.*stock.*doesmigrate"), "Noticed bad stock name, suggested proper ones")
+
+})
+
 # TODO: Tests for mfdb-derived data
