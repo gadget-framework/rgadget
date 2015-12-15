@@ -82,6 +82,9 @@ gadgetstock <- function(stock_name, path, missingOkay = FALSE) {
 #' \code{gadget_update('refweight', data = data.frame(length = ..., weight = ...))} will also update
 #' minlength/maxlength/dl
 #'
+#' \code{gadget_update('refweight', data = data.frame(length = ..., alpha = ..., beta = ...))} will
+#' generate lengths via \code{alpha * length^beta}
+#'
 #' @examples
 #' path <- './model'
 #' gadgetstock('codimm', path, missingOkay = TRUE) %>%  # Create a skeleton if missing
@@ -152,6 +155,17 @@ gadget_update.gadgetstock <- function(gf, component, ...) {
         gf[[1]]$maxlength <- max(unlist(agg_prop(attr(data, 'length'), "max")))
         # Update naturalmortality defaults
         gf <- gadget_update(gf, 'naturalmortality', c())
+
+    } else if (component == 'refweight' && isTRUE(all.equal(names(args), c('length', 'alpha', 'beta')))) {
+        refwgt <- data.frame(
+            length = args$length,
+            weight = args$alpha * args$length ^ args$beta,
+            stringsAsFactors = TRUE)
+
+        gf[[1]]$minlength <- min(refwgt$length)
+        gf[[1]]$maxlength <- max(refwgt$length)
+        gf[[1]]$dl <- min(diff(refwgt$length))
+        gf[[1]]$refweightfile <- gadgetdata(paste0('Modelfiles/', gf[[1]]$stockname, '.refwgt'), refwgt)
 
     } else if (component == 'refweight' && isTRUE(all.equal(names(args), c('data')))) {
         data <- args$data

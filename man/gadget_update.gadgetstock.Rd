@@ -36,6 +36,9 @@ doesgrow / growth can be populated with default values with \code{gadget_update(
 
 \code{gadget_update('refweight', data = data.frame(length = ..., weight = ...))} will also update
 minlength/maxlength/dl
+
+\code{gadget_update('refweight', data = data.frame(length = ..., alpha = ..., beta = ...))} will
+generate lengths via \code{alpha * length^beta}
 }
 \examples{
 path <- './model'

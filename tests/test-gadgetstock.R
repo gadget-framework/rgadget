@@ -366,6 +366,50 @@ ok_group("Refweight from a data.frame", {
             "2\t11", "4\t12", "6\t13", "8\t14", "10\t15",
         NULL)
     )), "refweight tables both create table and update min/max/dl")
+
+    gadgetstock('codimm', path, missingOkay = TRUE) %>%  # Create a skeleton if missing
+        gadget_update('refweight', length = seq(10,28,3), alpha = 4, beta = 2) %>%
+        write.gadget.file(path)
+    ok(cmp(dir_list(path), list(
+        codimm = c(
+            ver_string,
+            "stockname\tcodimm",
+            "livesonareas\t",
+            "minage\t",
+            "maxage\t",
+            "minlength\t10",
+            "maxlength\t28",
+            "dl\t3",
+            "refweightfile\tModelfiles/codimm.refwgt",
+            "growthandeatlengths\t",
+            "doesgrow\t0",
+            "naturalmortality\t",
+            "iseaten\t0",
+            "doeseat\t0",
+            "initialconditions",
+            "doesmigrate\t0", "doesmature\t0", "doesmove\t0",
+            "doesrenew\t0",
+            "doesspawn\t0", "doesstray\t0",
+        NULL),
+        main = c(
+            ver_string,
+            "timefile\t",
+            "areafile\t",
+            "printfiles\t; Required comment",
+            "[stock]",
+            "stockfiles\tcodimm",
+            "[tagging]",
+            "[otherfood]",
+            "[fleet]",
+            "[likelihood]",
+        NULL),
+        "Modelfiles/codimm.refwgt" = c(
+            ver_string,
+            "; -- data --",
+            "; length\tweight",
+            "10\t400", "13\t676", "16\t1024", "19\t1444", "22\t1936", "25\t2500", "28\t3136",
+        NULL)
+    )), "refweight tables can be derived from alpha/beta")
 })
 
 
