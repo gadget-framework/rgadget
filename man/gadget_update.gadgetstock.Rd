@@ -31,6 +31,11 @@ Finally, any other value of \code{...} will update the relevant keys/values in t
 
 naturalmortality is slightly different. It takes a single vector with one value per-age-group.
 It will be pre-populated with 0.2 for each age group.
+
+doesgrow / growth can be populated with default values with \code{gadget_update(gs, 'growth', 1)}
+
+\code{gadget_update('refweight', data = data.frame(length = ..., weight = ...))} will also update
+minlength/maxlength/dl
 }
 \examples{
 path <- './model'

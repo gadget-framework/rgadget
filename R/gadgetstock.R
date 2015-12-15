@@ -78,6 +78,9 @@ gadgetstock <- function(stock_name, path, missingOkay = FALSE) {
 #' It will be pre-populated with 0.2 for each age group.
 #'
 #' doesgrow / growth can be populated with default values with \code{gadget_update(gs, 'growth', 1)}
+#' 
+#' \code{gadget_update('refweight', data = data.frame(length = ..., weight = ...))} will also update
+#' minlength/maxlength/dl
 #'
 #' @examples
 #' path <- './model'
@@ -96,6 +99,7 @@ gadget_update.gadgetstock <- function(gf, component, ...) {
     # Check component name, resolving any aliases
     comp_aliases <- list(
         stock = 1,  # i.e. the first unlabelled component
+        refweight = 'refweight',  # NB: This is a cheat, it's really part of 'stock'
         doesgrow = 'doesgrow', growth = 'doesgrow',
         naturalmortality = 'naturalmortality', mortality = 'naturalmortality',
         iseaten = 'iseaten', prey = 'iseaten',
@@ -151,20 +155,34 @@ gadget_update.gadgetstock <- function(gf, component, ...) {
 
     } else if (component == 'refweight' && isTRUE(all.equal(names(args), c('data')))) {
         data <- args$data
-        for (col in c('length', 'mean')) {
-            if (!(col %in% colnames(data))) {
-                stop("Data missing column ", col)
-            }
-        }
+        if (ncol(data) < 2) stop("data should have 2 columns")
 
-        # Sort incoming data, then regroup
-        refwgt <- data[order(data$length), c('length', 'mean')]
-        refwgt <- data.frame(
-            length = unlist(agg_prop(attr(data, 'length')[refwgt$length], "min")), # Grouping -> minimum value
-            weight = refwgt$mean,  # Assuming it's mean weight here
-            stringsAsFactors = TRUE)
-        gf[[1]]$dl <- min(unlist(agg_prop(attr(data, 'length'), "diff")))
-        gf[[1]]$refweightfile <- gadgetfile(paste0('Modelfiles/', stock_name, '.refwgt'), file_type = "data", list(data = refwgt))
+        if ('length' %in% names(data)) {
+            if ('length' %in% attributes(data)) {
+                # It's an MFDB table, use the minimum length for each group
+                lengths <- unlist(agg_prop(attr(data, 'length')[data$length], "min"))
+            } else {
+                # Regular table, copy lengths
+                lengths <- data$length
+            }
+            length_col <- 'length'
+        } else stop("data has no length column")
+
+        if ('weight' %in% names(data)) {
+            weights <- data$weight
+        } else if ('mean' %in% names(data)) {
+            # MFDB mean (hopefully) length
+            weights <- data$mean
+        } else stop("data has no weight column")
+
+        # Create sorted data.frame
+        refwgt <- data.frame(length = lengths, weight = weights)
+        refwgt <- refwgt[order(refwgt$length), c('length', 'weight'), drop = FALSE]
+
+        gf[[1]]$minlength <- min(refwgt$length)
+        gf[[1]]$maxlength <- max(refwgt$length)
+        gf[[1]]$dl <- min(diff(refwgt$length))
+        gf[[1]]$refweightfile <- gadgetdata(paste0('Modelfiles/', gf[[1]]$stockname, '.refwgt'), refwgt)
 
     } else if (component == 'initialconditions' && isTRUE(all.equal(names(args), c('data')))) {
         data <- args$data
@@ -244,4 +262,24 @@ gadget_update.gadgetstock <- function(gf, component, ...) {
     }
 
     return(gf)
+}
+
+# If data has an attribute of name func_name, return that
+# otherwise evaluate func_name(data)
+agg_prop <- function (data, func_name) {
+    get_prop <- function (x, func_name) {
+        if (func_name == "diff") {
+            return(diff(get_prop(x, "min/max")))
+        }
+        if (func_name == "min/max") {
+            return(c(get_prop(x, "min"), get_prop(x, "max")))
+        }
+        if (!is.null(attr(x, func_name))) {
+            return(attr(x, func_name))
+        }
+        # No shortcut attribute, eval x properly
+        do.call(func_name, list(eval(x)))
+    }
+
+    lapply(as.list(data), function (d) get_prop(d, func_name))
 }

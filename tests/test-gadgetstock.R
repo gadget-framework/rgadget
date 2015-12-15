@@ -320,5 +320,53 @@ ok_group("Doesgrow defaults", {
 
 })
 
+ok_group("Refweight from a data.frame", {
+    path <- tempfile()
+
+    gadgetstock('codimm', path, missingOkay = TRUE) %>%  # Create a skeleton if missing
+        gadget_update('refweight', data = data.frame(length = c(2,4,6,8,10), weight = 11:15)) %>%
+        write.gadget.file(path)
+    ok(cmp(dir_list(path), list(
+        codimm = c(
+            ver_string,
+            "stockname\tcodimm",
+            "livesonareas\t",
+            "minage\t",
+            "maxage\t",
+            "minlength\t2",
+            "maxlength\t10",
+            "dl\t2",
+            "refweightfile\tModelfiles/codimm.refwgt",
+            "growthandeatlengths\t",
+            "doesgrow\t0",
+            "naturalmortality\t",
+            "iseaten\t0",
+            "doeseat\t0",
+            "initialconditions",
+            "doesmigrate\t0", "doesmature\t0", "doesmove\t0",
+            "doesrenew\t0",
+            "doesspawn\t0", "doesstray\t0",
+        NULL),
+        main = c(
+            ver_string,
+            "timefile\t",
+            "areafile\t",
+            "printfiles\t; Required comment",
+            "[stock]",
+            "stockfiles\tcodimm",
+            "[tagging]",
+            "[otherfood]",
+            "[fleet]",
+            "[likelihood]",
+        NULL),
+        "Modelfiles/codimm.refwgt" = c(
+            ver_string,
+            "; -- data --",
+            "; length\tweight",
+            "2\t11", "4\t12", "6\t13", "8\t14", "10\t15",
+        NULL)
+    )), "refweight tables both create table and update min/max/dl")
+})
+
 
 # TODO: Tests for mfdb-derived data
