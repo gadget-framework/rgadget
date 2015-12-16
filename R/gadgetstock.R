@@ -44,10 +44,19 @@ gadgetstock <- function(stock_name, path, missingOkay = FALSE) {
             dl = c(),
             refweightfile = NULL,
             growthandeatlengths = NULL)
-        for (comp in c('doesgrow', 'naturalmortality', 'iseaten', 'doeseat', 'initialconditions',
-                       'doesmigrate', 'doesmature', 'doesmove', 'doesrenew', 'doesspawn', 'doesstray')) {
-            gf <- gadget_update(gf, comp, if (comp == 'naturalmortality') c() else 0)
-        }
+        defaults <- list(
+            doesgrow = 1,
+            naturalmortality = c(),
+            iseaten = 0,
+            doeseat = 0,
+            initialconditions = 0,
+            doesmigrate = 0,
+            doesmature = 0,
+            doesmove = 0,
+            doesrenew = 0,
+            doesspawn = 0,
+            doesstray = 0)
+        for (comp in names(defaults)) gf <- gadget_update(gf, comp, defaults[[comp]])
     }
 
     return(gf)
