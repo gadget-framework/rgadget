@@ -158,10 +158,11 @@ gadget_update.gadgetstock <- function(gf, component, ...) {
             }
         }
 
-        gf[[1]]$minage <- min(unlist(agg_prop(attr(data, 'age'), "min")))
-        gf[[1]]$maxage <- max(unlist(agg_prop(attr(data, 'age'), "max")))
-        gf[[1]]$minlength <- min(unlist(agg_prop(attr(data, 'length'), "min")))
-        gf[[1]]$maxlength <- max(unlist(agg_prop(attr(data, 'length'), "max")))
+        gf[[1]][c('minage', 'maxage', 'minlength', 'maxlength')] <- list(
+            min(unlist(agg_prop(attr(data, 'age'), "min"))),
+            max(unlist(agg_prop(attr(data, 'age'), "max"))),
+            min(unlist(agg_prop(attr(data, 'length'), "min"))),
+            max(unlist(agg_prop(attr(data, 'length'), "max"))))
         # Update naturalmortality defaults
         gf <- gadget_update(gf, 'naturalmortality', c())
 
@@ -171,10 +172,11 @@ gadget_update.gadgetstock <- function(gf, component, ...) {
             weight = args$alpha * args$length ^ args$beta,
             stringsAsFactors = TRUE)
 
-        gf[[1]]$minlength <- min(refwgt$length)
-        gf[[1]]$maxlength <- max(refwgt$length)
-        gf[[1]]$dl <- min(diff(refwgt$length))
-        gf[[1]]$refweightfile <- gadgetdata(paste0('Modelfiles/', gf[[1]]$stockname, '.refwgt'), refwgt)
+        gf[[1]][c('minlength', 'maxlength', 'dl', 'refweightfile')] <- list(
+            min(refwgt$length),
+            max(refwgt$length),
+            min(diff(refwgt$length)),
+            gadgetdata(paste0('Modelfiles/', gf[[1]]$stockname, '.refwgt'), refwgt))
 
     } else if (component == 'refweight' && isTRUE(all.equal(names(args), c('data')))) {
         data <- args$data
@@ -202,10 +204,11 @@ gadget_update.gadgetstock <- function(gf, component, ...) {
         refwgt <- data.frame(length = lengths, weight = weights)
         refwgt <- refwgt[order(refwgt$length), c('length', 'weight'), drop = FALSE]
 
-        gf[[1]]$minlength <- min(refwgt$length)
-        gf[[1]]$maxlength <- max(refwgt$length)
-        gf[[1]]$dl <- min(diff(refwgt$length))
-        gf[[1]]$refweightfile <- gadgetdata(paste0('Modelfiles/', gf[[1]]$stockname, '.refwgt'), refwgt)
+        gf[[1]][c('minlength', 'maxlength', 'dl', 'refweightfile')] <- list(
+            min(refwgt$length),
+            max(refwgt$length),
+            min(diff(refwgt$length)),
+            gadgetdata(paste0('Modelfiles/', gf[[1]]$stockname, '.refwgt'), refwgt))
 
     } else if (component == 'initialconditions' && isTRUE(all.equal(names(args), c('data')))) {
         data <- args$data
@@ -265,10 +268,7 @@ gadget_update.gadgetstock <- function(gf, component, ...) {
 
     } else {
         # Update the selected component with variables provided
-        for (n in names(args)) {
-            # TODO: Memory-efficiency?
-            gf[[component]][[n]] <- args[[n]]
-        }
+        gf[[component]][names(args)] <- args
 
         if (component != 1) {
             # make sure "does"whatever is 1
