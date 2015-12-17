@@ -44,10 +44,19 @@ gadgetstock <- function(stock_name, path, missingOkay = FALSE) {
             dl = c(),
             refweightfile = NULL,
             growthandeatlengths = NULL)
-        for (comp in c('doesgrow', 'naturalmortality', 'iseaten', 'doeseat', 'initialconditions',
-                       'doesmigrate', 'doesmature', 'doesmove', 'doesrenew', 'doesspawn', 'doesstray')) {
-            gf <- gadget_update(gf, comp, 0)
-        }
+        defaults <- list(
+            doesgrow = 1,
+            naturalmortality = c(),
+            iseaten = 0,
+            doeseat = 0,
+            initialconditions = 0,
+            doesmigrate = 0,
+            doesmature = 0,
+            doesmove = 0,
+            doesrenew = 0,
+            doesspawn = 0,
+            doesstray = 0)
+        for (comp in names(defaults)) gf <- gadget_update(gf, comp, defaults[[comp]])
     }
 
     return(gf)
@@ -74,6 +83,17 @@ gadgetstock <- function(stock_name, path, missingOkay = FALSE) {
 #' }
 #' Finally, any other value of \code{...} will update the relevant keys/values in that component.
 #'
+#' naturalmortality is slightly different. It takes a single vector with one value per-age-group.
+#' It will be pre-populated with 0.2 for each age group.
+#'
+#' doesgrow / growth can be populated with default values with \code{gadget_update(gs, 'growth', 1)}
+#' 
+#' \code{gadget_update('refweight', data = data.frame(length = ..., weight = ...))} will also update
+#' minlength/maxlength/dl
+#'
+#' \code{gadget_update('refweight', data = data.frame(length = ..., alpha = ..., beta = ...))} will
+#' generate lengths via \code{alpha * length^beta}
+#'
 #' @examples
 #' path <- './model'
 #' gadgetstock('codimm', path, missingOkay = TRUE) %>%  # Create a skeleton if missing
@@ -87,7 +107,28 @@ gadgetstock <- function(stock_name, path, missingOkay = FALSE) {
 #' @export
 gadget_update.gadgetstock <- function(gf, component, ...) {
     args <- list(...)
-    component <- if(component == 'stock') 1 else component
+
+    # Check component name, resolving any aliases
+    comp_aliases <- list(
+        stock = 1,  # i.e. the first unlabelled component
+        refweight = 'refweight',  # NB: This is a cheat, it's really part of 'stock'
+        doesgrow = 'doesgrow', growth = 'doesgrow',
+        naturalmortality = 'naturalmortality', mortality = 'naturalmortality',
+        iseaten = 'iseaten', prey = 'iseaten',
+        doeseat = 'doeseat', predator = 'doeseat',
+        initialconditions = 'initialconditions',
+        doesmigrate = 'doesmigrate', migration = 'doesmigrate',
+        doesmature = 'doesmature', maturation = 'doesmature',
+        doesmove = 'doesmove', movement = 'doesmove',
+        doesrenew = 'doesrenew', recruitment = 'doesrenew', renewal = 'doesrenew',
+        doesspawn = 'doesspawn', spawning = 'doesspawn',
+        doesstray = 'doesstray', straying = 'doesstray',
+        null = NULL)
+    if (is.null(comp_aliases[[component]])) stop(
+        "Unknown component '", component, "'. ",
+        "Expected one of: ", paste(names(comp_aliases), collapse = ", "),
+        "")
+    component <- comp_aliases[[component]]
 
     if (isTRUE(all.equal(args, list(0)))) {
         if (component == 'initialconditions') {
@@ -97,6 +138,19 @@ gadget_update.gadgetstock <- function(gf, component, ...) {
             gf[[component]] <- structure(list(0), names = c(component), class=c("gadgetstock_component", "list"))
         }
 
+    } else if (component == 'doesgrow' && isTRUE(all.equal(args, list(1)))) {
+        # Populate doesgrow with defaults
+        gf$doesgrow <- list(
+            doesgrow = 1,
+            growthfunction = 'lengthvbsimple',
+            growthparameters = c(
+                linf = paste0('#', gf[[1]]$stockname, '.Linf'),
+                k = '( * 0.001 #k)',
+                '#walpha',
+                '#wbeta'),
+            beta = '(* 10 #bbin)',
+            maxlengthgroupgrowth = 15)
+
     } else if (component == 1 && isTRUE(all.equal(names(args), c('data')))) {
         for (col in c('age', 'length')) {
             if (!(col %in% colnames(data))) {
@@ -104,27 +158,57 @@ gadget_update.gadgetstock <- function(gf, component, ...) {
             }
         }
 
-        gf[[1]]$minage <- min(unlist(agg_prop(attr(data, 'age'), "min")))
-        gf[[1]]$maxage <- max(unlist(agg_prop(attr(data, 'age'), "max")))
-        gf[[1]]$minlength <- min(unlist(agg_prop(attr(data, 'length'), "min")))
-        gf[[1]]$maxlength <- max(unlist(agg_prop(attr(data, 'length'), "max")))
+        gf[[1]][c('minage', 'maxage', 'minlength', 'maxlength')] <- list(
+            min(unlist(agg_prop(attr(data, 'age'), "min"))),
+            max(unlist(agg_prop(attr(data, 'age'), "max"))),
+            min(unlist(agg_prop(attr(data, 'length'), "min"))),
+            max(unlist(agg_prop(attr(data, 'length'), "max"))))
+        # Update naturalmortality defaults
+        gf <- gadget_update(gf, 'naturalmortality', c())
+
+    } else if (component == 'refweight' && isTRUE(all.equal(names(args), c('length', 'alpha', 'beta')))) {
+        refwgt <- data.frame(
+            length = args$length,
+            weight = args$alpha * args$length ^ args$beta,
+            stringsAsFactors = TRUE)
+
+        gf[[1]][c('minlength', 'maxlength', 'dl', 'refweightfile')] <- list(
+            min(refwgt$length),
+            max(refwgt$length),
+            min(diff(refwgt$length)),
+            gadgetdata(paste0('Modelfiles/', gf[[1]]$stockname, '.refwgt'), refwgt))
 
     } else if (component == 'refweight' && isTRUE(all.equal(names(args), c('data')))) {
         data <- args$data
-        for (col in c('length', 'mean')) {
-            if (!(col %in% colnames(data))) {
-                stop("Data missing column ", col)
-            }
-        }
+        if (ncol(data) < 2) stop("data should have 2 columns")
 
-        # Sort incoming data, then regroup
-        refwgt <- data[order(data$length), c('length', 'mean')]
-        refwgt <- data.frame(
-            length = unlist(agg_prop(attr(data, 'length')[refwgt$length], "min")), # Grouping -> minimum value
-            weight = refwgt$mean,  # Assuming it's mean weight here
-            stringsAsFactors = TRUE)
-        gf[[1]]$dl <- min(unlist(agg_prop(attr(data, 'length'), "diff")))
-        gf[[1]]$refweightfile <- gadgetfile(paste0('Modelfiles/', stock_name, '.refwgt'), file_type = "data", list(data = refwgt))
+        if ('length' %in% names(data)) {
+            if ('length' %in% attributes(data)) {
+                # It's an MFDB table, use the minimum length for each group
+                lengths <- unlist(agg_prop(attr(data, 'length')[data$length], "min"))
+            } else {
+                # Regular table, copy lengths
+                lengths <- data$length
+            }
+            length_col <- 'length'
+        } else stop("data has no length column")
+
+        if ('weight' %in% names(data)) {
+            weights <- data$weight
+        } else if ('mean' %in% names(data)) {
+            # MFDB mean (hopefully) length
+            weights <- data$mean
+        } else stop("data has no weight column")
+
+        # Create sorted data.frame
+        refwgt <- data.frame(length = lengths, weight = weights)
+        refwgt <- refwgt[order(refwgt$length), c('length', 'weight'), drop = FALSE]
+
+        gf[[1]][c('minlength', 'maxlength', 'dl', 'refweightfile')] <- list(
+            min(refwgt$length),
+            max(refwgt$length),
+            min(diff(refwgt$length)),
+            gadgetdata(paste0('Modelfiles/', gf[[1]]$stockname, '.refwgt'), refwgt))
 
     } else if (component == 'initialconditions' && isTRUE(all.equal(names(args), c('data')))) {
         data <- args$data
@@ -172,13 +256,19 @@ gadget_update.gadgetstock <- function(gf, component, ...) {
             maxlength = max(unlist(agg_prop(attr(data, 'length'), "max"))),
             dl = min(unlist(agg_prop(attr(data, 'length'), "diff"))),
             numberfile = gadget_file(paste0('Modelfiles/', stock_name, '.rec.number'), file_type = "data", data = numberfile))
-    
+
+    } else if (component == 'naturalmortality') {
+        # Assume size of age groups is 1
+        extra_age_groups <- gf[[1]]$maxage - gf[[1]]$minage + 1 - length(args[[1]])
+        if(length(extra_age_groups) != 1) extra_age_groups <- 0
+
+        gf$naturalmortality <- list(naturalmortality = c(
+            args[[1]], rep(0.2, times = extra_age_groups),
+            NULL))
+
     } else {
         # Update the selected component with variables provided
-        for (n in names(args)) {
-            # TODO: Memory-efficiency?
-            gf[[component]][[n]] <- args[[n]]
-        }
+        gf[[component]][names(args)] <- args
 
         if (component != 1) {
             # make sure "does"whatever is 1
@@ -188,8 +278,31 @@ gadget_update.gadgetstock <- function(gf, component, ...) {
         if (component == 1 && 'stockname' %in% names(args)) {
             # Stockname changed, so update the file name we use
             attr(gf, 'file_name') <- args$stockname
+        } else if (component == 1 && ('minage' %in% names(args) || 'maxage' %in% names(args))) {
+            # Update naturalmortality defaults
+            gf <- gadget_update(gf, 'naturalmortality', c())
         }
     }
 
     return(gf)
+}
+
+# If data has an attribute of name func_name, return that
+# otherwise evaluate func_name(data)
+agg_prop <- function (data, func_name) {
+    get_prop <- function (x, func_name) {
+        if (func_name == "diff") {
+            return(diff(get_prop(x, "min/max")))
+        }
+        if (func_name == "min/max") {
+            return(c(get_prop(x, "min"), get_prop(x, "max")))
+        }
+        if (!is.null(attr(x, func_name))) {
+            return(attr(x, func_name))
+        }
+        # No shortcut attribute, eval x properly
+        do.call(func_name, list(eval(x)))
+    }
+
+    lapply(as.list(data), function (d) get_prop(d, func_name))
 }

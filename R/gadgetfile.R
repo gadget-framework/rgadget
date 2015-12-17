@@ -53,6 +53,18 @@ gadgetfile <- function (file_name, file_type = "generic", components = list()) {
         class = c("gadgetfile", "list"))
 }
 
+#' Construct a data-only gadget file
+#'
+#' @param file_name	Filename the output should be written to / read from
+#' @param data		A data.frame that the file should contain
+#' @return A gadgetfile S3 class, use \code{write.gadget.file} to write it to disk
+#' @export
+gadgetdata <- function (file_name, data) {
+    gf <- gadgetfile(file_name, file_type = "data", list(data))
+    class(gf) <- c("gadgetdata", class(gf))
+    return(gf)
+}
+
 #' Update gadget components
 #'
 #' Update a component within this file.

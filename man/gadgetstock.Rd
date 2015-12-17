@@ -4,12 +4,12 @@
 \alias{gadgetstock}
 \title{Create a gadgetstock object}
 \usage{
-gadgetstock(stock_name, gd, missingOkay = FALSE)
+gadgetstock(stock_name, path, missingOkay = FALSE)
 }
 \arguments{
 \item{stock_name}{The name of the stock, as}
 
-\item{gd}{The path to the gadget directory to read from}
+\item{path}{The path to the gadget directory to read from}
 
 \item{missingOkay}{If \code{TRUE}, return an empty gadgetstock object if file does not exist.}
 }
@@ -20,8 +20,8 @@ A list of lists representing the gadget stock file
 Create a gadgetstock object, from fresh or an existing file
 }
 \examples{
-gd <- './cod-model'
-gadgetstock('codmat', gd, missingOkay = TRUE)  # Read codmat from './cod-model', throw an error if it doesn't exist
-gadgetstock('codimm', gd, missingOkay = TRUE)  # Read codimm stock / create a new one
+path <- './cod-model'
+gadgetstock('codmat', path, missingOkay = TRUE)  # Read codmat from './cod-model', throw an error if it doesn't exist
+gadgetstock('codimm', path, missingOkay = TRUE)  # Read codimm stock / create a new one
 }
 
