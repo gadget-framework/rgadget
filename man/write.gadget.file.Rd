@@ -4,12 +4,12 @@
 \alias{write.gadget.file}
 \title{Write gadgetfile to disk, including any dependant files, and update the mainfile}
 \usage{
-write.gadget.file(path, obj, mainfile = "main")
+write.gadget.file(obj, path, mainfile = "main")
 }
 \arguments{
-\item{path}{Base directory to write out to}
-
 \item{obj}{gadgetfile object to write}
+
+\item{path}{Base directory to write out to}
 
 \item{mainfile}{The name of the directories mainfile (or NULL to disable mainfile updating)}
 }
