@@ -94,6 +94,10 @@ gadgetstock <- function(stock_name, path, missingOkay = FALSE) {
 #' \code{gadget_update('refweight', data = data.frame(length = ..., alpha = ..., beta = ...))} will
 #' generate lengths via \code{alpha * length^beta}
 #'
+#' doesmature / maturation will populate the maturityfile data file with all given parameters apart
+#' from \code{maturityfunction}, e.g.
+#' \code{gadget_update('maturation',maturityfunction = 'constant', maturestocksandratios = c( ... ), coefficients = c( ... ))}
+#'
 #' @examples
 #' path <- './model'
 #' gadgetstock('codimm', path, missingOkay = TRUE) %>%  # Create a skeleton if missing
@@ -232,6 +236,14 @@ gadget_update.gadgetstock <- function(gf, component, ...) {
             maxlength = max(unlist(agg_prop(attr(data, 'length'), "max"))),
             dl = min(unlist(agg_prop(attr(data, 'length'), "diff"))),
             numberfile = gadgetfile(paste0('Modelfiles/', stock_name, '.init.number'), file_type = "data", data = numberfile))
+
+    } else if (component == 'doesmature' && 'maturityfunction' %in% names(args)) {
+        gf$doesmature <- list(
+            doesmature = 1,
+            maturityfunction = args$maturityfunction,
+            maturityfile = gadgetfile(
+                paste0('Modelfiles/', gf[[1]]$stockname, '.maturity'),
+                components = list(args[names(args) != 'maturityfunction'])))
 
     } else if (component == 'doesrenew' && isTRUE(all.equal(names(args), c('data')))) {
         data <- args$data

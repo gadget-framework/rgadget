@@ -412,5 +412,50 @@ ok_group("Refweight from a data.frame", {
     )), "refweight tables can be derived from alpha/beta")
 })
 
+ok_group("Generate maturation files", {
+    path <- tempfile()
+
+    gadgetstock('codimm', path, missingOkay = TRUE) %>%  # Create a skeleton if missing
+        gadget_update(
+            'maturation',
+            maturityfunction = 'constant',
+            maturestocksandratios = c('codimm', 0.9, 'codmat', 0.1),
+            coefficients = c(0.24, 0.25, 0.15, 0.25)) %>%
+        write.gadget.file(path)
+    ok(cmp(dir_list(path)$codimm, c(
+        ver_string,
+        "stockname\tcodimm",
+        "livesonareas\t",
+        "minage\t",
+        "maxage\t",
+        "minlength\t",
+        "maxlength\t",
+        "dl\t",
+        "refweightfile\t",
+        "growthandeatlengths\t",
+        "doesgrow\t1",
+        "growthfunction\tlengthvbsimple",
+        "growthparameters\t#codimm.Linf\t( * 0.001 #k)\t#walpha\t#wbeta",
+        "beta\t(* 10 #bbin)",
+        "maxlengthgroupgrowth\t15",
+        "naturalmortality\t",
+        "iseaten\t0",
+        "doeseat\t0",
+        "initialconditions",
+        "doesmigrate\t0",
+        "doesmature\t1", "maturityfunction\tconstant", "maturityfile\tModelfiles/codimm.maturity",
+        "doesmove\t0",
+        "doesrenew\t0",
+        "doesspawn\t0", "doesstray\t0",
+        NULL)
+    ), "Filled in doesmature")
+    ok(cmp(dir_list(path)[['Modelfiles/codimm.maturity']], c(
+        ver_string,
+        "maturestocksandratios\tcodimm\t0.9\tcodmat\t0.1",
+        "coefficients\t0.24\t0.25\t0.15\t0.25",
+        NULL)
+    ), "Rest of parameters went into maturity file")
+
+})
 
 # TODO: Tests for mfdb-derived data
