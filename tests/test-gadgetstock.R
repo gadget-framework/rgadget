@@ -412,6 +412,194 @@ ok_group("Refweight from a data.frame", {
     )), "refweight tables can be derived from alpha/beta")
 })
 
+ok_group("Refweight from an MFDB data.frame", {
+    path <- tempfile()
+
+    # MFDB data should look roughly like this
+    data <- structure(
+        data.frame(
+            area = rep(c('A', 'B'), each = 4, times = 1),
+            length = rep(c('len100', 'len200'), each = 1, times = 4),
+            number = 10:17,
+            mean = 20:27,
+            stringsAsFactors = TRUE),
+        area = list(A = 1:3, B = 4:6),
+        length = list(
+            len100 = structure(call("seq", 100, 200 - 1), min = 100, max = 200),
+            len200 = structure(call("seq", 200, 300 - 1), min = 200, max = 300)))
+
+    gadgetstock('codimm', path, missingOkay = TRUE) %>%  # Create a skeleton if missing
+        gadget_update('refweight', data = data) %>%
+        write.gadget.file(path)
+    ok(cmp(dir_list(path), list(
+        codimm = c(
+            ver_string,
+            "stockname\tcodimm",
+            "livesonareas\t",
+            "minage\t",
+            "maxage\t",
+            "minlength\t100",
+            "maxlength\t300",
+            "dl\t100",
+            "refweightfile\tModelfiles/codimm.refwgt",
+            "growthandeatlengths\t",
+            "doesgrow\t1", "growthfunction\tlengthvbsimple", "growthparameters\t#codimm.Linf\t( * 0.001 #k)\t#walpha\t#wbeta", "beta\t(* 10 #bbin)", "maxlengthgroupgrowth\t15",
+            "naturalmortality\t",
+            "iseaten\t0",
+            "doeseat\t0",
+            "initialconditions",
+            "doesmigrate\t0", "doesmature\t0", "doesmove\t0",
+            "doesrenew\t0",
+            "doesspawn\t0", "doesstray\t0",
+        NULL),
+        main = c(
+            ver_string,
+            "timefile\t",
+            "areafile\t",
+            "printfiles\t; Required comment",
+            "[stock]",
+            "stockfiles\tcodimm",
+            "[tagging]",
+            "[otherfood]",
+            "[fleet]",
+            "[likelihood]",
+        NULL),
+        "Modelfiles/codimm.refwgt" = c(
+            ver_string,
+            "; -- data --",
+            "; length\tweight",
+            "100\t20", "100\t22", "100\t24", "100\t26", "200\t21", "200\t23", "200\t25", "200\t27",
+        NULL)
+    )), "refweight tables both create table and update min/max/dl, using attributes")
+
+    gadgetstock('codimm', path, missingOkay = TRUE) %>%  # Create a skeleton if missing
+        gadget_update('refweight', length = seq(10,28,3), alpha = 4, beta = 2) %>%
+        write.gadget.file(path)
+    ok(cmp(dir_list(path), list(
+        codimm = c(
+            ver_string,
+            "stockname\tcodimm",
+            "livesonareas\t",
+            "minage\t",
+            "maxage\t",
+            "minlength\t10",
+            "maxlength\t28",
+            "dl\t3",
+            "refweightfile\tModelfiles/codimm.refwgt",
+            "growthandeatlengths\t",
+            "doesgrow\t1", "growthfunction\tlengthvbsimple", "growthparameters\t#codimm.Linf\t( * 0.001 #k)\t#walpha\t#wbeta", "beta\t(* 10 #bbin)", "maxlengthgroupgrowth\t15",
+            "naturalmortality\t",
+            "iseaten\t0",
+            "doeseat\t0",
+            "initialconditions",
+            "doesmigrate\t0", "doesmature\t0", "doesmove\t0",
+            "doesrenew\t0",
+            "doesspawn\t0", "doesstray\t0",
+        NULL),
+        main = c(
+            ver_string,
+            "timefile\t",
+            "areafile\t",
+            "printfiles\t; Required comment",
+            "[stock]",
+            "stockfiles\tcodimm",
+            "[tagging]",
+            "[otherfood]",
+            "[fleet]",
+            "[likelihood]",
+        NULL),
+        "Modelfiles/codimm.refwgt" = c(
+            ver_string,
+            "; -- data --",
+            "; length\tweight",
+            "10\t400", "13\t676", "16\t1024", "19\t1444", "22\t1936", "25\t2500", "28\t3136",
+        NULL)
+    )), "refweight tables can be derived from alpha/beta")
+})
+
+ok_group("initialconditions from MFDB data.frame", {
+    path <- tempfile()
+
+    # MFDB data should look roughly like this
+    data <- structure(
+        data.frame(
+            area = rep(c('A', 'B'), each = 4, times = 1),
+            age = rep(c('age5', 'age10'), each = 2, times = 2),
+            length = rep(c('len100', 'len200'), each = 1, times = 4),
+            number = 10:17,
+            mean = 20:27,
+            stringsAsFactors = TRUE),
+        area = list(A = 1:3, B = 4:6),
+        age = list(age5 = c(5:9), age10 = c(10:15)),
+        length = list(
+            len100 = structure(call("seq", 100, 200 - 1), min = 100, max = 200),
+            len200 = structure(call("seq", 200, 300 - 1), min = 200, max = 300)))
+
+    gadgetstock('codimm', path, missingOkay = TRUE) %>%
+        gadget_update('initialconditions', data = data) %>%
+        write.gadget.file(path)
+    ok(cmp(dir_list(path), list(
+        "codimm" = c(
+            ver_string,
+            "stockname\tcodimm",
+            "livesonareas\t",
+            "minage\t",
+            "maxage\t",
+            "minlength\t",
+            "maxlength\t",
+            "dl\t",
+            "refweightfile\t",
+            "growthandeatlengths\t",
+            "doesgrow\t1",
+            "growthfunction\tlengthvbsimple",
+            "growthparameters\t#codimm.Linf\t( * 0.001 #k)\t#walpha\t#wbeta",
+            "beta\t(* 10 #bbin)",
+            "maxlengthgroupgrowth\t15",
+            "naturalmortality\t",
+            "iseaten\t0",
+            "doeseat\t0",
+            "initialconditions",
+            "minage\t5",
+            "maxage\t15",
+            "minlength\t100",
+            "maxlength\t300",
+            "dl\t100",
+            "numberfile\tModelfiles/codimm.init.number",
+            "doesmigrate\t0",
+            "doesmature\t0",
+            "doesmove\t0",
+            "doesrenew\t0",
+            "doesspawn\t0",
+            "doesstray\t0",
+            NULL),
+        "main" = c(
+            ver_string,
+            "timefile\t",
+            "areafile\t",
+            "printfiles\t; Required comment",
+            "[stock]",
+            "stockfiles\tcodimm",
+            "[tagging]",
+            "[otherfood]",
+            "[fleet]",
+            "[likelihood]",
+            NULL),
+        "Modelfiles/codimm.init.number" = c(
+            ver_string,
+            "; -- data --",
+            "; area\tage\tlength\tnumber\tweight",
+            "A\tage5\t100\t10\t20",
+            "A\tage5\t200\t11\t21",
+            "A\tage10\t100\t12\t22",
+            "A\tage10\t200\t13\t23",
+            "B\tage5\t100\t14\t24",
+            "B\tage5\t200\t15\t25",
+            "B\tage10\t100\t16\t26",
+            "B\tage10\t200\t17\t27",
+            NULL)
+    )), "Generate initialconditions from MFDB data")
+})
+
 ok_group("Generate maturation files", {
     path <- tempfile()
 
@@ -458,4 +646,83 @@ ok_group("Generate maturation files", {
 
 })
 
-# TODO: Tests for mfdb-derived data
+ok_group("Numeric recruitment from MFDB data.frame", {
+    path <- tempfile()
+
+    # MFDB data should look roughly like this
+    data <- structure(
+        data.frame(
+            year = 1998,
+            step = 'all',
+            area = rep(c('A', 'B'), each = 4, times = 1),
+            age = rep(c('age5', 'age10'), each = 2, times = 2),
+            length = rep(c('len100', 'len200'), each = 1, times = 4),
+            number = 10:17,
+            mean = 20:27,
+            stringsAsFactors = TRUE),
+        year = list("1998" = 1998),
+        step = list(all = 1:4),
+        area = list(A = 1:3, B = 4:6),
+        age = list(age5 = c(5:9), age10 = c(10:15)),
+        length = list(
+            len100 = structure(call("seq", 100, 200 - 1), min = 100, max = 200),
+            len200 = structure(call("seq", 200, 300 - 1), min = 200, max = 300)))
+
+    gadgetstock('codimm', path, missingOkay = TRUE) %>%
+        gadget_update('doesrenew', number = data) %>%
+        write.gadget.file(path)
+    ok(cmp(dir_list(path), list(
+        "codimm" = c(
+            ver_string,
+            "stockname\tcodimm",
+            "livesonareas\t",
+            "minage\t",
+            "maxage\t",
+            "minlength\t",
+            "maxlength\t",
+            "dl\t",
+            "refweightfile\t",
+            "growthandeatlengths\t",
+            "doesgrow\t1",
+            "growthfunction\tlengthvbsimple",
+            "growthparameters\t#codimm.Linf\t( * 0.001 #k)\t#walpha\t#wbeta",
+            "beta\t(* 10 #bbin)",
+            "maxlengthgroupgrowth\t15",
+            "naturalmortality\t",
+            "iseaten\t0",
+            "doeseat\t0",
+            "initialconditions",
+            "doesmigrate\t0",
+            "doesmature\t0",
+            "doesmove\t0",
+            "doesrenew\t1", "minlength\t100", "maxlength\t300", "dl\t100", "numberfile\tModelfiles/codimm.rec.number",
+            "doesspawn\t0",
+            "doesstray\t0",
+            NULL),
+        "main" = c(
+            ver_string,
+            "timefile\t",
+            "areafile\t",
+            "printfiles\t; Required comment",
+            "[stock]",
+            "stockfiles\tcodimm",
+            "[tagging]",
+            "[otherfood]",
+            "[fleet]",
+            "[likelihood]",
+            NULL),
+        "Modelfiles/codimm.rec.number" = c(
+            ver_string,
+            "; -- data --",
+            "; year\tstep\tarea\tage\tlength\tnumber\tweight",
+            "1998\tall\tA\tage5\t100\t10\t20",
+            "1998\tall\tA\tage5\t200\t11\t21",
+            "1998\tall\tA\tage10\t100\t12\t22",
+            "1998\tall\tA\tage10\t200\t13\t23",
+            "1998\tall\tB\tage5\t100\t14\t24",
+            "1998\tall\tB\tage5\t200\t15\t25",
+            "1998\tall\tB\tage10\t100\t16\t26",
+            "1998\tall\tB\tage10\t200\t17\t27",
+            NULL)
+    )), "Generate recruitment from MFDB data")
+})
