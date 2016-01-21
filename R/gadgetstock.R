@@ -235,7 +235,7 @@ gadget_update.gadgetstock <- function(gf, component, ...) {
             minlength = min(unlist(agg_prop(attr(data, 'length'), "min"))),
             maxlength = max(unlist(agg_prop(attr(data, 'length'), "max"))),
             dl = min(unlist(agg_prop(attr(data, 'length'), "diff"))),
-            numberfile = gadgetfile(paste0('Modelfiles/', stock_name, '.init.number'), file_type = "data", data = numberfile))
+            numberfile = gadgetdata(paste0('Modelfiles/', gf[[1]]$stockname, '.init.number'), numberfile))
 
     } else if (component == 'doesmature' && 'maturityfunction' %in% names(args)) {
         gf$doesmature <- list(
