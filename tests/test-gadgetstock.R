@@ -646,3 +646,83 @@ ok_group("Generate maturation files", {
 
 })
 
+ok_group("Numeric recruitment from MFDB data.frame", {
+    path <- tempfile()
+
+    # MFDB data should look roughly like this
+    data <- structure(
+        data.frame(
+            year = 1998,
+            step = 'all',
+            area = rep(c('A', 'B'), each = 4, times = 1),
+            age = rep(c('age5', 'age10'), each = 2, times = 2),
+            length = rep(c('len100', 'len200'), each = 1, times = 4),
+            number = 10:17,
+            mean = 20:27,
+            stringsAsFactors = TRUE),
+        year = list("1998" = 1998),
+        step = list(all = 1:4),
+        area = list(A = 1:3, B = 4:6),
+        age = list(age5 = c(5:9), age10 = c(10:15)),
+        length = list(
+            len100 = structure(call("seq", 100, 200 - 1), min = 100, max = 200),
+            len200 = structure(call("seq", 200, 300 - 1), min = 200, max = 300)))
+
+    gadgetstock('codimm', path, missingOkay = TRUE) %>%
+        gadget_update('doesrenew', number = data) %>%
+        write.gadget.file(path)
+    ok(cmp(dir_list(path), list(
+        "codimm" = c(
+            ver_string,
+            "stockname\tcodimm",
+            "livesonareas\t",
+            "minage\t",
+            "maxage\t",
+            "minlength\t",
+            "maxlength\t",
+            "dl\t",
+            "refweightfile\t",
+            "growthandeatlengths\t",
+            "doesgrow\t1",
+            "growthfunction\tlengthvbsimple",
+            "growthparameters\t#codimm.Linf\t( * 0.001 #k)\t#walpha\t#wbeta",
+            "beta\t(* 10 #bbin)",
+            "maxlengthgroupgrowth\t15",
+            "naturalmortality\t",
+            "iseaten\t0",
+            "doeseat\t0",
+            "initialconditions",
+            "doesmigrate\t0",
+            "doesmature\t0",
+            "doesmove\t0",
+            "doesrenew\t1", "minlength\t100", "maxlength\t300", "dl\t100", "numberfile\tModelfiles/codimm.rec.number",
+            "doesspawn\t0",
+            "doesstray\t0",
+            NULL),
+        "main" = c(
+            ver_string,
+            "timefile\t",
+            "areafile\t",
+            "printfiles\t; Required comment",
+            "[stock]",
+            "stockfiles\tcodimm",
+            "[tagging]",
+            "[otherfood]",
+            "[fleet]",
+            "[likelihood]",
+            NULL),
+        "Modelfiles/codimm.rec.number" = c(
+            ver_string,
+            "; -- data --",
+            "; year\tstep\tarea\tage\tlength\tnumber\tweight",
+            "1998\tall\tA\tage5\t100\t10\t20",
+            "1998\tall\tA\tage5\t200\t11\t21",
+            "1998\tall\tA\tage10\t100\t12\t22",
+            "1998\tall\tA\tage10\t200\t13\t23",
+            "1998\tall\tB\tage5\t100\t14\t24",
+            "1998\tall\tB\tage5\t200\t15\t25",
+            "1998\tall\tB\tage10\t100\t16\t26",
+            "1998\tall\tB\tage10\t200\t17\t27",
+            NULL)
+    )), "Generate recruitment from MFDB data")
+})

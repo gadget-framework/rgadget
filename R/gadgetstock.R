@@ -98,6 +98,9 @@ gadgetstock <- function(stock_name, path, missingOkay = FALSE) {
 #' from \code{maturityfunction}, e.g.
 #' \code{gadget_update('maturation',maturityfunction = 'constant', maturestocksandratios = c( ... ), coefficients = c( ... ))}
 #'
+#' doesrenew / recruitment can be populated from MFDB queries, e.g.
+#' \code{gadget_update('doesrenew', number = data)}
+#'
 #' @examples
 #' path <- './model'
 #' gadgetstock('codimm', path, missingOkay = TRUE) %>%  # Create a skeleton if missing
@@ -251,8 +254,8 @@ gadget_update.gadgetstock <- function(gf, component, ...) {
                 paste0('Modelfiles/', gf[[1]]$stockname, '.maturity'),
                 components = list(args[names(args) != 'maturityfunction'])))
 
-    } else if (component == 'doesrenew' && isTRUE(all.equal(names(args), c('data')))) {
-        data <- args$data
+    } else if (component == 'doesrenew' && isTRUE(all.equal(names(args), c('number')))) {
+        data <- args$number
         for (col in c('year', 'step', 'area', 'age', 'length', 'number', 'mean')) {
             if (!(col %in% colnames(data))) {
                 stop("Data missing column ", col)
