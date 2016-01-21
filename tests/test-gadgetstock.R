@@ -412,7 +412,112 @@ ok_group("Refweight from a data.frame", {
     )), "refweight tables can be derived from alpha/beta")
 })
 
-ok_group("initialconditions from data.frame", {
+ok_group("Refweight from an MFDB data.frame", {
+    path <- tempfile()
+
+    # MFDB data should look roughly like this
+    data <- structure(
+        data.frame(
+            area = rep(c('A', 'B'), each = 4, times = 1),
+            length = rep(c('len100', 'len200'), each = 1, times = 4),
+            number = 10:17,
+            mean = 20:27,
+            stringsAsFactors = TRUE),
+        area = list(A = 1:3, B = 4:6),
+        length = list(
+            len100 = structure(call("seq", 100, 200 - 1), min = 100, max = 200),
+            len200 = structure(call("seq", 200, 300 - 1), min = 200, max = 300)))
+
+    gadgetstock('codimm', path, missingOkay = TRUE) %>%  # Create a skeleton if missing
+        gadget_update('refweight', data = data) %>%
+        write.gadget.file(path)
+    ok(cmp(dir_list(path), list(
+        codimm = c(
+            ver_string,
+            "stockname\tcodimm",
+            "livesonareas\t",
+            "minage\t",
+            "maxage\t",
+            "minlength\t100",
+            "maxlength\t300",
+            "dl\t100",
+            "refweightfile\tModelfiles/codimm.refwgt",
+            "growthandeatlengths\t",
+            "doesgrow\t1", "growthfunction\tlengthvbsimple", "growthparameters\t#codimm.Linf\t( * 0.001 #k)\t#walpha\t#wbeta", "beta\t(* 10 #bbin)", "maxlengthgroupgrowth\t15",
+            "naturalmortality\t",
+            "iseaten\t0",
+            "doeseat\t0",
+            "initialconditions",
+            "doesmigrate\t0", "doesmature\t0", "doesmove\t0",
+            "doesrenew\t0",
+            "doesspawn\t0", "doesstray\t0",
+        NULL),
+        main = c(
+            ver_string,
+            "timefile\t",
+            "areafile\t",
+            "printfiles\t; Required comment",
+            "[stock]",
+            "stockfiles\tcodimm",
+            "[tagging]",
+            "[otherfood]",
+            "[fleet]",
+            "[likelihood]",
+        NULL),
+        "Modelfiles/codimm.refwgt" = c(
+            ver_string,
+            "; -- data --",
+            "; length\tweight",
+            "100\t20", "100\t22", "100\t24", "100\t26", "200\t21", "200\t23", "200\t25", "200\t27",
+        NULL)
+    )), "refweight tables both create table and update min/max/dl, using attributes")
+
+    gadgetstock('codimm', path, missingOkay = TRUE) %>%  # Create a skeleton if missing
+        gadget_update('refweight', length = seq(10,28,3), alpha = 4, beta = 2) %>%
+        write.gadget.file(path)
+    ok(cmp(dir_list(path), list(
+        codimm = c(
+            ver_string,
+            "stockname\tcodimm",
+            "livesonareas\t",
+            "minage\t",
+            "maxage\t",
+            "minlength\t10",
+            "maxlength\t28",
+            "dl\t3",
+            "refweightfile\tModelfiles/codimm.refwgt",
+            "growthandeatlengths\t",
+            "doesgrow\t1", "growthfunction\tlengthvbsimple", "growthparameters\t#codimm.Linf\t( * 0.001 #k)\t#walpha\t#wbeta", "beta\t(* 10 #bbin)", "maxlengthgroupgrowth\t15",
+            "naturalmortality\t",
+            "iseaten\t0",
+            "doeseat\t0",
+            "initialconditions",
+            "doesmigrate\t0", "doesmature\t0", "doesmove\t0",
+            "doesrenew\t0",
+            "doesspawn\t0", "doesstray\t0",
+        NULL),
+        main = c(
+            ver_string,
+            "timefile\t",
+            "areafile\t",
+            "printfiles\t; Required comment",
+            "[stock]",
+            "stockfiles\tcodimm",
+            "[tagging]",
+            "[otherfood]",
+            "[fleet]",
+            "[likelihood]",
+        NULL),
+        "Modelfiles/codimm.refwgt" = c(
+            ver_string,
+            "; -- data --",
+            "; length\tweight",
+            "10\t400", "13\t676", "16\t1024", "19\t1444", "22\t1936", "25\t2500", "28\t3136",
+        NULL)
+    )), "refweight tables can be derived from alpha/beta")
+})
+
+ok_group("initialconditions from MFDB data.frame", {
     path <- tempfile()
 
     # MFDB data should look roughly like this
@@ -541,4 +646,3 @@ ok_group("Generate maturation files", {
 
 })
 
-# TODO: Tests for mfdb-derived data

@@ -187,12 +187,18 @@ gadget_update.gadgetstock <- function(gf, component, ...) {
         if (ncol(data) < 2) stop("data should have 2 columns")
 
         if ('length' %in% names(data)) {
-            if ('length' %in% attributes(data)) {
+            if ('length' %in% names(attributes(data))) {
                 # It's an MFDB table, use the minimum length for each group
                 lengths <- unlist(agg_prop(attr(data, 'length')[data$length], "min"))
+                min_length <- min(lengths)
+                max_length <- max(unlist(agg_prop(attr(data, 'length')[data$length], "max")))
+                dl_length <- min(unlist(agg_prop(attr(data, 'length'), "diff")))
             } else {
                 # Regular table, copy lengths
                 lengths <- data$length
+                min_length <- min(lengths)
+                max_length <- max(lengths)
+                dl_length <- min(diff(lengths[order(lengths)]))
             }
             length_col <- 'length'
         } else stop("data has no length column")
@@ -209,9 +215,9 @@ gadget_update.gadgetstock <- function(gf, component, ...) {
         refwgt <- refwgt[order(refwgt$length), c('length', 'weight'), drop = FALSE]
 
         gf[[1]][c('minlength', 'maxlength', 'dl', 'refweightfile')] <- list(
-            min(refwgt$length),
-            max(refwgt$length),
-            min(diff(refwgt$length)),
+            min_length,
+            max_length,
+            dl_length,
             gadgetdata(paste0('Modelfiles/', gf[[1]]$stockname, '.refwgt'), refwgt))
 
     } else if (component == 'initialconditions' && isTRUE(all.equal(names(args), c('data')))) {
@@ -267,7 +273,7 @@ gadget_update.gadgetstock <- function(gf, component, ...) {
             minlength = min(unlist(agg_prop(attr(data, 'length'), "min"))),
             maxlength = max(unlist(agg_prop(attr(data, 'length'), "max"))),
             dl = min(unlist(agg_prop(attr(data, 'length'), "diff"))),
-            numberfile = gadget_file(paste0('Modelfiles/', stock_name, '.rec.number'), file_type = "data", data = numberfile))
+            numberfile = gadgetdata(paste0('Modelfiles/', gf[[1]]$stockname, '.rec.number'), numberfile))
 
     } else if (component == 'naturalmortality') {
         # Assume size of age groups is 1
