@@ -39,6 +39,13 @@ minlength/maxlength/dl
 
 \code{gadget_update('refweight', data = data.frame(length = ..., alpha = ..., beta = ...))} will
 generate lengths via \code{alpha * length^beta}
+
+doesmature / maturation will populate the maturityfile data file with all given parameters apart
+from \code{maturityfunction}, e.g.
+\code{gadget_update('maturation',maturityfunction = 'constant', maturestocksandratios = c( ... ), coefficients = c( ... ))}
+
+doesrenew / recruitment can be populated from MFDB queries, e.g.
+\code{gadget_update('doesrenew', number = data)}
 }
 \examples{
 path <- './model'
