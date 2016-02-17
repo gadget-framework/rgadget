@@ -2055,6 +2055,8 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
       group_by(year,step,area,fleet) %>%
       mutate(amount = ifelse(is.na(amount),0,amount),
            harv.rate = amount/harv.bio)
+  } else {
+    fleet.info <- data.frame()
   }
 
   ## merge data and estimates
