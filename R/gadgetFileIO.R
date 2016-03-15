@@ -9,11 +9,6 @@
 ##' @return a list containing the data that has been read in named after the files found in path.
 ##' @export
 read.printfiles <- function(path='.',suppress=FALSE){
-##' worker function
-##' @title read a single printfile
-##' @param file
-##' @return
-##' @author Bjarki Thor Elvarsson
   read.printfile <- function(file){
 #    file <- paste(path,file,sep='/')
     tmp <- readLines(file)
@@ -55,7 +50,7 @@ read.printfiles <- function(path='.',suppress=FALSE){
         gsub('; ','',.) %>%
         paste(.,areas$areas)
       
-      regr <- read.table(text=regr.txt)[c(1,3,5,7,8)]
+      regr <- read.table(text=regr.txt,stringsAsFactors = FALSE)[c(1,3,5,7,8)]
       names(regr) <- c('label','intercept','slope','sse','area')
       data <- merge(data,regr)
       data <- mutate(data,
