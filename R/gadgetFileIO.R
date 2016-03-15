@@ -2032,19 +2032,21 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
     out[[sprintf('%s.std',getStockNames(x))]]
   }))
 
-  fleet.catches <- 
-    ddply(fleets$fleet,~fleet,function(x){
-      tmp <- 
-        read.table(file=x$amount,comment.char = ';')
-      names(tmp) <- 
-        c('year','step','area','fleet','amount')
-      tmp$amount <- as.numeric(tmp$amount)
-      filter(tmp,fleet == x$fleet)
-    }) %>% 
-    data.table()
   
   if(compile.fleet.info){
     ## this if statement is here due to incompatibility with timevariables
+    fleet.catches <- 
+      ddply(fleets$fleet,~fleet,function(x){
+        tmp <- 
+          read.table(file=x$amount,comment.char = ';')
+        names(tmp) <- 
+          c('year','step','area','fleet','amount')
+        tmp$amount <- as.numeric(tmp$amount)
+        filter(tmp,fleet == x$fleet)
+      }) %>% 
+      data.table()
+    
+    
     fleet.info <- 
       stock.full %>%
       mutate(area = as.numeric(gsub('area','',area))) %>%
