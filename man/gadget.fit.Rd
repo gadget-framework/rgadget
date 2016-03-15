@@ -6,7 +6,8 @@
 \usage{
 gadget.fit(wgts = "WGTS", main.file = "main",
   fleet.predict = data.frame(fleet = "comm", ratio = 1), mat.par = NULL,
-  params.file = NULL, f.age.range = NULL, fit.folder = "FIT")
+  params.file = NULL, f.age.range = NULL, fit.folder = "FIT",
+  compile.fleet.info = TRUE)
 }
 \value{
 list of fit things

@@ -1954,7 +1954,8 @@ read.gadget.grouping <- function(lik = read.gadget.likelihood(),
 gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
                        fleet.predict = data.frame(fleet='comm',ratio=1),
                        mat.par=NULL, params.file=NULL,
-                       f.age.range=NULL, fit.folder = 'FIT'){
+                       f.age.range=NULL, fit.folder = 'FIT',
+                       compile.fleet.info = TRUE){
 
   main <- read.gadget.main(file = main.file)
 
@@ -2041,18 +2042,21 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
     }) %>% 
     data.table()
   
-  
-  fleet.info <- 
-    stock.full %>%
-    mutate(area = as.numeric(gsub('area','',area))) %>%
-    left_join(data.table(select(gss.suit,.id,length=l,suit,fleet,stock))) %>%
-    group_by(year,step,area,fleet) %>%
-    summarise(harv.bio = sum(suit*number*mean.weight)) %>%
-    left_join(fleet.catches %>% group_by(year,fleet,area) %>% summarise(amount=sum(amount))) %>%
-    group_by(year,step,area,fleet) %>%
-    mutate(amount = ifelse(is.na(amount),0,amount),
+  if(compile.fleet.info){
+    ## this if statement is here due to incompatibility with timevariables
+    fleet.info <- 
+      stock.full %>%
+      mutate(area = as.numeric(gsub('area','',area))) %>%
+      left_join(data.table(select(gss.suit,.id,length=l,suit,fleet,stock))) %>%
+      group_by(year,step,area,fleet) %>%
+      summarise(harv.bio = sum(suit*number*mean.weight)) %>%
+      left_join(fleet.catches %>% group_by(year,fleet,area) %>% summarise(amount=sum(amount))) %>%
+      group_by(year,step,area,fleet) %>%
+      mutate(amount = ifelse(is.na(amount),0,amount),
            harv.rate = amount/harv.bio)
-    
+  } else {
+    fleet.info <- data.frame()
+  }
 
   ## merge data and estimates
   if('surveyindices' %in% names(lik.dat$dat)){
