@@ -7,8 +7,8 @@
 gadget.ypr(params.file = "params.in", main.file = "main", effort = seq(0,
   1, by = 0.01), begin = 1990, end = 2020, age.range = NULL,
   fleets = data.frame(fleet = "comm", ratio = 1), ssb.stock = NULL,
-  check.previous = FALSE, save.results = TRUE, gd = list(dir = ".",
-  rel.dir = "YPR"))
+  mat.par = NULL, check.previous = FALSE, save.results = TRUE,
+  gd = list(dir = ".", rel.dir = "YPR"))
 }
 \arguments{
 \item{params.file}{Parameter file for the gagdet model}

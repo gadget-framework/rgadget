@@ -973,6 +973,7 @@ gadget.ypr <- function(params.file = 'params.in',
                        age.range=NULL,
                        fleets = data.frame(fleet='comm',ratio=1),
                        ssb.stock=NULL,
+                       mat.par = NULL,
                        check.previous = FALSE,
                        save.results = TRUE,
                        gd=list(dir='.',rel.dir='YPR')){
@@ -1086,6 +1087,21 @@ gadget.ypr <- function(params.file = 'params.in',
 
     }
   }
+  print.mat <- NULL
+  if(!is.null(mat.par)){
+      print.mat <-
+        paste('[component]',
+              'type\tstockprinter',
+              'stocknames\t%1$s',
+              'areaaggfile\t%2$s/Aggfiles/allareas.agg',
+              'ageaggfile\t%2$s/Aggfiles/%1$s.allages.agg',
+              'lenaggfile\t%2$s/Aggfiles/%1$s.len.agg',
+              'printfile\t%2$s/out/%1$s.mat',
+              'yearsandsteps\tall 1',
+              sep = '\n')
+  }
+  
+    
 
   printfile <- paste(sprintf(print.txt,unique(fleet$prey$stock), ypr),
                      collapse='\n;\n')
@@ -1097,6 +1113,15 @@ gadget.ypr <- function(params.file = 'params.in',
             sep='\n;\n')
   }
 
+  if(!is.null(mat.par)){
+    printfile <-
+      paste(printfile,
+            paste(sprintf(print.mat,unique(fleet$prey$stock),ypr),
+                  collapse='\n;\n'),
+            sep='\n;\n')
+  }
+  
+  
   dir.create(sprintf('%s/out',ypr),showWarnings = FALSE, recursive = TRUE)
   main$printfiles <- sprintf('%s/printfile.ypr',ypr)
   write.unix(printfile,f=sprintf('%s/printfile.ypr',ypr))
@@ -1212,6 +1237,33 @@ gadget.ypr <- function(params.file = 'params.in',
     ssb.out <- NULL
   }
 
+  if(!is.null(mat.par)){
+    mat.out <- ldply(unique(fleet$prey$stock),function(x){
+      mat.out <- 
+        read.table(file = sprintf("%1$s/out/%2$s.mat",
+                                  ypr,x), comment.char = ';')
+      file.remove(sprintf('%s/out/%s.mat',ypr,x))
+      names(mat.out) <-
+        c('year', 'step','area','age','length','number',
+          'biomass')
+      mat.out %>% 
+        mutate(length = as.numeric(gsub('len','',length)),
+          trial = cut(1:length(year),c(0,which(diff(year)<0),1e9),labels = FALSE)) %>% 
+        left_join(data.frame(trial=1:length(effort),
+                             effort=effort)) %>% 
+        group_by(effort,year) %>% 
+        summarise(ssb=sum(number*biomass*logit(mat.par[1],mat.par[2],length))) %>% 
+        group_by(effort) %>% 
+        mutate(ssb.ratio = ssb/max(ssb))
+      
+    })
+    
+  } else {
+    mat.out <- NULL
+  }
+  
+  
+  
   if(!is.null(age.range)){
     out <- subset(out,age >= min(age.range) & age <= max(age.range))
   }
@@ -1222,7 +1274,7 @@ gadget.ypr <- function(params.file = 'params.in',
   f0.1 <- res$effort[min(which(secant<0.1*secant[1]))]
   fmax <- min(res$effort[which(res$bio==max(res$bio,na.rm=TRUE))])
   res <- list(params=params,out=out,ypr=res,fmax=fmax,
-              f0.1=f0.1,ssb=ssb.out)
+              f0.1=f0.1,ssb=ssb.out,mat.out=mat.out)
 
 
   class(res) <- c('gadget.ypr',class(res))
