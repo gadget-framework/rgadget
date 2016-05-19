@@ -31,11 +31,13 @@ Growth is according to a von Bertalanffy equation
 with the lengthvbsimple growth function from Gadget implemented.
 For a fish of age a and length l, mean length growth \eqn{\Delta L} is
 then calculated as:
-\deqn{\Delta L =L_{\infty}(1 - \frac{l}{L_{\infty}})(1 - e^{-\kappa \Delta t})}\deqn{Delta L =L_{infty}(1 - l/L_{infty})(1 - e^{-kappa Delta t})}
+\deqn{\Delta L =L_{\infty}(1 - \frac{l}{L_{\infty}})(1 - e^{-\kappa \Delta t})}
+\deqn{Delta L =L_{infty}(1 - l/L_{infty})(1 - e^{-kappa Delta t})}
 The length distribution is updated using the beta-binomial
 distribution, ie the probability of growing x lengthgroups, given
 maximum lengthgroupgrowth n, is
-\deqn{P[X = x] =  \frac{\Gamma(n+1)}{\Gamma(n-x+1)\Gamma(x+1)} \frac{\Gamma(\alpha + \beta)}{\Gamma(n+\alpha+\beta)} \frac{\Gamma(n-x+\beta)}{\Gamma(\beta)} \frac{\Gamma(x+a)}{\Gamma(\alpha)}}
+\deqn{P[X = x] =  \frac{\Gamma(n+1)}{\Gamma(n-x+1)\Gamma(x+1)} \frac{\Gamma(\alpha + \beta)}
+{\Gamma(n+\alpha+\beta)} \frac{\Gamma(n-x+\beta)}{\Gamma(\beta)} \frac{\Gamma(x+a)}{\Gamma(\alpha)}}
 with \eqn{\alpha = \frac{\beta\Delta L}{n-\Delta L}} to preserve the mean
 lengthgrowth according to the equation equation above. NB: the
 expected value of \eqn{\Delta L} should be taken into consideration when

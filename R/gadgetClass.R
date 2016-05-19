@@ -61,8 +61,8 @@ setClass('gadget-prey',
 setClass('gadget-predator',
          representation(suitability = 'data.frame',
                         preference = 'data.frame',
-                        maxconsumption = 'numeric',
-                        halffeedingvalue = 'numeric'))
+                        maxconsumption = 'character',
+                        halffeedingvalue = 'character'))
          ##package = 'rgadget')
 
 setClass('gadget-fleet',

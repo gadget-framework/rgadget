@@ -1149,8 +1149,8 @@ read.gadget.stockfiles <- function(stock.files){
         tmp <- new('gadget-predator',
                    suitability = suit,
                    preference = pref,
-                   maxconsumption = as.numeric(tmp[[maxcon.loc]][-1]),
-                   halffeedingvalue = as.numeric(tmp[[half.loc]][2]))
+                   maxconsumption = paste(tmp[[maxcon.loc]][-1], collapse = ' '),
+                   halffeedingvalue = paste(tmp[[half.loc]][2], collapse = ' '))
       }
       return(tmp)
     }
@@ -2002,7 +2002,10 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
                         tryCatch(subset(get.gadget.suitability(fleets,params,
                                                         getLengthGroups(x)),
                                         stock == x@stockname),
-                                 error = function(y) 0)
+                                 error = function(y){
+                                   print('warning -- suitability parameters could not be read')
+                                   0
+                                 })
                     })
   stock.growth <-
     tryCatch(get.gadget.growth(stocks,params,age.based=TRUE),
@@ -2283,6 +2286,26 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
   class(out) <- c('gadget.fit',class(out))
   save(out,file=sprintf('%s/WGTS.Rdata',wgts))
   return(out)
+}
+
+
+#' Merge gadget.fit objects
+#'
+#' This function merges gadget.fit objects from different gadget runs. This allow for simpler comparisons between models.
+#' @param ... an arbitrary number of gadget.fit objects as named input. 
+#'
+#' @return a merged gadget.fit object
+#' @export
+bind.gadget.fit <- function(...){
+  tmp <- 
+    list(...) %>% 
+    purrr::transpose() %>% 
+    purrr::map(~purrr::map_if(.,is.null,data.frame)) %>% 
+    purrr::map(~purrr::map_if(.,is.factor,as.character)) %>% 
+    purrr::map(purrr::safely(~dplyr::bind_rows(.,.id='model'))) %>% 
+    purrr::map('result')
+  class(tmp) <- c('gadget.fit',class(tmp))
+  return(tmp)
 }
 
 ##' .. content for \description{} (no empty lines) ..

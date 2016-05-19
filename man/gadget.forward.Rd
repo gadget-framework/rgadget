@@ -2,26 +2,49 @@
 % Please edit documentation in R/gadgetfunctions.R
 \name{gadget.forward}
 \alias{gadget.forward}
-\title{Gadget forward simulation}
+\title{Gadget forward}
 \usage{
 gadget.forward(years = 20, params.file = "params.out", main.file = "main",
   num.trials = 10, fleets = data.frame(fleet = "comm", ratio = 1),
-  biomass = FALSE, effort = 0.2, spawnmodel = "none", spawnvar = NULL,
-  selectedstocks = NULL, biomasslevel = NULL, check.previous = FALSE,
+  effort = 0.2, rec.scalar = NULL, check.previous = FALSE,
   save.results = TRUE, stochastic = TRUE, rec.window = NULL,
   compact = TRUE, mat.par = c(0, 0), gd = list(dir = ".", rel.dir =
   "PRE"))
 }
-\value{
-list of results
+\arguments{
+\item{years}{Number of years to predictc}
+
+\item{params.file}{parameter file to base the prediction upon}
+
+\item{main.file}{main file for the model}
+
+\item{num.trials}{number of projection repliactes}
+
+\item{fleets}{data frame with at least two columns, fleet and ratio, 
+which are the names of the fleets and the ratio of the harvestable biomass they consume.}
+
+\item{effort}{proportion of the harvestable biomass taken per year. Note that this relates to 
+fishing mortality of fully recruited through the relation F=-log(1-E)}
+
+\item{rec.scalar}{scaling schedule for recruitment going forward. Data frame with year, stock and rec.scalar}
+
+\item{check.previous}{Should previous results be loaded? Defaults to FALSE}
+
+\item{save.results}{Should the results be saved? Defaults to TRUE}
+
+\item{stochastic}{Should the projection be stochastic (default) or deterministic (assuming the average three year recruitment)?}
+
+\item{rec.window}{What timeperiod should be used to estimate the distribution of recruits.}
+
+\item{compact}{should ssb and total bio be calculated}
+
+\item{mat.par}{parameters determining the maturity ogive}
+
+\item{gd}{gadget directory}
 }
 \description{
-.. content for \description{} (no empty lines) ..
-}
-\details{
-.. content for \details{} ..
-}
-\author{
-Bjarki Thor Elvarsson
+This function implements a crude forward simulation for a Gadget model.
+NOTE: the function currently assumes at least one recruiting stock. 
+-- details to come--
 }
 

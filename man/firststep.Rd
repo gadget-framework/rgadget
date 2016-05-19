@@ -41,7 +41,8 @@ constant mortality \eqn{Z_{0}} we get
 to calculate the number at age for all \eqn{a}.
 The number in lengthgroup $i$ at age $a$ in timestep 1 can then be
 calculated from:
-\deqn{N_{i,a,1} = n_a\left(\Phi\left(\frac{l_{i+1}-\mu_a}{\sigma_a}\right)-\Phi\left(\frac{l_{i}-\mu_a}{\sigma_a}\right)\right)}{N_{i,a,1} = n_a (Phi(l_{i+1}-mu_a)/sigma_a)-Phi(l_{i}-\mu_a)/sigma_a))}
+\deqn{N_{i,a,1} = n_a\left(\Phi\left(\frac{l_{i+1}-\mu_a}{\sigma_a}\right)-
+\Phi\left(\frac{l_{i}-\mu_a}{\sigma_a}\right)\right)}{N_{i,a,1} = n_a (Phi(l_{i+1}-mu_a)/sigma_a)-Phi(l_{i}-\mu_a)/sigma_a))}
 where \eqn{l_{i}} and \eqn{l_{i+1}} are the endpoints of lengthgroup \eqn{i},
 \eqn{N_{l,a,t}} is the number at age \eqn{a} in lengthgroup \eqn{l} at
 timestep \eqn{t} and \eqn{\Phi}{Phi} is the probability function for Normal
