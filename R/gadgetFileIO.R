@@ -1,3 +1,4 @@
+
 ##' This function reads in the gadget output files defined in
 ##' printfiles. This is a quick and dirty implementation that has been
 ##' designed to read a few nice examples, so it may work for some instances
@@ -17,9 +18,15 @@ read.printfiles <- function(path='.',suppress=FALSE){
         warning(sprintf('Warning in read.printfile -- %s is of length 0',file))
       return(NULL)
     }
-    skip <- max(grep(';',tmp[1:7]))
-    header <- gsub('; ','',tmp[skip])
-    header <- gsub(' ','.',unlist(strsplit(header,'-')))
+    header <- 
+      max(grep(';',tmp[1:7])) %>% 
+      tmp[.] %>% 
+      gsub('; (*)','\\1',.) %>%
+      gsub(' ','.',.) %>% 
+      gsub('\\]|\\[','',.) %>% 
+      gsub('-',' ',.) %>% 
+      scan(text = .,what = 'character',quiet = TRUE)
+    
     data <- tryCatch(read.table(file,comment.char=';',header=FALSE,
                                 stringsAsFactors = FALSE),
                      error = function(e){
@@ -29,11 +36,11 @@ read.printfiles <- function(path='.',suppress=FALSE){
                      })
     if(is.null(data))
       return(NULL)
-    if(length(names(data)) != length(header)){
+    if(ncol(data) > length(header)){
       if(!suppress)
         warning(sprintf('Error in read.printfile -- Header could not be read from file %s',file))
     } else {
-      names(data) <- header
+      names(data) <- header[1:ncol(data)]
     }
     pos <- grep('Regression information',tmp)
     if(length(pos)!=0){
