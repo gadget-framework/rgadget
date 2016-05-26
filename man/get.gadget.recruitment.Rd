@@ -4,7 +4,7 @@
 \alias{get.gadget.recruitment}
 \title{get gadget recruitment}
 \usage{
-get.gadget.recruitment(stocks, params)
+get.gadget.recruitment(stocks, params, collapse = TRUE)
 }
 \value{
 recruitment by year

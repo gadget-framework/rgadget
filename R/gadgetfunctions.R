@@ -1407,8 +1407,9 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
                            rec.window = NULL,
                            compact = TRUE,
                            mat.par=c(0,0),
-                           gd=list(dir='.',rel.dir='PRE')){
-  
+                           gd=list(dir='.',rel.dir='PRE'),
+                           ref.years=NULL){
+  ## TODO fix stocks that are spawning
   pre <- paste(gd$dir,gd$rel.dir,sep='/') 
   
   if(check.previous){
@@ -1423,30 +1424,56 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
   
   
   ## read in model files
-  main <- read.gadget.main(file = main.file)
-  stocks <- read.gadget.stockfiles(main$stockfiles)
-  time <- read.gadget.time(main$timefile)
-  area <- read.gadget.area(main$areafile)
-  fleet <- read.gadget.fleet(main$fleetfiles)
-  all.fleets <- paste(fleet$fleet$fleet,collapse = ' ')
+  main <- 
+    read.gadget.main(file = main.file)
+  stocks <- 
+    read.gadget.stockfiles(main$stockfiles)
+  time <- 
+    read.gadget.time(main$timefile)
+  area <- 
+    read.gadget.area(main$areafile)
+  fleet <- 
+    read.gadget.fleet(main$fleetfiles)
+  all.fleets <- 
+    paste(fleet$fleet$fleet,collapse = ' ')
   params <-
     read.gadget.parameters(params.file)
-  rec <- get.gadget.recruitment(stocks,params) %>% 
-    na.omit()
+  rec <- 
+    get.gadget.recruitment(stocks,params,collapse = FALSE) %>% 
+    na.omit() 
   
+  if(is.null(ref.years)){
+    ref.years <- 
+      min(rec$year)
+  }
   
-  rec <- arrange(rec,stock,year)
+  rec.step.ratio <- 
+    rec %>% 
+    dplyr::group_by(stock,step) %>% 
+    dplyr::filter(year %in% ref.years) %>% 
+    dplyr::summarise(rec.ratio = sum(recruitment)) %>% 
+    dplyr::mutate(rec.ratio = rec.ratio/sum(rec.ratio))
+  
+  rec <- 
+    rec %>% 
+    dplyr::group_by(stock,year) %>% 
+    dplyr::summarise(recruitment = sum(recruitment)) %>% 
+    dplyr::arrange(stock,year)
   
   
   ## Write agg files
-  l_ply(stocks,
-        function(x){
-          writeAggfiles(x,folder=sprintf('%s/Aggfiles',pre))
-        })
+  plyr::l_ply(stocks,
+              function(x){
+                writeAggfiles(x,folder=sprintf('%s/Aggfiles',pre))
+              })
   
   ## adapt model to include predictions
-  sim.begin <- time$lastyear + 1
-  rec <- subset(rec,year < sim.begin)
+  sim.begin <- 
+    time$lastyear + 1
+  rec <- 
+    rec %>% 
+    dplyr::filter(year < sim.begin)
+  
   if(nrow(rec) == 0)
     stop('No recruitment info found')
   
@@ -1454,13 +1481,15 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
   write.gadget.time(time,file = sprintf('%s/time.pre',pre))
   main$timefile <- sprintf('%s/time.pre',pre)
   
-  time.grid <- expand.grid(year = time$firstyear:time$lastyear,
-                           step = 1:length(time$notimesteps),
-                           area = area$areas)
+  time.grid <- 
+    expand.grid(year = time$firstyear:time$lastyear,
+                step = 1:length(time$notimesteps),
+                area = area$areas)
   
   ## hmm check this at some point
-  area$temperature <- mutate(time.grid,
-                             temperature = 5)
+  area$temperature <- 
+    dplyr::mutate(time.grid,
+                  temperature = 5)
   
   main$areafile <- sprintf('%s/area',pre)
   write.gadget.area(area,file=sprintf('%s/area',pre))
@@ -1508,9 +1537,13 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
   
   if(!is.null(rec.window)){
     if(length(rec.window)==1){
-      tmp <- subset(rec,year < rec.window)
+      tmp <- 
+        rec %>% 
+        dplyr::filter(year < rec.window)
     } else {
-      tmp <- subset(rec,year < max(rec.window) & year > min(rec.window))
+      tmp <- 
+        rec %>% 
+        dplyr::filter(year < max(rec.window) & year > min(rec.window))
     }
   } else {
     tmp <- rec
@@ -1524,10 +1557,10 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
       tmp %>% 
       split(.$stock) %>% 
       purrr::map(~lm(.$recruitment[-1]~head(.$recruitment,-1))) %>%
-      purrr::map(~bind_cols(broom::glance(.),
-                            as.data.frame(t(broom::tidy(.)$estimate)))) %>% 
+      purrr::map(~dplyr::bind_cols(broom::glance(.),
+                                   as.data.frame(t(broom::tidy(.)$estimate)))) %>% 
       purrr::map(~dplyr::rename(.,a=V1,b=V2)) %>% 
-      purrr::map(~data.frame(year = rep((sim.begin+1):(sim.begin+years),num.trials),
+      purrr::map(~data.frame(year = rep((sim.begin):(sim.begin+years-1),num.trials),
                              trial = rep(1:num.trials,each=years),
                              x = pmax(rnorm(years*num.trials,.$a,.$sigma),0),
                              a = .$a,
@@ -1546,10 +1579,12 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
       dplyr::filter(year > sim.begin - 4) %>%
       dplyr::group_by(stock) %>% 
       dplyr::summarise(recruitment = mean(recruitment)) %>% 
-      left_join(expand.grid(stock = stocks %>% purrr::map(Rgadget:::getStockNames) %>% unlist,
-                            year = (sim.begin+1):(sim.begin+years),
-                            trial = 1:num.trials) %>% 
-                  dplyr::arrange(stock,year,trial))
+      dplyr::left_join(expand.grid(stock = stocks %>% 
+                                     purrr::map(Rgadget:::getStockNames) %>% 
+                                     unlist,
+                                   year = (sim.begin):(sim.begin+years-1),
+                                   trial = 1:num.trials) %>% 
+                         dplyr::arrange(stock,year,trial))
   }
   
   if(num.trials == 1 & length(effort)==1){
@@ -1587,7 +1622,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
   ## add recruitment scalar
   if(is.null(rec.scalar)){
     prj.rec <- 
-      pre.rec %>% 
+      prj.rec %>% 
       mutate(rec.scalar=1)
   } else {
     if(sum(rec.scalar$stock %in% prj.rec$stock)==0)
@@ -1649,22 +1684,23 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
   main$likelihoodfiles <- ';'
   
   llply(stocks,function(x){
-    tmp <- prj.rec %>% 
-      filter(stock == x@stockname,trial == 1)
+    tmp <- 
+      prj.rec %>% 
+      dplyr::filter(stock == x@stockname,trial == 1) %>% 
+      dplyr::left_join(rec.step.ratio,by=c('stock'))
+    
     if(x@doesrenew==1){
       x@renewal.data <-
-        rbind.fill(subset(x@renewal.data,year < sim.begin),
-                   data.frame(year = tmp$year,
-                              step = tail(x@renewal.data$step,1),
-                              area = tail(x@renewal.data$area,1),
-                              age = tail(x@renewal.data$age,1),
-                              number = sprintf('(* (* 0.0001 #%s.rec.%s ) %s)',
-                                               x@stockname,tmp$year, tmp$rec.scalar),
-                              mean = tail(x@renewal.data$mean,1),
-                              stddev = tail(x@renewal.data$stddev,1),
-                              alpha = tail(x@renewal.data$alpha,1),
-                              beta = tail(x@renewal.data$beta,1),
-                              stringsAsFactors = FALSE))
+        x@renewal.data %>% 
+        dplyr::filter(year < sim.begin) %>% 
+        dplyr::bind_rows(x@renewal.data %>% 
+                           dplyr::filter(year == min(ref.years)) %>% 
+                           dplyr::slice(rep(1:n(),nrow(tmp))) %>% 
+                           dplyr::mutate(year=as.character(tmp$year),
+                                         number = sprintf('(* (* 0.0001 #%s.rec.%s ) %s)',
+                                                          x@stockname,year, 
+                                                          tmp$rec.scalar*tmp$rec.ratio)) %>% 
+                           dplyr::select_(.dots = names(x@renewal.data)))
     }
     gadget_dir_write(gd,x)
   })

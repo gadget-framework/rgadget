@@ -1869,14 +1869,22 @@ get.gadget.growth <- function(stocks,params,dt=0.25,age.based=FALSE){
 ##' @return recruitment by year
 ##' @author Bjarki Thor Elvarsson
 ##' @export
-get.gadget.recruitment <- function(stocks,params){
+get.gadget.recruitment <- function(stocks,params,collapse=TRUE){
   ldply(stocks, function(x){
     if(x@doesrenew == 1){
-      na.omit(data.frame(stock = x@stockname,
-                         year=as.numeric(as.character(x@renewal.data$year)),
-                         recruitment = 
-                         10000*unlist(eval.gadget.formula(x@renewal.data$number,
-                                                          params))))
+      tmp <- 
+        x@renewal.data %>% 
+        dplyr::mutate(stock = x@stockname,
+                      recruitment = 1e4*unlist(eval.gadget.formula(number,params))) %>% 
+        dplyr::select(stock,year,step,recruitment) %>% 
+        na.omit()
+      if(collapse){
+        tmp %>% 
+          dplyr::group_by(stock,year) %>% 
+          dplyr::summarise(recruitment=sum(recruitment))
+      } else{
+        tmp
+      }
     } else {
       data.frame(stock = x@stockname,year=NA,recruitment=NA)
     }
