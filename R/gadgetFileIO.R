@@ -19,7 +19,7 @@ read.printfiles <- function(path='.',suppress=FALSE){
       return(NULL)
     }
     header <- 
-      max(grep(';',tmp[1:7])) %>% 
+      max(grep(';',tmp[1:5])) %>% 
       tmp[.] %>% 
       gsub('; (*)','\\1',.) %>%
       gsub(' ','.',.) %>% 
