@@ -21,7 +21,7 @@ test_loopback <- function(..., file_type = "generic") {
 
     gf <- read.gadget.file(dir, file_name, file_type = file_type)
     write.gadget.file(gf, dir)
-    return(dir_list(dir)[[file_name]])
+    ok(cmp(dir_list(dir)[[file_name]], c(...)), paste0(c(...)[[2]], c(...)[[3]]))
 }
 
 unattr <- function(x) {
