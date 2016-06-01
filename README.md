@@ -17,7 +17,7 @@ Installing
 You can use devtools to install this directly:
 
     # install.packages("devtools")
-    devtools::install_github("bthe/rgadget")
+    devtools::install_github("hafro/rgadget")
 
 Using
 -----
