@@ -212,7 +212,7 @@ ok_group("Can read gadget files", {
         "; This is a comment associated with the component below",
         "; So is this",
         "[carrots]",
-        "; And this",
+        "; This is a line preamble",
         "like\tYes I do",
         "; Not this",
         "[carrots]",
@@ -223,8 +223,8 @@ ok_group("Can read gadget files", {
         list(
             structure(list(a = 6, b = 8), preamble = list("This is a comment that should be preserved")),
             carrots = structure(
-                list(like = "Yes I do"),
-                preamble = list("This is a comment associated with the component below", "So is this", "And this")),
+                list(like = structure("Yes I do", preamble = list("This is a line preamble"))),
+                preamble = list("This is a comment associated with the component below", "So is this")),
             carrots = structure(
                 list(like = "No thanks"),
                 preamble = list("Not this")))), "Components / preamble read")
@@ -292,8 +292,10 @@ ok_group("Bare component labels", {
         file_type = "generic")
     ok(cmp(unattr(gf), list(list(
         farmer = "giles",
+        cows = c(1)[c()],
         fresian = "daisy",
         highland = "bessie",
+        pigs = c(1)[c()],
         oldspot = "george",
         pigs = c("henry", "freddie")
         ))), "By default, lines are just extra key/value fields")
