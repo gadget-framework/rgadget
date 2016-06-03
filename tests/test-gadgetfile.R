@@ -486,3 +486,19 @@ ok_group("Writing to mainfile", {
         NULL)
     )), "Can add multiple likelihood files")
 })
+
+ok_group("Can read fleet files successfully", {
+    path <- tempfile()
+
+    test_loopback(
+        ver_string,
+        "[fleetcomponent]",
+        "totalfleet\tcomm",
+        "livesonareas\t1",
+        "multiplicative\t1",
+        "suitability",
+        "codimm\tfunction exponential    #acomm (* 0.01 #bcomm)  0 1",
+        "codmat\tfunction exponential    #acomm (* 0.01 #bcomm)  0 1",
+        "amount\tData/cod.fleet.data",
+        file_type = "fleet")
+})
