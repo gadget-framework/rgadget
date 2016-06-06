@@ -228,6 +228,21 @@ ok_group("Can read gadget files", {
             carrots = structure(
                 list(like = "No thanks"),
                 preamble = list("Not this")))), "Components / preamble read")
+    # Make sure they get printed back too
+    test_loopback(
+        ver_string,
+        "; This is a comment that should be preserved",
+        "a\t6",
+        "b\t8",
+        "; This is a comment associated with the component below",
+        "; So is this",
+        "[carrots]",
+        "; This is a line preamble",
+        "like\tYes I do",
+        "; Not this",
+        "[carrots]",
+        "like\tNo thanks",
+        file_type = "generic")
 
     # Data
     gf <- read.gadget.string(

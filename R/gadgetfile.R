@@ -160,6 +160,7 @@ print.gadgetfile <- function (x, ...) {
         } else if (is.list(comp)) {
             # properties are in key\tvalue1\tvalue2... form
             for (i in seq_len(length(comp))) {
+                cat(preamble_str(comp[[i]]))
                 cat(names(comp)[[i]])
                 trailing_str <- "\n"
                 if (length(comp[[i]]) == 1 && is.na(comp[[i]])) {
