@@ -95,6 +95,13 @@ gadget_update <- function(gf, component, ...) UseMethod("gadget_update", gf)
 #' @docType data
 NULL
 
+is_sub_component <- function(config, name) {
+    if (!isTRUE(nzchar(name))) return(FALSE)
+    if (!isTRUE(nzchar(config$sub_component))) return(FALSE)
+    if (regexpr(config$sub_component, name) < 0) return(FALSE)
+    return(TRUE)
+}
+
 is_implicit_component <- function(config, name) {
     if (!isTRUE(nzchar(name))) return(FALSE)
     if (!isTRUE(nzchar(config$implicit_component))) return(FALSE)
@@ -153,14 +160,36 @@ print.gadgetfile <- function (x, ...) {
         } else if (is.list(comp)) {
             # properties are in key\tvalue1\tvalue2... form
             for (i in seq_len(length(comp))) {
-                cat(names(comp)[[i]], "\t", sep = "")
-                cat(if ("gadgetfile" %in% class(comp[[i]])) attr(comp[[i]], 'file_name') else comp[[i]], sep = "\t")
+                cat(names(comp)[[i]])
+                trailing_str <- "\n"
+                if (length(comp[[i]]) == 1 && is.na(comp[[i]])) {
+                    # Don't print anything extra for NAs
+                    cat("\t")
+                } else if ("gadgetfile" %in% class(comp[[i]])) {
+                    # Print gadget file path, not file
+                    cat("\t")
+                    cat(attr(comp[[i]], 'file_name'), sep = "")
+                } else if (is_sub_component(file_config, names(comp)[[i]]) && is.list(comp[[i]])) {
+                    if (isTRUE(all.equal(names(comp[[i]]), names(comp)[[i]]))) {
+                       # Subcomponent with only one parameter, just put it out on the same line
+                       cat("\t")
+                       cat(comp[[i]][[1]], sep = "\t")
+                    } else {
+                        # Subcomponent
+                        cat("\n")
+                        print_component(comp[[i]], "", file_config)
+                        trailing_str <- ""
+                    }
+                } else {
+                    cat("\t")
+                    cat(comp[[i]], sep = "\t")
+                }
 
                 if (length(attr(comp[[i]], "comment")) > 0) {
                     if (length(comp[[i]]) > 0) cat("\t\t")
                     cat("; ", attr(comp[[i]], "comment"), sep = "")
                 }
-                cat("\n")
+                cat(trailing_str)
             }
         } else {
             stop("Type of component, ", name, " unknown")
@@ -273,6 +302,15 @@ read.gadget.file <- function(path, file_name, file_type = "generic", fileEncodin
             return(list(name = x[[1]], type = 'list'))
         }
 
+        # Is this line a subcomponent?
+        if (is_sub_component(file_config, line_name)) {
+            return(list(
+                name = line_name,
+                type = 'list',
+                implicit = (line_name != line),  # i.e there's more data on this line
+                sub_component = TRUE))
+        }
+
         # Nothing we understand, return default
         return(default)
     }
@@ -321,7 +359,7 @@ read.gadget.file <- function(path, file_name, file_type = "generic", fileEncodin
         }
     }
 
-    read_component <- function (fh) {
+    read_component <- function (fh, reading_subcomponent = FALSE) {
         # Read any preamble comments
         comp_preamble <- read_preamble(fh)
         # Read component header
@@ -356,23 +394,29 @@ read.gadget.file <- function(path, file_name, file_type = "generic", fileEncodin
                     break
                 }
 
-                if (!isTRUE(comp_header$implicit) && is.list(is_component_header(line))) {
-                    # Rewind to before preamble and return component
-                    if (length(line_preamble) > 0) {
-                        pushBack(c(paste("; ", unlist(line_preamble)), line), fh)
-                    } else {
-                        pushBack(line, fh)
-                    }
-                    break
-                }
-                comp_header$implicit <- FALSE  # Moved on from implicit component, so check on following rounds
-
                 # Break up line into name\tvalues...; comment
                 match <- extract("([a-zA-Z0-9\\-_]*)\\s*([^;]*);?\\s*(.*)", line)
                 line_name <- match[[1]]
                 line_values <- if (length(match[[2]]) > 0) unlist(strsplit(sub("\\s+$", "", match[[2]]), "\\t+")) else c()
                 line_values <- tryCatch(as.numeric(line_values), warning = function (w) line_values)
                 line_comment <- if (length(match[[3]]) > 0 && nzchar(match[[3]])) match[[3]] else NULL
+
+                line_comp <- is_component_header(line)
+                if (!isTRUE(comp_header$implicit) && is.list(line_comp)) {
+                    # Rewind to before preamble
+                    if (length(line_preamble) > 0) {
+                        pushBack(c(paste("; ", unlist(line_preamble)), line), fh)
+                    } else {
+                        pushBack(line, fh)
+                    }
+
+                    if (!reading_subcomponent && isTRUE(line_comp$sub_component)) {
+                        line_values <- read_component(fh, reading_subcomponent = TRUE)$component
+                    } else {
+                        break
+                    }
+                }
+                comp_header$implicit <- FALSE  # Moved on from implicit component, so check on following rounds
 
                 cur_comp <- list_append(cur_comp, line_name, structure(line_values, preamble = line_preamble, comment = line_comment))
             }
@@ -437,7 +481,7 @@ gadget_mainfile_update <- function (
     mfile <- read.gadget.file(path, mainfile, file_type = 'main', fileEncoding = fileEncoding, missingOkay = TRUE)
     if (length(mfile) == 0) {
         mfile <- gadgetfile(mainfile, file_type = 'main', components = list(
-            list(timefile = "", areafile = "", printfiles = structure(c(), comment = "Required comment")),
+            list(timefile = NA, areafile = NA, printfiles = structure(c(), comment = "Required comment")),
             stock = list(),
             tagging = list(),
             otherfood = list(),
