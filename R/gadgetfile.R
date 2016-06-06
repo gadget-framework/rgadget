@@ -241,6 +241,11 @@ read.gadget.file <- function(path, file_name, file_type = "generic", fileEncodin
     }
     file_config <- get_filetype(file_type)
 
+    is_open <- function (fh) {
+        # Fixed isOpen that returns FALSE when file is closed
+        tryCatch(isOpen(fh), error = function (e) FALSE)
+    }
+
     is_eof <- function (line) {
         # EOF is a 0-length vector
         return(length(line) == 0)
@@ -341,6 +346,7 @@ read.gadget.file <- function(path, file_name, file_type = "generic", fileEncodin
             # Read component as list
             cur_comp <- list()
             while(TRUE) {
+                if (!is_open(fh)) break
                 line_preamble <- read_preamble(fh)
                 line <- readLines(fh, n = 1)
 
@@ -389,7 +395,7 @@ read.gadget.file <- function(path, file_name, file_type = "generic", fileEncodin
 
     # Read compoments until our file gets closed
     components <- list()
-    while(tryCatch(isOpen(fh), error = function (e) FALSE)) {
+    while(is_open(fh)) {
         comp <- read_component(fh)
         components <- list_append(components, comp$name, comp$component)
     }
