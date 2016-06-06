@@ -170,16 +170,10 @@ print.gadgetfile <- function (x, ...) {
                     cat("\t")
                     cat(attr(comp[[i]], 'file_name'), sep = "")
                 } else if (is_sub_component(file_config, names(comp)[[i]]) && is.list(comp[[i]])) {
-                    if (isTRUE(all.equal(names(comp[[i]]), names(comp)[[i]]))) {
-                       # Subcomponent with only one parameter, just put it out on the same line
-                       cat("\t")
-                       cat(comp[[i]][[1]], sep = "\t")
-                    } else {
-                        # Subcomponent
-                        cat("\n")
-                        print_component(comp[[i]], "", file_config)
-                        trailing_str <- ""
-                    }
+                    # Subcomponent
+                    cat("\n")
+                    print_component(comp[[i]], "", file_config)
+                    trailing_str <- ""
                 } else {
                     cat("\t")
                     cat(comp[[i]], sep = "\t")
@@ -412,6 +406,11 @@ read.gadget.file <- function(path, file_name, file_type = "generic", fileEncodin
 
                     if (!reading_subcomponent && isTRUE(line_comp$sub_component)) {
                         line_values <- read_component(fh, reading_subcomponent = TRUE)$component
+                        if (isTRUE(all.equal(names(line_values), line_name))) {
+                            # sub-component with only one value, so smoosh it down to a regular line
+                            # (i.e. it's not really a sub-component, but used to signify the end of one)
+                            line_values <- line_values[[1]]
+                        }
                     } else {
                         break
                     }

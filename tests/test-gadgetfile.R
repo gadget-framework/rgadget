@@ -532,7 +532,7 @@ ok_group("Can read fleet files successfully", {
                 codimm = "function exponential    #acomm (* 0.01 #bcomm)  0 1",
                 codmat = "function exponential    #acomm (* 0.01 #bcomm)  0 1"
             ),
-            amount = list(amount = "Data/cod.fleet.data")
+            amount = "Data/cod.fleet.data"
         ),
         fleetcomponent = list(
             totalfleet = "survey",
@@ -542,7 +542,7 @@ ok_group("Can read fleet files successfully", {
                 codimm = "function exponential    #acomm (* 0.05 #bcomm)  0 1",
                 codmat = "function exponential    #acomm (* 0.05 #bcomm)  0 1"
             ),
-            amount = list(amount = "Data/cod.survey.data")
+            amount = "Data/cod.survey.data"
         )
     )), "Fleet file with multiple components read")
 })
