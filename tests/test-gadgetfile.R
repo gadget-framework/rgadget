@@ -21,7 +21,7 @@ test_loopback <- function(..., file_type = "generic") {
 
     gf <- read.gadget.file(dir, file_name, file_type = file_type)
     write.gadget.file(gf, dir)
-    return(dir_list(dir)[[file_name]])
+    ok(cmp(dir_list(dir)[[file_name]], c(...)), paste0(c(...)[[2]], c(...)[[3]]))
 }
 
 unattr <- function(x) {
@@ -212,7 +212,7 @@ ok_group("Can read gadget files", {
         "; This is a comment associated with the component below",
         "; So is this",
         "[carrots]",
-        "; And this",
+        "; This is a line preamble",
         "like\tYes I do",
         "; Not this",
         "[carrots]",
@@ -223,11 +223,26 @@ ok_group("Can read gadget files", {
         list(
             structure(list(a = 6, b = 8), preamble = list("This is a comment that should be preserved")),
             carrots = structure(
-                list(like = "Yes I do"),
-                preamble = list("This is a comment associated with the component below", "So is this", "And this")),
+                list(like = structure("Yes I do", preamble = list("This is a line preamble"))),
+                preamble = list("This is a comment associated with the component below", "So is this")),
             carrots = structure(
                 list(like = "No thanks"),
                 preamble = list("Not this")))), "Components / preamble read")
+    # Make sure they get printed back too
+    test_loopback(
+        ver_string,
+        "; This is a comment that should be preserved",
+        "a\t6",
+        "b\t8",
+        "; This is a comment associated with the component below",
+        "; So is this",
+        "[carrots]",
+        "; This is a line preamble",
+        "like\tYes I do",
+        "; Not this",
+        "[carrots]",
+        "like\tNo thanks",
+        file_type = "generic")
 
     # Data
     gf <- read.gadget.string(
@@ -292,8 +307,10 @@ ok_group("Bare component labels", {
         file_type = "generic")
     ok(cmp(unattr(gf), list(list(
         farmer = "giles",
+        cows = c(1)[c()],
         fresian = "daisy",
         highland = "bessie",
+        pigs = c(1)[c()],
         oldspot = "george",
         pigs = c("henry", "freddie")
         ))), "By default, lines are just extra key/value fields")
@@ -485,4 +502,62 @@ ok_group("Writing to mainfile", {
             "cabbage\tnah",
         NULL)
     )), "Can add multiple likelihood files")
+})
+
+ok_group("Can read fleet files successfully", {
+    path <- tempfile()
+
+    test_loopback(
+        ver_string,
+        "[fleetcomponent]",
+        "totalfleet\tcomm",
+        "livesonareas\t1",
+        "multiplicative\t1",
+        "suitability",
+        "codimm\tfunction exponential    #acomm (* 0.01 #bcomm)  0 1",
+        "codmat\tfunction exponential    #acomm (* 0.01 #bcomm)  0 1",
+        "amount\tData/cod.fleet.data",
+        file_type = "fleet")
+
+    gf <- read.gadget.string(
+        ver_string,
+        "[fleetcomponent]",
+        "totalfleet\tcomm",
+        "livesonareas\t1",
+        "multiplicative\t1",
+        "suitability",
+        "codimm\tfunction exponential    #acomm (* 0.01 #bcomm)  0 1",
+        "codmat\tfunction exponential    #acomm (* 0.01 #bcomm)  0 1",
+        "amount\tData/cod.fleet.data",
+        "[fleetcomponent]",
+        "totalfleet\tsurvey",
+        "livesonareas\t1",
+        "multiplicative\t1",
+        "suitability",
+        "codimm\tfunction exponential    #acomm (* 0.05 #bcomm)  0 1",
+        "codmat\tfunction exponential    #acomm (* 0.05 #bcomm)  0 1",
+        "amount\tData/cod.survey.data",
+        file_type = "fleet")
+    ok(cmp(unattr(gf), list(
+        fleetcomponent = list(
+            totalfleet = "comm",
+            livesonareas = 1,
+            multiplicative = 1,
+            suitability = list(
+                codimm = "function exponential    #acomm (* 0.01 #bcomm)  0 1",
+                codmat = "function exponential    #acomm (* 0.01 #bcomm)  0 1"
+            ),
+            amount = "Data/cod.fleet.data"
+        ),
+        fleetcomponent = list(
+            totalfleet = "survey",
+            livesonareas = 1,
+            multiplicative = 1,
+            suitability = list(
+                codimm = "function exponential    #acomm (* 0.05 #bcomm)  0 1",
+                codmat = "function exponential    #acomm (* 0.05 #bcomm)  0 1"
+            ),
+            amount = "Data/cod.survey.data"
+        )
+    )), "Fleet file with multiple components read")
 })
