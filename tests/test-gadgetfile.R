@@ -503,4 +503,46 @@ ok_group("Can read fleet files successfully", {
         "codmat\tfunction exponential    #acomm (* 0.01 #bcomm)  0 1",
         "amount\tData/cod.fleet.data",
         file_type = "fleet")
+
+    gf <- read.gadget.string(
+        ver_string,
+        "[fleetcomponent]",
+        "totalfleet\tcomm",
+        "livesonareas\t1",
+        "multiplicative\t1",
+        "suitability",
+        "codimm\tfunction exponential    #acomm (* 0.01 #bcomm)  0 1",
+        "codmat\tfunction exponential    #acomm (* 0.01 #bcomm)  0 1",
+        "amount\tData/cod.fleet.data",
+        "[fleetcomponent]",
+        "totalfleet\tsurvey",
+        "livesonareas\t1",
+        "multiplicative\t1",
+        "suitability",
+        "codimm\tfunction exponential    #acomm (* 0.05 #bcomm)  0 1",
+        "codmat\tfunction exponential    #acomm (* 0.05 #bcomm)  0 1",
+        "amount\tData/cod.survey.data",
+        file_type = "fleet")
+    ok(cmp(unattr(gf), list(
+        fleetcomponent = list(
+            totalfleet = "comm",
+            livesonareas = 1,
+            multiplicative = 1,
+            suitability = list(
+                codimm = "function exponential    #acomm (* 0.01 #bcomm)  0 1",
+                codmat = "function exponential    #acomm (* 0.01 #bcomm)  0 1"
+            ),
+            amount = list(amount = "Data/cod.fleet.data")
+        ),
+        fleetcomponent = list(
+            totalfleet = "survey",
+            livesonareas = 1,
+            multiplicative = 1,
+            suitability = list(
+                codimm = "function exponential    #acomm (* 0.05 #bcomm)  0 1",
+                codmat = "function exponential    #acomm (* 0.05 #bcomm)  0 1"
+            ),
+            amount = list(amount = "Data/cod.survey.data")
+        )
+    )), "Fleet file with multiple components read")
 })
