@@ -451,7 +451,7 @@ read.gadget.file <- function(path, file_name, file_type = "generic", fileEncodin
 
     # Make a gadgetfile object out of it
     return(gadgetfile(
-        file_name = basename(file_name),
+        file_name = file_name,
         file_type = file_type,
         components = components))
 }
