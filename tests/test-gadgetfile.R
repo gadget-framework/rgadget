@@ -443,31 +443,6 @@ ok_group("Writing to mainfile", {
         NULL)
     )), "Extra area file replaces old")
 
-    write.gadget.file(gadgetfile("wobble",
-        components = list(list(cabbage = "please")),
-        file_type = "area"), dir, mainfile = NULL)
-    ok(cmp(dir_list(dir), list(
-        main = c(
-            ver_string,
-            "timefile\t",
-            "areafile\twubble",
-            "printfiles\t; Required comment",
-            "[stock]",
-            "[tagging]",
-            "[otherfood]",
-            "[fleet]",
-            "[likelihood]",
-        NULL),
-        wobble = c(
-            ver_string,
-            "cabbage\tplease",
-        NULL),
-        wubble = c(
-            ver_string,
-            "cabbage\tnah",
-        NULL)
-    )), "Don't update mainfile if we disable it")
-
     write.gadget.file(gadgetfile("likelihood/bubble",
         components = list(list(cabbage = "twice")),
         file_type = "likelihood"), dir)
@@ -497,7 +472,7 @@ ok_group("Writing to mainfile", {
         NULL),
         wobble = c(
             ver_string,
-            "cabbage\tplease",
+            "cabbage\tdefinitely",
         NULL),
         wubble = c(
             ver_string,

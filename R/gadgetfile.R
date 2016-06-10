@@ -203,11 +203,15 @@ print.gadgetfile <- function (x, ...) {
 #'
 #' @param obj		gadgetfile object to write
 #' @param path		Base directory to write out to
-#' @param mainfile	The name of the directories mainfile (or NULL to disable mainfile updating)
 #' @export
-write.gadget.file <- function(obj, path, mainfile = 'main') {
+write.gadget.file <- function(obj, path) {
     file_name <- attr(obj, 'file_name')
     file_config <- attr(obj, 'file_config')
+
+    mainfile <- attr(path, 'mainfile')
+    if (!isTRUE(nzchar(mainfile))) {
+        mainfile <- 'main'
+    }
 
     dir.create(
         dirname(file.path(path, file_name)),
