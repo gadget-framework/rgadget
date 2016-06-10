@@ -265,6 +265,11 @@ read.gadget.file <- function(path, file_name, file_type = "generic", fileEncodin
     }
     file_config <- get_filetype(file_type)
 
+    is_readable <- function (path) {
+        # TRUE iff we can read the file path
+        file.access(path, 4) == 0
+    }
+
     is_open <- function (fh) {
         # Fixed isOpen that returns FALSE when file is closed
         tryCatch(isOpen(fh), error = function (e) FALSE)
@@ -429,7 +434,7 @@ read.gadget.file <- function(path, file_name, file_type = "generic", fileEncodin
 
     # Open file
     full_path <- file.path(path, file_name)
-    if (file.access(full_path, 4) == -1) {
+    if (!is_readable(full_path)) {
         if (isTRUE(missingOkay)) {
             return(gadgetfile(file_name, file_type = file_type))
         }
