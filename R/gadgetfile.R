@@ -215,13 +215,18 @@ write.gadget.file <- function(obj, path, mainfile = 'main') {
         showWarnings = FALSE)
 
     # For each component, inspect for any stored gadgetfiles and write these out first
-    for (comp in obj) {
-        if (is.list(comp)) for (field in comp) {
-            if ("gadgetfile" %in% class(field)) {
-                write.gadget.file(field, path, mainfile = mainfile)
+    write_comp_subfiles <- function(comp) {
+        if (is.list(comp)) {
+            for (field in comp) {
+                if ("gadgetfile" %in% class(field)) {
+                    write.gadget.file(field, path, mainfile = mainfile)
+                } else {
+                    write_comp_subfiles(field)
+                }
             }
         }
     }
+    for (comp in obj) write_comp_subfiles(comp)
 
     fh = file(file.path(path, file_name), "w")
     tryCatch(
@@ -422,6 +427,16 @@ read.gadget.file <- function(path, file_name, file_type = "generic", fileEncodin
                     }
                 }
                 comp_header$implicit <- FALSE  # Moved on from implicit component, so check on following rounds
+
+                # If this is a reference to a gadget_file, read it in
+                if (grepl("^amount$|file$", line_name) && class(line_values) == "character" && length(line_values) == 1) {  # NB: Can't have a vector of gadgetfile
+                    line_values <- read.gadget.file(
+                        path,
+                        line_values,
+                        file_type = "generic",
+                        fileEncoding = fileEncoding,
+                        missingOkay = FALSE)
+                }
 
                 cur_comp <- list_append(cur_comp, line_name, structure(line_values, preamble = line_preamble, comment = line_comment))
             }
