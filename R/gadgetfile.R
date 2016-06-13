@@ -170,6 +170,10 @@ print.gadgetfile <- function (x, ...) {
                     # Print gadget file path, not file
                     cat("\t")
                     cat(attr(comp[[i]], 'file_name'), sep = "")
+                } else if ("gadget_file" %in% class(comp[[i]])) {
+                    # Print MFDB gadget_file
+                    cat("\t")
+                    cat(comp[[i]]$filename, sep = "")
                 } else if (is_sub_component(file_config, names(comp)[[i]]) && is.list(comp[[i]])) {
                     # Subcomponent
                     cat("\n")
@@ -199,15 +203,59 @@ print.gadgetfile <- function (x, ...) {
     }
 }
 
+#' Write the changes to the model into a model variant directory
+#'
+#' @param path		Base directory to write out to
+#' @param variant_dir	A subdirectory to write any changes out to
+#' @param mainfile	The name of the variant directories' mainfile
+#' @export
+gadget.variant.dir <- function(path, variant_dir = NULL, mainfile = 'main') {
+    return(structure(
+        as.character(path),
+        variant_dir = variant_dir,
+        mainfile = variant_full_path(variant_dir, mainfile),
+        class = c("gadget.variant", "list")))
+}
+
+# Prepend variant_dir to file_name unless it already has it
+variant_full_path <- function(variant_dir, file_name) {
+    base <- file.path(variant_dir, "")
+
+    if (grepl(paste0("^", base), file_name)) {
+        # Starts with variant_dir already
+        return(file_name)
+    } else {
+        return(file.path(variant_dir, file_name))
+    }
+}
+
+# Strip variant_dir from file_name, if there
+variant_strip_path <- function(variant_dir, file_name) {
+    base <- file.path(variant_dir, "")
+
+    return(sub(paste0("^", base), "", file_name))
+}
+
 #' Write gadgetfile to disk, including any dependant files, and update the mainfile
 #'
 #' @param obj		gadgetfile object to write
 #' @param path		Base directory to write out to
-#' @param mainfile	The name of the directories mainfile (or NULL to disable mainfile updating)
+#' @param recursive	Write out all nested files too (default TRUE)?
 #' @export
-write.gadget.file <- function(obj, path, mainfile = 'main') {
+write.gadget.file <- function(obj, path, recursive = TRUE) {
     file_name <- attr(obj, 'file_name')
     file_config <- attr(obj, 'file_config')
+
+    mainfile <- attr(path, 'mainfile')
+    if (!isTRUE(nzchar(mainfile))) {
+        mainfile <- 'main'
+    }
+
+    # Is the path a model variant?
+    variant_dir <- attr(path, 'variant_dir')
+    if (isTRUE(nzchar(variant_dir))) {
+        file_name <- variant_full_path(variant_dir, file_name)
+    }
 
     dir.create(
         dirname(file.path(path, file_name)),
@@ -215,13 +263,31 @@ write.gadget.file <- function(obj, path, mainfile = 'main') {
         showWarnings = FALSE)
 
     # For each component, inspect for any stored gadgetfiles and write these out first
-    for (comp in obj) {
-        if (is.list(comp)) for (field in comp) {
+    write_comp_subfiles <- function(comp) {
+        if (!is.list(comp)) return()
+
+        for (field in comp) {
+            if ("gadget_file" %in% class(field)) {
+                # MFDB-style gadget_file object, convert first
+                field <- gadgetfile(
+                    field$filename,
+                    file_type = "generic",
+                    c(field$components, list(data = field$data)))
+            }
+
             if ("gadgetfile" %in% class(field)) {
-                write.gadget.file(field, path, mainfile = mainfile)
+                if (isTRUE(nzchar(variant_dir))) {
+                    attr(field, 'file_name') <- variant_full_path(
+                        variant_dir,
+                        attr(field, 'file_name'))
+                }
+                write.gadget.file(field, path)
+            } else {
+                write_comp_subfiles(field)
             }
         }
     }
+    if (recursive) write_comp_subfiles(obj)
 
     fh = file(file.path(path, file_name), "w")
     tryCatch(
@@ -245,8 +311,9 @@ write.gadget.file <- function(obj, path, mainfile = 'main') {
 #'			See \code{Rgadget::gadget_filetypes} for recognised types
 #' @param fileEncoding	Character encoding of file, defaults to "UTF-8"
 #' @param missingOkay	If \code{TRUE}, return an empty gadgetfile object if file does not exist.
+#' @param recursive	Read in all nested files too (default TRUE)?
 #' @export
-read.gadget.file <- function(path, file_name, file_type = "generic", fileEncoding = "UTF-8", missingOkay = FALSE) {
+read.gadget.file <- function(path, file_name, file_type = "generic", fileEncoding = "UTF-8", missingOkay = FALSE, recursive = TRUE) {
     extract <- function (pattern, line) {
         if (length(line) == 0) return(c())
         m <- regmatches(line, regexec(pattern, line))[[1]]
@@ -264,6 +331,11 @@ read.gadget.file <- function(path, file_name, file_type = "generic", fileEncodin
         return(l)
     }
     file_config <- get_filetype(file_type)
+
+    is_readable <- function (path) {
+        # TRUE iff we can read the file path
+        file.access(path, 4) == 0
+    }
 
     is_open <- function (fh) {
         # Fixed isOpen that returns FALSE when file is closed
@@ -418,6 +490,16 @@ read.gadget.file <- function(path, file_name, file_type = "generic", fileEncodin
                 }
                 comp_header$implicit <- FALSE  # Moved on from implicit component, so check on following rounds
 
+                # If this is a reference to a gadget_file, read it in
+                if (recursive && grepl("^amount$|file$", line_name) && class(line_values) == "character" && length(line_values) == 1) {  # NB: Can't have a vector of gadgetfile
+                    line_values <- read.gadget.file(
+                        path,
+                        line_values,
+                        file_type = "generic",
+                        fileEncoding = fileEncoding,
+                        missingOkay = FALSE)
+                }
+
                 cur_comp <- list_append(cur_comp, line_name, structure(line_values, preamble = line_preamble, comment = line_comment))
             }
         }
@@ -428,14 +510,30 @@ read.gadget.file <- function(path, file_name, file_type = "generic", fileEncodin
     }
 
     # Open file
-    full_path <- file.path(path, file_name)
-    if (file.access(full_path, 4) == -1) {
+    open_file <- function(full_path) {
+        # Open file if we can, or return NULL
+        if (!is_readable(full_path)) return(NULL)
+        return(file(full_path, "rt", encoding = fileEncoding))
+    }
+    variant_dir <- attr(path, 'variant_dir')
+    fh <- NULL
+    if (isTRUE(nzchar(variant_dir))) {
+        # Try opening the file in a variant directory first
+        file_name <- variant_strip_path(variant_dir, file_name)
+        fh <- open_file(file.path(path, variant_dir, file_name))
+    }
+    if (is.null(fh)) {
+        # No variant dir (or file doesn't have variant version yet)
+        fh <- open_file(file.path(path, file_name))
+    }
+    if (is.null(fh)) {
+        # Still haven't found anything to read
         if (isTRUE(missingOkay)) {
             return(gadgetfile(file_name, file_type = file_type))
+        } else {
+            stop("File ", variant_dir, file_name, " does not exist")
         }
-        stop("File ", file_name, " does not exist")
     }
-    fh <- file(full_path, "rt", encoding = fileEncoding)
 
     # Read compoments until our file gets closed
     components <- list()
@@ -446,7 +544,7 @@ read.gadget.file <- function(path, file_name, file_type = "generic", fileEncodin
 
     # Make a gadgetfile object out of it
     return(gadgetfile(
-        file_name = basename(file_name),
+        file_name = file_name,
         file_type = file_type,
         components = components))
 }
@@ -478,7 +576,7 @@ gadget_mainfile_update <- function (
     }
 
     # Read file, create basic outline if doesn't exist
-    mfile <- read.gadget.file(path, mainfile, file_type = 'main', fileEncoding = fileEncoding, missingOkay = TRUE)
+    mfile <- read.gadget.file(path, mainfile, file_type = 'main', fileEncoding = fileEncoding, missingOkay = TRUE, recursive = FALSE)
     if (length(mfile) == 0) {
         mfile <- gadgetfile(mainfile, file_type = 'main', components = list(
             list(timefile = NA, areafile = NA, printfiles = structure(c(), comment = "Required comment")),
@@ -504,5 +602,5 @@ gadget_mainfile_update <- function (
     mfile$likelihood$likelihoodfiles <- swap(mfile$likelihood$likelihoodfiles, likelihoodfiles)
 
     # Write file back out again
-    if (made_change) write.gadget.file(mfile, path)
+    if (made_change) write.gadget.file(mfile, path, recursive = FALSE)
 }
