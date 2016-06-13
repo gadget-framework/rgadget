@@ -203,8 +203,9 @@ print.gadgetfile <- function (x, ...) {
 #'
 #' @param obj		gadgetfile object to write
 #' @param path		Base directory to write out to
+#' @param recursive	Write out all nested files too (default TRUE)?
 #' @export
-write.gadget.file <- function(obj, path) {
+write.gadget.file <- function(obj, path, recursive = TRUE) {
     file_name <- attr(obj, 'file_name')
     file_config <- attr(obj, 'file_config')
 
@@ -230,7 +231,7 @@ write.gadget.file <- function(obj, path) {
             }
         }
     }
-    write_comp_subfiles(obj)
+    if (recursive) write_comp_subfiles(obj)
 
     fh = file(file.path(path, file_name), "w")
     tryCatch(
@@ -254,8 +255,9 @@ write.gadget.file <- function(obj, path) {
 #'			See \code{Rgadget::gadget_filetypes} for recognised types
 #' @param fileEncoding	Character encoding of file, defaults to "UTF-8"
 #' @param missingOkay	If \code{TRUE}, return an empty gadgetfile object if file does not exist.
+#' @param recursive	Read in all nested files too (default TRUE)?
 #' @export
-read.gadget.file <- function(path, file_name, file_type = "generic", fileEncoding = "UTF-8", missingOkay = FALSE) {
+read.gadget.file <- function(path, file_name, file_type = "generic", fileEncoding = "UTF-8", missingOkay = FALSE, recursive = TRUE) {
     extract <- function (pattern, line) {
         if (length(line) == 0) return(c())
         m <- regmatches(line, regexec(pattern, line))[[1]]
@@ -433,7 +435,7 @@ read.gadget.file <- function(path, file_name, file_type = "generic", fileEncodin
                 comp_header$implicit <- FALSE  # Moved on from implicit component, so check on following rounds
 
                 # If this is a reference to a gadget_file, read it in
-                if (grepl("^amount$|file$", line_name) && class(line_values) == "character" && length(line_values) == 1) {  # NB: Can't have a vector of gadgetfile
+                if (recursive && grepl("^amount$|file$", line_name) && class(line_values) == "character" && length(line_values) == 1) {  # NB: Can't have a vector of gadgetfile
                     line_values <- read.gadget.file(
                         path,
                         line_values,
@@ -502,7 +504,7 @@ gadget_mainfile_update <- function (
     }
 
     # Read file, create basic outline if doesn't exist
-    mfile <- read.gadget.file(path, mainfile, file_type = 'main', fileEncoding = fileEncoding, missingOkay = TRUE)
+    mfile <- read.gadget.file(path, mainfile, file_type = 'main', fileEncoding = fileEncoding, missingOkay = TRUE, recursive = FALSE)
     if (length(mfile) == 0) {
         mfile <- gadgetfile(mainfile, file_type = 'main', components = list(
             list(timefile = NA, areafile = NA, printfiles = structure(c(), comment = "Required comment")),
@@ -528,5 +530,5 @@ gadget_mainfile_update <- function (
     mfile$likelihood$likelihoodfiles <- swap(mfile$likelihood$likelihoodfiles, likelihoodfiles)
 
     # Write file back out again
-    if (made_change) write.gadget.file(mfile, path)
+    if (made_change) write.gadget.file(mfile, path, recursive = FALSE)
 }
