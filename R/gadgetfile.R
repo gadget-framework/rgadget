@@ -220,17 +220,17 @@ write.gadget.file <- function(obj, path) {
 
     # For each component, inspect for any stored gadgetfiles and write these out first
     write_comp_subfiles <- function(comp) {
-        if (is.list(comp)) {
-            for (field in comp) {
-                if ("gadgetfile" %in% class(field)) {
-                    write.gadget.file(field, path, mainfile = mainfile)
-                } else {
-                    write_comp_subfiles(field)
-                }
+        if (!is.list(comp)) return()
+
+        for (field in comp) {
+            if ("gadgetfile" %in% class(field)) {
+                write.gadget.file(field, path)
+            } else {
+                write_comp_subfiles(field)
             }
         }
     }
-    for (comp in obj) write_comp_subfiles(comp)
+    write_comp_subfiles(obj)
 
     fh = file(file.path(path, file_name), "w")
     tryCatch(
