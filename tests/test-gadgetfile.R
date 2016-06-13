@@ -575,3 +575,79 @@ ok_group("Can read nested files in one go", {
 
     ok(cmp(read.gadget.file(dir, "wobble"), nested_files), "Read all files back in again")
 })
+
+ok_group("Variant directories", {
+    dir <- tempfile()
+    variant_dir <- gadget.variant.dir(dir, variant_dir = 'similar')
+
+    # Write base files
+    write.gadget.file(gadgetfile("area.cabbage",
+        components = list(list(cabbage = "nah")),
+        file_type = "area"), dir)
+    write.gadget.file(gadgetfile("likelihood/bubble",
+        components = list(list(cabbage = "twice")),
+        file_type = "likelihood"), dir)
+
+    # Write extra file to variant dir
+    write.gadget.file(gadgetfile("likelihood/bubble.variant",
+        components = list(list(cabbage = "thrice")),
+        file_type = "likelihood"), variant_dir)
+
+    ok(cmp(dir_list(dir), list(
+        "area.cabbage" = c(
+            ver_string,
+            "cabbage\tnah",
+        NULL),
+        "likelihood/bubble" = c(
+            ver_string,
+            "cabbage\ttwice",
+        NULL),
+        main = c(
+            ver_string,
+            "timefile\t",
+            "areafile\tarea.cabbage",
+            "printfiles\t; Required comment",
+            "[stock]",
+            "[tagging]",
+            "[otherfood]",
+            "[fleet]",
+            "[likelihood]",
+            "likelihoodfiles\tlikelihood/bubble",
+        NULL),
+        "similar/likelihood/bubble.variant" = c(
+            ver_string,
+            "cabbage\tthrice",
+        NULL),
+        "similar/main" = c(
+            ver_string,
+            "timefile\t",
+            # NB: We've read in the exisiting file, then outputted the variant.
+            "areafile\tarea.cabbage",
+            "printfiles\t; Required comment",
+            "[stock]",
+            "[tagging]",
+            "[otherfood]",
+            "[fleet]",
+            "[likelihood]",
+            paste("likelihoodfiles",
+                "likelihood/bubble",
+                "similar/likelihood/bubble.variant",
+                sep = "\t"),
+        NULL)
+    )), "Can add a likelihood file in a variant directory")
+
+    bubble_variant <- read.gadget.file(dir, "similar/likelihood/bubble.variant")
+    attr(bubble_variant, 'file_name') <- "likelihood/bubble.variant"
+    ok(cmp(
+        bubble_variant,
+        read.gadget.file(variant_dir, "likelihood/bubble.variant")), "Don't have to include path when using variant_dir")
+    ok(cmp(
+        bubble_variant,
+        read.gadget.file(variant_dir, "similar/likelihood/bubble.variant")), "Don't have to include path when using variant_dir")
+    ok(cmp(
+        read.gadget.file(dir, "area.cabbage"),
+        read.gadget.file(variant_dir, "area.cabbage")), "Fall back to normal dir when using variant_dir")
+    ok(cmp(
+        read.gadget.file(dir, "area.cabbage"),
+        read.gadget.file(variant_dir, "similar/area.cabbage")), "Fall back to normal dir when using variant_dir")
+})

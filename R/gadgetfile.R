@@ -199,6 +199,39 @@ print.gadgetfile <- function (x, ...) {
     }
 }
 
+#' Write the changes to the model into a model variant directory
+#'
+#' @param path		Base directory to write out to
+#' @param variant_dir	A subdirectory to write any changes out to
+#' @param mainfile	The name of the variant directories' mainfile
+#' @export
+gadget.variant.dir <- function(path, variant_dir = NULL, mainfile = 'main') {
+    return(structure(
+        as.character(path),
+        variant_dir = variant_dir,
+        mainfile = variant_full_path(variant_dir, mainfile),
+        class = c("gadget.variant", "list")))
+}
+
+# Prepend variant_dir to file_name unless it already has it
+variant_full_path <- function(variant_dir, file_name) {
+    base <- file.path(variant_dir, "")
+
+    if (grepl(paste0("^", base), file_name)) {
+        # Starts with variant_dir already
+        return(file_name)
+    } else {
+        return(file.path(variant_dir, file_name))
+    }
+}
+
+# Strip variant_dir from file_name, if there
+variant_strip_path <- function(variant_dir, file_name) {
+    base <- file.path(variant_dir, "")
+
+    return(sub(paste0("^", base), "", file_name))
+}
+
 #' Write gadgetfile to disk, including any dependant files, and update the mainfile
 #'
 #' @param obj		gadgetfile object to write
@@ -214,6 +247,12 @@ write.gadget.file <- function(obj, path, recursive = TRUE) {
         mainfile <- 'main'
     }
 
+    # Is the path a model variant?
+    variant_dir <- attr(path, 'variant_dir')
+    if (isTRUE(nzchar(variant_dir))) {
+        file_name <- variant_full_path(variant_dir, file_name)
+    }
+
     dir.create(
         dirname(file.path(path, file_name)),
         recursive = TRUE,
@@ -225,6 +264,11 @@ write.gadget.file <- function(obj, path, recursive = TRUE) {
 
         for (field in comp) {
             if ("gadgetfile" %in% class(field)) {
+                if (isTRUE(nzchar(variant_dir))) {
+                    attr(field, 'file_name') <- variant_full_path(
+                        variant_dir,
+                        attr(field, 'file_name'))
+                }
                 write.gadget.file(field, path)
             } else {
                 write_comp_subfiles(field)
@@ -454,14 +498,30 @@ read.gadget.file <- function(path, file_name, file_type = "generic", fileEncodin
     }
 
     # Open file
-    full_path <- file.path(path, file_name)
-    if (!is_readable(full_path)) {
+    open_file <- function(full_path) {
+        # Open file if we can, or return NULL
+        if (!is_readable(full_path)) return(NULL)
+        return(file(full_path, "rt", encoding = fileEncoding))
+    }
+    variant_dir <- attr(path, 'variant_dir')
+    fh <- NULL
+    if (isTRUE(nzchar(variant_dir))) {
+        # Try opening the file in a variant directory first
+        file_name <- variant_strip_path(variant_dir, file_name)
+        fh <- open_file(file.path(path, variant_dir, file_name))
+    }
+    if (is.null(fh)) {
+        # No variant dir (or file doesn't have variant version yet)
+        fh <- open_file(file.path(path, file_name))
+    }
+    if (is.null(fh)) {
+        # Still haven't found anything to read
         if (isTRUE(missingOkay)) {
             return(gadgetfile(file_name, file_type = file_type))
+        } else {
+            stop("File ", variant_dir, file_name, " does not exist")
         }
-        stop("File ", file_name, " does not exist")
     }
-    fh <- file(full_path, "rt", encoding = fileEncoding)
 
     # Read compoments until our file gets closed
     components <- list()
