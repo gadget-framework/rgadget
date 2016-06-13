@@ -170,6 +170,10 @@ print.gadgetfile <- function (x, ...) {
                     # Print gadget file path, not file
                     cat("\t")
                     cat(attr(comp[[i]], 'file_name'), sep = "")
+                } else if ("gadget_file" %in% class(comp[[i]])) {
+                    # Print MFDB gadget_file
+                    cat("\t")
+                    cat(comp[[i]]$filename, sep = "")
                 } else if (is_sub_component(file_config, names(comp)[[i]]) && is.list(comp[[i]])) {
                     # Subcomponent
                     cat("\n")
@@ -263,6 +267,14 @@ write.gadget.file <- function(obj, path, recursive = TRUE) {
         if (!is.list(comp)) return()
 
         for (field in comp) {
+            if ("gadget_file" %in% class(field)) {
+                # MFDB-style gadget_file object, convert first
+                field <- gadgetfile(
+                    field$filename,
+                    file_type = "generic",
+                    c(field$components, list(data = field$data)))
+            }
+
             if ("gadgetfile" %in% class(field)) {
                 if (isTRUE(nzchar(variant_dir))) {
                     attr(field, 'file_name') <- variant_full_path(
