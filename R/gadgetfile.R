@@ -87,7 +87,7 @@ gadget_update <- function(gf, component, ...) UseMethod("gadget_update", gf)
 #' \describe{
 #'     \item{file_type}{The name of the file type}
 #'     \item{mainfile_section}{Writing a file of this type will cause the corresponding mainfile entry to be updated}
-#'     \item{bare_component}{Components in this file do not have brackets around their names}
+#'     \item{bare_component}{Keys matching this regex (or every component, if TRUE) do not have brackets around their names}
 #'     \item{implicit_component}{Keys matching this regex are treated as if the are implicitly broken up into components}
 #' }
 #' 
@@ -95,11 +95,32 @@ gadget_update <- function(gf, component, ...) UseMethod("gadget_update", gf)
 #' @docType data
 NULL
 
+is_sub_component <- function(config, name) {
+    if (!isTRUE(nzchar(name))) return(FALSE)
+    if (!isTRUE(nzchar(config$sub_component))) return(FALSE)
+    if (regexpr(config$sub_component, name) < 0) return(FALSE)
+    return(TRUE)
+}
+
 is_implicit_component <- function(config, name) {
     if (!isTRUE(nzchar(name))) return(FALSE)
     if (!isTRUE(nzchar(config$implicit_component))) return(FALSE)
     if (regexpr(config$implicit_component, name) < 0) return(FALSE)
     return(TRUE)
+}
+
+is_bare_component <- function(config, name) {
+    if (config$bare_component == "TRUE") return(TRUE)
+    if (config$bare_component == "FALSE") return(FALSE)
+    if (nzchar(config$bare_component) && regexpr(config$bare_component, name) >= 0) return(TRUE)
+    return(FALSE)
+}
+
+bare_component_regex <- function(config) {
+    if (config$bare_component == "TRUE") return("^(\\w+)$")
+    if (config$bare_component == "FALSE") return(NULL)
+    if (nzchar(config$bare_component)) return(config$bare_component)
+    return(NULL)
 }
 
 #' Print given gadgetfile to stdout
@@ -120,7 +141,7 @@ print.gadgetfile <- function (x, ...) {
             # No name, do nothing
         } else if (is_implicit_component(file_config, name)) {
             # Do nothing, the name comes from the key/value line
-        } else if (isTRUE(file_config$bare_component)) {
+        } else if (is_bare_component(file_config, name)) {
             cat(paste0(name,'\n'))
         } else {
             cat(paste0('[', name,']\n'))
@@ -139,14 +160,35 @@ print.gadgetfile <- function (x, ...) {
         } else if (is.list(comp)) {
             # properties are in key\tvalue1\tvalue2... form
             for (i in seq_len(length(comp))) {
-                cat(names(comp)[[i]], "\t", sep = "")
-                cat(if ("gadgetfile" %in% class(comp[[i]])) attr(comp[[i]], 'file_name') else comp[[i]], sep = "\t")
+                cat(preamble_str(comp[[i]]))
+                cat(names(comp)[[i]])
+                trailing_str <- "\n"
+                if (length(comp[[i]]) == 1 && is.na(comp[[i]])) {
+                    # Don't print anything extra for NAs
+                    cat("\t")
+                } else if ("gadgetfile" %in% class(comp[[i]])) {
+                    # Print gadget file path, not file
+                    cat("\t")
+                    cat(attr(comp[[i]], 'file_name'), sep = "")
+                } else if ("gadget_file" %in% class(comp[[i]])) {
+                    # Print MFDB gadget_file
+                    cat("\t")
+                    cat(comp[[i]]$filename, sep = "")
+                } else if (is_sub_component(file_config, names(comp)[[i]]) && is.list(comp[[i]])) {
+                    # Subcomponent
+                    cat("\n")
+                    print_component(comp[[i]], "", file_config)
+                    trailing_str <- ""
+                } else {
+                    cat("\t")
+                    cat(comp[[i]], sep = "\t")
+                }
 
                 if (length(attr(comp[[i]], "comment")) > 0) {
                     if (length(comp[[i]]) > 0) cat("\t\t")
                     cat("; ", attr(comp[[i]], "comment"), sep = "")
                 }
-                cat("\n")
+                cat(trailing_str)
             }
         } else {
             stop("Type of component, ", name, " unknown")
@@ -161,15 +203,59 @@ print.gadgetfile <- function (x, ...) {
     }
 }
 
+#' Write the changes to the model into a model variant directory
+#'
+#' @param path		Base directory to write out to
+#' @param variant_dir	A subdirectory to write any changes out to
+#' @param mainfile	The name of the variant directories' mainfile
+#' @export
+gadget.variant.dir <- function(path, variant_dir = NULL, mainfile = 'main') {
+    return(structure(
+        as.character(path),
+        variant_dir = variant_dir,
+        mainfile = variant_full_path(variant_dir, mainfile),
+        class = c("gadget.variant", "list")))
+}
+
+# Prepend variant_dir to file_name unless it already has it
+variant_full_path <- function(variant_dir, file_name) {
+    base <- file.path(variant_dir, "")
+
+    if (grepl(paste0("^", base), file_name)) {
+        # Starts with variant_dir already
+        return(file_name)
+    } else {
+        return(file.path(variant_dir, file_name))
+    }
+}
+
+# Strip variant_dir from file_name, if there
+variant_strip_path <- function(variant_dir, file_name) {
+    base <- file.path(variant_dir, "")
+
+    return(sub(paste0("^", base), "", file_name))
+}
+
 #' Write gadgetfile to disk, including any dependant files, and update the mainfile
 #'
 #' @param obj		gadgetfile object to write
 #' @param path		Base directory to write out to
-#' @param mainfile	The name of the directories mainfile (or NULL to disable mainfile updating)
+#' @param recursive	Write out all nested files too (default TRUE)?
 #' @export
-write.gadget.file <- function(obj, path, mainfile = 'main') {
+write.gadget.file <- function(obj, path, recursive = TRUE) {
     file_name <- attr(obj, 'file_name')
     file_config <- attr(obj, 'file_config')
+
+    mainfile <- attr(path, 'mainfile')
+    if (!isTRUE(nzchar(mainfile))) {
+        mainfile <- 'main'
+    }
+
+    # Is the path a model variant?
+    variant_dir <- attr(path, 'variant_dir')
+    if (isTRUE(nzchar(variant_dir))) {
+        file_name <- variant_full_path(variant_dir, file_name)
+    }
 
     dir.create(
         dirname(file.path(path, file_name)),
@@ -177,13 +263,31 @@ write.gadget.file <- function(obj, path, mainfile = 'main') {
         showWarnings = FALSE)
 
     # For each component, inspect for any stored gadgetfiles and write these out first
-    for (comp in obj) {
-        if (is.list(comp)) for (field in comp) {
+    write_comp_subfiles <- function(comp) {
+        if (!is.list(comp)) return()
+
+        for (field in comp) {
+            if ("gadget_file" %in% class(field)) {
+                # MFDB-style gadget_file object, convert first
+                field <- gadgetfile(
+                    field$filename,
+                    file_type = "generic",
+                    c(field$components, list(data = field$data)))
+            }
+
             if ("gadgetfile" %in% class(field)) {
-                write.gadget.file(field, path, mainfile = mainfile)
+                if (isTRUE(nzchar(variant_dir))) {
+                    attr(field, 'file_name') <- variant_full_path(
+                        variant_dir,
+                        attr(field, 'file_name'))
+                }
+                write.gadget.file(field, path)
+            } else {
+                write_comp_subfiles(field)
             }
         }
     }
+    if (recursive) write_comp_subfiles(obj)
 
     fh = file(file.path(path, file_name), "w")
     tryCatch(
@@ -207,122 +311,242 @@ write.gadget.file <- function(obj, path, mainfile = 'main') {
 #'			See \code{Rgadget::gadget_filetypes} for recognised types
 #' @param fileEncoding	Character encoding of file, defaults to "UTF-8"
 #' @param missingOkay	If \code{TRUE}, return an empty gadgetfile object if file does not exist.
+#' @param recursive	Read in all nested files too (default TRUE)?
 #' @export
-read.gadget.file <- function(path, file_name, file_type = "generic", fileEncoding = "UTF-8", missingOkay = FALSE) {
+read.gadget.file <- function(path, file_name, file_type = "generic", fileEncoding = "UTF-8", missingOkay = FALSE, recursive = TRUE) {
     extract <- function (pattern, line) {
         if (length(line) == 0) return(c())
         m <- regmatches(line, regexec(pattern, line))[[1]]
         if (length(m) > 1) m[2:length(m)] else c()
     }
+
+    # Append (new) to (l), optionally naming it (name)
+    list_append <- function (l, name, new) {
+        l[[length(l) + 1]] <- new
+        if(length(name) > 0 && nzchar(name)) {
+            names(l)[[length(l)]] <- name
+        } else {
+            names(l)[[length(l)]] <- ""
+        }
+        return(l)
+    }
     file_config <- get_filetype(file_type)
 
-    # Open file
-    full_path <- file.path(path, file_name)
-    if (file.access(full_path, 4) == -1) {
-        if (isTRUE(missingOkay)) {
-            return(gadgetfile(file_name, file_type = file_type))
-        }
-        stop("File ", file_name, " does not exist")
+    is_readable <- function (path) {
+        # TRUE iff we can read the file path
+        file.access(path, 4) == 0
     }
-    file <- file(full_path, "rt", encoding = fileEncoding)
-    on.exit(close(file))
 
-    components <- list()
-    component_names <- list()
-    comp_name <- ""
-    cur_comp <- list()
-    cur_preamble <- list()
+    is_open <- function (fh) {
+        # Fixed isOpen that returns FALSE when file is closed
+        tryCatch(isOpen(fh), error = function (e) FALSE)
+    }
 
-    while(TRUE) {
-        line <- readLines(file, n = 1)
+    is_eof <- function (line) {
+        # EOF is a 0-length vector
+        return(length(line) == 0)
+    }
 
-        # Ignore version preamble, since this will be replaced on output
-        if (length(grep("^; Generated by", line)) > 0) {
-            next
+    is_component_header <- function (line, default = NA) {
+        # Is this line an implicit component?
+        line_name <- extract('^([a-zA-Z0-9\\-_]*)', line)
+        if (length(line_name) > 0 && is_implicit_component(file_config, line_name)) {
+            # Implicit component
+            return(list(name = line_name, type = 'list', implicit = TRUE))
         }
 
-        # Switching to data mode
-        if (length(line) > 0 && is.data.frame(cur_comp)) {
+        # Is this a data table separator?
+        if (line == '; -- data --') {
+            return(list(name = '', type = 'data.frame'))
+        }
+
+        # Is this line a component separator?
+        x <- extract(paste(c(
+            bare_component_regex(file_config),
+            "^\\[(\\w+)\\]"), collapse = "|"), line)
+        x <- x[nzchar(x)]  # Throw away matches that didn't work
+        if (length(x) > 0) {
+            return(list(name = x[[1]], type = 'list'))
+        }
+
+        # Is this line a subcomponent?
+        if (is_sub_component(file_config, line_name)) {
+            return(list(
+                name = line_name,
+                type = 'list',
+                implicit = (line_name != line),  # i.e there's more data on this line
+                sub_component = TRUE))
+        }
+
+        # Nothing we understand, return default
+        return(default)
+    }
+
+    read_component_header <- function (fh) {
+        line <- readLines(fh, n = 1)
+        if (is_eof(line)) {
+            stop("Reached EOF! Shouldn't do here")
+        }
+
+        # Is the current line a component separator? If not, it's the first component
+        header <- is_component_header(line, default = list(name = NULL, type = 'list', implicit = TRUE))
+
+        # If implicit, rewind so this line can be parsed again
+        if (isTRUE(header$implicit)) {
+            pushBack(line, fh)
+        }
+
+        return(header)
+    }
+
+    read_preamble <- function (fh) {
+        # Ingest comments until first 'real' line
+        preamble <- NULL
+        while(TRUE) {
+            line <- readLines(fh, n = 1)
+            if (is_eof(line)) {
+                return(preamble)
+            }
+
+            if(regexec('^; Generated by', line) > -1) {
+                # Ignore version preamble, since this will be replaced on output
+                next
+            }
+
+            comment <- extract("^;\\s*(.*)", line)
+            if (is.null(comment) || comment == "-- data --") {
+                # Reached a non-comment line, rewind so we re-ingest this line and return
+                pushBack(line, fh)
+                return(preamble)
+            } else {
+                # It's a comment, add it to heap
+                if (is.null(preamble)) preamble <- list()
+                preamble <- c(preamble, comment)
+            }
+        }
+    }
+
+    read_component <- function (fh, reading_subcomponent = FALSE) {
+        # Read any preamble comments
+        comp_preamble <- read_preamble(fh)
+        # Read component header
+        comp_header <- read_component_header(fh)
+
+        if (comp_header$type == 'data.frame') {
+            # Rest of file is a data.frame
+            line <- readLines(fh, n = 1)
             header <- strsplit(line, "\\s")[[1]]
             if(length(header) < 2) stop(paste("Not enough parts in data header", header))
             header <- header[2:length(header)]  # Remove initial ';'
-            cur_comp <- read.table(file,
+            cur_comp <- read.table(fh,
                 header=FALSE,
                 quote = "",
                 sep = "\t",
                 col.names = header,
                 fileEncoding = fileEncoding)
-            attr(cur_comp, 'preamble') <- cur_preamble
+            attr(cur_comp, 'preamble') <- comp_preamble
             cur_preamble <- list()
-            next
-        }
-
-        # Start of new component / end of file
-        x <- extract(paste(c(
-            if(isTRUE(file_config$bare_component)) "^(\\w+)$" else NULL,
-            "^; -- (data) --$",
-            "^\\[(\\w+)\\]"), collapse = "|"), line)
-        x <- x[nzchar(x)]  # Throw away matches that didn't work
-        if (length(line) == 0 || length(x) > 0) {
-            # Put old component on heap
-            component_names[[length(component_names) + 1]] <- comp_name
-            components[[length(components) + 1]] <- cur_comp
-
-            if (length(line) == 0) {
-                # End of file, finish now.
-                break
-            } else if (x[[1]] == 'data') {
-                comp_name <- ""
-                cur_comp <- data.frame()
-            } else {
-                comp_name <- x[[1]]
-                cur_comp <- list()
-            }
-            next
-        }
-
-        # Add any full-line comments as a preamble
-        x <- extract("^;\\s*(.*)", line)
-        if (length(x) > 0) {
-            cur_preamble <- c(cur_preamble, list(x[[1]]))
-            next
-        }
-
-        # Any other line shoud be a tab seperated list
-        match <- extract("([a-zA-Z0-9\\-_]*)\\s+([^;]*);?\\s*(.*)", line)
-        line_name <- match[[1]]
-        line_values <- if (length(match[[2]]) > 0) unlist(strsplit(sub("\\s+$", "", match[[2]]), "\\t+")) else c()
-        line_comment <- match[[3]]
-
-        # This might be an implicit component, if so start a new component but carry on parsing
-        if (is_implicit_component(file_config, line_name)) {
-            # Put old component on heap
-            component_names[[length(component_names) + 1]] <- comp_name
-            components[[length(components) + 1]] <- cur_comp
-
-            comp_name <- line_name
+            close(fh)  # Should have read entire file at this point
+        } else {
+            # Read component as list
             cur_comp <- list()
+            while(TRUE) {
+                if (!is_open(fh)) break
+                line_preamble <- read_preamble(fh)
+                line <- readLines(fh, n = 1)
+
+                if (is_eof(line)) {
+                    # We're done here.
+                    close(fh)
+                    break
+                }
+
+                # Break up line into name\tvalues...; comment
+                match <- extract("([a-zA-Z0-9\\-_]*)\\s*([^;]*);?\\s*(.*)", line)
+                line_name <- match[[1]]
+                line_values <- if (length(match[[2]]) > 0) unlist(strsplit(sub("\\s+$", "", match[[2]]), "\\t+")) else c()
+                line_values <- tryCatch(as.numeric(line_values), warning = function (w) line_values)
+                line_comment <- if (length(match[[3]]) > 0 && nzchar(match[[3]])) match[[3]] else NULL
+
+                line_comp <- is_component_header(line)
+                if (!isTRUE(comp_header$implicit) && is.list(line_comp)) {
+                    # Rewind to before preamble
+                    if (length(line_preamble) > 0) {
+                        pushBack(c(paste("; ", unlist(line_preamble)), line), fh)
+                    } else {
+                        pushBack(line, fh)
+                    }
+
+                    if (!reading_subcomponent && isTRUE(line_comp$sub_component)) {
+                        line_values <- read_component(fh, reading_subcomponent = TRUE)$component
+                        if (isTRUE(all.equal(names(line_values), line_name))) {
+                            # sub-component with only one value, so smoosh it down to a regular line
+                            # (i.e. it's not really a sub-component, but used to signify the end of one)
+                            line_values <- line_values[[1]]
+                        }
+                    } else {
+                        break
+                    }
+                }
+                comp_header$implicit <- FALSE  # Moved on from implicit component, so check on following rounds
+
+                # If this is a reference to a gadget_file, read it in
+                if (recursive && grepl("^amount$|file$", line_name) && class(line_values) == "character" && length(line_values) == 1) {  # NB: Can't have a vector of gadgetfile
+                    line_values <- read.gadget.file(
+                        path,
+                        line_values,
+                        file_type = "generic",
+                        fileEncoding = fileEncoding,
+                        missingOkay = FALSE)
+                }
+
+                cur_comp <- list_append(cur_comp, line_name, structure(line_values, preamble = line_preamble, comment = line_comment))
+            }
         }
 
-        if (length(line_name) > 0) {
-            # Started writing items, so must have got to the end of the preamble
-            if (length(cur_preamble) > 0) {
-                attr(cur_comp, 'preamble') <- cur_preamble
-                cur_preamble <- list()
-            }
+        return(list(
+            name = comp_header$name,
+            component = structure(cur_comp, preamble = comp_preamble)))
+    }
 
-            # Append to cur_comp
-            cur_comp[[length(cur_comp) + 1]] <- structure(
-                tryCatch(as.numeric(line_values), warning = function (w) line_values),
-                comment = (if (nzchar(line_comment)) line_comment else NULL))
-            names(cur_comp)[[length(cur_comp)]] <- line_name
-            next
+    # Open file
+    open_file <- function(full_path) {
+        # Open file if we can, or return NULL
+        if (!is_readable(full_path)) return(NULL)
+        return(file(full_path, "rt", encoding = fileEncoding))
+    }
+    variant_dir <- attr(path, 'variant_dir')
+    fh <- NULL
+    if (isTRUE(nzchar(variant_dir))) {
+        # Try opening the file in a variant directory first
+        file_name <- variant_strip_path(variant_dir, file_name)
+        fh <- open_file(file.path(path, variant_dir, file_name))
+    }
+    if (is.null(fh)) {
+        # No variant dir (or file doesn't have variant version yet)
+        fh <- open_file(file.path(path, file_name))
+    }
+    if (is.null(fh)) {
+        # Still haven't found anything to read
+        if (isTRUE(missingOkay)) {
+            return(gadgetfile(file_name, file_type = file_type))
+        } else {
+            stop("File ", variant_dir, file_name, " does not exist")
         }
     }
-    gadgetfile(
-        file_name = basename(file_name),
+
+    # Read compoments until our file gets closed
+    components <- list()
+    while(is_open(fh)) {
+        comp <- read_component(fh)
+        components <- list_append(components, comp$name, comp$component)
+    }
+
+    # Make a gadgetfile object out of it
+    return(gadgetfile(
+        file_name = file_name,
         file_type = file_type,
-        components = structure(components, names = component_names))
+        components = components))
 }
 
 # For each option, make sure values contained are in main file
@@ -352,10 +576,10 @@ gadget_mainfile_update <- function (
     }
 
     # Read file, create basic outline if doesn't exist
-    mfile <- read.gadget.file(path, mainfile, file_type = 'main', fileEncoding = fileEncoding, missingOkay = TRUE)
+    mfile <- read.gadget.file(path, mainfile, file_type = 'main', fileEncoding = fileEncoding, missingOkay = TRUE, recursive = FALSE)
     if (length(mfile) == 0) {
         mfile <- gadgetfile(mainfile, file_type = 'main', components = list(
-            list(timefile = "", areafile = "", printfiles = structure(c(), comment = "Required comment")),
+            list(timefile = NA, areafile = NA, printfiles = structure(c(), comment = "Required comment")),
             stock = list(),
             tagging = list(),
             otherfood = list(),
@@ -378,5 +602,5 @@ gadget_mainfile_update <- function (
     mfile$likelihood$likelihoodfiles <- swap(mfile$likelihood$likelihoodfiles, likelihoodfiles)
 
     # Write file back out again
-    if (made_change) write.gadget.file(mfile, path)
+    if (made_change) write.gadget.file(mfile, path, recursive = FALSE)
 }
