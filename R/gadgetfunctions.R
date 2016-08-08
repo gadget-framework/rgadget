@@ -1700,7 +1700,8 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
                                          number = sprintf('(* (* 0.0001 #%s.rec.%s ) %s)',
                                                           x@stockname,year, 
                                                           tmp$rec.scalar*tmp$rec.ratio)) %>% 
-                           dplyr::select_(.dots = names(x@renewal.data)))
+                           dplyr::select_(.dots = names(x@renewal.data))) %>% 
+        as.data.frame()
     }
     gadget_dir_write(gd,x)
   })
@@ -1728,22 +1729,28 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
   out <- list(
     lw = ldply(unique(fleet$prey$stock),
                function(x){
-                 numsteps <- nrow(subset(getTimeSteps(time),step==1))
-                 tmp <- read.table(sprintf('%s/out/%s.lw',pre,x),
-                                   comment.char = ';')
+                 numsteps <- 
+                   nrow(subset(getTimeSteps(time),step==1))
+                 tmp <- 
+                   read.table(sprintf('%s/out/%s.lw',pre,x),
+                              comment.char = ';')
                  file.remove(sprintf('%s/out/%s.lw',pre,x))
-                 names(tmp) <-  c('year', 'step', 'area', 'age',
-                                  'length', 'number', 'weight')
+                 names(tmp) <-  
+                   c('year', 'step', 'area', 'age',
+                     'length', 'number', 'weight')
                  tmp$stock <- x
                  if(num.trials > 1){
-                   tmp2 <- length(unique(tmp$area))*numsteps*
+                   tmp2 <- 
+                     length(unique(tmp$area))*numsteps*
                      length(unique(tmp$length))
                    
-                   tmp <- cbind(trial = as.factor(rep(1:num.trials,each = tmp2)),
-                                effort = as.factor(rep(effort,each = tmp2*num.trials)),
-                                tmp)
+                   tmp <- 
+                     cbind(trial = as.factor(rep(1:num.trials, each = length(effort)*tmp2)),#as.factor(rep(trials.tmp,each = nrow(tmp)/length(trials.tmp))),
+                           effort = as.factor(rep(effort,each=tmp2,num.trials)),
+                           tmp)
                  } else {
-                   tmp2 <- length(unique(tmp$area))*numsteps*
+                   tmp2 <- 
+                     length(unique(tmp$area))*numsteps*
                      length(unique(tmp$length))
                    
                    tmp$trial <- as.factor(1)
@@ -1764,6 +1771,8 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
       ldply(unique(fleet$prey$stock),
             function(x){
               numsteps <- nrow(getTimeSteps(time))
+              trials.tmp <- rep(1:num.trials,each=length(effort))
+              
               tmp <-
                 read.table(sprintf('%s/out/catch.%s.lw',pre,x),
                            comment.char = ';')
@@ -1775,12 +1784,13 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
               
               if((num.trials > 1) | (length(effort)>1)) {
                 
-                tmp2 <- length(unique(tmp$area))*
+                tmp2 <- 
+                  length(unique(tmp$area))*
                   numsteps
                 
                 tmp <-
-                  cbind(trial=as.factor(rep(1:num.trials,each = tmp2)),
-                        effort = as.factor(rep(effort,each = tmp2*num.trials)),
+                  cbind(trial = as.factor(rep(1:num.trials, each = length(effort)*tmp2)),#as.factor(rep(trials.tmp,each = nrow(tmp)/length(trials.tmp))),
+                        effort = as.factor(rep(effort, each=tmp2,num.trials)),
                         tmp)
               } else {
                 tmp$trial <- as.factor(1)

@@ -4,14 +4,14 @@
 \alias{write.gadget.file}
 \title{Write gadgetfile to disk, including any dependant files, and update the mainfile}
 \usage{
-write.gadget.file(obj, path, mainfile = "main")
+write.gadget.file(obj, path, recursive = TRUE)
 }
 \arguments{
 \item{obj}{gadgetfile object to write}
 
 \item{path}{Base directory to write out to}
 
-\item{mainfile}{The name of the directories mainfile (or NULL to disable mainfile updating)}
+\item{recursive}{Write out all nested files too (default TRUE)?}
 }
 \description{
 Write gadgetfile to disk, including any dependant files, and update the mainfile

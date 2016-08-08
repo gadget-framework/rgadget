@@ -1877,11 +1877,12 @@ get.gadget.recruitment <- function(stocks,params,collapse=TRUE){
         dplyr::mutate(stock = x@stockname,
                       recruitment = 1e4*unlist(eval.gadget.formula(number,params))) %>% 
         dplyr::select(stock,year,step,recruitment) %>% 
-        na.omit()
+        na.omit() 
       if(collapse){
         tmp %>% 
           dplyr::group_by(stock,year) %>% 
-          dplyr::summarise(recruitment=sum(recruitment))
+          dplyr::summarise(recruitment=sum(recruitment)) %>% 
+          as.data.frame()
       } else{
         tmp
       }
