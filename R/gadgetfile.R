@@ -433,20 +433,44 @@ read.gadget.file <- function(path, file_name, file_type = "generic", fileEncodin
         comp_header <- read_component_header(fh)
 
         if (comp_header$type == 'data.frame') {
-            # Rest of file is a data.frame
+            # Component is a data.frame
             line <- readLines(fh, n = 1)
             header <- strsplit(line, "\\s")[[1]]
             if(length(header) < 2) stop(paste("Not enough parts in data header", header))
             header <- header[2:length(header)]  # Remove initial ';'
-            cur_comp <- read.table(fh,
+
+            # Read table into buffer
+            data_fifo <- file("")
+            while (TRUE) {
+                line_preamble <- read_preamble(fh)
+                line <- readLines(fh, n = 1)
+
+                if (is_eof(line)) {
+                    close(fh)
+                    break
+                }
+                if (is.list(is_component_header(line))) {
+                    # Rewind to before preamble
+                    if (length(line_preamble) > 0) {
+                        pushBack(c(paste("; ", unlist(line_preamble)), line), fh)
+                    } else {
+                        pushBack(line, fh)
+                    }
+                    break
+                }
+                writeLines(line, data_fifo)
+            }
+
+            # Re-read the buffer
+            cur_comp <- read.table(data_fifo,
                 header=FALSE,
                 quote = "",
                 sep = "\t",
                 col.names = header,
-                fileEncoding = fileEncoding)
+                fileEncoding = 'utf8')
             attr(cur_comp, 'preamble') <- comp_preamble
             cur_preamble <- list()
-            close(fh)  # Should have read entire file at this point
+            close(data_fifo)
         } else {
             # Read component as list
             cur_comp <- list()

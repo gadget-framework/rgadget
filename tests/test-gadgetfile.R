@@ -263,6 +263,32 @@ ok_group("Can read gadget files", {
             data.frame(col = as.integer(c(3,7,3)), colm = as.integer(c(5,5,2)), colt = as.integer(c(9,33,9)), coal = as.integer(c(3,3,4))),
             preamble = list("Preamble for data")))), "Data with preable")
 
+    # Double data
+    gf <- read.gadget.string(
+        ver_string,
+        "a\t99",
+        "; Preamble for data",
+        "; -- data --",
+        "; col\tcolm\tcolt\tcoal",
+        "3\t5\t9\t3",
+        "7\t5\t33\t3",
+        "3\t2\t9\t4",
+        "; -- data --",
+        "; a\tb\tc",
+        "1\t2\t3",
+        "1\t2\t3",
+        "1\t2\t3",
+        "[final]",
+        "moo\tyes",
+        file_type = "generic")
+    ok(cmp(unattr(gf), list(
+        list(a = 99),
+        structure(
+            data.frame(col = as.integer(c(3,7,3)), colm = as.integer(c(5,5,2)), colt = as.integer(c(9,33,9)), coal = as.integer(c(3,3,4))),
+            preamble = list("Preamble for data")),
+        data.frame(a = as.integer(c(1,1,1)), b = as.integer(c(2,2,2)), c = as.integer(c(3,3,3))),
+        final = list(moo = 'yes'))), "Double data frames")
+
     # Blank preamble lines get preserved
     test_loopback(
         ver_string,
