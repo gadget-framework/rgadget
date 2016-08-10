@@ -129,13 +129,15 @@ bare_component_regex <- function(config) {
 #' @param ...	unused
 #' @export
 print.gadgetfile <- function (x, ...) {
-    preamble_str <- function (obj) {
-        lines <- as.list(attr(obj, 'preamble'))
-        if (length(lines) > 0) paste0("; ", lines, "\n", collapse = "") else ""
+    print_comments <- function (obj, name='preamble') {
+        lines <- as.list(attr(obj, name))
+        if (length(lines) > 0) {
+            cat(paste0("; ", lines, "\n", collapse = ""))
+        }
     }
     print_component <- function (comp, name, file_config) {
         # Print all preambles as comments
-        cat(preamble_str(comp))
+        print_comments(comp, 'preamble')
 
         if (!is.character(name) || !nzchar(name)) {
             # No name, do nothing
@@ -160,7 +162,7 @@ print.gadgetfile <- function (x, ...) {
         } else if (is.list(comp)) {
             # properties are in key\tvalue1\tvalue2... form
             for (i in seq_len(length(comp))) {
-                cat(preamble_str(comp[[i]]))
+                print_comments(comp[[i]], 'preamble')
                 cat(names(comp)[[i]])
                 trailing_str <- "\n"
                 if (length(comp[[i]]) == 1 && is.na(comp[[i]])) {
@@ -189,10 +191,13 @@ print.gadgetfile <- function (x, ...) {
                     cat("; ", attr(comp[[i]], "comment"), sep = "")
                 }
                 cat(trailing_str)
+                print_comments(comp[[i]], 'postamble')
             }
         } else {
             stop("Type of component, ", name, " unknown")
         }
+
+        print_comments(comp, 'postamble')
     }
 
     # Print header to top of file
@@ -431,6 +436,7 @@ read.gadget.file <- function(path, file_name, file_type = "generic", fileEncodin
         comp_preamble <- read_preamble(fh)
         # Read component header
         comp_header <- read_component_header(fh)
+        comp_postamble <- NULL
 
         if (comp_header$type == 'data.frame') {
             # Component is a data.frame
@@ -447,6 +453,7 @@ read.gadget.file <- function(path, file_name, file_type = "generic", fileEncodin
 
                 if (is_eof(line)) {
                     close(fh)
+                    comp_postamble <- line_preamble
                     break
                 }
                 if (is.list(is_component_header(line))) {
@@ -482,6 +489,7 @@ read.gadget.file <- function(path, file_name, file_type = "generic", fileEncodin
                 if (is_eof(line)) {
                     # We're done here.
                     close(fh)
+                    comp_postamble <- line_preamble
                     break
                 }
 
@@ -530,7 +538,10 @@ read.gadget.file <- function(path, file_name, file_type = "generic", fileEncodin
 
         return(list(
             name = comp_header$name,
-            component = structure(cur_comp, preamble = comp_preamble)))
+            component = structure(
+                cur_comp,
+                preamble = comp_preamble,
+                postamble = comp_postamble)))
     }
 
     # Open file

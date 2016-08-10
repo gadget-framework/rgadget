@@ -320,6 +320,46 @@ ok_group("Can read gadget files", {
         "a\t46\t\t; This is a comment at the end of a line",
         "a\t46\t47\t48\t49\t\t; This is a comment at the end of multiple values",
         "a\t; This is a comment at the end of an empty line")
+
+    # Can read comments at the end of a file
+    gf <- read.gadget.string(
+        ver_string,
+        "a\t99",
+        "; Preamble for data",
+        "; -- data --",
+        "; col\tcolm\tcolt\tcoal",
+        "3\t5\t9\t3",
+        "7\t5\t33\t3",
+        "3\t2\t9\t4",
+        "[final]",
+        "; preamble for line",
+        "moo\tyes",
+        "; postamble for entire file",
+        "; The only way you can get one",
+        file_type = "generic")
+    ok(cmp(unattr(gf), list(
+        list(a = 99),
+        structure(
+            data.frame(col = as.integer(c(3,7,3)), colm = as.integer(c(5,5,2)), colt = as.integer(c(9,33,9)), coal = as.integer(c(3,3,4))),
+            preamble = list("Preamble for data")),
+        final = structure(
+            list(moo = structure('yes', preamble = list("preamble for line"))),
+            postamble = list("postamble for entire file", "The only way you can get one"))
+        )), "File postamble")
+    test_loopback(
+        ver_string,
+        "a\t99",
+        "; Preamble for data",
+        "; -- data --",
+        "; col\tcolm\tcolt\tcoal",
+        "3\t5\t9\t3",
+        "7\t5\t33\t3",
+        "3\t2\t9\t4",
+        "[final]",
+        "; preamble for line",
+        "moo\tyes",
+        "; postamble for entire file",
+        "; The only way you can get one")
 })
 
 ok_group("Bare component labels", {
