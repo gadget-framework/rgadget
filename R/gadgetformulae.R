@@ -1,5 +1,5 @@
 ##' @title Parse a GADGET formulae string
-##' @param A single formulae string, e.g. "(+ 2 (log (- #moo 1)))"
+##' @param input_formulae A single formulae string, e.g. "(+ 2 (log (- #moo 1)))"
 ##' @return An R expression representing the gadget formulae, which could be run with \code{eval(.., list(moo = 3))}
 ##' @export
 parse.gadget.formulae <- function(input_formulae) {
@@ -61,8 +61,8 @@ parse.gadget.formulae <- function(input_formulae) {
 }
 
 ##' @title Turn R expression into GADGET formulae string
-##' @param An unevaluated R expression, e.g. quote(2 + log(moo - 1))
-##' @return A character vector representing the GADGET formulae
+##' @param ex An unevaluated R expression, e.g. quote(2 + log(moo - 1))
+##' @return A character vector representing the GADGET formulae, e.g. "(+ 2 (log (- #moo 1)))"
 ##' @export
 to.gadget.formulae <- function(ex) {
     if (is.name(ex)) {
