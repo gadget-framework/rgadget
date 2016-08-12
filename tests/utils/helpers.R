@@ -31,6 +31,9 @@ cmp_error <- function(exp, expected_regexp) {
     msg <- tryCatch({exp ; "No error returned"}, error = function(e) e$message)
     if(grepl(expected_regexp, msg)) TRUE else paste0("'", msg, "' should contain '", expected_regexp, "'")
 }
+cmp_str <- function(exp, expected_str) {
+    cmp(capture.output(str(exp)), expected_str)
+}
 
 # Read all files in a directory
 dir_list <- function (dir) {
