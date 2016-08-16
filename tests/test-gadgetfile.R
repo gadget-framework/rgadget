@@ -215,7 +215,7 @@ ok_group("Can read gadget files", {
         "; So is this",
         "[carrots]",
         "; This is a line preamble",
-        "like\tYes I do",
+        "like\tYes-I-do",
         "; Not this",
         "[carrots]",
         "like\tNo thanks",
@@ -225,10 +225,10 @@ ok_group("Can read gadget files", {
         list(
             structure(list(a = 6, b = 8), preamble = list("This is a comment that should be preserved")),
             carrots = structure(
-                list(like = structure("Yes I do", preamble = list("This is a line preamble"))),
+                list(like = structure("Yes-I-do", preamble = list("This is a line preamble"))),
                 preamble = list("This is a comment associated with the component below", "So is this")),
             carrots = structure(
-                list(like = "No thanks"),
+                list(like = c("No", "thanks")),
                 preamble = list("Not this")))), "Components / preamble read")
     # Make sure they get printed back too
     test_loopback(
@@ -240,10 +240,10 @@ ok_group("Can read gadget files", {
         "; So is this",
         "[carrots]",
         "; This is a line preamble",
-        "like\tYes I do",
+        "like\tYes-I-do",
         "; Not this",
         "[carrots]",
-        "like\tNo thanks",
+        "like\tNo\tthanks",
         file_type = "generic")
 
     # Data
@@ -288,6 +288,20 @@ ok_group("Can read gadget files", {
             preamble = list("Preamble for data")),
         data.frame(a = as.integer(c(1,1,1)), b = as.integer(c(2,2,2)), c = as.integer(c(3,3,3))),
         final = list(moo = 'yes'))), "Double data frames")
+
+    # Data with mangled spacing & formulae
+    gf <- read.gadget.string(
+        ver_string,
+        "; -- data --",
+        "; col\tcolm\tcolt\tcoal",
+        "3    5\t(9 10 (11 12)\t) 13",
+        file_type = "generic")
+    ok(cmp(unattr(gf), list(
+        data.frame(
+            col = as.integer(3),
+            colm = as.integer(5),
+            colt = "(9 10 (11 12) )",
+            coal = as.integer(13)))), "Data with mangled spacing & formulae")
 
     # Blank preamble lines get preserved
     test_loopback(
@@ -560,8 +574,8 @@ ok_group("Can read fleet files successfully", {
         "livesonareas\t1",
         "multiplicative\t1",
         "suitability",
-        "codimm\tfunction exponential    #acomm (* 0.01 #bcomm)  0 1",
-        "codmat\tfunction exponential    #acomm (* 0.01 #bcomm)  0 1",
+        "codimm\tfunction\texponential\t#acomm\t(* 0.01 #bcomm)\t0\t1",
+        "codmat\tfunction\texponential\t#acomm\t(* 0.01 #bcomm)\t0\t1",
         "amount\tData/cod.fleet.data",
         dir = path,
         file_type = "fleet")
@@ -573,7 +587,7 @@ ok_group("Can read fleet files successfully", {
         "livesonareas\t1",
         "multiplicative\t1",
         "suitability",
-        "codimm\tfunction exponential    #acomm (* 0.01 #bcomm)  0 1",
+        "codimm\tfunction exponential    #acomm (* 0.01 #bcomm)  0 1",  # NB: We don't use tabs here
         "codmat\tfunction exponential    #acomm (* 0.01 #bcomm)  0 1",
         "amount\tData/cod.fleet.data",
         "[fleetcomponent]",
@@ -592,8 +606,8 @@ ok_group("Can read fleet files successfully", {
             livesonareas = 1,
             multiplicative = 1,
             suitability = list(
-                codimm = "function exponential    #acomm (* 0.01 #bcomm)  0 1",
-                codmat = "function exponential    #acomm (* 0.01 #bcomm)  0 1"
+                codimm = c("function", "exponential", "#acomm", "(* 0.01 #bcomm)", "0", "1"),
+                codmat = c("function", "exponential", "#acomm", "(* 0.01 #bcomm)", "0", "1")
             ),
             amount = gadgetfile("Data/cod.fleet.data", components = list(comp = list(a=1)))
         ),
@@ -602,8 +616,8 @@ ok_group("Can read fleet files successfully", {
             livesonareas = 1,
             multiplicative = 1,
             suitability = list(
-                codimm = "function exponential    #acomm (* 0.05 #bcomm)  0 1",
-                codmat = "function exponential    #acomm (* 0.05 #bcomm)  0 1"
+                codimm = c("function", "exponential", "#acomm", "(* 0.05 #bcomm)", "0", "1"),
+                codmat = c("function", "exponential", "#acomm", "(* 0.05 #bcomm)", "0", "1")
             ),
             amount = gadgetfile("Data/cod.survey.data", components = list(comp = list(b=2)))
         )
@@ -716,4 +730,20 @@ ok_group("Variant directories", {
     ok(cmp(
         read.gadget.file(dir, "area.cabbage"),
         read.gadget.file(variant_dir, "similar/area.cabbage")), "Fall back to normal dir when using variant_dir")
+})
+
+ok_group("split_gadgetfile_line", {
+    split_gadgetfile_line <- Rgadget:::split_gadgetfile_line
+
+    ok(cmp(split_gadgetfile_line(""), c("")), "Empty string raises no errors")
+
+    ok(cmp(split_gadgetfile_line("a"), c("a")), "Single character works")
+
+    ok(cmp(split_gadgetfile_line("a\tb\tc\t(d (\te) ) f"), c(
+        "a",
+        "b",
+        "c",
+        "(d ( e) )",
+        "f",
+        NULL)), "Tabs inside expression converted to spaces")
 })

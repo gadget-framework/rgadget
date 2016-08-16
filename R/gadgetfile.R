@@ -5,6 +5,28 @@ get_filetype <- function (file_type) {
     lapply(as.list(t), function (x) if (is.factor(x)) as.character(x) else x)
 }
 
+# Split line whitespace-separated sections, keeping formulae together
+split_gadgetfile_line <- function (line) {
+    # Count the number of times (char) occurs in (string)
+    countchar <- function (string, char) {
+        vapply(regmatches(string, gregexpr(char, string, fixed = TRUE)), length, 0)
+    }
+    join_strings <- function (string) {
+        paste(string, collapse = " ")
+    }
+
+    # Split by any whitespace first
+    parts <- unlist(strsplit(line, "\\s+"))
+    # Compare count of opening brackets and closing brackets in parts
+    stack <- countchar(parts, "(") - countchar(parts, ")")
+    # 0 ==> part of an unclosed expression, 1 ==> combine with any previous 0 parts
+    stack <- c(1, ifelse(cumsum(stack) > 0, 0, 1))[1:length(stack)]
+    # Use this as a factor to split up the parts into groups of whole expressions
+    parts <- split(parts, cumsum(stack))
+    # Collapse groups back together
+    return(vapply(parts, join_strings, "", USE.NAMES = FALSE))
+}
+
 #' Construct a new gadgetfile S3 object
 #'
 #' Constructor for objects representing a gadget model input
@@ -465,6 +487,8 @@ read.gadget.file <- function(path, file_name, file_type = "generic", fileEncodin
                     }
                     break
                 }
+                # Sanitise spacing, make sure fields are tab-separated
+                line <- paste(split_gadgetfile_line(line), collapse = "\t")
                 writeLines(line, data_fifo)
             }
 
@@ -496,7 +520,7 @@ read.gadget.file <- function(path, file_name, file_type = "generic", fileEncodin
                 # Break up line into name\tvalues...; comment
                 match <- extract("([a-zA-Z0-9\\-_]*)\\s*([^;]*);?\\s*(.*)", line)
                 line_name <- match[[1]]
-                line_values <- if (length(match[[2]]) > 0) unlist(strsplit(sub("\\s+$", "", match[[2]]), "\\t+")) else c()
+                line_values <- if (nzchar(match[[2]])) split_gadgetfile_line(match[[2]]) else c()
                 line_values <- tryCatch(as.numeric(line_values), warning = function (w) line_values)
                 line_comment <- if (length(match[[3]]) > 0 && nzchar(match[[3]])) match[[3]] else NULL
 
