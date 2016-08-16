@@ -294,13 +294,13 @@ ok_group("Can read gadget files", {
         ver_string,
         "; -- data --",
         "; col\tcolm\tcolt\tcoal",
-        "3    5\t(9 10 (11 12)\t) 13",
+        "3    5\t(9 10 (#potato 12)\t) 13",
         file_type = "generic")
     ok(cmp(unattr(gf), list(
         data.frame(
             col = as.integer(3),
             colm = as.integer(5),
-            colt = "(9 10 (11 12) )",
+            colt = "(9 10 (#potato 12) )",
             coal = as.integer(13)))), "Data with mangled spacing & formulae")
 
     # Blank preamble lines get preserved

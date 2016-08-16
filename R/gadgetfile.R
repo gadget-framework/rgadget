@@ -498,6 +498,7 @@ read.gadget.file <- function(path, file_name, file_type = "generic", fileEncodin
                 quote = "",
                 sep = "\t",
                 col.names = header,
+                comment.char = "",
                 fileEncoding = 'utf8')
             attr(cur_comp, 'preamble') <- comp_preamble
             cur_preamble <- list()
