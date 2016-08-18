@@ -1,12 +1,11 @@
 Package: Rgadget
 Type: Package
-Title: Ecosystem simulator
-Version: 0.1
-Date: 2010-09-10
+Title: R package for Gadget models
+Version: 0.5
+Date: 2016-27-
 Author: Bjarki Thor Elvarsson
 Maintainer: Bjarki Thor Elvarsson <bthe@hafro.is>
-Description: Ecosystem simulator that reimplements some of the commonly used
-    routines in gadget (http://www.hafro.is/gadget/)
+Description: Companion R package for Gadget (Globally applicable area disagregated ecosystem toolbox)
 Depends:
     R (>= 2.11.1),
     ggplot2,
