@@ -1922,7 +1922,7 @@ gadget.retro <- function(path='.',main.file='main',params.file='params.in',
   
   for(year in 1:num.years){
     attributes(main)$file_name <- paste('main',year,sep='.') 
-    retrodir <- gadget.variant.dir(path,paste(pre,year,sep='.'),main = attributes(main)$file_name)
+    retrodir <- gadget.variant.dir(path, pre, main = attributes(main)$file_name)
     main[[1]]$timefile[[1]]$lastyear <- 
       main[[1]]$timefile[[1]]$lastyear - 1
     attributes(main[[1]]$timefile)$file_config$mainfile_section <- 'timefile'

@@ -389,3 +389,69 @@ agg_prop <- function (data, func_name) {
 }
 
 
+gadget_datatable <- function(type = 'renewal',format = 'normalparam',stockname = 'imm',
+                             growth = c(Linf='#%s.linf', k='(* 0.01 #%s.k )',
+                                        alpha = '#%s.walpha', beta='#%s.wbeta',
+                                        recl = '#%s.recl'),
+                             sigma = '#%s.recsd',
+                             ...){
+  if(!(type %in% c('renewal','initial'))){
+    stop('Type not supported. Allowed types are:\n- renewal\n- inital')
+  }
+  ## param names
+  if(type=='renewal'){
+    param <- 'rec'
+  } else {
+    param <- 'age'
+  }
+  
+  ## find age range
+  if(is.null(args$minage)){
+    stop('No minimum age given')
+  } else {
+    minage <- args$minage
+    if(is.null(args$maxage)){
+      maxage <- minage
+    }
+  }
+  
+  ## mean length at age
+  t0 <- sprintf('(+ %s (/ (log (- 1 (/ %s %s))) %s))',
+                rec.age,
+                sprinft(growth['recl'], stockname),
+                sprinft(growth['linf'], stockname),
+                sprinft(growth['k'], stockname))
+  
+  mu.string <- '( * %s (-  1 (exp (* (* -1 %s ) (- %s %s)))))'
+  mu <- sprintf(mu.string,
+                sprintf(growth['linf'], stockname),
+                sprintf(growth['k'], stockname),
+                minage:maxage,t0)
+  
+  ## stock multiplier (x1e4)
+  st.mult <- sprintf('(* %1$s.%2$s.mult #%1$s.%2$s.%%s)',stockname,param)
+  
+  if(type == 'initial'){
+    st.mult <- sprintf(st.mult,minage:maxage)
+    if(format == 'normalcond'){
+      data.frame(age = minage:maxage,
+                 area = 1,
+                 age.factor = st.mult,
+                 area.factor = 1,
+                 mean = mu,
+                 stddev = sigma,
+                 relcond = 1,
+                 stringsAsFactors = FALSE)
+    } else if(format == 'normalparam'){
+      data.frame(age = minage:maxage,
+                 area = 1,
+                 age.factor = st.mult,
+                 area.factor = 1,
+                 mean = mu,
+                 stddev = sigma,
+                 alpha = sprintf(growth['']),
+                 stringsAsFactors = FALSE)
+    }
+  }
+  
+}
