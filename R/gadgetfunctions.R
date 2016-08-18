@@ -1926,6 +1926,7 @@ gadget.retro <- function(path='.',main.file='main',params.file='params.in',
     main[[1]]$timefile[[1]]$lastyear <- 
       main[[1]]$timefile[[1]]$lastyear - 1
     attributes(main[[1]]$timefile)$file_config$mainfile_section <- 'timefile'
+    attributes(main[[1]]$timefile)$file_name <- paste('time',year,sep='.')
     write.gadget.file(main,retrodir,recursive = FALSE)
     write.gadget.file(main[[1]]$timefile,retrodir)
   }
