@@ -152,10 +152,10 @@ gadget_update.gadgetstock <- function(gf, component, ...) {
             growthfunction = 'lengthvbsimple',
             growthparameters = c(
                 linf = paste0('#', gf[[1]]$stockname, '.Linf'),
-                k = '( * 0.001 #k)',
-                '#walpha',
-                '#wbeta'),
-            beta = '(* 10 #bbin)',
+                k = sprintf('( * 0.001 #%s.k)',gf[[1]]$stockname),
+                sprintf('#%s.walpha',gf[[1]]$stockname),
+                sprintf('#wbeta',gf[[1]]$stockname)),
+            beta = sprintf('(* 10 #%s.bbin)',gf[[1]]$stockname),
             maxlengthgroupgrowth = 15)
 
     } else if (component == 1 && isTRUE(all.equal(names(args), c('data')))) {
@@ -223,7 +223,7 @@ gadget_update.gadgetstock <- function(gf, component, ...) {
             dl_length,
             gadgetdata(paste0('Modelfiles/', gf[[1]]$stockname, '.refwgt'), refwgt))
 
-    } else if (component == 'initialconditions' && isTRUE(all.equal(names(args), c('data')))) {
+    } else if (component == 'initialconditions' && isTRUE(all.equal(names(args), c('number')))) {
         data <- args$data
         for (col in c('area', 'age', 'length', 'number', 'mean')) {
             if (!(col %in% colnames(data))) {
@@ -253,8 +253,14 @@ gadget_update.gadgetstock <- function(gf, component, ...) {
             maturityfile = gadgetfile(
                 paste0('Modelfiles/', gf[[1]]$stockname, '.maturity'),
                 components = list(args[names(args) != 'maturityfunction'])))
-
-    } else if (component == 'doesrenew' && isTRUE(all.equal(names(args), c('number')))) {
+    } else if (component == 'doesmove') {
+      gf$doesmove <- list(
+        doesmature = 1,
+        transitionstockandratio = args$transitionstockandratio,
+        transitionstep = args$transitionstep)
+      
+    } else if (component == 'doesrenew') {
+      if(isTRUE(all.equal(names(args), c('number')))) {
         data <- args$number
         for (col in c('year', 'step', 'area', 'age', 'length', 'number', 'mean')) {
             if (!(col %in% colnames(data))) {
@@ -270,14 +276,68 @@ gadget_update.gadgetstock <- function(gf, component, ...) {
             length = unlist(agg_prop(attr(data, 'length')[data$length], "min")), # Grouping -> minimum value
             number = data$number,
             weight = data$mean,  # Assuming it's mean weight here
-            stringsAsFactors = TRUE)
+            stringsAsFactors = FALSE)
         gf$doesrenew <- list(
             doesrenew = 1,
             minlength = min(unlist(agg_prop(attr(data, 'length'), "min"))),
             maxlength = max(unlist(agg_prop(attr(data, 'length'), "max"))),
             dl = min(unlist(agg_prop(attr(data, 'length'), "diff"))),
             numberfile = gadgetdata(paste0('Modelfiles/', gf[[1]]$stockname, '.rec.number'), numberfile))
-
+        
+      } else if (isTRUE(all.equal(names(args), c('normalcond')))) {
+          data <- args$normalcond
+          for (col in c('year', 'step', 'area', 'age', 'number', 'mean', 'stddev', 'relcond')) {
+            if (!(col %in% colnames(data))) {
+              stop("Data missing column ", col)
+            }
+          }
+          
+          numberfile <- data.frame(
+            year = data$year,
+            step = data$step,
+            area = data$area,
+            age = data$age,
+            number = data$number,
+            mean = data$mean,  
+            stddev = data$stddev,
+            relcond = data$relcond,
+            stringsAsFactors = FALSE)
+          gf$doesrenew <- list(
+            doesrenew = 1,
+            minlength = ifelse(is.null(args$minlength),gf[[1]]$minlength,args$minlength),
+            maxlength = ifelse(is.null(args$maxlength),gf[[1]]$maxlength,args$maxlength),
+            dl = ifelse(is.null(args$dl),gf[[1]]$dl,args$dl),
+            numberfile = gadgetdata(paste0('Modelfiles/', gf[[1]]$stockname, '.rec.normalcond'), numberfile))
+      
+      } else if (isTRUE(all.equal(names(args), c('normalparam')))) {
+        data <- args$normalparam
+        for (col in c('year', 'step', 'area', 'age', 'number', 'mean', 'stddev', 'alpha','beta')) {
+          if (!(col %in% colnames(data))) {
+            stop("Data missing column ", col)
+          }
+        }
+        
+        numberfile <- data.frame(
+          year = data$year,
+          step = data$step,
+          area = data$area,
+          age = data$age,
+          number = data$number,
+          mean = data$mean,  
+          stddev = data$stddev,
+          alpha = data$alpha,
+          beta = data$beta,
+          stringsAsFactors = FALSE)
+        gf$doesrenew <- list(
+          doesrenew = 1,
+          minlength = ifelse(is.null(args$minlength),gf[[1]]$minlength,args$minlength),
+          maxlength = ifelse(is.null(args$maxlength),gf[[1]]$maxlength,args$maxlength),
+          dl = ifelse(is.null(args$dl),gf[[1]]$dl,args$dl),
+          numberfile = gadgetdata(paste0('Modelfiles/', gf[[1]]$stockname, '.rec.normalparam'), numberfile))
+      } else {
+        stop("No recruiment scheme found - allowed options are:\n- number\n- normalcond\n- normalparam")
+      }
+      
     } else if (component == 'naturalmortality') {
         # Assume size of age groups is 1
         extra_age_groups <- gf[[1]]$maxage - gf[[1]]$minage + 1 - length(args[[1]])
@@ -327,3 +387,5 @@ agg_prop <- function (data, func_name) {
 
     lapply(as.list(data), function (d) get_prop(d, func_name))
 }
+
+

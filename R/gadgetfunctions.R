@@ -1901,6 +1901,51 @@ gadget.bootforward <- function(years = 20,
 }
 
 
+#' gadget.retro
+#'
+#' @param path 
+#' @param main.file 
+#' @param params.file 
+#' @param optinfo.file 
+#' @param num.years 
+#' @param pre 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+gadget.retro <- function(path='.',main.file='main',params.file='params.in',
+                         optinfo.file='optinfofile',num.years=5,
+                         pre = 'RETRO'){
+  
+  main <- read.gadget.file(path,main.file,file_type = 'main')
+  
+  for(year in 1:num.years){
+    attributes(main)$file_name <- paste('main',year,sep='.') 
+    retrodir <- gadget.variant.dir(path,paste(pre,year,sep='.'),main = attributes(main)$file_name)
+    main[[1]]$timefile[[1]]$lastyear <- 
+      main[[1]]$timefile[[1]]$lastyear - 1
+    attributes(main[[1]]$timefile)$file_config$mainfile_section <- 'timefile'
+    write.gadget.file(main,retrodir,recursive = FALSE)
+    write.gadget.file(main[[1]]$timefile,retrodir)
+  }
+  
+  run.func <- function(x){
+    callGadget(l = 1,
+               main = sprintf('%s/main.%s',pre,x),
+               i = params.file,
+               p = sprintf('%s/params.retro.%s',pre,x),
+               opt = optinfo.file)
+    callGadget(s = 1,
+               main = sprintf('%s/main.%s',pre,x),
+               i = sprintf('%s/params.retro.%s',pre,x),
+               o = sprintf('%s/lik.retro.%s',pre,x))
+    
+  }
+  mclapply(1:num.years,run.func, mc.cores = detectCores(logical = TRUE))
+}
+
+
 expL50 <- function(l50,b,l){
   1/(1+exp(-b*(l-l50)))
 }
