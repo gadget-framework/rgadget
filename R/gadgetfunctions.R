@@ -1700,7 +1700,8 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
                                          number = sprintf('(* (* 0.0001 #%s.rec.%s ) %s)',
                                                           x@stockname,year, 
                                                           tmp$rec.scalar*tmp$rec.ratio)) %>% 
-                           dplyr::select_(.dots = names(x@renewal.data)))
+                           dplyr::select_(.dots = names(x@renewal.data))) %>% 
+        as.data.frame()
     }
     gadget_dir_write(gd,x)
   })
@@ -1728,22 +1729,28 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
   out <- list(
     lw = ldply(unique(fleet$prey$stock),
                function(x){
-                 numsteps <- nrow(subset(getTimeSteps(time),step==1))
-                 tmp <- read.table(sprintf('%s/out/%s.lw',pre,x),
-                                   comment.char = ';')
+                 numsteps <- 
+                   nrow(subset(getTimeSteps(time),step==1))
+                 tmp <- 
+                   read.table(sprintf('%s/out/%s.lw',pre,x),
+                              comment.char = ';')
                  file.remove(sprintf('%s/out/%s.lw',pre,x))
-                 names(tmp) <-  c('year', 'step', 'area', 'age',
-                                  'length', 'number', 'weight')
+                 names(tmp) <-  
+                   c('year', 'step', 'area', 'age',
+                     'length', 'number', 'weight')
                  tmp$stock <- x
                  if(num.trials > 1){
-                   tmp2 <- length(unique(tmp$area))*numsteps*
+                   tmp2 <- 
+                     length(unique(tmp$area))*numsteps*
                      length(unique(tmp$length))
                    
-                   tmp <- cbind(trial = as.factor(rep(1:num.trials,each = tmp2)),
-                                effort = as.factor(rep(effort,each = tmp2*num.trials)),
-                                tmp)
+                   tmp <- 
+                     cbind(trial = as.factor(rep(1:num.trials, each = length(effort)*tmp2)),#as.factor(rep(trials.tmp,each = nrow(tmp)/length(trials.tmp))),
+                           effort = as.factor(rep(effort,each=tmp2,num.trials)),
+                           tmp)
                  } else {
-                   tmp2 <- length(unique(tmp$area))*numsteps*
+                   tmp2 <- 
+                     length(unique(tmp$area))*numsteps*
                      length(unique(tmp$length))
                    
                    tmp$trial <- as.factor(1)
@@ -1764,6 +1771,8 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
       ldply(unique(fleet$prey$stock),
             function(x){
               numsteps <- nrow(getTimeSteps(time))
+              trials.tmp <- rep(1:num.trials,each=length(effort))
+              
               tmp <-
                 read.table(sprintf('%s/out/catch.%s.lw',pre,x),
                            comment.char = ';')
@@ -1775,12 +1784,13 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
               
               if((num.trials > 1) | (length(effort)>1)) {
                 
-                tmp2 <- length(unique(tmp$area))*
+                tmp2 <- 
+                  length(unique(tmp$area))*
                   numsteps
                 
                 tmp <-
-                  cbind(trial=as.factor(rep(1:num.trials,each = tmp2)),
-                        effort = as.factor(rep(effort,each = tmp2*num.trials)),
+                  cbind(trial = as.factor(rep(1:num.trials, each = length(effort)*tmp2)),#as.factor(rep(trials.tmp,each = nrow(tmp)/length(trials.tmp))),
+                        effort = as.factor(rep(effort, each=tmp2,num.trials)),
                         tmp)
               } else {
                 tmp$trial <- as.factor(1)
@@ -1888,6 +1898,52 @@ gadget.bootforward <- function(years = 20,
 
   save(out,file=sprintf('%s/bsforward.RData',bs.wgts))
   return(out)
+}
+
+
+#' gadget.retro
+#'
+#' @param path 
+#' @param main.file 
+#' @param params.file 
+#' @param optinfo.file 
+#' @param num.years 
+#' @param pre 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+gadget.retro <- function(path='.',main.file='main',params.file='params.in',
+                         optinfo.file='optinfofile',num.years=5,
+                         pre = 'RETRO'){
+  
+  main <- read.gadget.file(path,main.file,file_type = 'main')
+  
+  for(year in 1:num.years){
+    attributes(main)$file_name <- paste('main',year,sep='.') 
+    retrodir <- gadget.variant.dir(path, pre, main = attributes(main)$file_name)
+    main[[1]]$timefile[[1]]$lastyear <- 
+      main[[1]]$timefile[[1]]$lastyear - 1
+    attributes(main[[1]]$timefile)$file_config$mainfile_section <- 'timefile'
+    attributes(main[[1]]$timefile)$file_name <- paste('time',year,sep='.')
+    write.gadget.file(main,retrodir,recursive = FALSE)
+    write.gadget.file(main[[1]]$timefile,retrodir)
+  }
+  
+  run.func <- function(x){
+    callGadget(l = 1,
+               main = sprintf('%s/main.%s',pre,x),
+               i = params.file,
+               p = sprintf('%s/params.retro.%s',pre,x),
+               opt = optinfo.file)
+    callGadget(s = 1,
+               main = sprintf('%s/main.%s',pre,x),
+               i = sprintf('%s/params.retro.%s',pre,x),
+               o = sprintf('%s/lik.retro.%s',pre,x))
+    
+  }
+  mclapply(1:num.years,run.func, mc.cores = detectCores(logical = TRUE))
 }
 
 
