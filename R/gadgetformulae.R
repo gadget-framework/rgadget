@@ -76,9 +76,15 @@ to.gadget.formulae <- function(ex) {
     }
 
     if (is.call(ex)) {
-        # Function call, write out in RPN
         ex_fn <- as.character(ex[[1]])
         ex_args <- if (length(ex) > 1) as.list(ex[2:length(ex)]) else list()
+
+        if (ex_fn == "(" && length(ex_args) == 1) {
+            # Pass over R's explicit bracket "function"
+            return(to.gadget.formulae(ex_args[[1]]))
+        }
+
+        # Function call, write out in RPN
         return(paste0(
             "(", ex[[1]], " ",
             paste(lapply(ex_args, to.gadget.formulae), collapse = " "),
@@ -86,4 +92,9 @@ to.gadget.formulae <- function(ex) {
     }
 
     stop("Don't know what to do with: ", capture.output(str(ex)))
+}
+
+# Characters look like a gadget formulae
+possible.gadget.formulae <- function(x) {
+    grepl("^\\s*\\(.*\\)\\s*$", x)
 }

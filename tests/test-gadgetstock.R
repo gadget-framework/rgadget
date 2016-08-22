@@ -16,10 +16,26 @@ read.gadget.string <- function(..., file_type = "generic") {
 ok_group("Can create new stocks with some default content", {
     path <- tempfile()
 
+    # MFDB data should look roughly like this
+    data <- structure(
+        data.frame(
+            year = 1998,
+            step = 1,
+            area = rep(c('A', 'B'), each = 4, times = 1),
+            age = rep(c('1', '9'), each = 1, times = 4),
+            length = rep(c('len100', 'len200'), each = 1, times = 4),
+            number = 10:17,
+            mean = 20:27,
+            stringsAsFactors = TRUE),
+        area = list(A = 1:3, B = 4:6),
+        length = list(
+            len100 = structure(call("seq", 100, 200 - 1), min = 100, max = 200),
+            len200 = structure(call("seq", 200, 300 - 1), min = 200, max = 300)))
+
     gadgetstock('codimm', path, missingOkay = TRUE) %>%  # Create a skeleton if missing
         gadget_update('stock', minage = 2, maxage = 4) %>%
         gadget_update('doeseat', maxconsumption = 100, halffeedingvalue = 70) %>%
-        gadget_update('doesrenew', minlength = 2, maxlength = 4, dl = 1) %>%
+        gadget_update('doesrenew', number = data) %>%
         write.gadget.file(path)
     ok(cmp(dir_list(path), list(
         codimm = c(
@@ -33,13 +49,13 @@ ok_group("Can create new stocks with some default content", {
             "dl\t",
             "refweightfile\t",
             "growthandeatlengths\t",
-            "doesgrow\t1", "growthfunction\tlengthvbsimple", "growthparameters\t#codimm.Linf\t( * 0.001 #k)\t#walpha\t#wbeta", "beta\t(* 10 #bbin)", "maxlengthgroupgrowth\t15",
+            "doesgrow\t1", "growthfunction\tlengthvbsimple", "growthparameters\t#codimm.Linf\t(* 0.001 #codimm.k)\t#codimm.walpha\t#wbeta", "beta\t(* 10 #codimm.bbin)", "maxlengthgroupgrowth\t15",
             "naturalmortality\t0.2\t0.2\t0.2",
             "iseaten\t0",
             "doeseat\t1", "maxconsumption\t100", "halffeedingvalue\t70",
             "initialconditions",
             "doesmigrate\t0", "doesmature\t0", "doesmove\t0",
-            "doesrenew\t1", "minlength\t2", "maxlength\t4", "dl\t1",
+            "doesrenew\t1", "minlength\t100", "maxlength\t300", "dl\t100", "numberfile\tModelfiles/codimm.rec.number",
             "doesspawn\t0", "doesstray\t0",
         NULL),
         main = c(
@@ -53,6 +69,19 @@ ok_group("Can create new stocks with some default content", {
             "[otherfood]",
             "[fleet]",
             "[likelihood]",
+        NULL),
+        "Modelfiles/codimm.rec.number" = c(
+            ver_string,
+            "; -- data --",
+            "; year\tstep\tarea\tage\tlength\tnumber\tweight",
+            "1998\t1\tA\t1\t100\t10\t20",
+            "1998\t1\tA\t9\t200\t11\t21",
+            "1998\t1\tA\t1\t100\t12\t22",
+            "1998\t1\tA\t9\t200\t13\t23",
+            "1998\t1\tB\t1\t100\t14\t24",
+            "1998\t1\tB\t9\t200\t15\t25",
+            "1998\t1\tB\t1\t100\t16\t26",
+            "1998\t1\tB\t9\t200\t17\t27",
         NULL)
     )), "Wrote out stock file")
 
@@ -72,7 +101,7 @@ ok_group("Can create new stocks with some default content", {
             "dl\t",
             "refweightfile\t",
             "growthandeatlengths\t",
-            "doesgrow\t1", "growthfunction\tlengthvbsimple", "growthparameters\t#codimm.Linf\t( * 0.001 #k)\t#walpha\t#wbeta", "beta\t(* 10 #bbin)", "maxlengthgroupgrowth\t15",
+            "doesgrow\t1", "growthfunction\tlengthvbsimple", "growthparameters\t#codimm.Linf\t(* 0.001 #codimm.k)\t#codimm.walpha\t#wbeta", "beta\t(* 10 #codimm.bbin)", "maxlengthgroupgrowth\t15",
             "naturalmortality\t0.2\t0.2\t0.2\t0.2\t0.2", # NB: Now with extra defaults
             "iseaten\t0",
             "doeseat\t1", "maxconsumption\t100", "halffeedingvalue\t70",
@@ -91,6 +120,19 @@ ok_group("Can create new stocks with some default content", {
             "[otherfood]",
             "[fleet]",
             "[likelihood]",
+        NULL),
+        "Modelfiles/codimm.rec.number" = c(  # NB: We don't tidy up old files (yet)
+            ver_string,
+            "; -- data --",
+            "; year\tstep\tarea\tage\tlength\tnumber\tweight",
+            "1998\t1\tA\t1\t100\t10\t20",
+            "1998\t1\tA\t9\t200\t11\t21",
+            "1998\t1\tA\t1\t100\t12\t22",
+            "1998\t1\tA\t9\t200\t13\t23",
+            "1998\t1\tB\t1\t100\t14\t24",
+            "1998\t1\tB\t9\t200\t15\t25",
+            "1998\t1\tB\t1\t100\t16\t26",
+            "1998\t1\tB\t9\t200\t17\t27",
         NULL)
     )), "Updated existing stock file")
 
@@ -108,7 +150,7 @@ ok_group("Can create new stocks with some default content", {
             "dl\t",
             "refweightfile\t",
             "growthandeatlengths\t",
-            "doesgrow\t1", "growthfunction\tlengthvbsimple", "growthparameters\t#codimm.Linf\t( * 0.001 #k)\t#walpha\t#wbeta", "beta\t(* 10 #bbin)", "maxlengthgroupgrowth\t15",
+            "doesgrow\t1", "growthfunction\tlengthvbsimple", "growthparameters\t#codimm.Linf\t(* 0.001 #codimm.k)\t#codimm.walpha\t#wbeta", "beta\t(* 10 #codimm.bbin)", "maxlengthgroupgrowth\t15",
             "naturalmortality\t0.2\t0.2\t0.2\t0.2\t0.2",
             "iseaten\t0",
             "doeseat\t1", "maxconsumption\t100", "halffeedingvalue\t70",
@@ -118,7 +160,7 @@ ok_group("Can create new stocks with some default content", {
         NULL),
         codmat = c(
             ver_string,
-            "stockname\tcodmat",
+           "stockname\tcodmat",
             "livesonareas\t",
             "minage\t",
             "maxage\t",
@@ -127,7 +169,7 @@ ok_group("Can create new stocks with some default content", {
             "dl\t",
             "refweightfile\t",
             "growthandeatlengths\t",
-            "doesgrow\t1", "growthfunction\tlengthvbsimple", "growthparameters\t#codmat.Linf\t( * 0.001 #k)\t#walpha\t#wbeta", "beta\t(* 10 #bbin)", "maxlengthgroupgrowth\t15",
+            "doesgrow\t1", "growthfunction\tlengthvbsimple", "growthparameters\t#codmat.Linf\t(* 0.001 #codmat.k)\t#codmat.walpha\t#wbeta", "beta\t(* 10 #codmat.bbin)", "maxlengthgroupgrowth\t15",
             "naturalmortality\t",
             "iseaten\t0", "doeseat\t0",
             "initialconditions",
@@ -145,6 +187,19 @@ ok_group("Can create new stocks with some default content", {
             "[otherfood]",
             "[fleet]",
             "[likelihood]",
+        NULL),
+        "Modelfiles/codimm.rec.number" = c(
+            ver_string,
+            "; -- data --",
+            "; year\tstep\tarea\tage\tlength\tnumber\tweight",
+            "1998\t1\tA\t1\t100\t10\t20",
+            "1998\t1\tA\t9\t200\t11\t21",
+            "1998\t1\tA\t1\t100\t12\t22",
+            "1998\t1\tA\t9\t200\t13\t23",
+            "1998\t1\tB\t1\t100\t14\t24",
+            "1998\t1\tB\t9\t200\t15\t25",
+            "1998\t1\tB\t1\t100\t16\t26",
+            "1998\t1\tB\t9\t200\t17\t27",
         NULL)
     )), "Added new stock file, left old one alone")
 
@@ -168,7 +223,7 @@ ok_group("Can create new stocks with some default content", {
             "dl\t",
             "refweightfile\t",
             "growthandeatlengths\t",
-            "doesgrow\t1", "growthfunction\tlengthvbsimple", "growthparameters\t#codimm.Linf\t( * 0.001 #k)\t#walpha\t#wbeta", "beta\t(* 10 #bbin)", "maxlengthgroupgrowth\t15",
+            "doesgrow\t1", "growthfunction\tlengthvbsimple", "growthparameters\t#codimm.Linf\t(* 0.001 #codimm.k)\t#codimm.walpha\t#wbeta", "beta\t(* 10 #codimm.bbin)", "maxlengthgroupgrowth\t15",
             "naturalmortality\t0.2\t0.2\t0.2\t0.2\t0.2",
             "iseaten\t0",
             "doeseat\t1", "maxconsumption\t100", "halffeedingvalue\t70",
@@ -187,7 +242,7 @@ ok_group("Can create new stocks with some default content", {
             "dl\t",
             "refweightfile\t",
             "growthandeatlengths\t",
-            "doesgrow\t1", "growthfunction\tlengthvbsimple", "growthparameters\t#codmat.Linf\t( * 0.001 #k)\t#walpha\t#wbeta", "beta\t(* 10 #bbin)", "maxlengthgroupgrowth\t15",
+            "doesgrow\t1", "growthfunction\tlengthvbsimple", "growthparameters\t#codmat.Linf\t(* 0.001 #codmat.k)\t#codmat.walpha\t#wbeta", "beta\t(* 10 #codmat.bbin)", "maxlengthgroupgrowth\t15",
             "naturalmortality\t",
             "iseaten\t0",
             "doeseat\t0",
@@ -227,6 +282,19 @@ ok_group("Can create new stocks with some default content", {
             "[otherfood]",
             "[fleet]",
             "[likelihood]",
+        NULL),
+        "Modelfiles/codimm.rec.number" = c(
+            ver_string,
+            "; -- data --",
+            "; year\tstep\tarea\tage\tlength\tnumber\tweight",
+            "1998\t1\tA\t1\t100\t10\t20",
+            "1998\t1\tA\t9\t200\t11\t21",
+            "1998\t1\tA\t1\t100\t12\t22",
+            "1998\t1\tA\t9\t200\t13\t23",
+            "1998\t1\tB\t1\t100\t14\t24",
+            "1998\t1\tB\t9\t200\t15\t25",
+            "1998\t1\tB\t1\t100\t16\t26",
+            "1998\t1\tB\t9\t200\t17\t27",
         NULL)
     )), "Added new stock file, left old one alone")
 })
@@ -260,7 +328,7 @@ ok_group("Can populate naturalmortality", {
             "dl\t",
             "refweightfile\t",
             "growthandeatlengths\t",
-            "doesgrow\t1", "growthfunction\tlengthvbsimple", "growthparameters\t#codimm.Linf\t( * 0.001 #k)\t#walpha\t#wbeta", "beta\t(* 10 #bbin)", "maxlengthgroupgrowth\t15",
+            "doesgrow\t1", "growthfunction\tlengthvbsimple", "growthparameters\t#codimm.Linf\t(* 0.001 #codimm.k)\t#codimm.walpha\t#wbeta", "beta\t(* 10 #codimm.bbin)", "maxlengthgroupgrowth\t15",
             "naturalmortality\t0.5\t0.8\t0.2\t0.2\t0.2\t0.2\t0.2\t0.2\t0.2",
             "iseaten\t0",
             "doeseat\t0",
@@ -305,8 +373,8 @@ ok_group("Doesgrow defaults", {
         "growthandeatlengths\t",
         "doesgrow\t1",
         "growthfunction\tlengthvbsimple",
-        "growthparameters\t#codimm.Linf\t( * 0.001 #k)\t#walpha\t#wbeta",
-        "beta\t(* 10 #bbin)",
+        "growthparameters\t#codimm.Linf\t(* 0.001 #codimm.k)\t#codimm.walpha\t#wbeta",
+        "beta\t(* 10 #codimm.bbin)",
         "maxlengthgroupgrowth\t15",
         "naturalmortality\t0.2\t0.2\t0.2\t0.2\t0.2\t0.2\t0.2\t0.2\t0.2",
         "iseaten\t0",
@@ -338,7 +406,7 @@ ok_group("Refweight from a data.frame", {
             "dl\t2",
             "refweightfile\tModelfiles/codimm.refwgt",
             "growthandeatlengths\t",
-            "doesgrow\t1", "growthfunction\tlengthvbsimple", "growthparameters\t#codimm.Linf\t( * 0.001 #k)\t#walpha\t#wbeta", "beta\t(* 10 #bbin)", "maxlengthgroupgrowth\t15",
+            "doesgrow\t1", "growthfunction\tlengthvbsimple", "growthparameters\t#codimm.Linf\t(* 0.001 #codimm.k)\t#codimm.walpha\t#wbeta", "beta\t(* 10 #codimm.bbin)", "maxlengthgroupgrowth\t15",
             "naturalmortality\t",
             "iseaten\t0",
             "doeseat\t0",
@@ -382,7 +450,7 @@ ok_group("Refweight from a data.frame", {
             "dl\t3",
             "refweightfile\tModelfiles/codimm.refwgt",
             "growthandeatlengths\t",
-            "doesgrow\t1", "growthfunction\tlengthvbsimple", "growthparameters\t#codimm.Linf\t( * 0.001 #k)\t#walpha\t#wbeta", "beta\t(* 10 #bbin)", "maxlengthgroupgrowth\t15",
+            "doesgrow\t1", "growthfunction\tlengthvbsimple", "growthparameters\t#codimm.Linf\t(* 0.001 #codimm.k)\t#codimm.walpha\t#wbeta", "beta\t(* 10 #codimm.bbin)", "maxlengthgroupgrowth\t15",
             "naturalmortality\t",
             "iseaten\t0",
             "doeseat\t0",
@@ -443,7 +511,7 @@ ok_group("Refweight from an MFDB data.frame", {
             "dl\t100",
             "refweightfile\tModelfiles/codimm.refwgt",
             "growthandeatlengths\t",
-            "doesgrow\t1", "growthfunction\tlengthvbsimple", "growthparameters\t#codimm.Linf\t( * 0.001 #k)\t#walpha\t#wbeta", "beta\t(* 10 #bbin)", "maxlengthgroupgrowth\t15",
+            "doesgrow\t1", "growthfunction\tlengthvbsimple", "growthparameters\t#codimm.Linf\t(* 0.001 #codimm.k)\t#codimm.walpha\t#wbeta", "beta\t(* 10 #codimm.bbin)", "maxlengthgroupgrowth\t15",
             "naturalmortality\t",
             "iseaten\t0",
             "doeseat\t0",
@@ -487,7 +555,7 @@ ok_group("Refweight from an MFDB data.frame", {
             "dl\t3",
             "refweightfile\tModelfiles/codimm.refwgt",
             "growthandeatlengths\t",
-            "doesgrow\t1", "growthfunction\tlengthvbsimple", "growthparameters\t#codimm.Linf\t( * 0.001 #k)\t#walpha\t#wbeta", "beta\t(* 10 #bbin)", "maxlengthgroupgrowth\t15",
+            "doesgrow\t1", "growthfunction\tlengthvbsimple", "growthparameters\t#codimm.Linf\t(* 0.001 #codimm.k)\t#codimm.walpha\t#wbeta", "beta\t(* 10 #codimm.bbin)", "maxlengthgroupgrowth\t15",
             "naturalmortality\t",
             "iseaten\t0",
             "doeseat\t0",
@@ -552,8 +620,8 @@ ok_group("initialconditions from MFDB data.frame", {
             "growthandeatlengths\t",
             "doesgrow\t1",
             "growthfunction\tlengthvbsimple",
-            "growthparameters\t#codimm.Linf\t( * 0.001 #k)\t#walpha\t#wbeta",
-            "beta\t(* 10 #bbin)",
+            "growthparameters\t#codimm.Linf\t(* 0.001 #codimm.k)\t#codimm.walpha\t#wbeta",
+            "beta\t(* 10 #codimm.bbin)",
             "maxlengthgroupgrowth\t15",
             "naturalmortality\t",
             "iseaten\t0",
@@ -623,8 +691,8 @@ ok_group("Generate maturation files", {
         "growthandeatlengths\t",
         "doesgrow\t1",
         "growthfunction\tlengthvbsimple",
-        "growthparameters\t#codimm.Linf\t( * 0.001 #k)\t#walpha\t#wbeta",
-        "beta\t(* 10 #bbin)",
+        "growthparameters\t#codimm.Linf\t(* 0.001 #codimm.k)\t#codimm.walpha\t#wbeta",
+        "beta\t(* 10 #codimm.bbin)",
         "maxlengthgroupgrowth\t15",
         "naturalmortality\t",
         "iseaten\t0",
@@ -685,8 +753,8 @@ ok_group("Numeric recruitment from MFDB data.frame", {
             "growthandeatlengths\t",
             "doesgrow\t1",
             "growthfunction\tlengthvbsimple",
-            "growthparameters\t#codimm.Linf\t( * 0.001 #k)\t#walpha\t#wbeta",
-            "beta\t(* 10 #bbin)",
+            "growthparameters\t#codimm.Linf\t(* 0.001 #codimm.k)\t#codimm.walpha\t#wbeta",
+            "beta\t(* 10 #codimm.bbin)",
             "maxlengthgroupgrowth\t15",
             "naturalmortality\t",
             "iseaten\t0",

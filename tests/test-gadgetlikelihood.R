@@ -21,21 +21,18 @@ ok_group("Can create multiple likelihood files and update", {
     ok(cmp(dir_list(path), list(
         "Data/arnold.penaltyfile" = c(
             ver_string,
-            "[data]",
             "; -- data --",
             "; switch\tpower",
             "default\t2",
         NULL),
         "Data/frank.penaltyfile" = c(
             ver_string,
-            "[data]",
             "; -- data --",
             "; switch\tpower",
             "default\t2",
         NULL),
         "Data/penalty.penaltyfile" = c(
             ver_string,
-            "[data]",
             "; -- data --",
             "; switch\tpower",
             "default\t2",
@@ -90,21 +87,18 @@ ok_group("Can create multiple likelihood files and update", {
     ok(cmp(dir_list(path), list(
         "Data/arnold.penaltyfile" = c(
             ver_string,
-            "[data]",
             "; -- data --",
             "; switch\tpower",
             "default\t2",
         NULL),
         "Data/frank.penaltyfile" = c(
             ver_string,
-            "[data]",
             "; -- data --",
             "; switch\tpower",
             "default\t2",
         NULL),
         "Data/penalty.penaltyfile" = c(
             ver_string,
-            "[data]",
             "; -- data --",
             "; switch\tpower",
             "default\t2",
@@ -168,7 +162,6 @@ ok_group("Can create likelihood files in a variant directory", {
     ok(cmp(dir_list(path), list(
         "bs.1/Data/penalty.penaltyfile" = c(
             ver_string,
-            "[data]",
             "; -- data --",
             "; switch\tpower",
             "default\t2",
@@ -196,7 +189,6 @@ ok_group("Can create likelihood files in a variant directory", {
         NULL),
         "Data/frank.penaltyfile" = c(
             ver_string,
-            "[data]",
             "; -- data --",
             "; switch\tpower",
             "default\t2",

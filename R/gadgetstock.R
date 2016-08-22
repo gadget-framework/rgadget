@@ -150,9 +150,9 @@ gadget_update.gadgetstock <- function(gf, component, ...) {
         gf$doesgrow <- list(
             doesgrow = 1,
             growthfunction = 'lengthvbsimple',
-            growthparameters = c(
+            growthparameters = list(
                 linf = paste0('#', gf[[1]]$stockname, '.Linf'),
-                k = sprintf('( * 0.001 #%s.k)',gf[[1]]$stockname),
+                k = sprintf('(* 0.001 #%s.k)',gf[[1]]$stockname),
                 sprintf('#%s.walpha',gf[[1]]$stockname),
                 sprintf('#wbeta',gf[[1]]$stockname)),
             beta = sprintf('(* 10 #%s.bbin)',gf[[1]]$stockname),
@@ -223,7 +223,7 @@ gadget_update.gadgetstock <- function(gf, component, ...) {
             dl_length,
             gadgetdata(paste0('Modelfiles/', gf[[1]]$stockname, '.refwgt'), refwgt))
 
-    } else if (component == 'initialconditions' && isTRUE(all.equal(names(args), c('number')))) {
+    } else if (component == 'initialconditions' && isTRUE(all.equal(names(args), c('data')))) {
         data <- args$data
         for (col in c('area', 'age', 'length', 'number', 'mean')) {
             if (!(col %in% colnames(data))) {

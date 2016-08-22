@@ -161,7 +161,9 @@ print.gadgetfile <- function (x, ...) {
         # Print all preambles as comments
         print_comments(comp, 'preamble')
 
-        if (!is.character(name) || !nzchar(name)) {
+        if (is.data.frame(comp)) {
+            cat("; -- data --\n")
+        } else if (!is.character(name) || !nzchar(name)) {
             # No name, do nothing
         } else if (is_implicit_component(file_config, name)) {
             # Do nothing, the name comes from the key/value line
@@ -173,7 +175,16 @@ print.gadgetfile <- function (x, ...) {
 
         # If it's a data-frame component, just print it out
         if (is.data.frame(comp)) {
-            cat("; -- data --\n; ")
+            for (i in seq_len(ncol(comp))) {
+                if (length(comp[,i]) == 0) {
+                    # Nothing to convert
+                    next
+                } else if (is.call(comp[1, i][[1]])) {
+                    # Convert formulae column to character
+                    comp[, i] <- vapply(comp[, i], to.gadget.formulae, "")
+                }
+            }
+            cat("; ")
             write.table(comp,
                 file = "",
                 quote = FALSE,
@@ -203,9 +214,15 @@ print.gadgetfile <- function (x, ...) {
                     cat("\n")
                     print_component(comp[[i]], "", file_config)
                     trailing_str <- ""
+                } else if (is.call(comp[[i]])) {
+                    # Single forumla value (as opposed to a list of formulae)
+                    cat("\t")
+                    cat(to.gadget.formulae(comp[[i]]))
                 } else {
                     cat("\t")
-                    cat(comp[[i]], sep = "\t")
+                    cat(vapply(comp[[i]], function (x) {
+                        ifelse(is.call(x), to.gadget.formulae(x), as.character(x))
+                    }, ""), sep = "\t")
                 }
 
                 if (length(attr(comp[[i]], "comment")) > 0) {
@@ -487,9 +504,9 @@ read.gadget.file <- function(path, file_name, file_type = "generic", fileEncodin
                     }
                     break
                 }
-                # Sanitise spacing, make sure fields are tab-separated
-                line <- paste(split_gadgetfile_line(line), collapse = "\t")
-                writeLines(line, data_fifo)
+                # Split line up so we can sanitise spacing
+                line <- split_gadgetfile_line(line)
+                writeLines(paste(line, collapse = "\t"), data_fifo)
             }
 
             # Re-read the buffer
@@ -501,6 +518,15 @@ read.gadget.file <- function(path, file_name, file_type = "generic", fileEncodin
                 comment.char = "",
                 fileEncoding = 'utf8')
             attr(cur_comp, 'preamble') <- comp_preamble
+
+            # Test columns for gadget formule, if so convert
+            # NB: We don't use colClasses to get a list instead of vector column
+            for (i in seq_len(ncol(cur_comp))) {
+                if (possible.gadget.formulae(as.character(cur_comp[1, i]))) {
+                    cur_comp[[i]] <- I(lapply(as.character(cur_comp[[i]]), parse.gadget.formulae))
+                }
+            }
+
             cur_preamble <- list()
             close(data_fifo)
         } else {
@@ -522,8 +548,15 @@ read.gadget.file <- function(path, file_name, file_type = "generic", fileEncodin
                 match <- extract("([a-zA-Z0-9\\-_]*)\\s*([^;]*);?\\s*(.*)", line)
                 line_name <- match[[1]]
                 line_values <- if (nzchar(match[[2]])) split_gadgetfile_line(match[[2]]) else c()
-                line_values <- tryCatch(as.numeric(line_values), warning = function (w) line_values)
+                line_values <- if (length(line_values) > 0) type.convert(line_values, as.is = TRUE) else as.numeric(c())
                 line_comment <- if (length(match[[3]]) > 0 && nzchar(match[[3]])) match[[3]] else NULL
+
+                # If there are any gadget formulae here, convert to list and parse them
+                if(any(possible.gadget.formulae(line_values))) {
+                    line_values <- lapply(line_values, function (x) {
+                        if (possible.gadget.formulae(x)) parse.gadget.formulae(x) else x
+                    })
+                }
 
                 line_comp <- is_component_header(line)
                 if (!isTRUE(comp_header$implicit) && is.list(line_comp)) {

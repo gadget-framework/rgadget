@@ -91,6 +91,35 @@ ok_group("Can write arbitary data files", {
             'sprouts\tLike, "Eeeew!"',
         NULL)
     )), "Overwrote a gadget file")
+
+    write.gadget.file(gadgetfile("wobble", components = list(
+        list(
+            potatoes = list("1 potato", "2 potato", "3 potato", 4, quote(4 + log(2))),
+            fish = c(quote(1 + 1), quote(4 + 2 - 8)),
+            single = quote(log(8) * log10(2)),
+            sprouts = 'No.'),
+        data.frame(
+            method = c("a", "b"),
+            fn = I(list(quote(1 + log(2)), quote(3 + sqrt(4))))))), dir)
+    ok(cmp(dir_list(dir), list(
+        "sub/wabble" = c(
+            ver_string,
+            "cabbage\tick",
+            "cauliflower\tyum",
+        NULL),
+        wobble = c(
+            ver_string,
+            "potatoes\t1 potato\t2 potato\t3 potato\t4\t(+ 4 (log 2))",
+            "fish\t(+ 1 1)\t(- (+ 4 2) 8)",
+            "single\t(* (log 8) (log10 2))",
+            'sprouts\tNo.',
+            "; -- data --",
+            "; method\tfn",
+            "a\t(+ 1 (log 2))",
+            "b\t(+ 3 (sqrt 4))",
+        NULL)
+    )), "Wrote out list as value, including gadget.formulae")
+
 })
 
 ok_group("Can add components and preambles", {
@@ -294,14 +323,33 @@ ok_group("Can read gadget files", {
         ver_string,
         "; -- data --",
         "; col\tcolm\tcolt\tcoal",
-        "3    5\t(9 10 (#potato 12)\t) 13",
+        "3    5\t(+ 10 (- #potato 12)\t) 13",
         file_type = "generic")
     ok(cmp(unattr(gf), list(
         data.frame(
             col = as.integer(3),
             colm = as.integer(5),
-            colt = "(9 10 (#potato 12) )",
+            colt = I(list(quote(10 + (potato - 12)))),
             coal = as.integer(13)))), "Data with mangled spacing & formulae")
+
+    gf <- read.gadget.string(
+        ver_string,
+        "; -- data --",
+        "; col\tcolm\tcolt\tcoal",
+        "3    5\t(+ 10 (- #potato 12)) 13",
+        "3    5\t(+ 10 (log #cabbage)) 13",
+        "3    5\t(+ 10 (* #garlic #ginger)) 13",
+        file_type = "generic")
+    ok(cmp(unattr(gf), list(
+        data.frame(
+            col = as.integer(3),
+            colm = as.integer(5),
+            colt = I(list(
+                quote(10 + (potato - 12)),
+                quote(10 + log(cabbage)),
+                quote(10 + garlic * ginger)
+                )),
+            coal = as.integer(13)))), "Multiple formulae")
 
     # Blank preamble lines get preserved
     test_loopback(
@@ -606,8 +654,8 @@ ok_group("Can read fleet files successfully", {
             livesonareas = 1,
             multiplicative = 1,
             suitability = list(
-                codimm = c("function", "exponential", "#acomm", "(* 0.01 #bcomm)", "0", "1"),
-                codmat = c("function", "exponential", "#acomm", "(* 0.01 #bcomm)", "0", "1")
+                codimm = list("function", "exponential", "#acomm", quote(0.01 * bcomm), "0", "1"),
+                codmat = list("function", "exponential", "#acomm", quote(0.01 * bcomm), "0", "1")
             ),
             amount = gadgetfile("Data/cod.fleet.data", components = list(comp = list(a=1)))
         ),
@@ -616,8 +664,8 @@ ok_group("Can read fleet files successfully", {
             livesonareas = 1,
             multiplicative = 1,
             suitability = list(
-                codimm = c("function", "exponential", "#acomm", "(* 0.05 #bcomm)", "0", "1"),
-                codmat = c("function", "exponential", "#acomm", "(* 0.05 #bcomm)", "0", "1")
+                codimm = list("function", "exponential", "#acomm", quote(0.05 * bcomm), "0", "1"),
+                codmat = list("function", "exponential", "#acomm", quote(0.05 * bcomm), "0", "1")
             ),
             amount = gadgetfile("Data/cod.survey.data", components = list(comp = list(b=2)))
         )

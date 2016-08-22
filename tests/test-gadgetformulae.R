@@ -23,4 +23,8 @@ ok_group("to.gadget.formulae", {
     ok(cmp(
         to.gadget.formulae(parse.gadget.formulae("(+ (2) (log (- (#moo) 1)))")),
         "(+ 2 (log (- #moo 1)))"), "Can generate from the output of parse.gadget.formulae")
+
+    ok(cmp(
+        to.gadget.formulae(quote(4 + (2 - 8))),
+        "(+ 4 (- 2 8))"), "We ignore R's explicit bracket function")
 })
