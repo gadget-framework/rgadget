@@ -91,6 +91,33 @@ ok_group("Can write arbitary data files", {
             'sprouts\tLike, "Eeeew!"',
         NULL)
     )), "Overwrote a gadget file")
+
+    write.gadget.file(gadgetfile("wobble", components = list(
+        list(
+            potatoes = list("1 potato", "2 potato", "3 potato", 4, quote(4 + log(2))),
+            fish = c(quote(1 + 1), quote(4 + 2 - 8)),
+            sprouts = 'No.'),
+        data.frame(
+            method = c("a", "b"),
+            fn = I(list(quote(1 + log(2)), quote(3 + sqrt(4))))))), dir)
+    ok(cmp(dir_list(dir), list(
+        "sub/wabble" = c(
+            ver_string,
+            "cabbage\tick",
+            "cauliflower\tyum",
+        NULL),
+        wobble = c(
+            ver_string,
+            "potatoes\t1 potato\t2 potato\t3 potato\t4\t(+ 4 (log 2))",
+            "fish\t(+ 1 1)\t(- (+ 4 2) 8)",
+            'sprouts\tNo.',
+            "; -- data --",
+            "; method\tfn",
+            "a\t(+ 1 (log 2))",
+            "b\t(+ 3 (sqrt 4))",
+        NULL)
+    )), "Wrote out list as value, including gadget.formulae")
+
 })
 
 ok_group("Can add components and preambles", {

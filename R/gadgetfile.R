@@ -175,6 +175,15 @@ print.gadgetfile <- function (x, ...) {
 
         # If it's a data-frame component, just print it out
         if (is.data.frame(comp)) {
+            for (i in seq_len(ncol(comp))) {
+                if (length(comp[,i]) == 0) {
+                    # Nothing to convert
+                    next
+                } else if (is.call(comp[1, i][[1]])) {
+                    # Convert formulae column to character
+                    comp[, i] <- vapply(comp[, i], to.gadget.formulae, "")
+                }
+            }
             cat("; ")
             write.table(comp,
                 file = "",
@@ -207,7 +216,9 @@ print.gadgetfile <- function (x, ...) {
                     trailing_str <- ""
                 } else {
                     cat("\t")
-                    cat(comp[[i]], sep = "\t")
+                    cat(vapply(comp[[i]], function (x) {
+                        ifelse(is.call(x), to.gadget.formulae(x), as.character(x))
+                    }, ""), sep = "\t")
                 }
 
                 if (length(attr(comp[[i]], "comment")) > 0) {
