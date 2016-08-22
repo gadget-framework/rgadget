@@ -214,6 +214,10 @@ print.gadgetfile <- function (x, ...) {
                     cat("\n")
                     print_component(comp[[i]], "", file_config)
                     trailing_str <- ""
+                } else if (is.call(comp[[i]])) {
+                    # Single forumla value (as opposed to a list of formulae)
+                    cat("\t")
+                    cat(to.gadget.formulae(comp[[i]]))
                 } else {
                     cat("\t")
                     cat(vapply(comp[[i]], function (x) {

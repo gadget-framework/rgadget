@@ -96,6 +96,7 @@ ok_group("Can write arbitary data files", {
         list(
             potatoes = list("1 potato", "2 potato", "3 potato", 4, quote(4 + log(2))),
             fish = c(quote(1 + 1), quote(4 + 2 - 8)),
+            single = quote(log(8) * log10(2)),
             sprouts = 'No.'),
         data.frame(
             method = c("a", "b"),
@@ -110,6 +111,7 @@ ok_group("Can write arbitary data files", {
             ver_string,
             "potatoes\t1 potato\t2 potato\t3 potato\t4\t(+ 4 (log 2))",
             "fish\t(+ 1 1)\t(- (+ 4 2) 8)",
+            "single\t(* (log 8) (log10 2))",
             'sprouts\tNo.',
             "; -- data --",
             "; method\tfn",
