@@ -551,6 +551,13 @@ read.gadget.file <- function(path, file_name, file_type = "generic", fileEncodin
                 line_values <- if (length(line_values) > 0) type.convert(line_values, as.is = TRUE) else as.numeric(c())
                 line_comment <- if (length(match[[3]]) > 0 && nzchar(match[[3]])) match[[3]] else NULL
 
+                # If there are any gadget formulae here, convert to list and parse them
+                if(any(possible.gadget.formulae(line_values))) {
+                    line_values <- lapply(line_values, function (x) {
+                        if (possible.gadget.formulae(x)) parse.gadget.formulae(x) else x
+                    })
+                }
+
                 line_comp <- is_component_header(line)
                 if (!isTRUE(comp_header$implicit) && is.list(line_comp)) {
                     # Rewind to before preamble

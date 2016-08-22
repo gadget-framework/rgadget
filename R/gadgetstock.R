@@ -150,12 +150,12 @@ gadget_update.gadgetstock <- function(gf, component, ...) {
         gf$doesgrow <- list(
             doesgrow = 1,
             growthfunction = 'lengthvbsimple',
-            growthparameters = c(
+            growthparameters = list(
                 linf = paste0('#', gf[[1]]$stockname, '.Linf'),
-                k = '( * 0.001 #k)',
+                k = quote(0.001 * k),
                 '#walpha',
                 '#wbeta'),
-            beta = '(* 10 #bbin)',
+            beta = quote(10 * bbin),
             maxlengthgroupgrowth = 15)
 
     } else if (component == 1 && isTRUE(all.equal(names(args), c('data')))) {

@@ -654,8 +654,8 @@ ok_group("Can read fleet files successfully", {
             livesonareas = 1,
             multiplicative = 1,
             suitability = list(
-                codimm = c("function", "exponential", "#acomm", "(* 0.01 #bcomm)", "0", "1"),
-                codmat = c("function", "exponential", "#acomm", "(* 0.01 #bcomm)", "0", "1")
+                codimm = list("function", "exponential", "#acomm", quote(0.01 * bcomm), "0", "1"),
+                codmat = list("function", "exponential", "#acomm", quote(0.01 * bcomm), "0", "1")
             ),
             amount = gadgetfile("Data/cod.fleet.data", components = list(comp = list(a=1)))
         ),
@@ -664,8 +664,8 @@ ok_group("Can read fleet files successfully", {
             livesonareas = 1,
             multiplicative = 1,
             suitability = list(
-                codimm = c("function", "exponential", "#acomm", "(* 0.05 #bcomm)", "0", "1"),
-                codmat = c("function", "exponential", "#acomm", "(* 0.05 #bcomm)", "0", "1")
+                codimm = list("function", "exponential", "#acomm", quote(0.05 * bcomm), "0", "1"),
+                codmat = list("function", "exponential", "#acomm", quote(0.05 * bcomm), "0", "1")
             ),
             amount = gadgetfile("Data/cod.survey.data", components = list(comp = list(b=2)))
         )
