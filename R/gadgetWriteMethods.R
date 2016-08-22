@@ -405,9 +405,20 @@ setMethod("gadget_dir_write",
                   col.names=FALSE,
                   quote=FALSE,sep='\t',row.names=FALSE)
       if(file.exists(sprintf('%s/Modelfiles/fleets',gd$dir))){
-          write.unix(paste(fleet.text,collapse='\n'),
+		  ## added by Paul Frater to test if fleet file already contains fleet names
+          ## if so, overwrite the file, if not append fleet to fleet file
+          fleetFile <- file(sprintf('%s/Modelfiles/fleets', gd$dir))
+          fleetLines <- readLines(fleetFile)
+          if(any(grepl(x@name, fleetLines))) {
+	  		    write.unix(paste(fleet.text,collapse='\n'),
+                     f=sprintf('%s/Modelfiles/fleets',gd$dir), 
+					 append = FALSE)
+		  }
+          else {
+			    write.unix(paste(fleet.text,collapse='\n'),
                      f=sprintf('%s/Modelfiles/fleets',gd$dir),
                      append = TRUE)
+		  }
       } else {
         write.unix(paste(fleet.text,collapse='\n'),
                    f=sprintf('%s/Modelfiles/fleets',gd$dir))

@@ -1780,26 +1780,26 @@ make.gadget.fleet <- function(name='comm',
                               type='totalfleet',                     
                               suitability = 'exponential',
                               fleet.data = data.frame(area=1),
-                              stocknames = '',
+                              stocknames = NULL,
                               ...){
-    if(stocknames == ''){
+    if(is.null(stocknames)){ #changed by pfrater to avoid warning with multiple stocknames
         stop('No stockname supplied')
     }
     params <-
         switch(suitability,
-               andersenfleet = paste(sprintf('#%s.%s',name,paste('p',1:6)),
+               andersenfleet = paste(sprintf('#%s.%s',name,paste('p',1:6, sep='')),
                    collapse = ' '),
-               andersen = paste(sprintf('#%s.%s',name,paste('p',1:5)),
+               andersen = paste(sprintf('#%s.%s',name,paste('p',1:5, sep='')),
                    collapse = ' '),
                exponential = paste(sprintf('#%s.%s',name,c('alpha','beta',
                    'gamma','delta')),
                    collapse = ' '),
                exponentiall50 = paste(sprintf('#%s.%s',name,c('alpha','l50')),
                    collapse = ' '),
-               richards = paste(sprintf('#%s.%s',name,paste('p',1:5)),
+               richards = paste(sprintf('#%s.%s',name,paste('p',1:5, sep='')),
                    collapse = ' '),
                straightline = sprintf('#%s.%s',name,'alpha'),
-               gamma = paste(sprintf('#%s.%s',name,paste('p',1:5),
+               gamma = paste(sprintf('#%s.%s',name,paste('p',1:5, sep=''),
                    collapse = ' ')))
     
     fleet.data$fleetname <- name
@@ -1876,11 +1876,12 @@ get.gadget.recruitment <- function(stocks,params,collapse=TRUE){
         x@renewal.data %>% 
         dplyr::mutate(stock = x@stockname,
                       recruitment = 1e4*unlist(eval.gadget.formula(number,params))) %>% 
-        dplyr::select(stock,year,step,recruitment) %>% 
+        dplyr::select(stock,year,step,area,recruitment) %>% 
         na.omit() 
       if(collapse){
         tmp %>% 
-          dplyr::group_by(stock,year) %>% 
+		  # area added to accomodate merge with res.by.year in gadget.fit() - pfrater
+          dplyr::group_by(stock,year, area) %>% 
           dplyr::summarise(recruitment=sum(recruitment)) %>% 
           as.data.frame()
       } else{
@@ -2209,8 +2210,11 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
         bio$stock <- x
         return(bio)
       })
-    res.by.year <- merge(res.by.year,stock.recruitment,all.x = TRUE,
-                         by=c('year','stock'))
+	# altered by pfrater to include area in merge with stock.recruitment - Aug.11, 2016
+	stock.rec.temp <- stock.recruitment
+	stock.rec.temp$area <- paste('area', stock.rec.temp$area, sep='')
+    res.by.year <- merge(res.by.year,stock.rec.temp, all.x = TRUE,
+                         by=c('year','stock', 'area'))
   } else {
     res.by.year <- NULL
   }
@@ -2292,7 +2296,7 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
 
   out <- list(sidat = sidat, resTable = resTable, nesTable = nesTable,
               suitability = gss.suit, stock.growth = stock.growth,
-              stock.recruiment = stock.recruitment,
+              stock.recruitment = stock.recruitment,
               res.by.year = res.by.year, stomachcontent = stomachcontent,
               likelihoodsummary = out$likelihoodsummary,
               catchdist.fleets = catchdist.fleets, stockdist = stockdist,
