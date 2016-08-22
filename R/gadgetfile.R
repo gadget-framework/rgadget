@@ -161,7 +161,9 @@ print.gadgetfile <- function (x, ...) {
         # Print all preambles as comments
         print_comments(comp, 'preamble')
 
-        if (!is.character(name) || !nzchar(name)) {
+        if (is.data.frame(comp)) {
+            cat("; -- data --\n")
+        } else if (!is.character(name) || !nzchar(name)) {
             # No name, do nothing
         } else if (is_implicit_component(file_config, name)) {
             # Do nothing, the name comes from the key/value line
@@ -173,7 +175,7 @@ print.gadgetfile <- function (x, ...) {
 
         # If it's a data-frame component, just print it out
         if (is.data.frame(comp)) {
-            cat("; -- data --\n; ")
+            cat("; ")
             write.table(comp,
                 file = "",
                 quote = FALSE,
