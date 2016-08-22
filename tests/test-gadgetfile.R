@@ -321,14 +321,33 @@ ok_group("Can read gadget files", {
         ver_string,
         "; -- data --",
         "; col\tcolm\tcolt\tcoal",
-        "3    5\t(9 10 (#potato 12)\t) 13",
+        "3    5\t(+ 10 (- #potato 12)\t) 13",
         file_type = "generic")
     ok(cmp(unattr(gf), list(
         data.frame(
             col = as.integer(3),
             colm = as.integer(5),
-            colt = "(9 10 (#potato 12) )",
+            colt = I(list(quote(10 + (potato - 12)))),
             coal = as.integer(13)))), "Data with mangled spacing & formulae")
+
+    gf <- read.gadget.string(
+        ver_string,
+        "; -- data --",
+        "; col\tcolm\tcolt\tcoal",
+        "3    5\t(+ 10 (- #potato 12)) 13",
+        "3    5\t(+ 10 (log #cabbage)) 13",
+        "3    5\t(+ 10 (* #garlic #ginger)) 13",
+        file_type = "generic")
+    ok(cmp(unattr(gf), list(
+        data.frame(
+            col = as.integer(3),
+            colm = as.integer(5),
+            colt = I(list(
+                quote(10 + (potato - 12)),
+                quote(10 + log(cabbage)),
+                quote(10 + garlic * ginger)
+                )),
+            coal = as.integer(13)))), "Multiple formulae")
 
     # Blank preamble lines get preserved
     test_loopback(

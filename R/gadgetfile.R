@@ -500,9 +500,9 @@ read.gadget.file <- function(path, file_name, file_type = "generic", fileEncodin
                     }
                     break
                 }
-                # Sanitise spacing, make sure fields are tab-separated
-                line <- paste(split_gadgetfile_line(line), collapse = "\t")
-                writeLines(line, data_fifo)
+                # Split line up so we can sanitise spacing
+                line <- split_gadgetfile_line(line)
+                writeLines(paste(line, collapse = "\t"), data_fifo)
             }
 
             # Re-read the buffer
@@ -514,6 +514,15 @@ read.gadget.file <- function(path, file_name, file_type = "generic", fileEncodin
                 comment.char = "",
                 fileEncoding = 'utf8')
             attr(cur_comp, 'preamble') <- comp_preamble
+
+            # Test columns for gadget formule, if so convert
+            # NB: We don't use colClasses to get a list instead of vector column
+            for (i in seq_len(ncol(cur_comp))) {
+                if (possible.gadget.formulae(as.character(cur_comp[1, i]))) {
+                    cur_comp[[i]] <- I(lapply(as.character(cur_comp[[i]]), parse.gadget.formulae))
+                }
+            }
+
             cur_preamble <- list()
             close(data_fifo)
         } else {

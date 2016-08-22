@@ -93,3 +93,8 @@ to.gadget.formulae <- function(ex) {
 
     stop("Don't know what to do with: ", capture.output(str(ex)))
 }
+
+# Characters look like a gadget formulae
+possible.gadget.formulae <- function(x) {
+    grepl("^\\s*\\(.*\\)\\s*$", x)
+}
