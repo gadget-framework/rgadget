@@ -535,7 +535,7 @@ read.gadget.file <- function(path, file_name, file_type = "generic", fileEncodin
                 match <- extract("([a-zA-Z0-9\\-_]*)\\s*([^;]*);?\\s*(.*)", line)
                 line_name <- match[[1]]
                 line_values <- if (nzchar(match[[2]])) split_gadgetfile_line(match[[2]]) else c()
-                line_values <- tryCatch(as.numeric(line_values), warning = function (w) line_values)
+                line_values <- if (length(line_values) > 0) type.convert(line_values, as.is = TRUE) else as.numeric(c())
                 line_comment <- if (length(match[[3]]) > 0 && nzchar(match[[3]])) match[[3]] else NULL
 
                 line_comp <- is_component_header(line)
