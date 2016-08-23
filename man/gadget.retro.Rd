@@ -5,7 +5,8 @@
 \title{gadget.retro}
 \usage{
 gadget.retro(path = ".", main.file = "main", params.file = "params.in",
-  optinfo.file = "optinfofile", num.years = 5, pre = "RETRO")
+  optinfofile = "optinfofile", num.years = 5, pre = "RETRO",
+  iterative = FALSE, ...)
 }
 \arguments{
 \item{path}{}
@@ -14,11 +15,11 @@ gadget.retro(path = ".", main.file = "main", params.file = "params.in",
 
 \item{params.file}{}
 
-\item{optinfo.file}{}
-
 \item{num.years}{}
 
 \item{pre}{}
+
+\item{optinfo.file}{}
 }
 \description{
 gadget.retro

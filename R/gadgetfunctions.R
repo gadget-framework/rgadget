@@ -378,7 +378,10 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
 
 
   ## degrees of freedom approximated by the number of datapoints
-  lik.dat <- read.gadget.data(likelihood)
+  ## and make sure we only read data from the model period
+  time <- read.gadget.file('.',main$timefile,file_type = 'time')
+  lik.dat <- read.gadget.data(likelihood,
+                              year_range = time[[1]]$firstyear:time[[1]]$lastyear)
   restr <- !(likelihood$weights$type %in%
              c('penalty','understocking','migrationpenalty',
                'catchinkilos'))
@@ -1394,7 +1397,7 @@ gadget.bootypr <- function(params.file='params.final',
 #' @param mat.par parameters determining the maturity ogive
 #' @param gd gadget directory
 #'
-#' @return a list containing estimated catches, biomass and recruitment generated using forward projections
+#' @return
 #' @export
 gadget.forward <- function(years = 20,params.file = 'params.out',
                            main.file = 'main', num.trials = 10,
@@ -1915,8 +1918,9 @@ gadget.bootforward <- function(years = 20,
 #'
 #' @examples
 gadget.retro <- function(path='.',main.file='main',params.file='params.in',
-                         optinfo.file='optinfofile',num.years=5,
-                         pre = 'RETRO'){
+                         optinfofile='optinfofile',num.years=5,
+                         pre = 'RETRO',
+                         iterative =FALSE,...){
   
   main <- read.gadget.file(path,main.file,file_type = 'main')
   
@@ -1930,20 +1934,29 @@ gadget.retro <- function(path='.',main.file='main',params.file='params.in',
     write.gadget.file(main,retrodir,recursive = FALSE)
     write.gadget.file(main[[1]]$timefile,retrodir)
   }
-  
-  run.func <- function(x){
-    callGadget(l = 1,
-               main = sprintf('%s/main.%s',pre,x),
-               i = params.file,
-               p = sprintf('%s/params.retro.%s',pre,x),
-               opt = optinfo.file)
-    callGadget(s = 1,
-               main = sprintf('%s/main.%s',pre,x),
-               i = sprintf('%s/params.retro.%s',pre,x),
-               o = sprintf('%s/lik.retro.%s',pre,x))
-    
+  if(iterative){
+    for(year in 1:num.years){
+      gadget.iterative(main.file=sprintf('%s/main.%s',pre,year),
+                       params.file = params.file,
+                       optinfofile=optinfo.file,
+                       wgts = sprintf('%s/WGTS.%s',pre,year),
+                       ...)
+    }
+  } else {
+    run.func <- function(x){
+      callGadget(l = 1,
+                 main = sprintf('%s/main.%s',pre,x),
+                 i = params.file,
+                 p = sprintf('%s/params.retro.%s',pre,x),
+                 opt = optinfofile)
+      callGadget(s = 1,
+                 main = sprintf('%s/main.%s',pre,x),
+                 i = sprintf('%s/params.retro.%s',pre,x),
+                 o = sprintf('%s/lik.retro.%s',pre,x))
+      
+    }
+    mclapply(1:num.years,run.func, mc.cores = detectCores(logical = TRUE))
   }
-  mclapply(1:num.years,run.func, mc.cores = detectCores(logical = TRUE))
 }
 
 

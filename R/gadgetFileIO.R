@@ -704,7 +704,7 @@ read.gadget.results <- function(grouping=list(),
 ##' @return list of dataframes and degress of freedom
 ##' @author Bjarki ??r Elvarsson
 ##' @export
-read.gadget.data <- function(likelihood,debug=FALSE){
+read.gadget.data <- function(likelihood,debug=FALSE,year_range=NULL){
   read.agg <- function(x, first = FALSE){      
       if(first){
           return(sapply(strsplit(readLines(x),'[\t ]'),function(x) x[1]))
@@ -812,6 +812,13 @@ read.gadget.data <- function(likelihood,debug=FALSE){
       names(prey.agg)[1:3] <- c('prey','prey.lower','prey.upper')
       dat <- merge(dat,prey.agg,all.x=TRUE)
     }
+    
+    if(!is.null(year_range)){
+      dat <- 
+        dat %>% 
+        dplyr::filter(year %in% year_range)
+    }
+    
     attr(dat,'len.agg') <- len.agg
     attr(dat,'pred.agg') <- len.agg
     attr(dat,'age.agg') <- age.agg

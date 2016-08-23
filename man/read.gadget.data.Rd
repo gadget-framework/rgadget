@@ -4,7 +4,7 @@
 \alias{read.gadget.data}
 \title{Read likelihood data}
 \usage{
-read.gadget.data(likelihood, debug = FALSE)
+read.gadget.data(likelihood, debug = FALSE, year_range = NULL)
 }
 \arguments{
 \item{likelihood}{object of class gadget.likelihood}
