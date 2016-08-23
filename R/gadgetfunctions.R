@@ -1909,7 +1909,7 @@ gadget.bootforward <- function(years = 20,
 #' @param path 
 #' @param main.file 
 #' @param params.file 
-#' @param optinfo.file 
+#' @param optinfofile 
 #' @param num.years 
 #' @param pre 
 #'
@@ -1938,7 +1938,7 @@ gadget.retro <- function(path='.',main.file='main',params.file='params.in',
     for(year in 1:num.years){
       gadget.iterative(main.file=sprintf('%s/main.%s',pre,year),
                        params.file = params.file,
-                       optinfofile=optinfo.file,
+                       optinfofile=optinfofile,
                        wgts = sprintf('%s/WGTS.%s',pre,year),
                        ...)
     }
