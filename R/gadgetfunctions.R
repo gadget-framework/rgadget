@@ -1394,7 +1394,7 @@ gadget.bootypr <- function(params.file='params.final',
 #' @param mat.par parameters determining the maturity ogive
 #' @param gd gadget directory
 #'
-#' @return
+#' @return a list containing estimated catches, biomass and recruitment generated using forward projections
 #' @export
 gadget.forward <- function(years = 20,params.file = 'params.out',
                            main.file = 'main', num.trials = 10,
