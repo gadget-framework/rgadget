@@ -1411,6 +1411,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
                            compact = TRUE,
                            mat.par=c(0,0),
                            gd=list(dir='.',rel.dir='PRE'),
+                           method = 'AR1',
                            ref.years=NULL){
   ## TODO fix stocks that are spawning
   pre <- paste(gd$dir,gd$rel.dir,sep='/') 
@@ -1546,7 +1547,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
     } else {
       tmp <- 
         rec %>% 
-        dplyr::filter(year < max(rec.window) & year > min(rec.window))
+        dplyr::filter(year <= max(rec.window) & year >= min(rec.window))
     }
   } else {
     tmp <- rec
@@ -1555,27 +1556,46 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
   ## todo: consider covariates in recruitment
   
   if(stochastic){
+    if(tolower(method) == 'bootstrap'){
+      prj.rec <-
+        tmp %>% 
+        split(.$stock) %>% 
+        purrr::map(~dplyr::select(.,recruitment) %>% 
+                     dplyr::slice(plyr::rlply(ceiling(num.trials*years/nrow(tmp)),
+                                              c(sample(rec.window[2]:rec.window[3]-rec.window[1]+1,
+                                                       replace = TRUE),
+                                                sample(rec.window[1]:rec.window[2]-rec.window[1]+1,
+                                                       replace = TRUE))) %>%                                           
+                                    unlist())) %>%
+        purrr::map(~dplyr::slice(.,1:(num.trials*years))) %>% 
+        purrr::map(~tibble::data_frame(year = rep((sim.begin):(sim.begin+years-1),num.trials),
+                                       trial = rep(1:num.trials,each=years),
+                                       recruitment = .$recruitment)) %>% 
+        dplyr::bind_rows(.id='stock') %>% 
+        select(stock,year,trial,recruitment)
+        
+    } else {
     ## fit an AR model to the fitted recruiment
-    prj.rec <- 
-      tmp %>% 
-      split(.$stock) %>% 
-      purrr::map(~lm(.$recruitment[-1]~head(.$recruitment,-1))) %>%
-      purrr::map(~dplyr::bind_cols(broom::glance(.),
-                                   as.data.frame(t(broom::tidy(.)$estimate)))) %>% 
-      purrr::map(~dplyr::rename(.,a=V1,b=V2)) %>% 
-      purrr::map(~data.frame(year = rep((sim.begin):(sim.begin+years-1),num.trials),
-                             trial = rep(1:num.trials,each=years),
-                             x = pmax(rnorm(years*num.trials,.$a,.$sigma),0),
-                             a = .$a,
-                             b = .$b,
-                             sigma = .$sigma)) %>% 
-      dplyr::bind_rows(.id='stock')  %>% 
-      dplyr::mutate(rec = x + b*dplyr::lag(x),
-                    rec = ifelse(is.na(rec),x,rec)) %>% 
-      select(stock,year,trial,recruitment = rec)
-    
+      prj.rec <- 
+        tmp %>% 
+        split(.$stock) %>% 
+        purrr::map(~lm(.$recruitment[-1]~head(.$recruitment,-1))) %>%
+        purrr::map(~dplyr::bind_cols(broom::glance(.),
+                                     as.data.frame(t(broom::tidy(.)$estimate)))) %>% 
+        purrr::map(~dplyr::rename(.,a=V1,b=V2)) %>% 
+        purrr::map(~data.frame(year = rep((sim.begin):(sim.begin+years-1),num.trials),
+                               trial = rep(1:num.trials,each=years),
+                               x = pmax(rnorm(years*num.trials,.$a,.$sigma),0),
+                               a = .$a,
+                               b = .$b,
+                               sigma = .$sigma)) %>% 
+        dplyr::bind_rows(.id='stock')  %>% 
+        dplyr::mutate(rec = x + b*dplyr::lag(x),
+                      rec = ifelse(is.na(rec),x,rec)) %>% 
+        select(stock,year,trial,recruitment = rec)
+      
     ## project next n years
-    
+    }
   } else {
     prj.rec <- 
       tmp %>% 

@@ -15,11 +15,11 @@ gadget.retro(path = ".", main.file = "main", params.file = "params.in",
 
 \item{params.file}{}
 
+\item{optinfofile}{}
+
 \item{num.years}{}
 
 \item{pre}{}
-
-\item{optinfo.file}{}
 }
 \description{
 gadget.retro

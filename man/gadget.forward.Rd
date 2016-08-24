@@ -9,7 +9,7 @@ gadget.forward(years = 20, params.file = "params.out", main.file = "main",
   effort = 0.2, rec.scalar = NULL, check.previous = FALSE,
   save.results = TRUE, stochastic = TRUE, rec.window = NULL,
   compact = TRUE, mat.par = c(0, 0), gd = list(dir = ".", rel.dir =
-  "PRE"), ref.years = NULL)
+  "PRE"), method = "AR1", ref.years = NULL)
 }
 \arguments{
 \item{years}{Number of years to predictc}
