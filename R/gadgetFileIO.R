@@ -784,10 +784,10 @@ read.gadget.data <- function(likelihood,debug=FALSE,year_range=NULL){
         names(dat) <- c('tagid','year','step','area','number','mean')
     }
     if(x$type=='catchinkilos'){
-#      if(x$aggregationlevel==1)
+      if(ncol(dat)==4) #x$aggregationlevel==1)
         names(dat) <- c('year','area','fleet','biomass')
-#      else
-#        names(dat) <- c('year','step','area','fleet','biomass')
+      else
+        names(dat) <- c('year','step','area','fleet','biomass')
     }
 
     restr.area <- (dat$area %in% area.agg)
