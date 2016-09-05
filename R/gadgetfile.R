@@ -124,6 +124,13 @@ is_sub_component <- function(config, name) {
     return(TRUE)
 }
 
+is_df_component <- function(config, name) {
+    if (!isTRUE(nzchar(name))) return(FALSE)
+    if (!isTRUE(nzchar(config$df_component))) return(FALSE)
+    if (regexpr(config$df_component, name) < 0) return(FALSE)
+    return(TRUE)
+}
+
 is_implicit_component <- function(config, name) {
     if (!isTRUE(nzchar(name))) return(FALSE)
     if (!isTRUE(nzchar(config$implicit_component))) return(FALSE)
@@ -161,7 +168,10 @@ print.gadgetfile <- function (x, ...) {
         # Print all preambles as comments
         print_comments(comp, 'preamble')
 
-        if (is.data.frame(comp)) {
+        if (is_sub_component(file_config, name)) {
+            # Sub-components already have their name printed out, do nothing
+        } else if (is.data.frame(comp)) {
+            # data.frames need a default separator
             cat("; -- data --\n")
         } else if (!is.character(name) || !nzchar(name)) {
             # No name, do nothing
@@ -212,7 +222,7 @@ print.gadgetfile <- function (x, ...) {
                 } else if (is_sub_component(file_config, names(comp)[[i]]) && is.list(comp[[i]])) {
                     # Subcomponent
                     cat("\n")
-                    print_component(comp[[i]], "", file_config)
+                    print_component(comp[[i]], names(comp)[[i]], file_config)
                     trailing_str <- ""
                 } else if (is.call(comp[[i]])) {
                     # Single forumla value (as opposed to a list of formulae)
@@ -410,14 +420,14 @@ read.gadget.file <- function(path, file_name, file_type = "generic", fileEncodin
             "^\\[(\\w+)\\]"), collapse = "|"), line)
         x <- x[nzchar(x)]  # Throw away matches that didn't work
         if (length(x) > 0) {
-            return(list(name = x[[1]], type = 'list'))
+            return(list(name = x[[1]], type = if(is_df_component(file_config, x[[1]])) 'data.frame' else 'list'))
         }
 
         # Is this line a subcomponent?
         if (is_sub_component(file_config, line_name)) {
             return(list(
                 name = line_name,
-                type = 'list',
+                type = if(is_df_component(file_config, line_name)) 'data.frame' else 'list',
                 implicit = (line_name != line),  # i.e there's more data on this line
                 sub_component = TRUE))
         }
@@ -480,7 +490,7 @@ read.gadget.file <- function(path, file_name, file_type = "generic", fileEncodin
         if (comp_header$type == 'data.frame') {
             # Component is a data.frame
             line <- readLines(fh, n = 1)
-            header <- strsplit(line, "\\s")[[1]]
+            header <- strsplit(line, "\\s+")[[1]]
             if(length(header) < 2) stop(paste("Not enough parts in data header", header))
             header <- header[2:length(header)]  # Remove initial ';'
 
