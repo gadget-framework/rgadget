@@ -795,3 +795,67 @@ ok_group("split_gadgetfile_line", {
         "f",
         NULL)), "Tabs inside expression converted to spaces")
 })
+
+ok_group("Can read time variable files successfully", {
+    path <- tempdir()
+
+    test_loopback(
+        ver_string,
+        "annualgrowth\t",
+        "data",
+        "; year\tstep\tvalue",
+        "1995\t1\t#grow1995",
+        "1996\t1\t#grow1996",
+        "1997\t1\t#grow1997",
+        "1998\t1\t#grow1998",
+        "1999\t1\t#grow1999",
+        "2000\t1\t#grow2000",
+        dir = path,
+        file_type = "timevariable")
+
+    gf <- read.gadget.string(
+        ver_string,
+        "annualgrowth",
+        "data",
+        "; year  step    value",
+        "1995    1       #grow1995",
+        "1996    1       #grow1996",
+        "1997    1       #grow1997",
+        "1998    1       #grow1998",
+        "1999    1       #grow1999",
+        "2000    1       #grow2000",
+        dir = path,
+        file_type = "timevariable")
+    ok(cmp(unattr(gf), list(list(
+        annualgrowth = as.numeric(),
+        data = data.frame(
+            year = 1995:2000,
+            step = 1,
+            value = paste0('#grow', 1995:2000),
+            stringsAsFactors = TRUE)
+    ))), "Time variable file read")
+})
+
+ok_group("Can read stock variable files successfully", {
+    path <- tempdir()
+
+    test_loopback(
+        ver_string,
+        "biomass\t",
+        "codimm\t",
+        "codmat\t",
+        dir = path,
+        file_type = "stockvariable")
+
+    gf <- read.gadget.string(
+        ver_string,
+        "biomass\t1",
+        "codimm",
+        "codmat",
+        dir = path,
+        file_type = "stockvariable")
+    ok(cmp(unattr(gf), list(list(
+        biomass = as.integer(1),
+        codimm = as.numeric(c()),
+        codmat = as.numeric(c())))), "Stock variable file read")
+})

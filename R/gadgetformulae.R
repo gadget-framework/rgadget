@@ -44,16 +44,12 @@ parse.gadget.formulae <- function(input_formulae) {
         # Assume anything else is a function call
         # Ingest parameters until we hit a close bracket
         # NB: Any function parameters will ingest their own close bracket
-        out <- list(token)
+        out <- list(as.name(token))
         while(!identical(ingest_regexp("(\\))"), ")")) {
             out[[length(out) + 1]] <- get_expression()
         }
 
-        # NB: do.call evaluates inputs, so hard-code calls to call()
-        if (length(out) == 1) return(call(out[[1]]))
-        if (length(out) == 2) return(call(out[[1]], out[[2]]))
-        if (length(out) == 3) return(call(out[[1]], out[[2]], out[[3]]))
-        stop("Unsupported " + (length(out) - 1) + "-ary function")
+        return(as.call(out))
     }
 
     # Start recursion
@@ -97,4 +93,69 @@ to.gadget.formulae <- function(ex) {
 # Characters look like a gadget formulae
 possible.gadget.formulae <- function(x) {
     grepl("^\\s*\\(.*\\)\\s*$", x)
+}
+
+##' @title Replace variables in formulae
+##' @param ex		An unevaluated R expression or the result of parse.gadget.formulae, e.g. quote(2 + log(moo - 1))
+##' @param replacements	A list of variable names to either: a TimeVariable file, replacement gadget/R formulae, or value
+##' @param year		If using TimeVariable files, specify the year to pull out of file
+##' @param step		If using TimeVariable files, specify the step to pull out of file
+##' @return An R expression representing the gadget formulae, which could be run with \code{eval(.., list(moo = 3))}
+##' @examples
+##' sub.gadget.formulae(quote(log(moo) + oink + baa), list(moo = "#fish", oink = quote(2 + 2), baa = 5))
+##' # ==> log(fish) + (2 + 2) + 5
+##'
+##' \dontrun{
+##' tv <- read.gadget.file('.', 'timevariable', file_type = 'timevariable')
+##' sub.gadget.formulae(quote(log(moo) + oink), list(moo = tv), year = 1995, step = 1)
+##' # ==> log(grow1995) + oink
+##' }
+##' @export
+sub.gadget.formulae <- function (
+        ex,
+        replacements,
+        year = stop('Specify year to use timevariable'),
+        step = stop('Specify step to use timevariable')) {
+    if (is.name(ex)) {
+        repl <- replacements[[as.character(ex)]]
+
+        if (is.null(repl)) {
+            # No valid replacement, leave alone
+            return (ex)
+        }
+
+        if ("gadgetfile" %in% class(repl)) {
+            # Repl is a gadgetfile, assume timevariable and try replacing
+            repl <- repl[[1]]$data
+            repl <- as.character(repl[repl$year == year & repl$step == step, 'value'])
+            if (length(repl) == 0) {
+                stop("No value for ", as.character(ex), " timevariable, year/step ", year, "/", step)
+            }
+        }
+
+        if(is.name(repl) || is.numeric(repl) || is.call(repl)) {
+            # Formulae-like thing, use that instead
+            return(repl)
+        }
+
+        if(isTRUE(nzchar(repl))) {
+            # Assume strings are gadget formulae
+            return(parse.gadget.formulae(repl))
+        }
+
+        stop("Not sure how to replace ", as.character(ex), " with", repl)
+    }
+
+    if (is.numeric(ex) || is.character(ex)) {
+        return(ex)
+    }
+
+    if (is.call(ex)) {
+        # Recurse into every argument of call
+        return(as.call(lapply(seq_along(ex), function (i) {
+            if (i > 1) sub.gadget.formulae(ex[[i]], replacements, year, step) else ex[[i]];
+        })))
+    }
+
+    stop("Don't know what to do with: ", capture.output(str(ex)))
 }
