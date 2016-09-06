@@ -44,16 +44,12 @@ parse.gadget.formulae <- function(input_formulae) {
         # Assume anything else is a function call
         # Ingest parameters until we hit a close bracket
         # NB: Any function parameters will ingest their own close bracket
-        out <- list(token)
+        out <- list(as.name(token))
         while(!identical(ingest_regexp("(\\))"), ")")) {
             out[[length(out) + 1]] <- get_expression()
         }
 
-        # NB: do.call evaluates inputs, so hard-code calls to call()
-        if (length(out) == 1) return(call(out[[1]]))
-        if (length(out) == 2) return(call(out[[1]], out[[2]]))
-        if (length(out) == 3) return(call(out[[1]], out[[2]], out[[3]]))
-        stop("Unsupported " + (length(out) - 1) + "-ary function")
+        return(as.call(out))
     }
 
     # Start recursion
