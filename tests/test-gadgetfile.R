@@ -835,3 +835,27 @@ ok_group("Can read time variable files successfully", {
             stringsAsFactors = TRUE)
     ))), "Time variable file read")
 })
+
+ok_group("Can read stock variable files successfully", {
+    path <- tempdir()
+
+    test_loopback(
+        ver_string,
+        "biomass\t",
+        "codimm\t",
+        "codmat\t",
+        dir = path,
+        file_type = "stockvariable")
+
+    gf <- read.gadget.string(
+        ver_string,
+        "biomass\t1",
+        "codimm",
+        "codmat",
+        dir = path,
+        file_type = "stockvariable")
+    ok(cmp(unattr(gf), list(list(
+        biomass = as.integer(1),
+        codimm = as.numeric(c()),
+        codmat = as.numeric(c())))), "Stock variable file read")
+})
