@@ -409,6 +409,7 @@ setMethod("gadget_dir_write",
           ## if so, overwrite the file, if not append fleet to fleet file
           fleetFile <- file(sprintf('%s/Modelfiles/fleets', gd$dir))
           fleetLines <- readLines(fleetFile)
+		  close(fleetFile)
           if(any(grepl(x@name, fleetLines))) {
 	  		    write.unix(paste(fleet.text,collapse='\n'),
                      f=sprintf('%s/Modelfiles/fleets',gd$dir), 
