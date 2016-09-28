@@ -1232,6 +1232,9 @@ read.gadget.stockfiles <- function(stock.files){
         tmp <- strip.comments(stock[[migrate.loc+2]][-1])
         mat.loc <- grep('[migrationmatrix]',tmp,fixed=TRUE)
         tyler <- diff(mat.loc)[1]
+	if(length(tyler) == 0){
+ 	   tyler <- length(tmp)-1
+	}
         migrationratio <-
           llply(mat.loc,  ## all puns intended;)
                 function(x){
