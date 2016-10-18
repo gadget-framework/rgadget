@@ -1413,7 +1413,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
                            gd=list(dir='.',rel.dir='PRE'),
                            method = 'AR1',
                            ref.years=NULL,
-                           printfile=NULL){
+                           custom.print=NULL){
   ## TODO fix stocks that are spawning
   pre <- paste(gd$dir,gd$rel.dir,sep='/') 
   
@@ -1683,11 +1683,14 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
           'printfile        %2$s/out/catch.%1$s.lw',
           'yearsandsteps    all all',
           sep = '\n')
-  
+
+if(!is.null(custom.print)){
+    custom.print <- paste(readLines(custom.print), collapse="\n ")
+} else {NULL}
   
   printfile <-
     paste(
-      printfile,
+      custom.print,
       paste(sprintf(catch.print, unique(fleet$prey$stock), pre,
                     paste(all.fleets, paste(fleet$fleet$fleet,collapse=' '))),
             collapse='\n'),
