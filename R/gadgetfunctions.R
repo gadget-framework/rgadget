@@ -1396,6 +1396,7 @@ gadget.bootypr <- function(params.file='params.final',
 #' @param compact should ssb and total bio be calculated
 #' @param mat.par parameters determining the maturity ogive
 #' @param gd gadget directory
+#' @param custom.print filename of customise printfile
 #'
 #' @return
 #' @export
