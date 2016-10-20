@@ -207,6 +207,13 @@ write.gadget.likelihood <- function(lik,file='likelihood',
                          'lenaggfile','fleetnames','stocknames'),
                        names(comp))]
     }
+    ## and with catchstatistics
+    if('catchstatistics' %in% comp$type){
+      comp <-
+        comp[intersect(c('name','type','datafile','function','areaaggfile',
+                         'lenaggfile','ageaggfile','fleetnames','stocknames'),
+                       names(comp))]
+    }
         
     
     comp <- na.omit(melt(merge(weights,comp,by='name',sort=FALSE),
