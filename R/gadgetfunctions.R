@@ -1692,6 +1692,7 @@ if(!is.null(custom.print)){
   printfile <-
     paste(
       custom.print,
+      ';',
       paste(sprintf(catch.print, unique(fleet$prey$stock), pre,
                     paste(all.fleets, paste(fleet$fleet$fleet,collapse=' '))),
             collapse='\n'),
@@ -1753,7 +1754,31 @@ if(!is.null(custom.print)){
               laststep = time$laststep,
               notimesteps = time$notimesteps)
   
-  
+  tmp <- read.gadget.file(".",custom.print)
+  printOut <- vector("list", length(tmp)-1)
+  names(printOut) <- lapply(tmp[-1],function(x){x[["printfile"]]})
+  for(i in 1:length(printOut)){
+      printOut[[i]] <- read.table(paste('.',names(printOut)[i],sep="/"), comment.char=';')
+      if(lapply(tmp[-1],function(x){x[["type"]]})[[i]] == "stockstdprinter"){
+          colnames(printOut[[i]]) <- c("year","step","area","age","number","length","weight","stddev","consumed","biomass")}
+      if(lapply(tmp[-1],function(x){x[["type"]]})[[i]] == "stockfullprinter"){
+          colnames(printOut[[i]]) <- c("year","step","area","age","length","number","weight")}
+      if(lapply(tmp[-1],function(x){x[["type"]]})[[i]] == "stockprinter"){
+          colnames(printOut[[i]]) <- c("year","step","area","age","length","number","weight")}
+      if(lapply(tmp[-1],function(x){x[["type"]]})[[i]] == "predatorprinter"){
+          colnames(printOut[[i]]) <- c("year","step","area","pred","prey","amount")}
+      if(lapply(tmp[-1],function(x){x[["type"]]})[[i]] == "Predatoroverprinter"){
+          colnames(printOut[[i]]) <- c("year","step","area","length","biomass")}
+      if(lapply(tmp[-1],function(x){x[["type"]]})[[i]] == "preyoverprinter"){
+          colnames(printOut[[i]]) <- c("year","step","area","length","biomass")}
+      if(lapply(tmp[-1],function(x){x[["type"]]})[[i]] == "stockpreyfullprinter"){
+          colnames(printOut[[i]]) <- c("year","step","area","age","length","number","biomass")}
+      if(lapply(tmp[-1],function(x){x[["type"]]})[[i]] == "stockpreyprinter"){
+          colnames(printOut[[i]]) <- c("year","step","area","age","length","number","biomass")}
+      if(lapply(tmp[-1],function(x){x[["type"]]})[[i]] == "predatorpreyprinter"){
+          colnames(printOut[[i]]) <- c("year","step","area","age","length","number","biomass","mortality")}
+      file.remove(paste('.',names(printOut)[i],sep="/"))
+  } # TO DO: printOut$trial and printOut$effort to be added
   
   out <- list(
     lw = ldply(unique(fleet$prey$stock),
@@ -1829,6 +1854,7 @@ if(!is.null(custom.print)){
               }
               return(tmp)
             }),
+    custom.print = printOut,
     recruitment = prj.rec,
     num.trials = num.trials,
     stochastic = stochastic,
