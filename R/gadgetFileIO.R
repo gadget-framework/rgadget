@@ -761,6 +761,9 @@ read.gadget.data <- function(likelihood,debug=FALSE,year_range=NULL){
       if(x[['function']] %in% c('lengthgivenstddev','weightgivenstddev',
                            'lengthgivenvar'))
         names(dat) <- c('year','step','area','age','number','mean','stddev')
+      if(x[['function']] %in% c('weightgivenstddevlen'))
+        names(dat) <- c('year','step','area','length','number','mean','stddev')
+      
     }
     if(x$type=='stockdistribution'){
       names(dat) <- c('year','step','area','stock','age','length','number')
