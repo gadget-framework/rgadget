@@ -1396,6 +1396,7 @@ gadget.bootypr <- function(params.file='params.final',
 #' @param compact should ssb and total bio be calculated
 #' @param mat.par parameters determining the maturity ogive
 #' @param gd gadget directory
+#' @param custom.print filename of customise printfile
 #'
 #' @return
 #' @export
@@ -1412,7 +1413,8 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
                            mat.par=c(0,0),
                            gd=list(dir='.',rel.dir='PRE'),
                            method = 'AR1',
-                           ref.years=NULL){
+                           ref.years=NULL,
+                           custom.print=NULL){
   ## TODO fix stocks that are spawning
   pre <- paste(gd$dir,gd$rel.dir,sep='/') 
   
@@ -1682,10 +1684,15 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
           'printfile        %2$s/out/catch.%1$s.lw',
           'yearsandsteps    all all',
           sep = '\n')
-  
+
+if(!is.null(custom.print)){
+    custom.print <- paste(readLines(custom.print), collapse="\n ")
+} else {NULL}
   
   printfile <-
     paste(
+      custom.print,
+      ';',
       paste(sprintf(catch.print, unique(fleet$prey$stock), pre,
                     paste(all.fleets, paste(fleet$fleet$fleet,collapse=' '))),
             collapse='\n'),
@@ -1747,7 +1754,31 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
               laststep = time$laststep,
               notimesteps = time$notimesteps)
   
-  
+  tmp <- read.gadget.file(".",custom.print)
+  printOut <- vector("list", length(tmp)-1)
+  names(printOut) <- lapply(tmp[-1],function(x){x[["printfile"]]})
+  for(i in 1:length(printOut)){
+      printOut[[i]] <- read.table(paste('.',names(printOut)[i],sep="/"), comment.char=';')
+      if(lapply(tmp[-1],function(x){x[["type"]]})[[i]] == "stockstdprinter"){
+          colnames(printOut[[i]]) <- c("year","step","area","age","number","length","weight","stddev","consumed","biomass")}
+      if(lapply(tmp[-1],function(x){x[["type"]]})[[i]] == "stockfullprinter"){
+          colnames(printOut[[i]]) <- c("year","step","area","age","length","number","weight")}
+      if(lapply(tmp[-1],function(x){x[["type"]]})[[i]] == "stockprinter"){
+          colnames(printOut[[i]]) <- c("year","step","area","age","length","number","weight")}
+      if(lapply(tmp[-1],function(x){x[["type"]]})[[i]] == "predatorprinter"){
+          colnames(printOut[[i]]) <- c("year","step","area","pred","prey","amount")}
+      if(lapply(tmp[-1],function(x){x[["type"]]})[[i]] == "Predatoroverprinter"){
+          colnames(printOut[[i]]) <- c("year","step","area","length","biomass")}
+      if(lapply(tmp[-1],function(x){x[["type"]]})[[i]] == "preyoverprinter"){
+          colnames(printOut[[i]]) <- c("year","step","area","length","biomass")}
+      if(lapply(tmp[-1],function(x){x[["type"]]})[[i]] == "stockpreyfullprinter"){
+          colnames(printOut[[i]]) <- c("year","step","area","age","length","number","biomass")}
+      if(lapply(tmp[-1],function(x){x[["type"]]})[[i]] == "stockpreyprinter"){
+          colnames(printOut[[i]]) <- c("year","step","area","age","length","number","biomass")}
+      if(lapply(tmp[-1],function(x){x[["type"]]})[[i]] == "predatorpreyprinter"){
+          colnames(printOut[[i]]) <- c("year","step","area","age","length","number","biomass","mortality")}
+      file.remove(paste('.',names(printOut)[i],sep="/"))
+  } # TO DO: printOut$trial and printOut$effort to be added
   
   out <- list(
     lw = ldply(unique(fleet$prey$stock),
@@ -1823,6 +1854,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
               }
               return(tmp)
             }),
+    custom.print = printOut,
     recruitment = prj.rec,
     num.trials = num.trials,
     stochastic = stochastic,
