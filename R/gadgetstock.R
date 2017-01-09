@@ -223,29 +223,88 @@ gadget_update.gadgetstock <- function(gf, component, ...) {
             dl_length,
             gadgetdata(paste0('Modelfiles/', gf[[1]]$stockname, '.refwgt'), refwgt))
 
-    } else if (component == 'initialconditions' && isTRUE(all.equal(names(args), c('data')))) {
-        data <- args$data
-        for (col in c('area', 'age', 'length', 'number', 'mean')) {
-            if (!(col %in% colnames(data))) {
-                stop("Data missing column ", col)
-            }
+    } else if (component == 'initialconditions') {
+      if(isTRUE(all.equal(names(args), c('number')))) {
+        data <- args$number
+        for (col in c('area', 'age', 'length', 'number', 'weight')) {
+          if (!(col %in% colnames(data))) {
+            stop("Data missing column ", col)
+          }
         }
-
+        
         numberfile <- data.frame(
-            area = data$area,
-            age = data$age,
-            length = unlist(agg_prop(attr(data, 'length')[data$length], "min")), # Grouping -> minimum value
-            number = data$number,
-            weight = data$mean,  # Assuming it's mean weight here
-            stringsAsFactors = TRUE)
+          age = data$age,
+          area = data$area,
+          length = unlist(agg_prop(attr(data, 'length')[data$length], "min")), # Grouping -> minimum value
+          number = data$number,
+          weight = data$weight,  # Assuming it's mean weight here
+          stringsAsFactors = FALSE)
         gf$initialconditions <- list(
-            minage = min(unlist(agg_prop(attr(data, 'age'), "min"))),
-            maxage = max(unlist(agg_prop(attr(data, 'age'), "max"))),
-            minlength = min(unlist(agg_prop(attr(data, 'length'), "min"))),
-            maxlength = max(unlist(agg_prop(attr(data, 'length'), "max"))),
-            dl = min(unlist(agg_prop(attr(data, 'length'), "diff"))),
-            numberfile = gadgetdata(paste0('Modelfiles/', gf[[1]]$stockname, '.init.number'), numberfile))
+          minage = ifelse(is.null(args$minage),gf[[1]]$minage,args$minage),
+          maxage = ifelse(is.null(args$maxage),gf[[1]]$maxage,args$maxage),
+          minlength = ifelse(is.null(args$minlength),gf[[1]]$minlength,args$minlength),
+          maxlength = ifelse(is.null(args$maxlength),gf[[1]]$maxlength,args$maxlength),
+          dl = ifelse(is.null(args$dl),gf[[1]]$dl,args$dl),
+          numberfile = gadgetdata(paste0('Modelfiles/', gf[[1]]$stockname, '.init.number'), numberfile))
+        
+        
+      } else if (isTRUE(all.equal(names(args), c('normalcond')))) {
+        data <- args$normalcond
+        for (col in c('area', 'age','age.factor','area.factor', 'number', 'mean', 'stddev', 'relcond')) {
+          if (!(col %in% colnames(data))) {
+            stop("Data missing column ", col)
+          }
+        }
+        
+        numberfile <- data.frame(
+          age = data$age,
+          area = data$area,
+          age.factor = data$age.factor,
+          area.factor = data$area.factor,
+          number = data$number,
+          mean = data$mean,  
+          stddev = data$stddev,
+          relcond = data$relcond,
+          stringsAsFactors = FALSE)
+        gf$initialconditions <- list(
+          minage = ifelse(is.null(args$minage),gf[[1]]$minage,args$minage),
+          maxage = ifelse(is.null(args$maxage),gf[[1]]$maxage,args$maxage),
+          minlength = ifelse(is.null(args$minlength),gf[[1]]$minlength,args$minlength),
+          maxlength = ifelse(is.null(args$maxlength),gf[[1]]$maxlength,args$maxlength),
+          dl = ifelse(is.null(args$dl),gf[[1]]$dl,args$dl),
+          numberfile = gadgetdata(paste0('Modelfiles/', gf[[1]]$stockname, '.init.normalcond'), numberfile))
 
+      } else if (isTRUE(all.equal(names(args), c('normalparam')))) {
+        data <- args$normalparam
+        for (col in c('area', 'age','age.factor','area.factor', 'number', 'mean', 'stddev', 'alpha','beta')) {
+          if (!(col %in% colnames(data))) {
+            stop("Data missing column ", col)
+          }
+        }
+        
+        numberfile <- data.frame(
+          age = data$age,
+          area = data$area,
+          age.factor = data$age.factor,
+          area.factor = data$area.factor,
+          mean = data$mean,  
+          stddev = data$stddev,
+          alpha = data$alpha,
+          beta = data$beta,
+          stringsAsFactors = FALSE)
+        gf$initialconditions <- list(
+          minage = ifelse(is.null(args$minage),gf[[1]]$minage,args$minage),
+          maxage = ifelse(is.null(args$maxage),gf[[1]]$maxage,args$maxage),
+          minlength = ifelse(is.null(args$minlength),gf[[1]]$minlength,args$minlength),
+          maxlength = ifelse(is.null(args$maxlength),gf[[1]]$maxlength,args$maxlength),
+          dl = ifelse(is.null(args$dl),gf[[1]]$dl,args$dl),
+          numberfile = gadgetdata(paste0('Modelfiles/', gf[[1]]$stockname, '.init.normalparam'), numberfile))
+        
+      } else {
+        stop("No initialcondition scheme found - allowed options are:\n- number\n- normalcond\n- normalparam")
+      } 
+      
+      
     } else if (component == 'doesmature' && 'maturityfunction' %in% names(args)) {
         gf$doesmature <- list(
             doesmature = 1,
