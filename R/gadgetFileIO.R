@@ -2082,20 +2082,20 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
           c('year','step','area','fleet','amount')
         tmp$amount <- as.numeric(tmp$amount)
         filter(tmp,fleet == x$fleet)
-      }) %>% 
-      data.table()
-    
+      }) 
     
     fleet.info <- 
       stock.full %>%
-      mutate(area = as.numeric(gsub('area','',area))) %>%
-      left_join(data.table(select(gss.suit,.id,length=l,suit,fleet,stock))) %>%
-      group_by(year,step,area,fleet) %>%
-      summarise(harv.bio = sum(suit*number*mean.weight)) %>%
-      left_join(fleet.catches %>% group_by(year,fleet,area) %>% summarise(amount=sum(amount))) %>%
-      group_by(year,step,area,fleet) %>%
-      mutate(amount = ifelse(is.na(amount),0,amount),
-           harv.rate = amount/harv.bio)
+      dplyr::mutate(area = as.numeric(gsub('area','',area))) %>%
+      dplyr::left_join(data.table(select(gss.suit,.id,length=l,suit,fleet,stock))) %>%
+      dplyr::group_by(year,step,area,fleet) %>%
+      dplyr::summarise(harv.bio = sum(suit*number*mean.weight)) %>%
+      dplyr::left_join(fleet.catches %>% 
+                         dplyr::group_by(year,fleet,area) %>% 
+                         dplyr::summarise(amount=sum(amount))) %>%
+      dplyr::group_by(year,step,area,fleet) %>%
+      dplyr::mutate(amount = ifelse(is.na(amount),0,amount),
+                    harv.rate = amount/harv.bio)
   } else {
     fleet.info <- data.frame()
   }
@@ -2205,30 +2205,30 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
         }
         f.by.year <- 
           out[[sprintf('%s.prey',x)]] %>%
-          group_by(year,area) %>%
-          summarise(catch=sum(biomass.consumed),
-                    num.catch=sum(number.consumed),
-                    F=mean(mortality[age>=min(f.age.range)&age<=max(f.age.range)]))
+          dplyr::group_by(year,area) %>%
+          dplyr::summarise(catch=sum(biomass.consumed),
+                           num.catch=sum(number.consumed),
+                           F=mean(mortality[age>=min(f.age.range)&age<=max(f.age.range)]))
 
 
         bio.by.year <- 
           out[[sprintf('%s.full',x)]] %>%
-          filter(step == 1) %>%
-          group_by(year,area) %>%
-          summarise(total.number = sum(number),
-                    total.biomass = sum(number*mean.weight),
-                    harv.biomass =
-                      sum(mean.weight*
-                            harv.suit(as.numeric(gsub('len','',length)),x)*
-                            number),
-                    ssb = sum(mean.weight*logit(mat.par[1],
-                                                mat.par[2],
-                                                as.numeric(gsub('len','',length)))*
-                                number)) 
+          dplyr::filter(step == 1) %>%
+          dplyr::group_by(year,area) %>%
+          dplyr::summarise(total.number = sum(number),
+                           total.biomass = sum(number*mean.weight),
+                           harv.biomass =
+                             sum(mean.weight*
+                                   harv.suit(as.numeric(gsub('len','',length)),x)*
+                                   number),
+                           ssb = sum(mean.weight*logit(mat.par[1],
+                                                       mat.par[2],
+                                                       as.numeric(gsub('len','',length)))*
+                                       number)) %>% 
+          dplyr::left_join(f.by.year)
 
-        bio <- merge(f.by.year,bio.by.year)
-        bio$stock <- x
-        return(bio)
+        bio.by.year$stock <- x
+        return(bio.by.year)
       })
 	# altered by pfrater to include area in merge with stock.recruitment - Aug.11, 2016
 	stock.rec.temp <- stock.recruitment
