@@ -154,7 +154,7 @@ gadget_update.gadgetstock <- function(gf, component, ...) {
                 linf = paste0('#', gf[[1]]$stockname, '.Linf'),
                 k = sprintf('(* 0.001 #%s.k)',gf[[1]]$stockname),
                 sprintf('#%s.walpha',gf[[1]]$stockname),
-                sprintf('#wbeta',gf[[1]]$stockname)),
+                sprintf('#%s.wbeta',gf[[1]]$stockname)),
             beta = sprintf('(* 10 #%s.bbin)',gf[[1]]$stockname),
             maxlengthgroupgrowth = 15)
 
@@ -172,6 +172,8 @@ gadget_update.gadgetstock <- function(gf, component, ...) {
             max(unlist(agg_prop(attr(data, 'length'), "max"))))
         # Update naturalmortality defaults
         gf <- gadget_update(gf, 'naturalmortality', c())
+        
+          
 
     } else if (component == 'refweight' && isTRUE(all.equal(names(args), c('length', 'alpha', 'beta')))) {
         refwgt <- data.frame(
@@ -250,7 +252,7 @@ gadget_update.gadgetstock <- function(gf, component, ...) {
         
       } else if (isTRUE(all.equal(names(args), c('normalcond')))) {
         data <- args$normalcond
-        for (col in c('area', 'age','age.factor','area.factor', 'number', 'mean', 'stddev', 'relcond')) {
+        for (col in c('area', 'age','age.factor','area.factor', 'mean', 'stddev', 'relcond')) {
           if (!(col %in% colnames(data))) {
             stop("Data missing column ", col)
           }
@@ -261,7 +263,6 @@ gadget_update.gadgetstock <- function(gf, component, ...) {
           area = data$area,
           age.factor = data$age.factor,
           area.factor = data$area.factor,
-          number = data$number,
           mean = data$mean,  
           stddev = data$stddev,
           relcond = data$relcond,
@@ -272,11 +273,11 @@ gadget_update.gadgetstock <- function(gf, component, ...) {
           minlength = ifelse(is.null(args$minlength),gf[[1]]$minlength,args$minlength),
           maxlength = ifelse(is.null(args$maxlength),gf[[1]]$maxlength,args$maxlength),
           dl = ifelse(is.null(args$dl),gf[[1]]$dl,args$dl),
-          numberfile = gadgetdata(paste0('Modelfiles/', gf[[1]]$stockname, '.init.normalcond'), numberfile))
+          normalcondfile = gadgetdata(paste0('Modelfiles/', gf[[1]]$stockname, '.init.normalcond'), numberfile))
 
       } else if (isTRUE(all.equal(names(args), c('normalparam')))) {
         data <- args$normalparam
-        for (col in c('area', 'age','age.factor','area.factor', 'number', 'mean', 'stddev', 'alpha','beta')) {
+        for (col in c('area', 'age','age.factor','area.factor', 'mean', 'stddev', 'alpha','beta')) {
           if (!(col %in% colnames(data))) {
             stop("Data missing column ", col)
           }
@@ -298,7 +299,7 @@ gadget_update.gadgetstock <- function(gf, component, ...) {
           minlength = ifelse(is.null(args$minlength),gf[[1]]$minlength,args$minlength),
           maxlength = ifelse(is.null(args$maxlength),gf[[1]]$maxlength,args$maxlength),
           dl = ifelse(is.null(args$dl),gf[[1]]$dl,args$dl),
-          numberfile = gadgetdata(paste0('Modelfiles/', gf[[1]]$stockname, '.init.normalparam'), numberfile))
+          normalparamfile = gadgetdata(paste0('Modelfiles/', gf[[1]]$stockname, '.init.normalparam'), numberfile))
         
       } else {
         stop("No initialcondition scheme found - allowed options are:\n- number\n- normalcond\n- normalparam")
@@ -314,8 +315,8 @@ gadget_update.gadgetstock <- function(gf, component, ...) {
                 components = list(args[names(args) != 'maturityfunction'])))
     } else if (component == 'doesmove') {
       gf$doesmove <- list(
-        doesmature = 1,
-        transitionstockandratio = args$transitionstockandratio,
+        doesmove = 1,
+        transitionstocksandratios = args$transitionstocksandratios,
         transitionstep = args$transitionstep)
       
     } else if (component == 'doesrenew') {
@@ -366,7 +367,7 @@ gadget_update.gadgetstock <- function(gf, component, ...) {
             minlength = ifelse(is.null(args$minlength),gf[[1]]$minlength,args$minlength),
             maxlength = ifelse(is.null(args$maxlength),gf[[1]]$maxlength,args$maxlength),
             dl = ifelse(is.null(args$dl),gf[[1]]$dl,args$dl),
-            numberfile = gadgetdata(paste0('Modelfiles/', gf[[1]]$stockname, '.rec.normalcond'), numberfile))
+            normalcondfile = gadgetdata(paste0('Modelfiles/', gf[[1]]$stockname, '.rec.normalcond'), numberfile))
       
       } else if (isTRUE(all.equal(names(args), c('normalparam')))) {
         data <- args$normalparam
@@ -392,7 +393,7 @@ gadget_update.gadgetstock <- function(gf, component, ...) {
           minlength = ifelse(is.null(args$minlength),gf[[1]]$minlength,args$minlength),
           maxlength = ifelse(is.null(args$maxlength),gf[[1]]$maxlength,args$maxlength),
           dl = ifelse(is.null(args$dl),gf[[1]]$dl,args$dl),
-          numberfile = gadgetdata(paste0('Modelfiles/', gf[[1]]$stockname, '.rec.normalparam'), numberfile))
+          normalparamfile = gadgetdata(paste0('Modelfiles/', gf[[1]]$stockname, '.rec.normalparam'), numberfile))
       } else {
         stop("No recruiment scheme found - allowed options are:\n- number\n- normalcond\n- normalparam")
       }
@@ -403,9 +404,17 @@ gadget_update.gadgetstock <- function(gf, component, ...) {
         if(length(extra_age_groups) != 1) extra_age_groups <- 0
 
         gf$naturalmortality <- list(naturalmortality = c(
-            args[[1]], rep(0.2, times = extra_age_groups),
+            args[[1]], rep(sprintf('#%s.M',gf[[1]]$stockname), 
+                           times = extra_age_groups),
             NULL))
 
+    } else if (component == 'iseaten'){
+      
+      gf$iseaten <- list(
+        iseaten = 1,
+        preylengths = gf[[1]]$growthandeatlengths,
+        energycontent = ifelse(is.null(args$energycontent),1,args$energycontent))
+      
     } else {
         # Update the selected component with variables provided
         gf[[component]][names(args)] <- args
@@ -418,9 +427,20 @@ gadget_update.gadgetstock <- function(gf, component, ...) {
         if (component == 1 && 'stockname' %in% names(args)) {
             # Stockname changed, so update the file name we use
             attr(gf, 'file_name') <- args$stockname
-        } else if (component == 1 && ('minage' %in% names(args) || 'maxage' %in% names(args))) {
+        } 
+        if (component == 1 && ('minage' %in% names(args) || 'maxage' %in% names(args))) {
             # Update naturalmortality defaults
             gf <- gadget_update(gf, 'naturalmortality', c())
+        } 
+        if(component == 1 && ('minlength' %in% names(args) & 'maxlength' %in% names(args) & 
+                                     'dl' %in% names(args))){
+           # Update growthandeatlengths 
+          lgr <- seq(gf[[1]]$minlength,gf[[1]]$maxlength,by=gf[[1]]$dl)
+          len.agg <- data.frame(name = paste0('len',head(lgr,-1)),
+                                lower = head(lgr,-1),
+                                upper = tail(lgr,-1))
+          gf[[1]]$growthandeatlengths <- 
+            gadgetdata(paste0('Aggfiles/', gf[[1]]$stockname, '.stock.len.agg'), len.agg)
         }
     }
 
