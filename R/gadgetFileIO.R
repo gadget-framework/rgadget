@@ -2198,7 +2198,7 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
   if(sum(grepl('.std',names(out),fixed = TRUE))>0){
 
     res.by.year <-
-      ldply(laply(stocks,function(x) x@stockname),function(x){
+      llply(laply(stocks,function(x) x@stockname),function(x){
         if(is.null(f.age.range)){
           f.age.range <- c(max(out[[sprintf('%s.prey',x)]]$age),
                            max(out[[sprintf('%s.prey',x)]]$age))
@@ -2225,16 +2225,15 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
                                                        mat.par[2],
                                                        as.numeric(gsub('len','',length)))*
                                        number)) %>% 
-          dplyr::left_join(f.by.year)
+          dplyr::left_join(f.by.year) %>% 
+          dplyr::mutate(stock = x)
 
-        bio.by.year$stock <- x
         return(bio.by.year)
-      })
-	# altered by pfrater to include area in merge with stock.recruitment - Aug.11, 2016
-	stock.rec.temp <- stock.recruitment
-	stock.rec.temp$area <- paste('area', stock.rec.temp$area, sep='')
-    res.by.year <- merge(res.by.year,stock.rec.temp, all.x = TRUE,
-                         by=c('year','stock', 'area'))
+      }) %>% 
+      dplyr::bind_rows() %>% 
+      dplyr::left_join(stock.recruitment %>% 
+                         dplyr::mutate(area = paste0('area',area),
+                                       year = as.numeric(year)))
   } else {
     res.by.year <- NULL
   }
