@@ -348,7 +348,10 @@ write.gadget.file <- function(obj, path, recursive = TRUE) {
   if (!is.null(mainfile) && !is.na(file_config$mainfile_section)) {
     do.call(gadget_mainfile_update, c(
       list(path, mainfile),
-      structure(list(file_name), names = c(file_config$mainfile_section)),
+      structure(list(file_name), 
+                names = c(file_config$mainfile_section)),
+      structure(list(file_config$mainfile_overwrite),
+                names = 'overwrite'),
       NULL))
   }
 }
@@ -363,7 +366,8 @@ write.gadget.file <- function(obj, path, recursive = TRUE) {
 #' @param missingOkay	If \code{TRUE}, return an empty gadgetfile object if file does not exist.
 #' @param recursive	Read in all nested files too (default TRUE)?
 #' @export
-read.gadget.file <- function(path, file_name, file_type = "generic", fileEncoding = "UTF-8", missingOkay = FALSE, recursive = TRUE) {
+read.gadget.file <- function(path, file_name, file_type = "generic", 
+                             fileEncoding = "UTF-8", missingOkay = FALSE, recursive = TRUE) {
   extract <- function (pattern, line) {
     if (length(line) == 0) return(c())
     m <- regmatches(line, regexec(pattern, line))[[1]]
@@ -660,7 +664,8 @@ gadget_mainfile_update <- function (
   otherfoodfiles = NULL,
   fleetfiles = NULL,
   likelihoodfiles = NULL,
-  fileEncoding = "UTF-8") {
+  fileEncoding = "UTF-8",
+  overwrite = NULL) {
   made_change <- FALSE
   swap <- function (old_val, repl_val, single = FALSE) {
     # NULL means leave alone
@@ -684,21 +689,25 @@ gadget_mainfile_update <- function (
       otherfood = list(),
       fleet = list(),
       likelihood = list()))
-  }
+  } 
+  
+  if(is.null(overwrite)){
+    overwrite <- FALSE
+  } 
   
   # Do simple swaps first
   mfile[[1]]$timefile <- swap(mfile[[1]]$timefile, timefile, single = TRUE)
   mfile[[1]]$areafile <- swap(mfile[[1]]$areafile, areafile, single = TRUE)
   
   # Printfiles is mandatory, but can specify empty by adding a comment
-  mfile[[1]]$printfiles <- swap(mfile[[1]]$printfiles, printfiles)
+  mfile[[1]]$printfiles <- swap(mfile[[1]]$printfiles, printfiles, single = overwrite)
   
   # Rest are in their own component
-  mfile$stock$stockfiles <- swap(mfile$stock$stockfiles, stockfiles)
-  mfile$tagging$tagfiles <- swap(mfile$tagging$tagfiles, tagfiles)
-  mfile$otherfood$otherfoodfiles <- swap(mfile$otherfood$otherfoodfiles, otherfoodfiles)
-  mfile$fleet$fleetfiles <- swap(mfile$fleet$fleetfiles, fleetfiles)
-  mfile$likelihood$likelihoodfiles <- swap(mfile$likelihood$likelihoodfiles, likelihoodfiles)
+  mfile$stock$stockfiles <- swap(mfile$stock$stockfiles, stockfiles, single = overwrite)
+  mfile$tagging$tagfiles <- swap(mfile$tagging$tagfiles, tagfiles, single = overwrite)
+  mfile$otherfood$otherfoodfiles <- swap(mfile$otherfood$otherfoodfiles, otherfoodfiles, single = overwrite)
+  mfile$fleet$fleetfiles <- swap(mfile$fleet$fleetfiles, fleetfiles, single = overwrite)
+  mfile$likelihood$likelihoodfiles <- swap(mfile$likelihood$likelihoodfiles, likelihoodfiles, single = overwrite)
   
   # Write file back out again
   if (made_change) write.gadget.file(mfile, path, recursive = FALSE)
