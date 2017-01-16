@@ -389,7 +389,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
               notimesteps = time$notimesteps)
   printOut <- NA
   if(!is.null(custom.print)){
-    tmp <- read.gadget.file(".",custom.print)
+    tmp <- read.gadget.file(".",custom.print,recursive = FALSE)
     printOut <- vector("list", length(tmp)-1)
     names(printOut) <- lapply(tmp[-1],function(x){x[["printfile"]]})
     for(i in 1:length(printOut)){
