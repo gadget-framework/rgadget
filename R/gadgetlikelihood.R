@@ -74,7 +74,7 @@ gadget_discard.gadgetlikelihood <- function(gf,comp_name,...){
   file_config <- attr(gf,'file_config')
   class_val <- class(gf)
   gf <- gf %>% purrr::discard(name %in% comp_name)
-  attr(gf,'file_config')
+  attr(gf,'file_config') <- file_config
   class(gf) <- class_val
   return(gf)
 }
