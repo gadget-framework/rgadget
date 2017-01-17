@@ -99,10 +99,18 @@ gadgetdata <- function (file_name, data) {
 #' For more information, see a specific implementation:
 #' \enumerate{
 #'   \item \link{gadget_update.gadgetstock}
+#'   \item \link{gadget_update.gadgetlikelihood}
 #' }
-#'
 #' @export
 gadget_update <- function(gf, component, ...) UseMethod("gadget_update", gf)
+
+#' Discard named component
+#' 
+#' Remove unwanted components from file
+#' @param gf		The gadgetfile object to update
+#' @param comp_name named components to remove
+#' @export 
+gadget_discard <- function(gf,comp_name, ...) UseMethod("gadget_discard",gf)
 
 #' Recognised GADGET file types and their quirks
 #'
@@ -151,6 +159,7 @@ bare_component_regex <- function(config) {
 #' @param ...	unused
 #' @export
 print.gadgetfile <- function (x, ...) {
+  args <- list(...)
   print_comments <- function (obj, name='preamble') {
     lines <- as.list(attr(obj, name))
     if (length(lines) > 0) {
@@ -203,12 +212,29 @@ print.gadgetfile <- function (x, ...) {
           cat("\t")
         } else if ("gadgetfile" %in% class(comp[[i]])) {
           # Print gadget file path, not file
+  
+          file_name <- attr(comp[[i]], 'file_name')
+          if(!is.null(args$path)){
+            variant_dir <- attr(args$path, 'variant_dir')
+            if (isTRUE(nzchar(variant_dir))) {
+              file_name <- variant_full_path(variant_dir, file_name)
+            } 
+          }
+            
           cat("\t")
-          cat(attr(comp[[i]], 'file_name'), sep = "")
+          cat(file_name, sep = "")
         } else if ("gadget_file" %in% class(comp[[i]])) {
           # Print MFDB gadget_file
+          file_name <- comp[[i]]$filename
+          if(!is.null(args$path)){
+            variant_dir <- attr(args$path, 'variant_dir')
+            if (isTRUE(nzchar(variant_dir))) {
+              file_name <- variant_full_path(variant_dir, file_name)
+            } 
+          }
+          
           cat("\t")
-          cat(comp[[i]]$filename, sep = "")
+          cat(file_name, sep = "")
         } else if (is_sub_component(file_config, names(comp)[[i]]) && is.list(comp[[i]])) {
           # Subcomponent
           cat("\n")
@@ -341,7 +367,7 @@ write.gadget.file <- function(obj, path, recursive = TRUE) {
   
   fh = file(file.path(path, file_name), "w")
   tryCatch(
-    capture.output(print(obj), file = fh),
+    capture.output(print(obj,path=path), file = fh),
     finally = close(fh))
   
   # If this file is mentioned by the mainfile, also update that
