@@ -58,9 +58,11 @@ gadget_update.gadgetfleet <- function(gf, component, ...) {
 gadget_discard.gadgetfleet <- function(gf,comp_name,...){
   ## TODO: this function should also clean up asociated data files 
   file_config <- attr(gf,'file_config')
+  file_name <- attr(gf,'file_name')
   class_val <- class(gf)
   gf <- gf %>% purrr::discard(function(x) x[[1]] %in% comp_name)
   attr(gf,'file_config') <- file_config
+  attr(gf,'file_name') <- file_name 
   class(gf) <- class_val
   return(gf)
 }
