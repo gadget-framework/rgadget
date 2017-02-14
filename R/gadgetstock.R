@@ -434,7 +434,8 @@ gadget_update.gadgetstock <- function(gf, component, ...) {
         } 
         if(component == 1 && ('minlength' %in% names(args) & 'maxlength' %in% names(args) & 
                                      'dl' %in% names(args))){
-           # Update growthandeatlengths 
+          gf['growthandeatlengths'] <- NULL
+          # Update growthandeatlengths 
           lgr <- seq(gf[[1]]$minlength,gf[[1]]$maxlength,by=gf[[1]]$dl)
           len.agg <- data.frame(name = paste0('len',head(lgr,-1)),
                                 lower = head(lgr,-1),

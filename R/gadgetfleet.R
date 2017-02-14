@@ -11,7 +11,8 @@
 #' gadgetfleet('fleet', path, missingOkay = TRUE)  # Read 'fleet' fleet file, creating it if it doesn't exist
 #' @export
 gadgetfleet <- function(file_name, path, missingOkay = FALSE) {
-  gf <- read.gadget.file(path, file_name, file_type = "fleet", missingOkay = missingOkay)
+  gf <- read.gadget.file(path, file_name, ##file_type = "fleet",
+                         missingOkay = missingOkay)
   class(gf) <- c("gadgetfleet", class(gf))
   
   return(gf)
