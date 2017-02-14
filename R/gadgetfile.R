@@ -581,6 +581,7 @@ read.gadget.file <- function(path, file_name, file_type = "generic",
         }
         
         # Break up line into name\tvalues...; comment
+        line <- stringr::str_trim(line)
         match <- extract("([a-zA-Z0-9\\-_]*)\\s*([^;]*);?\\s*(.*)", line)
         line_name <- match[[1]]
         line_values <- if (nzchar(match[[2]])) split_gadgetfile_line(match[[2]]) else c()
