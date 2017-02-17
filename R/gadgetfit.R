@@ -57,16 +57,18 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
   fleets <- read.gadget.fleet(main$fleetfiles)
   catches <- get.gadget.catches(fleets,params)
   
-  gss.suit <- ldply(stocks,
-                    function(x){
-                      tryCatch(subset(get.gadget.suitability(fleets,params,
-                                                             getLengthGroups(x)),
-                                      stock == x@stockname),
-                               error = function(y){
-                                 print('warning -- suitability parameters could not be read')
-                                 0
-                               })
-                    })
+  gss.suit <- 
+    plyr::ldply(stocks,
+                function(x){
+                  tryCatch(subset(get.gadget.suitability(fleets,params,
+                                                         getLengthGroups(x)),
+                                  stock == x@stockname),
+                           error = function(y){
+                             print('warning -- suitability parameters could not be read')
+                             0
+                           })
+                })
+  
   stock.growth <-
     tryCatch(get.gadget.growth(stocks,params,age.based=TRUE),
              warning = function(x) NULL,
@@ -85,14 +87,15 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
       })
   }
   
-  stock.full <- data.table(ldply(stocks,function(x){
-    mutate(out[[sprintf('%s.full',getStockNames(x))]],
-           length=as.numeric(gsub('len','',length)))
-  }))
+  stock.full <-
+    ldply(stocks,function(x){
+      mutate(out[[sprintf('%s.full',getStockNames(x))]],
+             length=as.numeric(gsub('len','',length)))
+    })
   
-  stock.std <- data.table(ldply(stocks,function(x){
+  stock.std <- ldply(stocks,function(x){
     out[[sprintf('%s.std',getStockNames(x))]]
-  }))
+  })
   
   
   if(compile.fleet.info){
@@ -110,7 +113,7 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
     fleet.info <- 
       stock.full %>%
       dplyr::mutate(area = as.numeric(gsub('area','',area))) %>%
-      dplyr::left_join(data.table(select(gss.suit,.id,length=l,suit,fleet,stock))) %>%
+      dplyr::left_join(select(gss.suit,.id,length=l,suit,fleet,stock)) %>%
       dplyr::group_by(year,step,area,fleet) %>%
       dplyr::summarise(harv.bio = sum(suit*number*mean.weight)) %>%
       dplyr::left_join(fleet.catches %>% 
@@ -127,46 +130,46 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
   if('surveyindices' %in% names(lik.dat$dat)){
     
     
-    sidat <- ldply(names(lik.dat$dat$surveyindices),
-                   function(x){
-                     sidat <-
-                       merge(lik.dat$dat$surveyindices[[x]],
-                             out[[x]],
-                             by.y=c('year','label','step','area'),                             
-                             by.x=intersect(c('year','length','age','survey',
-                                              'step','area'),
-                                            names(lik.dat$dat$surveyindices[[x]])),
-                             all.y=TRUE)
-                     if('lengths' %in% sidat$sitype){
-                       sidat$length <- paste(sidat$lower,
-                                             sidat$upper, sep = ' - ')
-                     }
-                     sidat$name <- x
-                     sidat <- merge(sidat,
-                                    subset(lik$surveyindices,
-                                           select=c(name,stocknames)),
-                                    by='name')
-                     si.stocks <-
-                       unique(unlist(strsplit(unique(sidat$stocknames),'\t')))
-                     if('lengths' %in% sidat$sitype){
-                       ## note this assumes length based survey indices atm
-                       si.labels <-
-                         arrange(unique(sidat[c('length','lower','upper')]),
-                                 lower)
-                       sibio <-
-                         stock.full %>%
-                         filter(.id %in% si.stocks) %>%
-                         mutate(sigroup = cut(length,
-                                              breaks=c(si.labels$lower,
-                                                       max(si.labels$upper)),
-                                              labels=si.labels$length))%>%
-                         group_by(year,sigroup) %>%
-                         summarise(bio=sum(number*mean.weight)/sum(number))
-                       sidat <- merge(sidat,sibio,by.x=c('year','length'),
-                                      by.y=c('year','sigroup'),all.x=TRUE)
-                     }
-                     return(sidat)
-                   })
+    sidat <- plyr::ldply(names(lik.dat$dat$surveyindices),
+                         function(x){
+                           sidat <-
+                             merge(lik.dat$dat$surveyindices[[x]],
+                                   out[[x]],
+                                   by.y=c('year','label','step','area'),                             
+                                   by.x=intersect(c('year','length','age','survey',
+                                                    'step','area'),
+                                                  names(lik.dat$dat$surveyindices[[x]])),
+                                   all.y=TRUE)
+                           if('lengths' %in% sidat$sitype){
+                             sidat$length <- paste(sidat$lower,
+                                                   sidat$upper, sep = ' - ')
+                           }
+                           sidat$name <- x
+                           sidat <- merge(sidat,
+                                          subset(lik$surveyindices,
+                                                 select=c(name,stocknames)),
+                                          by='name')
+                           si.stocks <-
+                             unique(unlist(strsplit(unique(sidat$stocknames),'\t')))
+                           if('lengths' %in% sidat$sitype){
+                             ## note this assumes length based survey indices atm
+                             si.labels <-
+                               arrange(unique(sidat[c('length','lower','upper')]),
+                                       lower)
+                             sibio <-
+                               stock.full %>%
+                               filter(.id %in% si.stocks) %>%
+                               mutate(sigroup = cut(length,
+                                                    breaks=c(si.labels$lower,
+                                                             max(si.labels$upper)),
+                                                    labels=si.labels$length))%>%
+                               group_by(year,sigroup) %>%
+                               summarise(bio=sum(number*mean.weight)/sum(number))
+                             sidat <- merge(sidat,sibio,by.x=c('year','length'),
+                                            by.y=c('year','sigroup'),all.x=TRUE)
+                           }
+                           return(sidat)
+                         })
     
   } else {
     sidat <- NULL
@@ -194,7 +197,7 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
               ldist$lower <- as.double(ldist$lower)
               
               ldist <-
-                data.table(ldist) %>%
+                ldist %>%
                 group_by(year, step,  area, add=FALSE) %>%
                 mutate(total.catch = sum(number.x,na.rm=TRUE),
                        total.pred = sum(number.y,na.rm=TRUE),
@@ -284,23 +287,15 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
                       all.y=TRUE)
               
               stockdist$name <- x
-              stockdist <- data.table(stockdist)
               stockdist <-
-                stockdist[,c('obs.ratio','pred.ratio',
-                             'avg.length') :=
-                            list(obs.ratio = number.x/sum(number.x,na.rm=TRUE),
-                                 pred.ratio = number.y/sum(number.y),
-                                 #                               upper = max(ifelse(is.na(upper),
-                                 #                                 agg.upper,upper)),
-                                 #                               lower = max(ifelse(is.na(lower),
-                                 #                                 agg.lower,lower)),
-                                 length2 = (lower+upper)/2),
-                          by = list(year, step, area, age, length)]
-              #stockdist <- stockdist[,c('agg.upper','agg.lower'):=NULL,]
-              stockdist <- merge(stockdist,
-                                 subset(lik$stockdistribution,
-                                        select=c(name,fleetnames,stocknames)),
-                                 by='name')
+                stockdist %>% 
+                dplyr::group_by(year, step, area, age, length) %>% 
+                dplyr::mutate(obs.ratio = number.x/sum(number.x,na.rm=TRUE),
+                              pred.ratio = number.y/sum(number.y),
+                              length2 =  (lower+upper)/2) %>% 
+                dplyr::inner_join(lik$stockdistribution %>% 
+                                    dplyr::select(name,fleetnames,stocknames),
+                                  by='name')
               return(stockdist)
             })
     

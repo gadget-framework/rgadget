@@ -515,6 +515,7 @@ make.gadget.printfile <- function(main='main',output='out',
               'type\tstockstdprinter',
               'stockname\t%1$s',
               sprintf('printfile\t%s/%%1$s.std',output),
+              'printatstart 1',
               'yearsandsteps\t all 1',sep='\n')
     
     stock.full <-
@@ -525,6 +526,7 @@ make.gadget.printfile <- function(main='main',output='out',
               sprintf('ageaggfile\t%s/%%1$s.allages.agg',aggfiles),
               sprintf('lenaggfile\t%s/%%1$s.len.agg',aggfiles),
               sprintf('printfile\t%s/%%1$s.full',output),
+              'printatstart 1',
               'yearsandsteps\t all 1',sep='\n')
     
     predator <-
