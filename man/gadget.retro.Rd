@@ -4,14 +4,14 @@
 \alias{gadget.retro}
 \title{gadget.retro}
 \usage{
-gadget.retro(path = ".", main.file = "main", params.file = "params.in",
+gadget.retro(path = ".", mainfile = "main", params.file = "params.in",
   optinfofile = "optinfofile", num.years = 5, pre = "RETRO",
   iterative = FALSE, ...)
 }
 \arguments{
 \item{path}{}
 
-\item{main.file}{}
+\item{mainfile}{}
 
 \item{params.file}{}
 

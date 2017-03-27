@@ -11,13 +11,21 @@
 ##' @return list of fit things
 ##' @author Bjarki Thor Elvarsson
 ##' @export
-gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
+gadget.fit <- function(wgts = 'WGTS', main.file = NULL,
                        fleet.predict = data.frame(fleet='comm',ratio=1),
                        mat.par=NULL, params.file=NULL,
                        f.age.range=NULL, fit.folder = 'FIT',
                        compile.fleet.info = TRUE){
   
-  main <- read.gadget.main(file = main.file)
+  if(is.null(main.file)) {
+    if(is.null(wgts)){
+      main.file <- 'main'
+    } else {
+      main.file <- sprintf('%s/main.final',wgts)
+    }
+  }
+  
+  main <- read.gadget.main(file=main.file)
   
   if(!is.null(wgts)){
     resTable <- read.gadget.results(wgts=wgts)
@@ -274,31 +282,28 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
   
   if('stockdistribution' %in% names(lik.dat$dat)){
     stockdist <-
-      ldply(names(lik.dat$dat$stockdistribution),
-            function(x){
-              stockdist <-
-                merge(lik.dat$dat$stockdistribution[[x]],
-                      join(out[[x]],
-                           attr(lik.dat$dat$stockdistribution[[x]],'len.agg'),
-                           by='length'),
-                      by=c('length', 'year',
-                           'step', 'area','age',
-                           'stock','upper','lower'),
-                      all.y=TRUE)
-              
-              stockdist$name <- x
-              stockdist <-
-                stockdist %>% 
-                dplyr::group_by(year, step, area, age, length) %>% 
-                dplyr::mutate(obs.ratio = number.x/sum(number.x,na.rm=TRUE),
-                              pred.ratio = number.y/sum(number.y),
-                              length2 =  (lower+upper)/2) %>% 
-                dplyr::inner_join(lik$stockdistribution %>% 
-                                    dplyr::select(name,fleetnames,stocknames),
-                                  by='name')
-              return(stockdist)
-            })
-    
+      names(lik.dat$dat$stockdistribution) %>% 
+      purrr::set_names(.,.) %>% 
+      purrr::map(function(x){
+        out[[x]] %>% 
+          dplyr::left_join(attr(lik.dat$dat$stockdistribution[[x]],'len.agg'),
+                           by='length') %>%
+          dplyr::left_join(lik.dat$dat$stockdistribution[[x]],
+                           by=c('length', 'year',
+                                'step', 'area','age',
+                                'stock','upper','lower'),
+                           suffix = c('.y','.x'))
+      }) %>% 
+      dplyr::bind_rows(.id='name') %>% 
+      dplyr::group_by(name,year, step, area, age, length) %>% 
+      dplyr::mutate(obs.ratio = number.x/sum(number.x,na.rm=TRUE),
+                    pred.ratio = number.y/sum(number.y)) %>% 
+      dplyr::ungroup() %>% 
+      dplyr::mutate(length = (lower+upper)/2) %>% 
+      dplyr::inner_join(lik$stockdistribution %>% 
+                          dplyr::select(name,fleetnames,stocknames) %>% 
+                          dplyr::distinct(),
+                        by='name')
     
   } else {
     stockdist <- NULL
@@ -339,7 +344,8 @@ gadget.fit <- function(wgts = 'WGTS', main.file = 'main',
               catchdist.fleets = catchdist.fleets, stockdist = stockdist,
               out.fit=out, SS = SS,
               stock.full = stock.full, stock.std = stock.std,
-              fleet.info = fleet.info)
+              fleet.info = fleet.info,
+              params = params)
   class(out) <- c('gadget.fit',class(out))
   save(out,file=sprintf('%s/WGTS.Rdata',wgts))
   return(out)

@@ -614,13 +614,15 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
 
 
     write.files('final',SS)
-    comp <- 'final'
+    write.files('nodf',SS %>% dplyr::mutate(sigmahat=SS))
+    
+    comp <- c('final','nodf')
     if(!rew.sI){
       SS[restr.SI,'sigmahat'] <- sIw[restr.SI]
     }
     if(!rew.sI){
       write.files('sIw',SS)
-      comp <- as.list(c('final','sIw'))
+      comp <- as.list(c('final','nodf','sIw'))
     }
 
     if(run.serial){
@@ -630,14 +632,15 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
         res <- parLapply(cl,run.string,run.final)
         stopCluster(cl)
     } else {
-        mclapply(comp,run.final)
+        mclapply(comp,run.final,
+                 mc.cores = detectCores(logical = TRUE))
     }
 
   } else {
     comp <- NULL
   }
 
-  return(list(comp=run.string,final=comp,wgts=wgts))
+  invisible(list(comp=run.string,final=comp,wgts=wgts))
 
 }
 
@@ -1378,7 +1381,7 @@ gadget.bootypr <- function(params.file='params.final',
 #' gadget.retro
 #'
 #' @param path 
-#' @param main.file 
+#' @param mainfile 
 #' @param params.file 
 #' @param optinfofile 
 #' @param num.years 
@@ -1388,46 +1391,56 @@ gadget.bootypr <- function(params.file='params.final',
 #' @export
 #'
 #' @examples
-gadget.retro <- function(path='.',main.file='main',params.file='params.in',
-                         optinfofile='optinfofile',num.years=5,
+gadget.retro <- function(path='.',
+                         mainfile='main',
+                         params.file='params.in',
+                         optinfofile='optinfofile',
+                         num.years=5,
                          pre = 'RETRO',
                          iterative =FALSE,...){
   
-  main <- read.gadget.file(path,main.file,file_type = 'main')
+  main <- read.gadget.file(path,mainfile,file_type = 'main',recursive = FALSE)
   
   for(year in 1:num.years){
-    attributes(main)$file_name <- paste('main',year,sep='.') 
-    retrodir <- gadget.variant.dir(path, pre, main = attributes(main)$file_name)
-    main[[1]]$timefile[[1]]$lastyear <- 
-      main[[1]]$timefile[[1]]$lastyear - 1
-    attributes(main[[1]]$timefile)$file_config$mainfile_section <- 'timefile'
-    attributes(main[[1]]$timefile)$file_name <- paste('time',year,sep='.')
-    write.gadget.file(main,retrodir,recursive = FALSE)
-    write.gadget.file(main[[1]]$timefile,retrodir)
+    Rdir <- gadget.variant.dir(path,variant_dir = sprintf('%s/R%s',pre,year))
+
+    gadgettime(main[[1]]$timefile,path) %>% 
+      gadget_update(lastyear = .[[1]]$lastyear-year) %>% 
+      write.gadget.file(Rdir)
+    
+    lik <- gadgetlikelihood(main[['likelihood']]$likelihoodfiles,Rdir) 
+    attr(lik,'file_config')$mainfile_overwrite <- TRUE
+    write.gadget.file(lik,Rdir)
   }
+  
+  Sys.setenv(GADGET_WORKING_DIR=normalizePath(path))
+  
   if(iterative){
-    for(year in 1:num.years){
-      gadget.iterative(main.file=sprintf('%s/main.%s',pre,year),
+    run.func <- function(year){
+      gadget.iterative(main.file=sprintf('%s/R%s/main',pre,year),
                        params.file = params.file,
                        optinfofile=optinfofile,
                        wgts = sprintf('%s/WGTS.%s',pre,year),
                        ...)
     }
+    
   } else {
     run.func <- function(x){
       callGadget(l = 1,
-                 main = sprintf('%s/main.%s',pre,x),
+                 main = sprintf('%s/R%s/main',pre,x),
                  i = params.file,
                  p = sprintf('%s/params.retro.%s',pre,x),
                  opt = optinfofile)
       callGadget(s = 1,
-                 main = sprintf('%s/main.%s',pre,x),
+                 main = sprintf('%s/R%s/main',pre,x),
                  i = sprintf('%s/params.retro.%s',pre,x),
                  o = sprintf('%s/lik.retro.%s',pre,x))
-      
     }
-    mclapply(1:num.years,run.func, mc.cores = detectCores(logical = TRUE))
   }
+  multicore::mclapply(1:num.years,run.func, 
+                      mc.cores = detectCores(logical = TRUE))
+  
+  Sys.unsetenv('GADGET_WORKING_DIR')
 }
 
 

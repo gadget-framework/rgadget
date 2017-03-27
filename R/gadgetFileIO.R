@@ -63,15 +63,15 @@ read.printfiles <- function(path='.',suppress=FALSE){
       data <- mutate(data,
                      predict = exp(intercept)*number^slope) ## 1000 hmm
     }
-    pos <- grep('; Standard output file for the stock',tmp)
-    if(length(pos) != 0){
-      step1 <- data[c('year','step','age','area','number')]
-      next1 <- mutate(subset(step1,age>1),year=year-1,age=as.integer(age-1))
-      names(next1)[5] <- 'num.after.harv'
-      tmp <- merge(step1,next1)
-      tmp$Z <- log(tmp$number) - log(tmp$num.after.harv)
-      data <- merge(data,tmp[c('year','step','age','area','Z')],all.x=TRUE)
-    }
+    # pos <- grep('; Standard output file for the stock',tmp)
+    # if(length(pos) != 0){
+    #   step1 <- data[c('year','step','age','area','number')]
+    #   next1 <- mutate(subset(step1,age>1),year=year-1,age=as.integer(age-1))
+    #   names(next1)[5] <- 'num.after.harv'
+    #   tmp <- merge(step1,next1)
+    #   tmp$Z <- log(tmp$number) - log(tmp$num.after.harv)
+    #   data <- merge(data,tmp[c('year','step','age','area','Z')],all.x=TRUE)
+    # }
 
     return(data)
   }
@@ -734,7 +734,7 @@ read.gadget.data <- function(likelihood,debug=FALSE,year_range=NULL){
       if(debug){
           print(sprintf('reading datafile %s',x$datafile))
       }
-      dat <- tryCatch(read.table(x$datafile,comment.char=';'),
+      dat <- tryCatch(read.table(x$datafile,comment.char=';',stringsAsFactors = FALSE),
                       error = function(x) NULL)
       
       
