@@ -15,7 +15,8 @@ gadget.fit <- function(wgts = 'WGTS', main.file = NULL,
                        fleet.predict = data.frame(fleet='comm',ratio=1),
                        mat.par=NULL, params.file=NULL,
                        f.age.range=NULL, fit.folder = 'FIT',
-                       compile.fleet.info = TRUE){
+                       compile.fleet.info = TRUE,
+					   printfile.printatstart = 1, printfile.steps = 1){
   
   if(is.null(main.file)) {
     if(is.null(wgts)){
@@ -47,7 +48,9 @@ gadget.fit <- function(wgts = 'WGTS', main.file = NULL,
   make.gadget.printfile(main = main.file,
                         file = sprintf('%s/printfile.fit',wgts),
                         out = sprintf('%s/out.fit',wgts),
-                        aggfiles = sprintf('%s/print.aggfiles',wgts))
+                        aggfiles = sprintf('%s/print.aggfiles',wgts),
+						printatstart = printfile.printatstart,
+						steps = printfile.steps)
   
   main$printfiles <- sprintf('%s/printfile.fit',wgts)
   write.gadget.main(main,file = sprintf('%s/main.print',wgts))

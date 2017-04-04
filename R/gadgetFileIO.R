@@ -487,7 +487,9 @@ write.gadget.parameters <- function(params,file='params.out',columns=TRUE){
 ##' @export
 make.gadget.printfile <- function(main='main',output='out',
                                   aggfiles='print.aggfiles',
-                                  file='printfile'){
+                                  file='printfile',
+								  printatstart = 1,
+								  steps = 1){
     
     main <- read.gadget.main(main)
     lik <- read.gadget.likelihood(main$likelihoodfiles)
@@ -515,8 +517,8 @@ make.gadget.printfile <- function(main='main',output='out',
               'type\tstockstdprinter',
               'stockname\t%1$s',
               sprintf('printfile\t%s/%%1$s.std',output),
-              'printatstart 1',
-              'yearsandsteps\t all 1',sep='\n')
+              sprintf('printatstart %s', printatstart),
+              sprintf('yearsandsteps\tall\t%s', steps),sep='\n')
     
     stock.full <-
         paste('[component]',
@@ -526,8 +528,8 @@ make.gadget.printfile <- function(main='main',output='out',
               sprintf('ageaggfile\t%s/%%1$s.allages.agg',aggfiles),
               sprintf('lenaggfile\t%s/%%1$s.len.agg',aggfiles),
               sprintf('printfile\t%s/%%1$s.full',output),
-              'printatstart 1',
-              'yearsandsteps\t all 1',sep='\n')
+			  sprintf('printatstart\t%s', printatstart),
+              sprintf('yearsandsteps\tall\t%s', steps),sep='\n')
     
     predator <-
         paste('[component]',
