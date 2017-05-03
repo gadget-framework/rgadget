@@ -262,14 +262,16 @@ gadget.fit <- function(wgts = 'WGTS', main.file = NULL,
                                                        mat.par[2],
                                                        as.numeric(gsub('len','',length)))*
                                        number)) %>% 
-          dplyr::left_join(f.by.year) %>% 
+          dplyr::left_join(f.by.year %>%
+                               mutate(area = as.character(area))) %>% 
           dplyr::mutate(stock = x)
         
         return(bio.by.year)
       }) %>% 
       dplyr::bind_rows() %>% 
       dplyr::left_join(stock.recruitment %>% 
-                         dplyr::mutate(area = paste0('area',area),
+                         dplyr::mutate(stock = as.character(stock),
+                                       area = paste0('area',area),
                                        year = as.numeric(year)))
   } else {
     res.by.year <- NULL
