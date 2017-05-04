@@ -1912,7 +1912,7 @@ get.gadget.recruitment <- function(stocks,params,collapse=TRUE){
         tmp
       }
     } else {
-      data.frame(stock = x@stockname,year=NA,recruitment=NA)
+      data.frame(stock = x@stockname,year=NA,area=NA,recruitment=NA)
     }
   })
 }
