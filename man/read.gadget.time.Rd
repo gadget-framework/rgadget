@@ -18,4 +18,3 @@ timefile objects
 \author{
 Bjarki Thor Elvarsson
 }
-

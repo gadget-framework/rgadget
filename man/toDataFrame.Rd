@@ -21,4 +21,3 @@ data.frame
 \author{
 Bjarki Thor Elvarsson
 }
-

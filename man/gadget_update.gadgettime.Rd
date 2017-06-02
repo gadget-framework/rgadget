@@ -22,4 +22,3 @@ gadgettime('time', path, missingOkay = TRUE) \%>\%
    gadget_update() \%>\% 
    write.gadget.file(path)
 }
-

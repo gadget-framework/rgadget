@@ -22,4 +22,3 @@ Write optinfo to file
 \author{
 Bjarki ??r Elvarsson
 }
-

@@ -23,4 +23,3 @@ of the printfile components.
 \author{
 Bjarki Thor Elvarsson
 }
-

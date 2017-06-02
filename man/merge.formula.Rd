@@ -18,4 +18,3 @@ txt where the formula has been properly compiled
 \author{
 Bjarki Thor Elvarsson
 }
-

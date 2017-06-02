@@ -16,4 +16,3 @@ write.gadget.file(obj, path, recursive = TRUE)
 \description{
 Write gadgetfile to disk, including any dependant files, and update the mainfile
 }
-

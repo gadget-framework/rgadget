@@ -24,4 +24,3 @@ See \code{Rgadget::gadget_filetypes} for recognised types}
 \description{
 Read gadget input file, return gadgetfile S3 class representing file
 }
-

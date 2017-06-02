@@ -20,4 +20,3 @@ Probably defunct
 \author{
 Bjarki Thor Elvarsson
 }
-

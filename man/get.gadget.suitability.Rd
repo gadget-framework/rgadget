@@ -18,4 +18,3 @@ suitability function for a fleet
 \author{
 Bjarki Thor Elvarsson
 }
-

@@ -12,4 +12,3 @@
     \item{implicit_component}{Keys matching this regex are treated as if the are implicitly broken up into components}
 }
 }
-

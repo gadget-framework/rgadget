@@ -67,4 +67,3 @@ is requried elsewhere.
 \author{
 Bjarki Thor Elvarsson
 }
-

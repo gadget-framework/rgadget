@@ -18,4 +18,3 @@ Clear tab and spaces from a string and return a list or a matrix of values
 \author{
 Bjarki ??r Elvarsson
 }
-

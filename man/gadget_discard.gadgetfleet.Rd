@@ -14,4 +14,3 @@
 \description{
 this function removes named fleet components
 }
-

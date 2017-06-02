@@ -151,4 +151,3 @@ Gadget set up stuff, needed for each component
 
 Bjarki Thor Elvarsson
 }
-

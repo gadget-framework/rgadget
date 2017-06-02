@@ -37,4 +37,3 @@ migration will be
 \author{
 Bjarki Þór Elvarsson
 }
-

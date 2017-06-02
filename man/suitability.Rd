@@ -31,4 +31,3 @@ With one predator, one prey and otherfood the equation becomes:
 \deqn{=N_{L}M_{L}\frac{F_{L,l}}{\sum_lF_{L,l}+OA+HA}}
 where $O$ is the density of otherfood.
 }
-

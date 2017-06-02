@@ -43,4 +43,3 @@ samples should be used}
 \author{
 Bjarki Thor Elvarsson
 }
-

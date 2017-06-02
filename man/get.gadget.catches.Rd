@@ -18,4 +18,3 @@ catches by year + step
 \author{
 Bjarki Thor Elvarsson
 }
-

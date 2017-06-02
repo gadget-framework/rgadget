@@ -49,4 +49,3 @@ obtained from the equation above.
 with \eqn{N_{l,a,t}} as described for the initial population for a >
 min a .
 }
-

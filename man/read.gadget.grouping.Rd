@@ -18,4 +18,3 @@ list of wgts groupings
 \author{
 Bjarki Thor Elvarsson
 }
-

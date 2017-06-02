@@ -18,4 +18,3 @@ Calculates the overall weigth of the catches by time step and area.
 \author{
 Bjarki Þór Elvarsson
 }
-

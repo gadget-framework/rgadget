@@ -18,4 +18,3 @@ Read gadget printfile
 \author{
 Bjarki Thor Elvarsson
 }
-

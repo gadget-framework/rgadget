@@ -18,4 +18,3 @@ Read optinfo parameters from file
 \author{
 Bjarki ??r Elvarsson
 }
-

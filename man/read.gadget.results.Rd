@@ -29,4 +29,3 @@ Produce diagnostics
 \author{
 Bjarki Thor Elvarsson
 }
-

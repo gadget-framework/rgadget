@@ -20,4 +20,3 @@ Write gadget.main object to file
 \author{
 Bjarki ??r Elvarsson
 }
-

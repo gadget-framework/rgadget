@@ -15,4 +15,3 @@ Plots the suitability functions, the length weight relationship and the Von Bert
 \author{
 Bjarki Þór Elvarsson
 }
-

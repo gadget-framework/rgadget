@@ -49,4 +49,3 @@ This function implements a crude forward simulation for a Gadget model.
 NOTE: the function currently assumes at least one recruiting stock. 
 -- details to come--
 }
-

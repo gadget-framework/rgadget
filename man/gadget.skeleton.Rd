@@ -35,4 +35,3 @@ gm <- gadget.skeleton(time=opt$time,area=opt$area,
 \author{
 Bjarki Þór Elvarsson
 }
-

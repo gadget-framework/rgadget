@@ -90,4 +90,3 @@ The order of calculations is the same as in Gadget and is as follows:
 opt <- gadget.options()
 sim <- Rgadget(sim)
 }
-

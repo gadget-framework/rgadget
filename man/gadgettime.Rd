@@ -23,4 +23,3 @@ Create a time file object, from fresh or an existing file.
 path <- './cod-model'
 gadgettime('Modelfiles/time', path, missingOkay = TRUE)  # Read 'Modelfiles/time' time file, creating it if it doesn't exist
 }
-

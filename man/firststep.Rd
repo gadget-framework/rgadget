@@ -54,4 +54,3 @@ entered directly from the initial population file rather than
 calculated from a Normal distribution. While this is an option
 within Gadget, it is not the standard method.
 }
-

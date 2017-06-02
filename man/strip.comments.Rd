@@ -19,4 +19,3 @@ unwanted spaces from gadget input and output files.
 \author{
 Bjarki Thor Elvarsson
 }
-

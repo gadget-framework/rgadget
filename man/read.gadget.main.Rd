@@ -18,4 +18,3 @@ Read gadget's main file
 \author{
 Bjarki ??r Elvarsson
 }
-

@@ -58,4 +58,3 @@ gadgetstock('codimm', path, missingOkay = TRUE) \%>\%  # Create a skeleton if mi
    gadget_update('doesrenew', 0) \%>\%
    write.gadget.file(path)
 }
-

@@ -19,4 +19,3 @@ print output for all bootstrap samples
 \author{
 Bjarki Thor Elvarsson
 }
-

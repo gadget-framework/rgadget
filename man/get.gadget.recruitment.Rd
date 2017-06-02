@@ -18,4 +18,3 @@ recruitment by year
 \author{
 Bjarki Thor Elvarsson
 }
-

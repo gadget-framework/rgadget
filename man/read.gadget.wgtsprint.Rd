@@ -19,4 +19,3 @@ printfiles from the wgts
 \author{
 Bjarki Thor Elvarsson
 }
-

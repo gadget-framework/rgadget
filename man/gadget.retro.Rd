@@ -24,4 +24,3 @@ gadget.retro(path = ".", mainfile = "main", params.file = "params.in",
 \description{
 gadget.retro
 }
-

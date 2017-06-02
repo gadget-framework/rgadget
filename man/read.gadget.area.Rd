@@ -18,4 +18,3 @@ areafile object
 \author{
 Bjarki Thor Elvarsson
 }
-

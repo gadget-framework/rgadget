@@ -16,4 +16,3 @@ gadget.variant.dir(path, variant_dir = NULL, mainfile = "main")
 \description{
 Write the changes to the model into a model variant directory
 }
-

@@ -18,4 +18,3 @@ growth matrix
 \author{
 Bjarki Thor Elvarsson
 }
-

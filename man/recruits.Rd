@@ -37,4 +37,3 @@ lengthgroup i is calculated by:
 As for the initial population, the number of recruits in each length
 groups is given in the recruit input file.
 }
-

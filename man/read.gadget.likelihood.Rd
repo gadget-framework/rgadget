@@ -19,4 +19,3 @@ the likelihood file is described in gadget's user manual.
 \author{
 Bjarki ??r Elvarsson
 }
-

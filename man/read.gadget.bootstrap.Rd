@@ -20,4 +20,3 @@ wgts from all bootstrap samples
 \author{
 Bjarki Thor Elvarsson
 }
-

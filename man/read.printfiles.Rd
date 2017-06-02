@@ -21,4 +21,3 @@ designed to read a few nice examples, so it may work for some instances
 and it may not. It assumes that the last line containing a comment ';'
 is the line describing the column names and is the last comment line.
 }
-

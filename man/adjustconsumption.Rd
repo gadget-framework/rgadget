@@ -31,4 +31,3 @@ predators. Let \eqn{R_{prey}(l)}{R_prey(l)} be the Ratio consumed and
 If \eqn{R_{prey}(l)>R_M}{R_prey(l)>R_M} consumption is adjusted as follows
 \deqn{C_{pred,prey}(L,l)=R_MN_{prey}(l)W_{prey}(l)\frac{C_{pred,prey}(L,l)}{\sum_{pred}C_{pred,prey}(L,l)}}
 }
-

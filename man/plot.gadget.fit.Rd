@@ -24,4 +24,3 @@ ggplot object
 \author{
 Bjarki Þór Elvarsson
 }
-

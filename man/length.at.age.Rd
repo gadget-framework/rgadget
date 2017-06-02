@@ -18,4 +18,3 @@ Simulated length at age
 \author{
 Bjarki Þór Elvarsson
 }
-

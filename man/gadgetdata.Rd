@@ -17,4 +17,3 @@ A gadgetfile S3 class, use \code{write.gadget.file} to write it to disk
 \description{
 Construct a data-only gadget file
 }
-

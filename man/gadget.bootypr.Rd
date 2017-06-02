@@ -21,4 +21,3 @@ yield per recruit for the bootstrap
 \author{
 Bjarki Thor Elvarsson
 }
-

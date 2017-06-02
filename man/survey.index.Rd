@@ -20,4 +20,3 @@ Calculates the survey indices for the simulated stocks.
 \author{
 Bjarki Þór Elvarsson
 }
-

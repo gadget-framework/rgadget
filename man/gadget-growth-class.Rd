@@ -7,4 +7,3 @@
 \description{
 Gadget growth
 }
-

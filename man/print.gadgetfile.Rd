@@ -14,4 +14,3 @@
 \description{
 Print given gadgetfile to stdout
 }
-

@@ -23,4 +23,3 @@ For more information, see a specific implementation:
   \item \link{gadget_update.gadgetlikelihood}
 }
 }
-

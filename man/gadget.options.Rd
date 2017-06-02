@@ -33,4 +33,3 @@ opt$numobs <- 13
 \author{
 Bjarki Thor Elvarsson
 }
-

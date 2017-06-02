@@ -16,4 +16,3 @@
 \author{
 Bjarki Thor Elvarsson
 }
-

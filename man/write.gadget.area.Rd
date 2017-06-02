@@ -18,4 +18,3 @@ nothing
 \author{
 Bjarki Thor Elvarsson
 }
-

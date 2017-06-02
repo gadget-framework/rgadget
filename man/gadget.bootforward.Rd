@@ -23,4 +23,3 @@ list of bootstrap results
 \author{
 Bjarki Thor Elvarsson
 }
-

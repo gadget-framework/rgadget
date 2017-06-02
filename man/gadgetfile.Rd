@@ -51,4 +51,3 @@ gadgetfile("cod.likelihood", "likelihood",
        component = list(type = "penalty", aggfile = gadgetfile("aggfile", "areaagg", components = list()))
    ))
 }
-

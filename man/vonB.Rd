@@ -23,4 +23,3 @@ Calculate the Von Bertanlaffy curve according to the formula
 \author{
 Bjarki Þór Elvarsson
 }
-

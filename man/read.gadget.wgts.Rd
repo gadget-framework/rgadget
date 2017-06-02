@@ -33,4 +33,3 @@ data.frame with parameter estimates and likelihood output from the iterative rew
 \author{
 Bjarki Thor Elvarsson
 }
-

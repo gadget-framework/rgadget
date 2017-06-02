@@ -92,4 +92,3 @@ opt <- gadget.options('simple2stock')
 gm <- gadget.skeleton(time=opt$time,area=opt$area,stock=opt$stocks,opt$fleets)
 sim <- gadget.simulate(gm)
 }
-

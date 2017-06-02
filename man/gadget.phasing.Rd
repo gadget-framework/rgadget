@@ -27,4 +27,3 @@ Phased minimization based on variables
 \author{
 Bjarki Thor Elvarsson
 }
-

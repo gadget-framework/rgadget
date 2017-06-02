@@ -17,4 +17,3 @@ ggplot object
 \description{
 Plot the likelihood profile plot by parameter for a particular likelihood component
 }
-

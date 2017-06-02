@@ -111,4 +111,3 @@ this process, trying different parameter values for each iteration. The
 with the lowest overall likelihood score. There are several different
 optimisation methods utilised.
 }
-

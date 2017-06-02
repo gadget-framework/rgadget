@@ -25,4 +25,3 @@ Write a likelihood object to file
 \author{
 Bjarki ??r Elvarsson
 }
-

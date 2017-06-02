@@ -20,4 +20,3 @@ Read in the gadget likelihood output.
 \author{
 Bjarki Thor Elvarsson, Hoskuldur Bjornsson
 }
-

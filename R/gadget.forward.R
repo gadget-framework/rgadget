@@ -39,6 +39,26 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
                            method = 'AR1',
                            ref.years=NULL,
                            custom.print=NULL){
+  ## helper function
+  readoutput <- function(x){
+    tmp <- readLines(x)
+    file.remove(x)
+    preamble <- tmp[grepl(';',tmp)]
+    body <- tmp[!grepl(';',tmp)]
+    header <- preamble[grepl('year-step-area',preamble)] %>% 
+      gsub('; (*)','\\1',.) %>% 
+      str_split('-') %>% 
+      unlist() %>% 
+      gsub(' ','_',.)
+    body %>% 
+      paste(collapse='\n') %>% 
+      read.table(text=.,
+                 col.names = header,fill=TRUE) %>% 
+      dplyr::mutate(trial=cut(1:length(year),c(0,which(diff(year)<0),1e9),labels = FALSE)-1) %>% 
+      tibble::as_tibble() 
+  }
+  
+  
   ## TODO fix stocks that are spawning
   pre <- paste(gd$dir,gd$rel.dir,sep='/') 
   
@@ -320,7 +340,11 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
           sep = '\n')
   
   if(!is.null(custom.print)){
-    custom.print <- paste(readLines(custom.print), collapse="\n ")
+    custom.print <- 
+      readLines(custom.print) %>% 
+      gsub('printfile[ \t]+([A-Za-z0-9]+)',sprintf('printfile\t%s/%s/\\1',pre,'out'),.) %>% 
+      paste(., collapse="\n ")
+    
   } else {NULL}
   
   printfile <-
@@ -387,116 +411,19 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
               lastyear = time$lastyear,
               laststep = time$laststep,
               notimesteps = time$notimesteps)
-  printOut <- NA
-  if(!is.null(custom.print)){
-    tmp <- read.gadget.file(".",custom.print,recursive = FALSE)
-    printOut <- vector("list", length(tmp)-1)
-    names(printOut) <- lapply(tmp[-1],function(x){x[["printfile"]]})
-    for(i in 1:length(printOut)){
-      printOut[[i]] <- read.table(paste('.',names(printOut)[i],sep="/"), comment.char=';')
-      if(lapply(tmp[-1],function(x){x[["type"]]})[[i]] == "stockstdprinter"){
-        colnames(printOut[[i]]) <- c("year","step","area","age","number","length","weight","stddev","consumed","biomass")}
-      if(lapply(tmp[-1],function(x){x[["type"]]})[[i]] == "stockfullprinter"){
-        colnames(printOut[[i]]) <- c("year","step","area","age","length","number","weight")}
-      if(lapply(tmp[-1],function(x){x[["type"]]})[[i]] == "stockprinter"){
-        colnames(printOut[[i]]) <- c("year","step","area","age","length","number","weight")}
-      if(lapply(tmp[-1],function(x){x[["type"]]})[[i]] == "predatorprinter"){
-        colnames(printOut[[i]]) <- c("year","step","area","pred","prey","amount")}
-      if(lapply(tmp[-1],function(x){x[["type"]]})[[i]] == "Predatoroverprinter"){
-        colnames(printOut[[i]]) <- c("year","step","area","length","biomass")}
-      if(lapply(tmp[-1],function(x){x[["type"]]})[[i]] == "preyoverprinter"){
-        colnames(printOut[[i]]) <- c("year","step","area","length","biomass")}
-      if(lapply(tmp[-1],function(x){x[["type"]]})[[i]] == "stockpreyfullprinter"){
-        colnames(printOut[[i]]) <- c("year","step","area","age","length","number","biomass")}
-      if(lapply(tmp[-1],function(x){x[["type"]]})[[i]] == "stockpreyprinter"){
-        colnames(printOut[[i]]) <- c("year","step","area","age","length","number","biomass")}
-      if(lapply(tmp[-1],function(x){x[["type"]]})[[i]] == "predatorpreyprinter"){
-        colnames(printOut[[i]]) <- c("year","step","area","age","length","number","biomass","mortality")}
-      file.remove(paste('.',names(printOut)[i],sep="/"))
-    }
-  } # TO DO: printOut$trial and printOut$effort to be added
-  
-  out <- list(
-    lw = ldply(unique(fleet$prey$stock),
-               function(x){
-                 numsteps <- 
-                   nrow(subset(getTimeSteps(time),step==1))
-                 tmp <- 
-                   read.table(sprintf('%s/out/%s.lw',pre,x),
-                              comment.char = ';')
-                 file.remove(sprintf('%s/out/%s.lw',pre,x))
-                 names(tmp) <-  
-                   c('year', 'step', 'area', 'age',
-                     'length', 'number', 'weight')
-                 tmp$stock <- x
-                 if(num.trials > 1){
-                   tmp2 <- 
-                     length(unique(tmp$area))*numsteps*
-                     length(unique(tmp$length))
-                   
-                   tmp <- 
-                     cbind(trial = as.factor(rep(1:num.trials, 
-                                                 each = length(effort)*tmp2)),#as.factor(rep(trials.tmp,each = nrow(tmp)/length(trials.tmp))),
-                           effort = as.factor(rep(effort,each=tmp2,num.trials)),
-                           tmp)
-                 } else {
-                   tmp2 <- 
-                     length(unique(tmp$area))*numsteps*
-                     length(unique(tmp$length))
-                   
-                   tmp$trial <- as.factor(1)
-                   tmp$effort <- as.factor(rep(effort,each=tmp2))
-                 }
-                 tmp$length <- as.numeric(gsub('len','',tmp$length))
-                 
-                 if(compact){
-                   tmp <- ddply(tmp,~year+step+trial+effort+stock,
-                                summarise,
-                                total.bio = sum(number*weight),
-                                ssb = sum(logit(mat.par[1],mat.par[2],
-                                                length)*number*weight))
-                 }
-                 return(tmp)
-               }),
-    catch =
-      ldply(unique(fleet$prey$stock),
-            function(x){
-              numsteps <- nrow(getTimeSteps(time))
-              trials.tmp <- rep(1:num.trials,each=length(effort))
-              
-              tmp <-
-                read.table(sprintf('%s/out/catch.%s.lw',pre,x),
-                           comment.char = ';')
-              file.remove(sprintf('%s/out/catch.%s.lw',pre,x))
-              names(tmp) <-  c('year', 'step', 'area', 'age',
-                               'length', 'number.consumed',
-                               'biomass.consumed','mortality')
-              tmp$stock <- x
-              
-              if((num.trials > 1) | (length(effort)>1)) {
-                
-                tmp2 <- 
-                  length(unique(tmp$area))*
-                  numsteps
-                
-                tmp <-
-                  cbind(trial = as.factor(rep(1:num.trials, each = length(effort)*tmp2)),#as.factor(rep(trials.tmp,each = nrow(tmp)/length(trials.tmp))),
-                        effort = as.factor(rep(effort, each=tmp2,num.trials)),
-                        tmp)
-              } else {
-                tmp$trial <- as.factor(1)
-                tmp2 <- length(unique(tmp$area))*
-                  numsteps
-                tmp$effort <- as.factor(rep(effort,each=tmp2))
-              }
-              return(tmp)
-            }),
-    custom.print = printOut,
-    recruitment = prj.rec,
-    num.trials = num.trials,
-    stochastic = stochastic,
-    sim.begin = sim.begin
-  )
+
+  out <- 
+    list.files(paste(pre,'out',sep='/')) %>%
+    purrr::set_names(paste(paste(pre,'out',sep='/'),.,sep='/'),.) %>% 
+    map(readoutput)
+    
+  out <- 
+    within(out,{
+      recruitment = prj.rec
+      num.trials = num.trials
+      stochastic = stochastic
+      sim.begin = sim.begin
+    })
   class(out) <- c('gadget.forward',class(out))
   if(save.results){
     save(out,file = sprintf('%s/out.Rdata',pre))

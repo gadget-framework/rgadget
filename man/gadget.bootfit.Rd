@@ -20,4 +20,3 @@ list of bootstrap fit things
 \author{
 Bjarki Thor Elvarsson
 }
-

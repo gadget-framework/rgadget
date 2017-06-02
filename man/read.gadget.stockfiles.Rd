@@ -15,4 +15,3 @@ Read in Gadget stockfiles
 \author{
 Bjarki Thor Elvarsson
 }
-

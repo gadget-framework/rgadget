@@ -20,4 +20,3 @@ Calculate the length distribution from the fleet by length groups and time.
 \author{
 Bjarki Þór Elvarsson
 }
-

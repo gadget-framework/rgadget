@@ -45,4 +45,3 @@ Assumes sed is present in the command line
 \author{
 Bjarki Thor Elvarsson
 }
-

@@ -24,4 +24,3 @@ path <- './cod-model'
 gadgetstock('codmat', path, missingOkay = TRUE)  # Read codmat from './cod-model', throw an error if it doesn't exist
 gadgetstock('codimm', path, missingOkay = TRUE)  # Read codimm stock / create a new one
 }
-

@@ -15,4 +15,3 @@ a merged gadget.fit object
 \description{
 This function merges gadget.fit objects from different gadget runs. This allow for simpler comparisons between models.
 }
-

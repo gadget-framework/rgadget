@@ -20,4 +20,3 @@ Read data used by the various components
 \author{
 Bjarki ??r Elvarsson
 }
-

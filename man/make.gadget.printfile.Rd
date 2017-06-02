@@ -28,4 +28,3 @@ gadget.mainfile object
 \author{
 Bjarki Thor Elvarsson
 }
-

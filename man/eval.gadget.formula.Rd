@@ -23,4 +23,3 @@ parameter object for its evaluation.
 \author{
 Bjarki Thor Elvarsson
 }
-

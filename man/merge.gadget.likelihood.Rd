@@ -20,4 +20,3 @@ This function merges to likelihood objects in one
 \author{
 Bjarki Thor Elvarsson
 }
-

@@ -12,4 +12,3 @@
 \description{
 summary of the simulation defined by gadget.options
 }
-

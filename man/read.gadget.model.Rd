@@ -18,4 +18,3 @@ Read in a Gadget model to a gadget-main object
 \author{
 Bjarki Thor Elvarsson
 }
-

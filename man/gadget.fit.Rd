@@ -21,4 +21,3 @@ list of fit things
 \author{
 Bjarki Thor Elvarsson
 }
-

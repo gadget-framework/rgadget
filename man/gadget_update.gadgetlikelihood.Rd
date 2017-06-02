@@ -23,4 +23,3 @@ gadgetlikelihood('likelihood', path, missingOkay = TRUE) \%>\%
    gadget_update('understocking', name = 'understocking') \%>\% # Identical to above
    write.gadget.file(path)
 }
-

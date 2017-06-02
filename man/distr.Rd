@@ -22,4 +22,3 @@ a matrix of dimension length(mu) X (length(l)-1)
 This is a helper function for the firststep function. This defines the
 length distribution for each age group
 }
-

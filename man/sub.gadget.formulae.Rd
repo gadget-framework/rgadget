@@ -30,4 +30,3 @@ sub.gadget.formulae(quote(log(moo) + oink), list(moo = tv), year = 1995, step = 
 # ==> log(grow1995) + oink
 }
 }
-

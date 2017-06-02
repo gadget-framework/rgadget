@@ -23,4 +23,3 @@ Create a likelihood file object, from fresh or an existing file.
 path <- './cod-model'
 gadgetlikelihood('likelihood', path, missingOkay = TRUE)  # Read 'likelihood' likelihood file, creating it if it doesn't exist
 }
-

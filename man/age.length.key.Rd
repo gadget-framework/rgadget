@@ -22,4 +22,3 @@ Calculates the age-length-key for the survey and commercial fleet.
 \author{
 Bjarki Þór Elvarsson
 }
-

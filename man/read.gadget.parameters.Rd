@@ -18,4 +18,3 @@ Read gadget parameter file
 \author{
 Bjarki  Thor Elvarsson
 }
-

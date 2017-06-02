@@ -23,4 +23,3 @@ Write gadget input parameters
 \author{
 Bjarki ??r Elvarsson
 }
-

@@ -12,4 +12,3 @@ write.gadget.penalty(file = "penaltyfile")
 \description{
 Gadget Penalty file
 }
-

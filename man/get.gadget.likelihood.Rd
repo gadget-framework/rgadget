@@ -22,4 +22,3 @@ This function retrives selected parts of the likelihood object
 \author{
 Bjarki Thor Elvarsson
 }
-

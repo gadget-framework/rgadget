@@ -18,4 +18,3 @@ function only tested for linear and totalfleets>
 \author{
 Bjarki Þór Elvarsson
 }
-

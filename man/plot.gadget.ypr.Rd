@@ -21,4 +21,3 @@ ggplot object
 \author{
 Bjarki Thor Elvarsson
 }
-

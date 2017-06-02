@@ -14,4 +14,3 @@ gadget_discard(gf, comp_name, ...)
 \description{
 Remove unwanted components from file
 }
-

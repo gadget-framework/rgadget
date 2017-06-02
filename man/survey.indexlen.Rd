@@ -22,4 +22,3 @@ Calculate the survey length index based on the provided lengthgroups
 \author{
 Bjarki Þór Elvarsson
 }
-

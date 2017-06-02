@@ -16,4 +16,3 @@ A dataframe
 This function formats the output from RGadget to a dataframe and adds some 
 trivial calculated values
 }
-
