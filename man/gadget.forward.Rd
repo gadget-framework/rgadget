@@ -8,8 +8,8 @@ gadget.forward(years = 20, params.file = "params.out", main.file = "main",
   num.trials = 10, fleets = data.frame(fleet = "comm", ratio = 1),
   effort = 0.2, rec.scalar = NULL, check.previous = FALSE,
   save.results = TRUE, stochastic = TRUE, rec.window = NULL,
-  compact = TRUE, mat.par = c(0, 0), gd = list(dir = ".", rel.dir =
-  "PRE"), method = "AR1", ref.years = NULL, custom.print = NULL)
+  mat.par = c(0, 0), gd = list(dir = ".", rel.dir = "PRE"),
+  method = "AR1", ref.years = NULL, custom.print = NULL)
 }
 \arguments{
 \item{years}{Number of years to predictc}
@@ -35,8 +35,6 @@ fishing mortality of fully recruited through the relation F=-log(1-E)}
 \item{stochastic}{Should the projection be stochastic (default) or deterministic (assuming the average three year recruitment)?}
 
 \item{rec.window}{What timeperiod should be used to estimate the distribution of recruits.}
-
-\item{compact}{should ssb and total bio be calculated}
 
 \item{mat.par}{parameters determining the maturity ogive}
 

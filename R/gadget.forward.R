@@ -17,7 +17,6 @@
 #' @param save.results Should the results be saved? Defaults to TRUE
 #' @param stochastic Should the projection be stochastic (default) or deterministic (assuming the average three year recruitment)?
 #' @param rec.window What timeperiod should be used to estimate the distribution of recruits.
-#' @param compact should ssb and total bio be calculated
 #' @param mat.par parameters determining the maturity ogive
 #' @param gd gadget directory
 #' @param custom.print filename of customise printfile
@@ -33,7 +32,6 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
                            save.results = TRUE,
                            stochastic = TRUE,
                            rec.window = NULL,
-                           compact = TRUE,
                            mat.par=c(0,0),
                            gd=list(dir='.',rel.dir='PRE'),
                            method = 'AR1',
@@ -53,7 +51,8 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
     body %>% 
       paste(collapse='\n') %>% 
       read.table(text=.,
-                 col.names = header,fill=TRUE) %>% 
+                 col.names = header,fill=TRUE,
+                 stringsAsFactors = FALSE) %>% 
       dplyr::mutate(trial=cut(1:length(year),c(0,which(diff(year)<0),1e9),labels = FALSE)-1) %>% 
       tibble::as_tibble() 
   }
@@ -363,6 +362,9 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
       'printfile\t.jnk',
       sep = '\n')
   
+  catch.files <- sprintf('catch.%s.lw',unique(fleet$prey$stock))
+  print.files <- sprintf('%s.lw',unique(fleet$prey$stock))
+  
   
   dir.create(sprintf('%s/out/',pre),showWarnings = FALSE, recursive = TRUE)
   
@@ -417,13 +419,24 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
     purrr::set_names(paste(paste(pre,'out',sep='/'),.,sep='/'),.) %>% 
     map(readoutput)
     
+  catch <- 
+    out[catch.files] %>% 
+    bind_rows(.id='stock') %>% 
+    mutate(stock = gsub('catch.(.+).lw','\\1',stock))
+  lw <- 
+    out[print.files] %>% 
+    bind_rows(.id='stock') %>% 
+    mutate(stock = gsub('(^.+).lw','\\1',stock))
+  out <- out[!(names(out) %in% c(catch.files,print.files))]
   out <- 
-    within(out,{
-      recruitment = prj.rec
-      num.trials = num.trials
-      stochastic = stochastic
-      sim.begin = sim.begin
-    })
+    list(custom = out,
+         catch = catch,
+         lw = lw,
+         recruitment = prj.rec %>% 
+           tibble::as_tibble(),
+         num.trials = num.trials,
+         stochastic = stochastic,
+         sim.begin = sim.begin)
   class(out) <- c('gadget.forward',class(out))
   if(save.results){
     save(out,file = sprintf('%s/out.Rdata',pre))

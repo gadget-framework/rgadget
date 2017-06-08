@@ -5,7 +5,8 @@
 \title{Make gadget printfile}
 \usage{
 make.gadget.printfile(main = "main", output = "out",
-  aggfiles = "print.aggfiles", file = "printfile")
+  aggfiles = "print.aggfiles", file = "printfile", printatstart = 1,
+  steps = 1)
 }
 \arguments{
 \item{main}{location of main file}
