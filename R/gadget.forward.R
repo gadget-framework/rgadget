@@ -53,7 +53,9 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
       read.table(text=.,
                  col.names = header,fill=TRUE,
                  stringsAsFactors = FALSE) %>% 
-      dplyr::mutate(trial=cut(1:length(year),c(0,which(diff(year)<0),1e9),labels = FALSE)-1) %>% 
+      dplyr::mutate(trial=cut(1:length(year),
+                              c(0,which(diff(year)<0),1e9),
+                              labels = FALSE)-1) %>% 
       tibble::as_tibble() 
   }
   
@@ -197,15 +199,20 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
   if(!is.null(rec.window)){
     if(length(rec.window)==1){
       tmp <- 
-        rec %>% 
-        dplyr::filter(year < rec.window)
+        rec %>%
+        dplyr::ungroup() %>% 
+        dplyr::filter(as.numeric(year) < rec.window)
     } else {
       tmp <- 
         rec %>% 
-        dplyr::filter(year <= max(rec.window) & year >= min(rec.window))
+        dplyr::ungroup() %>% 
+        dplyr::filter(as.numeric(year) <= max(rec.window) & 
+                        as.numeric(year) >= min(rec.window))
     }
   } else {
-    tmp <- rec
+    tmp <- 
+      rec %>% 
+      dplyr::ungroup()
   }
   
   ## todo: consider covariates in recruitment
@@ -227,7 +234,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
                                        trial = rep(1:num.trials,each=years),
                                        recruitment = .$recruitment)) %>% 
         dplyr::bind_rows(.id='stock') %>% 
-        select(stock,year,trial,recruitment)
+        dplyr::select(stock,year,trial,recruitment)
       
     } else {
       ## fit an AR model to the fitted recruiment
@@ -254,7 +261,6 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
   } else {
     prj.rec <- 
       tmp %>% 
-      dplyr::filter(year > sim.begin - 4) %>%
       dplyr::group_by(stock) %>% 
       dplyr::summarise(recruitment = mean(recruitment)) %>% 
       dplyr::left_join(expand.grid(stock = stocks %>% 
@@ -301,15 +307,15 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
   if(is.null(rec.scalar)){
     prj.rec <- 
       prj.rec %>% 
-      mutate(rec.scalar=1)
+      dplyr::mutate(rec.scalar=1)
   } else {
     if(sum(rec.scalar$stock %in% prj.rec$stock)==0)
       warning('No stocks found in rec.scalar')
     prj.rec <- 
       prj.rec %>% 
-      left_join(rec.scalar %>% 
-                  select(stock, year, rec.scalar)) %>% 
-      mutate(rec.scalar = ifelse(is.na(rec.scalar),1,rec.scalar))
+      dplyr::left_join(rec.scalar %>% 
+                         dplyr::select(stock, year, rec.scalar)) %>% 
+      dplyr::mutate(rec.scalar = ifelse(is.na(rec.scalar),1,rec.scalar))
   }
   ## end fix
   
