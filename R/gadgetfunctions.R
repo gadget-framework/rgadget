@@ -1437,7 +1437,7 @@ gadget.retro <- function(path='.',
                  o = sprintf('%s/lik.retro.%s',pre,x))
     }
   }
-  multicore::mclapply(1:num.years,run.func, 
+  parallel::mclapply(1:num.years,run.func, 
                       mc.cores = detectCores(logical = TRUE))
   
   Sys.unsetenv('GADGET_WORKING_DIR')
