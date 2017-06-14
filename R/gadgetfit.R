@@ -16,7 +16,8 @@ gadget.fit <- function(wgts = 'WGTS', main.file = NULL,
                        mat.par=NULL, params.file=NULL,
                        f.age.range=NULL, fit.folder = 'FIT',
                        compile.fleet.info = TRUE,
-					   printfile.printatstart = 1, printfile.steps = 1){
+					   printfile.printatstart = 1, printfile.steps = 1,
+					   rec.length.parameter=NULL){
   
   if(is.null(main.file)) {
     if(is.null(wgts)){
@@ -81,7 +82,7 @@ gadget.fit <- function(wgts = 'WGTS', main.file = NULL,
                 })
   
   stock.growth <-
-    tryCatch(get.gadget.growth(stocks,params,age.based=TRUE),
+    tryCatch(get.gadget.growth(stocks,params,age.based=TRUE,recl=rec.length.parameter),
              warning = function(x) NULL,
              error = function(x) NULL)
   stock.recruitment <- get.gadget.recruitment(stocks,params)
