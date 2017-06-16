@@ -10,14 +10,32 @@ gadget.fit(wgts = "WGTS", main.file = NULL,
   compile.fleet.info = TRUE, printfile.printatstart = 1,
   printfile.steps = 1, rec.length.parameter = NULL)
 }
+\arguments{
+\item{wgts}{Location of the iterative reweighting folder, if null gadget.fit requires a parameter file}
+
+\item{main.file}{if the main file is different from the 'main' or 'wgts/main.final'}
+
+\item{fleet.predict}{the basis fleets used to calculate the harvestable biomass}
+
+\item{mat.par}{parameters for the maturity ogive}
+
+\item{params.file}{parameter file used in the fit (defaults to "WGTS/params.final")}
+
+\item{f.age.range}{the age range where the F's are calculated, defaults to the apical F}
+
+\item{fit.folder}{location of the output}
+
+\item{compile.fleet.info}{should the harvest rate be calculated}
+
+\item{printfile.printatstart}{should the stock standared output be printed at the beginning or the end of the timestep}
+
+\item{printfile.steps}{what steps should be printed}
+}
 \value{
 list of fit things
 }
 \description{
-.. content for \description{} (no empty lines) ..
-}
-\details{
-.. content for \details{} ..
+This function calls Gadget and compiles fit statistics, relevant biomass trajectories and consumption
 }
 \author{
 Bjarki Thor Elvarsson

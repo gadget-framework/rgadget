@@ -20,11 +20,11 @@ plot.gadget.fit <- function(fit,data = 'sidat',type='direct',dat.name=NULL){
     
     
   } else if(data=='sidat' & type == 'direct'){
-    ggplot(fit$sidat, aes(year,number.x)) +
+    ggplot(fit$sidat, aes(year,observed)) +
       geom_point() +
       geom_line(aes(year,predict)) +
       geom_linerange(data=subset(fit$sidat,year==max(year)),
-                     aes(year,ymax=number.x,ymin=predict),col='green')+
+                     aes(year,ymax=observed,ymin=predict),col='green')+
       geom_text(data=ddply(fit$sidat,~length,function(x){
         mutate(subset(x,year==min(year)),y=Inf)
       }),
@@ -36,7 +36,7 @@ plot.gadget.fit <- function(fit,data = 'sidat',type='direct',dat.name=NULL){
     
   } else if(data=='sidat' & type == 'bio'){
     bio.tmp <- ddply(fit$sidat,~year + step,summarise,
-                     obs=sum(number.x*bio),prd=sum(predict*bio))
+                     obs=sum(observed*bio),prd=sum(predict*bio))
     ggplot(bio.tmp, aes(year,obs)) +
       geom_point() +
       geom_line(aes(year,prd)) +

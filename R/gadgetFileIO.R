@@ -528,7 +528,7 @@ make.gadget.printfile <- function(main='main',output='out',
               sprintf('ageaggfile\t%s/%%1$s.allages.agg',aggfiles),
               sprintf('lenaggfile\t%s/%%1$s.len.agg',aggfiles),
               sprintf('printfile\t%s/%%1$s.full',output),
-			  sprintf('printatstart\t%s', printatstart),
+              sprintf('printatstart\t%s', printatstart),
               sprintf('yearsandsteps\tall\t%s', steps),sep='\n')
     
     predator <-
@@ -555,6 +555,12 @@ make.gadget.printfile <- function(main='main',output='out',
               'yearsandsteps\tall all',
               sep = '\n')
     
+    tmp <- expand.grid(preys = names(stocks),
+                       predators = c(fleets$fleet$fleet, stocks %>% 
+                                       purrr::set_names(.,names(.))%>% 
+                                       purrr::keep(~isPredator(.)==1) %>% 
+                                       unlist()))
+    
     
     dir.create(aggfiles, showWarnings = FALSE)
     dir.create(output, showWarnings = FALSE)
@@ -579,18 +585,11 @@ make.gadget.printfile <- function(main='main',output='out',
                                                   function(x) x@stockname),
                                    paste(fleets$fleet$fleet,collapse = ' ')),
                            collapse='\n'),
+                     paste(sprintf(predator.prey,tmp$preys,tmp$predators),
+                           collapse='\n'),
                      ';',
                      sep='\n'),
                f=file)
-
-#  l_ply(stocks,
-#        function(x){
-#          if(isPredator(x)){
-#            write(paste(sprintf(predator.prey,getPreyNames(x),x@stockname),
-#                        collapse='\n;\n'),
-#                  file=file,append=TRUE)
-#          }
-#        })
 }
 
 ##' Read gadget printfile
@@ -999,7 +998,7 @@ strip.comments <- function(file='main'){
 }
 
 
-##' Read in a Gadget model to a gadget-main object
+##' Read in a Gadget model to a gadget-main object DEPRECATED
 ##' @title read gadget main
 ##' @param main.file location of the main file
 ##' @return mainfile object
@@ -1061,7 +1060,7 @@ read.gadget.model <- function(main.file='main',model.name='Gadget-model'){
 }
 
 
-##' Read in Gadget stockfiles 
+##' Read in Gadget stockfiles DEPRECATED
 ##' @title read gadget stock
 ##' @param stock.files
 ##' @return list of gadget-stock objects
@@ -1352,7 +1351,7 @@ read.gadget.stockfiles <- function(stock.files){
   return(stocks)
 }
 
-##' <description>
+##' <description> DEPRECATED
 ##'
 ##' <details>
 ##' @title read gadget area file

@@ -10,7 +10,7 @@ read.gadget.stockfiles(stock.files)
 list of gadget-stock objects
 }
 \description{
-Read in Gadget stockfiles
+Read in Gadget stockfiles DEPRECATED
 }
 \author{
 Bjarki Thor Elvarsson
