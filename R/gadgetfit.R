@@ -69,6 +69,7 @@ gadget.fit <- function(wgts = 'WGTS', main.file = NULL,
   catches <- get.gadget.catches(fleets,params)
   
   gss.suit <- 
+    
     plyr::ldply(stocks,
                 function(x){
                   tryCatch(subset(get.gadget.suitability(fleets,params,
@@ -87,11 +88,11 @@ gadget.fit <- function(wgts = 'WGTS', main.file = NULL,
   stock.recruitment <- get.gadget.recruitment(stocks,params)
   
   harv.suit <- function(l,stockname){
-    tryCatch(ddply(merge(
+    tryCatch(plyr::ddply(merge(
       subset(get.gadget.suitability(fleets,params,l),
              stock==stockname),
       fleet.predict),~l,
-      summarise, harv=sum(ratio*suit))$harv,
+      plyr::summarise, harv=sum(ratio*suit))$harv,
       error = function(x){
         print('warning -- fleet parameters could not be read')
         return(0)
@@ -99,20 +100,25 @@ gadget.fit <- function(wgts = 'WGTS', main.file = NULL,
   }
   
   stock.full <-
-    ldply(stocks,function(x){
-      mutate(out[[sprintf('%s.full',getStockNames(x))]],
-             length=as.numeric(gsub('len','',length)))
-    })
+    out[sprintf('%s.full',getStockNames(x))] %>% 
+    purrr::set_names(.,getStockNames(x)) %>% 
+    dplyr::bind_rows(.id='stock') %>% 
+    dplyr::mutate(length=as.numeric(gsub('len','',length)))
   
-  stock.std <- ldply(stocks,function(x){
-    out[[sprintf('%s.std',getStockNames(x))]]
-  })
+  stock.std <- 
+    out[sprintf('%s.std',getStockNames(x))] %>% 
+    purrr::set_names(.,getStockNames(x)) %>% 
+    dplyr::bind_rows(.id='stock')
   
+  stock.prey <- 
+    out[sprintf('%s.prey',getStockNames(x))] %>% 
+    purrr::set_names(.,getStockNames(x)) %>% 
+    dplyr::bind_rows(.id='stock')
   
   if(compile.fleet.info){
     ## this if statement is here due to incompatibility with timevariables
     fleet.catches <- 
-      ddply(fleets$fleet,~fleet,function(x){
+      plyr::ddply(fleets$fleet,~fleet,function(x){
         tmp <- 
           read.table(file=x$amount,comment.char = ';')
         names(tmp) <- 
@@ -139,49 +145,29 @@ gadget.fit <- function(wgts = 'WGTS', main.file = NULL,
   
   ## merge data and estimates
   if('surveyindices' %in% names(lik.dat$dat)){
-    
-    
-    sidat <- plyr::ldply(names(lik.dat$dat$surveyindices),
-                         function(x){
-                           sidat <-
-                             merge(lik.dat$dat$surveyindices[[x]],
-                                   out[[x]],
-                                   by.y=c('year','label','step','area'),                             
-                                   by.x=intersect(c('year','length','age','survey',
-                                                    'step','area'),
-                                                  names(lik.dat$dat$surveyindices[[x]])),
-                                   all.y=TRUE)
-                           if('lengths' %in% sidat$sitype){
-                             sidat$length <- paste(sidat$lower,
-                                                   sidat$upper, sep = ' - ')
-                           }
-                           sidat$name <- x
-                           sidat <- merge(sidat,
-                                          subset(lik$surveyindices,
-                                                 select=c(name,stocknames)),
-                                          by='name')
-                           si.stocks <-
-                             unique(unlist(strsplit(unique(sidat$stocknames),'\t')))
-                           if('lengths' %in% sidat$sitype){
-                             ## note this assumes length based survey indices atm
-                             si.labels <-
-                               arrange(unique(sidat[c('length','lower','upper')]),
-                                       lower)
-                             sibio <-
-                               stock.full %>%
-                               filter(.id %in% si.stocks) %>%
-                               mutate(sigroup = cut(length,
-                                                    breaks=c(si.labels$lower,
-                                                             max(si.labels$upper)),
-                                                    labels=si.labels$length))%>%
-                               group_by(year,sigroup) %>%
-                               summarise(bio=sum(number*mean.weight)/sum(number))
-                             sidat <- merge(sidat,sibio,by.x=c('year','length'),
-                                            by.y=c('year','sigroup'),all.x=TRUE)
-                           }
-                           return(sidat)
-                         })
-    
+    sidat <- 
+      out[names(lik.dat$dat$surveyindices)] %>% 
+      purrr::set_names(.,names(.)) %>%
+      dplyr::bind_rows(.id='name') %>% 
+      dplyr::left_join(lik$surveyindices %>% 
+                         dplyr::select(name,stocknames,sitype,fittype), 
+                       by='name') %>% 
+      dplyr::bind_rows(dplyr::data_frame(length=character(0),
+                                         age=character(0),
+                                         survey = character(0),
+                                         fleet = character(0))) %>% 
+      dplyr::mutate(age = ifelse(sitype == 'ages',label,age),
+                    length = ifelse(sitype %in% c('lengths','fleets'),label,length),
+                    fleet = ifelse(sitype == 'effort',label,fleet),
+                    survey = ifelse(sitype == 'accoustic',label,survey)) %>% 
+      dplyr::left_join(lik.dat$dat$surveyindices %>% 
+                         purrr::set_names(.,names(.)) %>% 
+                         dplyr::bind_rows(.id='name') %>% 
+                         dplyr::rename(observed=number)) %>% 
+      dplyr::mutate(length = ifelse(sitype %in% c('lengths','fleets'),
+                                    paste(lower,upper,sep=' - '),
+                                    length)) %>% 
+      dplyr::as_data_frame()
   } else {
     sidat <- NULL
   }
@@ -189,44 +175,46 @@ gadget.fit <- function(wgts = 'WGTS', main.file = NULL,
   
   
   if('catchdistribution' %in% names(lik.dat$dat)){
+    dat.names <- names(lik.dat$dat$catchdistribution)
+    
+    aggs <- 
+      names(lik.dat$dat$catchdistribution) %>% 
+      purrr::set_names(.,.) %>% 
+      purrr::map(~attr(lik.dat$dat$catchdistribution[[.]],'len.agg')) %>% 
+      dplyr::bind_rows(.id='name') %>% 
+      dplyr::as_data_frame()
+    
     catchdist.fleets <-
-      ldply(names(lik.dat$dat$catchdistribution),
-            function(x){
-              
-              ldist <-
-                merge(lik.dat$dat$catchdistribution[[x]],
-                      join(out[[x]],
-                           attr(lik.dat$dat$catchdistribution[[x]],'len.agg'),
-                           by='length'),
-                      by=c('length', 'year',
-                           'step', 'area','age','upper','lower'),
-                      all.y=TRUE)
-              ldist$name <- x
-              ldist$age <- as.character(ldist$age)
-              ldist$area <- as.character(ldist$area)
-              ldist$upper <- as.double(ldist$upper)
-              ldist$lower <- as.double(ldist$lower)
-              
-              ldist <-
-                ldist %>%
-                group_by(year, step,  area, add=FALSE) %>%
-                mutate(total.catch = sum(number.x,na.rm=TRUE),
-                       total.pred = sum(number.y,na.rm=TRUE),
-                       observed = number.x/sum(number.x,na.rm=TRUE),
-                       predicted = number.y/sum(number.y,na.rm=TRUE)) %>%
-                group_by(length,age,add=FALSE) %>%
-                mutate(upper = as.double(max(ifelse(is.na(upper),0.0,
-                                                    upper))),
-                       lower = as.double(max(ifelse(is.na(lower),0.0,
-                                                    lower))),
-                       avg.length = as.numeric((lower+upper)/2),
-                       residuals = as.numeric(observed - predicted))
-              ldist <- merge(ldist,
-                             subset(lik$catchdistribution,
-                                    select=c(name,fleetnames,stocknames)),
-                             by = 'name')
-              return(ldist)
-            })
+      lik.dat$dat$catchdistribution %>% 
+      purrr::set_names(.,names(.)) %>%
+      dplyr::bind_rows(.id='name') %>% 
+      dplyr::right_join(out[dat.names] %>%
+                          purrr::set_names(.,dat.names) %>% 
+                          dplyr::bind_rows(.id='name') %>% 
+                          left_join(aggs,by=c('name','length')),
+                        by=c('name','length', 'year',
+                             'step', 'area','age','upper','lower')) %>% 
+      dplyr::mutate(age = as.character(age),
+                    area = as.character(area),
+                    upper = as.double(upper),
+                    lower = as.double(lower)) %>% 
+      dplyr::ungroup() %>% 
+      dplyr::group_by(name,year, step,  area) %>%
+      dplyr::mutate(total.catch = sum(number.x,na.rm=TRUE),
+                    total.pred = sum(number.y,na.rm=TRUE),
+                    observed = number.x/sum(number.x,na.rm=TRUE),
+                    predicted = number.y/sum(number.y,na.rm=TRUE)) %>%
+      dplyr::ungroup() %>% 
+      dplyr::group_by(name,length,age) %>%
+      dplyr::mutate(upper = as.double(max(ifelse(is.na(upper),0.0,
+                                                 upper))),
+                    lower = as.double(max(ifelse(is.na(lower),0.0,
+                                                 lower))),
+                    avg.length = as.numeric((lower+upper)/2),
+                    residuals = as.numeric(observed - predicted)) %>% 
+      dplyr::inner_join(lik$catchdistribution %>% 
+                          select(name,fleetnames,stocknames),
+                        by = 'name')
   } else {
     catchdist.fleets <- NULL
   }
@@ -235,7 +223,7 @@ gadget.fit <- function(wgts = 'WGTS', main.file = NULL,
   if(sum(grepl('.std',names(out),fixed = TRUE))>0){
     
     res.by.year <-
-      llply(laply(stocks,function(x) x@stockname),function(x){
+      plyr::llply(laply(stocks,function(x) x@stockname),function(x){
         if(is.null(f.age.range)){
           f.age.range <- c(max(out[[sprintf('%s.prey',x)]]$age),
                            max(out[[sprintf('%s.prey',x)]]$age))
@@ -263,7 +251,7 @@ gadget.fit <- function(wgts = 'WGTS', main.file = NULL,
                                                        as.numeric(gsub('len','',length)))*
                                        number)) %>% 
           dplyr::left_join(f.by.year %>%
-                               mutate(area = as.character(area))) %>% 
+                             mutate(area = as.character(area))) %>% 
           dplyr::mutate(stock = x)
         
         return(bio.by.year)
@@ -317,40 +305,45 @@ gadget.fit <- function(wgts = 'WGTS', main.file = NULL,
   
   if('stomachcontent' %in% names(lik.dat$dat)){
     stomachcontent <-
-      ldply(names(lik.dat$dat$stomachcontent),
-            function(x){
-              
-              dat <-
-                merge(lik.dat$dat$stomachcontent[[x]],
-                      join(join(out[[x]],
-                                attr(lik.dat$dat$stomachcontent[[x]],
-                                     'prey.agg'),
-                                by='prey'),
-                           attr(lik.dat$dat$stomachcontent[[x]],'pred.agg'),
-                           by='predator'),
-                      all.y=TRUE) %>%
-                group_by(year,step,predator) %>%
-                mutate(observed=ratio/sum(ratio,na.rm=TRUE),
-                       predicted=number/sum(number,na.rm=TRUE),
-                       prey.length = (prey.lower+prey.upper)/2,
-                       pred.length = (lower+upper)/2,
-                       component=x)
-            })
+      plyr::ldply(names(lik.dat$dat$stomachcontent),
+                  function(x){
+                    
+                    dat <-
+                      merge(lik.dat$dat$stomachcontent[[x]],
+                            join(join(out[[x]],
+                                      attr(lik.dat$dat$stomachcontent[[x]],
+                                           'prey.agg'),
+                                      by='prey'),
+                                 attr(lik.dat$dat$stomachcontent[[x]],'pred.agg'),
+                                 by='predator'),
+                            all.y=TRUE) %>%
+                      dplyr::group_by(year,step,predator) %>%
+                      dplyr::mutate(observed=ratio/sum(ratio,na.rm=TRUE),
+                                    predicted=number/sum(number,na.rm=TRUE),
+                                    prey.length = (prey.lower+prey.upper)/2,
+                                    pred.length = (lower+upper)/2,
+                                    component=x)
+                  })
     
   } else {
     stomachcontent <- NULL
   }
   
-  out <- list(sidat = sidat, resTable = resTable, nesTable = nesTable,
-              suitability = gss.suit, stock.growth = stock.growth,
-              stock.recruitment = stock.recruitment,
-              res.by.year = res.by.year, stomachcontent = stomachcontent,
-              likelihoodsummary = out$likelihoodsummary,
-              catchdist.fleets = catchdist.fleets, stockdist = stockdist,
-              out.fit=out, SS = SS,
-              stock.full = stock.full, stock.std = stock.std,
-              fleet.info = fleet.info,
-              params = params)
+  out <- 
+    list(sidat = sidat, resTable = resTable, nesTable = nesTable,
+         suitability = gss.suit, 
+         stock.growth = stock.growth,
+         stock.recruitment = stock.recruitment,
+         res.by.year = res.by.year, stomachcontent = stomachcontent,
+         likelihoodsummary = out$likelihoodsummary,
+         catchdist.fleets = catchdist.fleets, 
+         stockdist = stockdist,
+         out.fit=out, SS = SS,
+         stock.full = stock.full, 
+         stock.std = stock.std,
+         stock.prey = stock.prey,
+         fleet.info = fleet.info,
+         params = params)
   class(out) <- c('gadget.fit',class(out))
   save(out,file=sprintf('%s/WGTS.Rdata',wgts))
   return(out)
