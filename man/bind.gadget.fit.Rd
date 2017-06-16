@@ -2,25 +2,16 @@
 % Please edit documentation in R/gadgetfit.R
 \name{bind.gadget.fit}
 \alias{bind.gadget.fit}
-\alias{bind.gadget.fit}
 \title{Merge gadget.fit objects}
 \usage{
-bind.gadget.fit(...)
-
 bind.gadget.fit(...)
 }
 \arguments{
 \item{...}{an arbitrary number of gadget.fit objects as named input.}
-
-\item{...}{an arbitrary number of gadget.fit objects as named input.}
 }
 \value{
 a merged gadget.fit object
-
-a merged gadget.fit object
 }
 \description{
-This function merges gadget.fit objects from different gadget runs. This allow for simpler comparisons between models.
-
 This function merges gadget.fit objects from different gadget runs. This allow for simpler comparisons between models.
 }

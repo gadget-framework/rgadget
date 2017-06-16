@@ -2,15 +2,8 @@
 % Please edit documentation in R/gadgetfit.R
 \name{gadget.fit}
 \alias{gadget.fit}
-\alias{gadget.fit}
 \title{Gadget fit}
 \usage{
-gadget.fit(wgts = "WGTS", main.file = NULL,
-  fleet.predict = data.frame(fleet = "comm", ratio = 1), mat.par = NULL,
-  params.file = NULL, f.age.range = NULL, fit.folder = "FIT",
-  compile.fleet.info = TRUE, printfile.printatstart = 1,
-  printfile.steps = 1)
-
 gadget.fit(wgts = "WGTS", main.file = NULL,
   fleet.predict = data.frame(fleet = "comm", ratio = 1), mat.par = NULL,
   params.file = NULL, f.age.range = NULL, fit.folder = "FIT",
@@ -40,19 +33,10 @@ gadget.fit(wgts = "WGTS", main.file = NULL,
 }
 \value{
 list of fit things
-
-list of fit things
 }
 \description{
 This function calls Gadget and compiles fit statistics, relevant biomass trajectories and consumption
-
-.. content for \description{} (no empty lines) ..
-}
-\details{
-.. content for \details{} ..
 }
 \author{
-Bjarki Thor Elvarsson
-
 Bjarki Thor Elvarsson
 }
