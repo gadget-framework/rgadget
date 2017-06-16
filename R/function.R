@@ -500,46 +500,6 @@ suitability <- function(params,
 }
 
 
-## functions to write suitability lines - added by PNF - June 14, 2017
-#' Write suitability line for a fleet
-#' @param fleet Character. The name of the fleet.
-#' @param stock Character. The name of the stock that is caught.
-#' @param fun Character. The selection function to be used by the fleet
-#' @param params A list of named parameters that are needed by \code{fun}. 
-#'   Names will be used to output the switches to be used by gadget.
-#'   Alternatively, a vector of numbers can be specified.
-#' @return A character vector of the form 
-#'   <preyname> function <functionname> <vector of parameters>
-#' @examples
-#' gadgetfleet('Modelfiles/fleet', '~', missingOkay=T) %>%
-#'     gadget_update('totalfleet',
-#'                    name = 'comm',
-#'                    suitability = fleet_suit(fleet='comm', 
-#'                                             stock='zebrafish', 
-#'                                             fun='newexponentiall50',
-#'                                             params=list('alpha', 'l50')),
-#'                    data = comm.landings[[1]])
-#' @author Paul Frater
-#' @export
-fleet_suit <- function(fleet='comm', 
-                       stock=NULL, 
-                       fun='exponentiall50', 
-                       params=NULL) {
-    paste0('\n',
-           paste(stock, 'function', fun, 
-                 ifelse(is.numeric(params),
-                        params,
-                        do.call(paste, lapply(params, function(x) {
-                            if (is.numeric(x)) {
-                                return(x)
-                            } else {
-                                sprintf('#%1$s.%2$s.%3$s',
-                                        stock, fleet, x)
-                            }
-                        }))),
-                 sep='\t'))
-}
-
 #' Write suitability line for a predator
 #' @param pred Character. The name of the predator
 #' @param prey Character. The preyname of the stock to be eaten
