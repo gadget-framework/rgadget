@@ -2,6 +2,7 @@
 % Please edit documentation in R/gadgetfit.R
 \name{gadget.fit}
 \alias{gadget.fit}
+\alias{gadget.fit}
 \title{Gadget fit}
 \usage{
 gadget.fit(wgts = "WGTS", main.file = NULL,
@@ -9,16 +10,49 @@ gadget.fit(wgts = "WGTS", main.file = NULL,
   params.file = NULL, f.age.range = NULL, fit.folder = "FIT",
   compile.fleet.info = TRUE, printfile.printatstart = 1,
   printfile.steps = 1)
+
+gadget.fit(wgts = "WGTS", main.file = NULL,
+  fleet.predict = data.frame(fleet = "comm", ratio = 1), mat.par = NULL,
+  params.file = NULL, f.age.range = NULL, fit.folder = "FIT",
+  compile.fleet.info = TRUE, printfile.printatstart = 1,
+  printfile.steps = 1)
+}
+\arguments{
+\item{wgts}{Location of the iterative reweighting folder, if null gadget.fit requires a parameter file}
+
+\item{main.file}{if the main file is different from the 'main' or 'wgts/main.final'}
+
+\item{fleet.predict}{the basis fleets used to calculate the harvestable biomass}
+
+\item{mat.par}{parameters for the maturity ogive}
+
+\item{params.file}{parameter file used in the fit (defaults to "WGTS/params.final")}
+
+\item{f.age.range}{the age range where the F's are calculated, defaults to the apical F}
+
+\item{fit.folder}{location of the output}
+
+\item{compile.fleet.info}{should the harvest rate be calculated}
+
+\item{printfile.printatstart}{should the stock standared output be printed at the beginning or the end of the timestep}
+
+\item{printfile.steps}{what steps should be printed}
 }
 \value{
 list of fit things
+
+list of fit things
 }
 \description{
+This function calls Gadget and compiles fit statistics, relevant biomass trajectories and consumption
+
 .. content for \description{} (no empty lines) ..
 }
 \details{
 .. content for \details{} ..
 }
 \author{
+Bjarki Thor Elvarsson
+
 Bjarki Thor Elvarsson
 }

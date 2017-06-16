@@ -10,7 +10,7 @@ read.gadget.area(area.file = "area")
 areafile object
 }
 \description{
-<description>
+<description> DEPRECATED
 }
 \details{
 <details>

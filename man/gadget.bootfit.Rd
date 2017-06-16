@@ -2,21 +2,34 @@
 % Please edit documentation in R/gadgetfit.R
 \name{gadget.bootfit}
 \alias{gadget.bootfit}
+\alias{gadget.bootfit}
 \title{bootstrap fit}
 \usage{
+gadget.bootfit(main = "main", dparam.file = "bsres_v1.RData",
+  bsprint.file = "bsprint.RData", fleet.predict = data.frame(fleet = "comm",
+  ratio = 1), mat.par = NULL, .parallel = TRUE)
+
 gadget.bootfit(main = "main", dparam.file = "bsres_v1.RData",
   bsprint.file = "bsprint.RData", fleet.predict = data.frame(fleet = "comm",
   ratio = 1), mat.par = NULL, .parallel = TRUE)
 }
 \value{
 list of bootstrap fit things
+
+list of bootstrap fit things
 }
 \description{
+.. content for \description{} (no empty lines) ..
+
 .. content for \description{} (no empty lines) ..
 }
 \details{
 .. content for \details{} ..
+
+.. content for \details{} ..
 }
 \author{
+Bjarki Thor Elvarsson
+
 Bjarki Thor Elvarsson
 }
