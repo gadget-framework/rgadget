@@ -203,17 +203,13 @@ gadget.fit <- function(wgts = 'WGTS', main.file = NULL,
     catchdist.fleets <-
       lik.dat$dat$catchdistribution %>% 
       purrr::set_names(.,names(.)) %>%
-      dplyr::bind_rows(.id='name') %>% 
+      dplyr::bind_rows(.id='name') %>%  
       dplyr::right_join(out[dat.names] %>%
                           purrr::set_names(.,dat.names) %>% 
                           dplyr::bind_rows(.id='name') %>% 
                           left_join(aggs,by=c('name','length')),
                         by=c('name','length', 'year',
                              'step', 'area','age','upper','lower')) %>% 
-      dplyr::mutate(age = as.character(age),
-                    area = as.character(area),
-                    upper = as.double(upper),
-                    lower = as.double(lower)) %>% 
       dplyr::ungroup() %>% 
       dplyr::group_by(name,year, step,  area) %>%
       dplyr::mutate(total.catch = sum(number.x,na.rm=TRUE),

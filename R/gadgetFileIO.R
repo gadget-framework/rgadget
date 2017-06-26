@@ -559,7 +559,8 @@ make.gadget.printfile <- function(main='main',output='out',
                        predators = c(fleets$fleet$fleet, stocks %>% 
                                        purrr::set_names(.,names(.))%>% 
                                        purrr::keep(~isPredator(.)==1) %>% 
-                                       unlist()))
+                                       unlist() %>% 
+                                       names()))
     
     
     dir.create(aggfiles, showWarnings = FALSE)
