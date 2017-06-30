@@ -4,7 +4,8 @@
 \alias{get.gadget.growth}
 \title{get gadget growth}
 \usage{
-get.gadget.growth(stocks, params, dt = 0.25, age.based = FALSE)
+get.gadget.growth(stocks, params, dt = 0.25, age.based = FALSE,
+  recl = NULL)
 }
 \value{
 growth matrix
