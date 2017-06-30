@@ -1874,8 +1874,25 @@ get.gadget.growth <- function(stocks,params,dt=0.25,age.based=FALSE){
     lt <- getLengthGroups(x)
     if(age.based){
       age <- x@minage:x@maxage
-      data.frame(stock=x@stockname,age=age,
-                 length=suit.par[1]*(1-exp(-suit.par[2]*age)))
+	  ## added by PNF to add recruitment mean length to vonB growth function - Sept.28, 2016
+	  renewal.mn.formula <- parse.gadget.formulae(x@initialdata$mean[1])
+	  if (is.call(renewal.mn.formula)) {
+		  rec.params <- unlist(strsplit(gsub('\\)', '\\\\', gsub('\\(', '\\)',renewal.mn.formula)), '\\\\'))
+		  rec.params.split <- strsplit(paste(rec.params, collapse=' '), "\\+|\\-|\\*|\\/| ")
+		  txt.split.no.comm <- gsub("#", "", txt.split)
+		  leftover.params <- rec.params.split[[1]][-which(rec.params.split[[1]] %in% txt.split.no.comm)]
+		  if (any(leftover.params %in% params$switch)) {
+				rec.len.switch <- leftover.params[which(leftover.params %in% params$switch)]
+				rec.len.switch <- params[grep(rec.len.switch, params$switch), ]
+				rec.length <- rec.len.switch$value
+		  } else {
+				## not quite sure how to select rec length if it is a number, not a switch - PNF
+				rec.length <- leftover.params[-which(leftover.params %in% c("exp", "log", '', '1'))]
+		  }
+		  t0 <- log((-1)*((rec.length / suit.par[1])-1)) / (-suit.par[2])
+	  } else {t0 <- 0}
+	  data.frame(stock=x@stockname,age=age,
+                 length=suit.par[1]*(1-exp(-suit.par[2]*(age+t0))))
     } else {
       melt(growthprob(lt,suit.par[5],suit.par[1],suit.par[2],dt,
                       suit.par[6],max(diff(lt))),
