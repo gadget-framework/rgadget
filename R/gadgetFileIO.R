@@ -555,7 +555,9 @@ make.gadget.printfile <- function(main='main',output='out',
               'yearsandsteps\tall all',
               sep = '\n')
     
-    tmp <- expand.grid(preys = names(stocks),
+    prey.subset <- stocks[which(lapply(stocks, function(x) x@iseaten) == 1)]
+    
+    tmp <- expand.grid(preys = names(prey.subset),
                        predators = c(fleets$fleet$fleet, stocks %>% 
                                        purrr::set_names(.,names(.))%>% 
                                        purrr::keep(~isPredator(.)==1) %>% 
@@ -582,7 +584,7 @@ make.gadget.printfile <- function(main='main',output='out',
                      paste(sprintf(stock.full,laply(stocks,
                                                     function(x) x@stockname)),
                            collapse='\n'),
-                     paste(sprintf(predator,laply(stocks,
+                     paste(sprintf(predator,laply(prey.subset,
                                                   function(x) x@stockname),
                                    paste(fleets$fleet$fleet,collapse = ' ')),
                            collapse='\n'),
