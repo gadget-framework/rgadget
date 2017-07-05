@@ -499,6 +499,86 @@ suitability <- function(params,
 }
 
 
+#' Write suitability line for a predator
+#' @param pred Character. The name of the predator
+#' @param prey Character. The preyname of the stock to be eaten
+#' @param fun Character. The selection function for the predator
+#' @param params A list of named parameters that are needed by \code{fun}. 
+#'   Names will be used to output the switches to be used by gadget.
+#'   Alternatively, a vector of numbers can be used.
+#' @return A character vector of the form 
+#'   <preyname> function <functionname> <vector of parameters>
+#' @examples
+#' gadgetstock('garfish', '~', missingOkay=T) %>%
+#'     gadget_update('doeseat',
+#'                    name = 'comm',
+#'                    suitability = pred_suit(pred='garfish',
+#'                                             prey='zebrafish', 
+#'                                             fun='newexponentiall50',
+#'                                             params=list('alpha', 'l50')),
+#'                    data = garfish.consumption[[1]])
+#' @author Paul Frater
+#' @export
+pred_suit <- function(pred=NA,
+                      prey=NA,
+                      fun='newexponentiall50', 
+                      params=NULL) {
+    paste0('\n',
+           paste(prey, 'function', fun, 
+                 ifelse(is.numeric(params),
+                        params,
+                        do.call(paste, lapply(params, function(x) {
+                            if (is.numeric(x)) {
+                                return(x)
+                            } else {
+                                sprintf('#%1$s.%2$s.%3$s',
+                                        pred, prey, x)
+                            }
+                        }))),
+                 sep='\t'))
+}
+
+#' Write suitability line for the surveydistribution likelihood component
+#' @param survey.name Character. The name of the survey
+#' @param stock Character. The name of the stock surveyed
+#' @param fun Character. The selection function for the survey
+#' @param params A list of named parameters that are needed by \code{fun}. 
+#'   Names will be used to output the switches to be used by gadget.
+#'   Alternatively, a vector of numbers can be used.
+#' @return A character vector of the form 
+#'   function <functionname> <vector of parameters>
+#' @examples
+#' gadgetlikelihood('likelihood', '~', missingOkay=T) %>%
+#'    gadget_update('surveydistribution',
+#'                  name = 'ldist.spr',
+#'                  weight = 1,
+#'                  data = ldist.igfs[[1]],
+#'                  parameters = quote(exp(spr.si.beta)) %>%
+#'                                to.gadget.formulae(),
+#'                  suitability = surveydist_suit(stock = 'zebrafish',
+#'                                              fun = 'constant',
+#'                                              params = 1),
+#'                  stocknames = 'zebrafish')
+#' @author Paul Frater
+#' @export
+surveydist_suit <- function(survey.name='survey',
+                            stock=NULL,
+                            fun='newexponentiall50',
+                            params=NULL) {
+    paste0(paste('function', fun, 
+                 ifelse(is.numeric(params),
+                        params,
+                        do.call(paste, lapply(params, function(x) {
+                            if (is.numeric(x)) {
+                                return(x)
+                            } else {
+                                sprintf('#%1$s.%2$s.%3$s',
+                                        stock, survey.name, x)
+                            }
+                        }))),
+                 sep='\t'))
+}
+
 overlap <- function(Abundance,mixing){
   stock.num <- aaply(Abundance,c(1,3),
                      function(x) sum(x))[dimnames(Abundance)$stock,
