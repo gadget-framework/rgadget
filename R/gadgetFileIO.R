@@ -1866,9 +1866,10 @@ get.gadget.suitability <- function(fleets,params,lengths,normalize=FALSE){
 ##' @param params
 ##' @param dt
 ##' @param age.based
+##' @param recl
 ##' @return growth matrix
 ##' @author Bjarki Thor Elvarsson
-get.gadget.growth <- function(stocks,params,dt=0.25,age.based=FALSE){
+get.gadget.growth <- function(stocks,params,dt=0.25,age.based=FALSE,recl=NULL){
   ldply(stocks,function(x){
     txt.split <- merge.formula(unlist(strsplit(x@growth@growthparameters,' ')))
     txt.split <- c(txt.split,x@growth@beta,x@growth@maxlengthgroupgrowth)
@@ -1876,8 +1877,15 @@ get.gadget.growth <- function(stocks,params,dt=0.25,age.based=FALSE){
     lt <- getLengthGroups(x)
     if(age.based){
       age <- x@minage:x@maxage
-      data.frame(stock=x@stockname,age=age,
-                 length=suit.par[1]*(1-exp(-suit.par[2]*age)))
+      if (!is.null(recl)) {
+          recl <- params[grep(recl, params$switch),'value']
+          data.frame(stock=x@stockname,age=age,
+                     length=suit.par[1]*(1-(exp(((-1)*suit.par[2])*(age-(1+((log (1-(recl/suit.par[1]))) / suit.par[2]))))))
+          )
+      } else{
+            data.frame(stock=x@stockname,age=age,
+                    length=suit.par[1]*(1-exp(-suit.par[2]*age)))
+      }
     } else {
       melt(growthprob(lt,suit.par[5],suit.par[1],suit.par[2],dt,
                       suit.par[6],max(diff(lt))),
