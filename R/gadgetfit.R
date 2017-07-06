@@ -238,7 +238,7 @@ gadget.fit <- function(wgts = 'WGTS', main.file = NULL,
   if(sum(grepl('.std',names(out),fixed = TRUE))>0){
     
     if(is.null(f.age.range)){
-      f.age.range <- c(max(stock.prey$age),
+      f.age.range <- c(min(stock.prey$age),
                        max(stock.prey$age))
     }
     
