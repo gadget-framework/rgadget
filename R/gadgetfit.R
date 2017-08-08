@@ -11,6 +11,7 @@
 ##' @param printfile.printatstart should the stock standared output be printed at the beginning or the end of the timestep
 ##' @param printfile.steps what steps should be printed
 ##' @param f.age.range the age range where the F's are calculated, defaults to the apical F
+##' @param rec.length.param Character. The parameter that determines recruitment length in rec files (if used)
 ##'
 ##' @return list of fit things
 ##' @author Bjarki Thor Elvarsson
@@ -20,7 +21,8 @@ gadget.fit <- function(wgts = 'WGTS', main.file = NULL,
                        mat.par=NULL, params.file=NULL,
                        f.age.range=NULL, fit.folder = 'FIT',
                        compile.fleet.info = TRUE,
-                       printfile.printatstart = 1, printfile.steps = 1){
+                       printfile.printatstart = 1, printfile.steps = 1,
+                       rec.length.param = NULL){
   
   if(is.null(main.file)) {
     if(is.null(wgts)){
@@ -86,7 +88,8 @@ gadget.fit <- function(wgts = 'WGTS', main.file = NULL,
                 })
   
   stock.growth <-
-    tryCatch(get.gadget.growth(stocks,params,age.based=TRUE),
+    tryCatch(get.gadget.growth(stocks,params,age.based=TRUE,
+                               recl = rec.length.param),
              warning = function(x) NULL,
              error = function(x) NULL)
   stock.recruitment <- get.gadget.recruitment(stocks,params)
@@ -235,7 +238,7 @@ gadget.fit <- function(wgts = 'WGTS', main.file = NULL,
   if(sum(grepl('.std',names(out),fixed = TRUE))>0){
     
     if(is.null(f.age.range)){
-      f.age.range <- c(max(stock.prey$age),
+      f.age.range <- c(min(stock.prey$age),
                        max(stock.prey$age))
     }
     

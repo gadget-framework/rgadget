@@ -8,7 +8,7 @@ gadget.fit(wgts = "WGTS", main.file = NULL,
   fleet.predict = data.frame(fleet = "comm", ratio = 1), mat.par = NULL,
   params.file = NULL, f.age.range = NULL, fit.folder = "FIT",
   compile.fleet.info = TRUE, printfile.printatstart = 1,
-  printfile.steps = 1)
+  printfile.steps = 1, rec.length.param = NULL)
 }
 \arguments{
 \item{wgts}{Location of the iterative reweighting folder, if null gadget.fit requires a parameter file}
@@ -30,6 +30,8 @@ gadget.fit(wgts = "WGTS", main.file = NULL,
 \item{printfile.printatstart}{should the stock standared output be printed at the beginning or the end of the timestep}
 
 \item{printfile.steps}{what steps should be printed}
+
+\item{rec.length.param}{Character. The parameter that determines recruitment length in rec files (if used)}
 }
 \value{
 list of fit things
