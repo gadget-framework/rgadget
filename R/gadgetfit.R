@@ -10,7 +10,8 @@
 ##' @param compile.fleet.info should the harvest rate be calculated 
 ##' @param printfile.printatstart should the stock standared output be printed at the beginning or the end of the timestep
 ##' @param printfile.steps what steps should be printed
-##' @param f.age.range the age range where the F's are calculated, defaults to the apical F
+##' @param f.age.range data.frame describing the desired age range where the F's are calculated, if null this defaults to the apical F fro all stocks. 
+##' Input columns should include stock, age.min and age.max 
 ##' @param rec.length.param Character. The parameter that determines recruitment length in rec files (if used)
 ##'
 ##' @return list of fit things
@@ -23,6 +24,10 @@ gadget.fit <- function(wgts = 'WGTS', main.file = NULL,
                        compile.fleet.info = TRUE,
                        printfile.printatstart = 1, printfile.steps = 1,
                        rec.length.param = NULL){
+  
+  if(!is.null(f.age.range) & class(f.age.range) != 'data.frame'){
+    stop('F age range should be specified as a data.frame with columns stock, age.min and age.max')
+  }
   
   if(is.null(main.file)) {
     if(is.null(wgts)){
@@ -129,8 +134,7 @@ gadget.fit <- function(wgts = 'WGTS', main.file = NULL,
     out[grepl('.+\\.prey\\..+',names(out))] %>% 
     purrr::set_names(.,names(.)) %>% 
     dplyr::bind_rows(.id='stock') %>% 
-    tidyr::separate(stock,c('prey','tmp','predator')) %>% 
-    dplyr::select(-tmp) %>% 
+    tidyr::separate(stock,c('prey','predator'),sep='\\.prey\\.') %>% 
     dplyr::as_data_frame()
   
   
@@ -206,11 +210,13 @@ gadget.fit <- function(wgts = 'WGTS', main.file = NULL,
     catchdist.fleets <-
       lik.dat$dat$catchdistribution %>% 
       purrr::set_names(.,names(.)) %>%
+      purrr::map(. %>% dplyr::mutate(age = as.character(age))) %>%
       dplyr::bind_rows(.id='name') %>%  
       dplyr::right_join(out[dat.names] %>%
-                          purrr::set_names(.,dat.names) %>% 
+                          purrr::set_names(.,dat.names) %>%
+                          purrr::map(. %>% dplyr::mutate(age = as.character(age))) %>%
                           dplyr::bind_rows(.id='name') %>% 
-                          left_join(aggs,by=c('name','length')),
+                          dplyr::left_join(aggs,by=c('name','length')) ,
                         by=c('name','length', 'year',
                              'step', 'area','age','upper','lower')) %>% 
       dplyr::ungroup() %>% 
@@ -238,17 +244,20 @@ gadget.fit <- function(wgts = 'WGTS', main.file = NULL,
   if(sum(grepl('.std',names(out),fixed = TRUE))>0){
     
     if(is.null(f.age.range)){
-      f.age.range <- c(min(stock.prey$age),
-                       max(stock.prey$age))
+      f.age.range <- 
+        stock.prey %>% 
+        dplyr::group_by(stock) %>% 
+        dplyr::summarise(age.min = max(age),age.max=max(age))
     }
     
     
     f.by.year <- 
       stock.prey %>% 
+      dplyr::left_join(f.age.range,by="stock") %>% 
       dplyr::group_by(stock,year,area) %>%
       dplyr::summarise(catch=sum(biomass.consumed),
                        num.catch=sum(number.consumed),
-                       F=mean(mortality[age>=min(f.age.range)&age<=max(f.age.range)]))
+                       F=mean(mortality[age>=age.min&age<=age.max]))
     
     res.by.year <- 
       stock.full %>% 

@@ -21,7 +21,8 @@ gadget.fit(wgts = "WGTS", main.file = NULL,
 
 \item{params.file}{parameter file used in the fit (defaults to "WGTS/params.final")}
 
-\item{f.age.range}{the age range where the F's are calculated, defaults to the apical F}
+\item{f.age.range}{data.frame describing the desired age range where the F's are calculated, if null this defaults to the apical F fro all stocks. 
+Input columns should include stock, age.min and age.max}
 
 \item{fit.folder}{location of the output}
 

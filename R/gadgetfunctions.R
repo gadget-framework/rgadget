@@ -1398,6 +1398,18 @@ gadget.retro <- function(path='.',
                          num.years=5,
                          pre = 'RETRO',
                          iterative =FALSE,...){
+  if(!file.exists(paste(path,mainfile,sep='/'))){
+    stop('No main file found')
+  }
+  
+  if(!file.exists(paste(path,optinfofile))){
+    stop('No optinfo file found')
+  }
+  
+  if(!file.exists(paste(path,paramsþfile))){
+    stop('No parameter file found')
+  }
+  
   
   main <- read.gadget.file(path,mainfile,file_type = 'main',recursive = FALSE)
   
