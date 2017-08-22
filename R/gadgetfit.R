@@ -12,7 +12,7 @@
 ##' @param printfile.steps what steps should be printed
 ##' @param f.age.range data.frame describing the desired age range where the F's are calculated, if null this defaults to the apical F fro all stocks. 
 ##' Input columns should include stock, age.min and age.max 
-##' @param rec.length.param Character. The parameter that determines recruitment length in rec files (if used)
+##' @param rec.len.param Logical. TRUE if you want growth calculated as age.based and using a formula other than get.gadget.growth default
 ##'
 ##' @return list of fit things
 ##' @author Bjarki Thor Elvarsson
@@ -23,7 +23,7 @@ gadget.fit <- function(wgts = 'WGTS', main.file = NULL,
                        f.age.range=NULL, fit.folder = 'FIT',
                        compile.fleet.info = TRUE,
                        printfile.printatstart = 1, printfile.steps = 1,
-                       rec.length.param = NULL){
+                       rec.len.param = FALSE){
   
   if(!is.null(f.age.range) & class(f.age.range) != 'data.frame'){
     stop('F age range should be specified as a data.frame with columns stock, age.min and age.max')
@@ -94,7 +94,7 @@ gadget.fit <- function(wgts = 'WGTS', main.file = NULL,
   
   stock.growth <-
     tryCatch(get.gadget.growth(stocks,params,age.based=TRUE,
-                               recl = rec.length.param),
+                               recl = rec.len.param),
              warning = function(x) NULL,
              error = function(x) NULL)
   stock.recruitment <- get.gadget.recruitment(stocks,params)
