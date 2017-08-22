@@ -1809,7 +1809,7 @@ get.gadget.suitability <- function(fleets,params,lengths,normalize=FALSE){
 ##' @param recl
 ##' @return growth matrix
 ##' @author Bjarki Thor Elvarsson
-get.gadget.growth <- function(stocks,params,dt=0.25,age.based=FALSE,recl=NULL){
+get.gadget.growth <- function(stocks,params,dt=0.25,age.based=FALSE,recl=FALSE){
   plyr::ldply(stocks,function(x){
     txt.split <- merge.formula(unlist(strsplit(x@growth@growthparameters,' ')))
     txt.split <- c(txt.split,x@growth@beta,x@growth@maxlengthgroupgrowth)
@@ -1817,11 +1817,24 @@ get.gadget.growth <- function(stocks,params,dt=0.25,age.based=FALSE,recl=NULL){
     lt <- getLengthGroups(x)
     if(age.based){
       age <- x@minage:x@maxage
-      if (!is.null(recl)) {
-          recl <- params[grep(recl, params$switch),'value']
-          data.frame(stock=x@stockname,age=age,
-                     length=suit.par[1]*(1-(exp(((-1)*suit.par[2])*(age-(1+((log (1-(recl/suit.par[1]))) / suit.par[2]))))))
-          )
+      if (recl) {
+          gadget_growth_eqn <- strsplit(x@initialdata$mean, ' ')
+          age_var <- lapply(1:(length(gadget_growth_eqn)-1), function(x) {
+              setdiff(gadget_growth_eqn[[x]], gadget_growth_eqn[[x + 1]])
+          })
+          age_var <- c(age_var, list(NULL))
+          find_age_param <- lapply(seq_along(gadget_growth_eqn), function(x) {
+              which(gadget_growth_eqn[[x]] == age_var[[x]])
+          })[[1]]
+          gadget_growth_eqn <- gadget_growth_eqn[[1]]
+          growth_switches <- grep("#", gadget_growth_eqn)
+          growth_switch_vals <- eval.gadget.formula(gadget_growth_eqn[growth_switches],
+                                                    params)$V1
+          gadget_growth_eqn[growth_switches] <- growth_switch_vals
+          gadget_growth_eqn[find_age_param] <- "#age"
+          gadget_growth_eqn <- paste(gadget_growth_eqn, collapse = " ")
+          growth <- parse.gadget.formulae(gadget_growth_eqn)
+          data.frame(stock = x@stockname, age = age, length = eval(growth))
       } else{
             data.frame(stock=x@stockname,age=age,
                     length=suit.par[1]*(1-exp(-suit.par[2]*age)))
