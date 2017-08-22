@@ -454,7 +454,8 @@ suitability <- function(params,
                c(length(L),length(l)))
     
   } else if(tolower(type) == 'exponentiall50' |
-            tolower(type) == 'expsuitfuncl50'){
+            tolower(type) == 'expsuitfuncl50' | 
+            tolower(type) == 'newexponentiall50'){
     S <- array(rep(1/(1+exp(-params[1]*(l - params[2]))),each = length(L)),
                c(length(L),length(l)))
 
