@@ -94,12 +94,12 @@ callGadget <- function(l=NULL,
                        PBS.name='run',
                        qsub.output='output',
                        ignore.stderr=TRUE
-                       ){
-    
-    if(!is.null(.Options$gadget.path)){
-        gadget.exe=.Options$gadget.path
-    }
-
+){
+  
+  if(!is.null(.Options$gadget.path)){
+    gadget.exe=.Options$gadget.path
+  }
+  
   switches <- paste(ifelse(is.null(l),'','-l'),
                     ifelse(is.null(s),'','-s'),
                     ifelse(is.null(n),'','-n'),
@@ -118,7 +118,7 @@ callGadget <- function(l=NULL,
                            paste('-printinitial',printinitial)),
                     ifelse(is.null(printfinal),'',
                            paste('-printfinal',printfinal)))
-
+  
   run.string <- paste(gadget.exe,switches)
   if(!PBS){
     run.history <- try(system(run.string,intern=TRUE,
@@ -131,7 +131,7 @@ callGadget <- function(l=NULL,
       PBS.header <-
         paste('#!/bin/bash',
               sprintf('# job file for pbs queue created by Rgadget at %s',
-                     date()),
+                      date()),
               '# Copy evironment, join output and error, medium queue:',
               '#PBS -V',
               '#PBS -j oe',
@@ -144,7 +144,7 @@ callGadget <- function(l=NULL,
               '',
               '# run gadget',
               sep='\n')
-
+      
       PBS.script <- paste(PBS.header,
                           run.string,
                           sep='\n')
@@ -167,10 +167,10 @@ callGadget <- function(l=NULL,
         }
       }
     }
-
+    
     run.history <- NULL
   }
-
+  
   invisible(run.history)
 }
 
@@ -326,24 +326,24 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
                              comp=NULL,
                              inverse=FALSE,
                              cl=NULL) {
-
+  
   ## Ensure all files exist
   if(!file.exists(main.file)) {
     stop('Main file not found')
   }
-
+  
   if(!file.exists(params.file)) {
     stop('Parameter file not found')
   }
-
+  
   if(!file.exists(optinfofile)) {
     stop('Optinfofile not found')
   }
-
+  
   
   ## store the results in a special folder to prevent clutter
   dir.create(wgts,showWarnings=FALSE)
-
+  
   ## read model
   main <- read.gadget.main(main.file)
   if(!is.null(main$printfiles)) {
@@ -359,11 +359,11 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
                                         comp=comp,
                                         inverse = inverse)
   }
-
+  
   ## ensure that grouped components exist
   tmp <- unlist(grouping)
   if(length(tmp) != length(intersect(tmp,likelihood$weights$name))){
-      stop('Error - invalid grouping')
+    stop('Error - invalid grouping')
   }
   
   ## initial run (to determine the initial run)
@@ -375,16 +375,16 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
   callGadget(s=1,main=paste(wgts,'main.init',sep='/'),
              o=paste(wgts,'lik.init',sep='/'),
              i=params.file,gadget.exe=gadget.exe)
-
-
+  
+  
   ## degrees of freedom approximated by the number of datapoints
   ## and make sure we only read data from the model period
   time <- read.gadget.file('.',main$timefile,file_type = 'time')
   lik.dat <- read.gadget.data(likelihood,
                               year_range = time[[1]]$firstyear:time[[1]]$lastyear)
   restr <- !(likelihood$weights$type %in%
-             c('penalty','understocking','migrationpenalty',
-               'catchinkilos'))
+               c('penalty','understocking','migrationpenalty',
+                 'catchinkilos'))
   SS <- read.gadget.lik.out(paste(wgts,'lik.init',
                                   sep='/'))$data[likelihood$weights$name[restr]]
   ##' Survey indices get special treatment
@@ -394,27 +394,27 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
   ##' @author Bjarki Thor Elvarsson
   sI.weights <- function(lik.dat,method='lm'){
     if(method=='lm'){
-      dat <- ldply(lik.dat$dat$surveyindices,
-                   function(x) x)
-
+      dat <- plyr::ldply(lik.dat$dat$surveyindices,
+                         function(x) x)
+      
       dat$y <- log(dat$number)
       dat$year <- as.factor(dat$year)
       fit <- lm(y~year+length+step,dat)
       weights <- (lik.dat$df$surveyindices -
-                  tapply(dat$length,dat$name,function(x) length(unique(x))))/
-                    tapply(resid(fit),dat$name,function(x) sum(x^2))
+                    tapply(dat$length,dat$name,function(x) length(unique(x))))/
+        tapply(resid(fit),dat$name,function(x) sum(x^2))
     } else {
-      weights <- ldply(lik.dat$dat$surveyindices,
-                       function(x){
-                         time <- x$year + (x$step-1)/4
-                         fit <- predict(loess(log(x$number)~time))
-                         length(fit)/sum((fit - log(x$number))^2)
-                       })$V1
+      weights <- plyr::ldply(lik.dat$dat$surveyindices,
+                             function(x){
+                               time <- x$year + (x$step-1)/4
+                               fit <- predict(loess(log(x$number)~time))
+                               length(fit)/sum((fit - log(x$number))^2)
+                             })$V1
     }
     names(weights) <- names(lik.dat$dat$surveyindices)
     return(weights)
   }
-
+  
   restr.SI <- subset(likelihood$weights,type == 'surveyindices')$name
   if(!rew.sI){
     if(is.null(grouping)){
@@ -425,33 +425,33 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
     sIw <- sI.weights(lik.dat,method=method)
   }
   run.string <- c(likelihood$weights$name[restr&
-                                          !(likelihood$weights$name %in%
-                                            unlist(grouping))])
+                                            !(likelihood$weights$name %in%
+                                                unlist(grouping))])
   
   run.string <- as.list(run.string)
   names(run.string) <-
     c(likelihood$weights$name[restr&
-                              !(likelihood$weights$name %in%
-                                unlist(grouping))])
-
+                                !(likelihood$weights$name %in%
+                                    unlist(grouping))])
+  
   run.string <- append(run.string,grouping)
-
-
+  
+  
   ## Base run (with the inverse SS as weights)
   main.base <- main.init
   main.base$likelihoodfiles <- paste(wgts,'likelihood.base',sep='/')
   write.gadget.main(main.base,file=paste(wgts,'main.base',sep='/'))
   likelihood.base <- likelihood
   likelihood.base$weights[names(SS),'weight'] <- 1/as.numeric(SS)
-
-
+  
+  
   ##' Gadget set up stuff, needed for each component
   ##' @title run iterative
   ##' @param comp likelihood component
   ##' @return Sums of squares
   ##' @author Bjarki Thor Elvarsson
   run.iterative <- function(comp){
-
+    
     likelihood <- likelihood.base
     which.comp <- likelihood$weights$name %in% comp
     likelihood$weights$weight[which.comp] <-
@@ -460,7 +460,7 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
     print(sprintf('Running %s',comp))
     write.gadget.likelihood(likelihood,
                             file=paste(wgts,
-                              paste('likelihood',comp,sep='.'),sep='/'))
+                                       paste('likelihood',comp,sep='.'),sep='/'))
     main <- main.base
     if(!is.null(printfile)){
       write.gadget.printfile(printfile,
@@ -471,7 +471,7 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
     }
     main$likelihoodfiles <- paste(wgts,paste('likelihood',comp,sep='.'),sep='/')
     write.gadget.main(main,file=paste(wgts,paste('main',comp,sep='.'),sep='/'))
-
+    
     callGadget(l=1,
                main=paste(paste(wgts,'main',sep='/'),comp,sep='.'),
                i=params.file,
@@ -494,65 +494,65 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
   if(!resume.final){
     ## run the bloody thing
     if(run.serial){
-        res <- lapply(run.string,run.iterative)
+      res <- lapply(run.string,run.iterative)
     } else if(!is.null(cl)){
-        ## nasty hack, I know (stolen from http://www.r-bloggers.com/implementing-mclapply-on-windows-a-primer-on-embarrassingly-parallel-computation-on-multicore-systems-with-r/ )
-
-        loaded.package.names <- c(
-            ## Base packages
-            sessionInfo()$basePkgs,
-            ## Additional packages
-            names( sessionInfo()$otherPkgs ))
-        
-        this.env <- environment()
-        while( identical( this.env, globalenv() ) == FALSE ) {
-            clusterExport(cl,
-                          ls(all.names=TRUE, env=this.env),
-                          envir=this.env)
-            this.env <- parent.env(environment())
-        }
-        ## repeat for the global environment
+      ## nasty hack, I know (stolen from http://www.r-bloggers.com/implementing-mclapply-on-windows-a-primer-on-embarrassingly-parallel-computation-on-multicore-systems-with-r/ )
+      
+      loaded.package.names <- c(
+        ## Base packages
+        sessionInfo()$basePkgs,
+        ## Additional packages
+        names( sessionInfo()$otherPkgs ))
+      
+      this.env <- environment()
+      while( identical( this.env, globalenv() ) == FALSE ) {
         clusterExport(cl,
-                      ls(all.names=TRUE, env=globalenv()),
-                      envir=globalenv())
-        
-        ## Load the libraries on all the clusters
-        ## N.B. length(cl) returns the number of clusters
-        parLapply( cl, 1:length(cl), function(xx){
-            lapply(loaded.package.names, function(yy) {
-                ## N.B. the character.only option of 
-                ##      require() allows you to give the 
-                ##      name of a package as a string. 
-                require(yy , character.only=TRUE)})
-        })
-        
-        
-        res <- parLapply(cl,run.string,run.iterative)
+                      ls(all.names=TRUE, env=this.env),
+                      envir=this.env)
+        this.env <- parent.env(environment())
+      }
+      ## repeat for the global environment
+      clusterExport(cl,
+                    ls(all.names=TRUE, env=globalenv()),
+                    envir=globalenv())
+      
+      ## Load the libraries on all the clusters
+      ## N.B. length(cl) returns the number of clusters
+      parLapply( cl, 1:length(cl), function(xx){
+        lapply(loaded.package.names, function(yy) {
+          ## N.B. the character.only option of 
+          ##      require() allows you to give the 
+          ##      name of a package as a string. 
+          require(yy , character.only=TRUE)})
+      })
+      
+      
+      res <- parLapply(cl,run.string,run.iterative)
     } else {
-        
-        res <- mclapply(run.string,run.iterative,
-                        mc.cores = detectCores(logical = TRUE))
+      
+      res <- parallel::mclapply(run.string,run.iterative,
+                                mc.cores = parallel::detectCores(logical = TRUE))
     }
   }
-
+  
   ## Do we want to run the final optimisation (only used for debug purposes,
   ## and the check should be removed in later revisions)
-
+  
   if(run.final){
-    res <- ldply(run.string,
-                 function(x){
-                   tmp <-
-                     read.gadget.lik.out(paste(wgts,
-                                               paste('lik',
-                                                     paste(x,collapse='.'),
-                                                     sep='.'),
-                                               sep='/'))$data
-                   tmp[likelihood$weights$name[restr]]
-                 })
+    res <- plyr::ldply(run.string,
+                       function(x){
+                         tmp <-
+                           read.gadget.lik.out(paste(wgts,
+                                                     paste('lik',
+                                                           paste(x,collapse='.'),
+                                                           sep='.'),
+                                                     sep='/'))$data
+                         tmp[likelihood$weights$name[restr]]
+                       })
     row.names(res) <- res$.id
     res$.id <- NULL
-
-
+    
+    
     run.final <- function(comp){
       print(sprintf('Running %s',comp))
       callGadget(l=1,
@@ -571,29 +571,29 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
                  gadget.exe=gadget.exe)
       print(sprintf('Comp %s completed',comp))
     }
-
+    
     ## read in the results from previous runs
-    SS <- ldply(names(run.string),
-                function(x)
-                data.frame(group=x,comp=run.string[[x]],
-                           SS=as.numeric(res[x,run.string[[x]]])))
-    df <- ldply(lik.dat$df,function(x) data.frame(df=x,comp=names(x)))
-    SS <- mutate(join(SS,df),sigmahat = SS/df)
+    SS <- plyr::ldply(names(run.string),
+                      function(x)
+                        data.frame(group=x,comp=run.string[[x]],
+                                   SS=as.numeric(res[x,run.string[[x]]])))
+    df <- plyr::ldply(lik.dat$df,function(x) data.frame(df=x,comp=names(x)))
+    SS <- dplyr::mutate(plyr::join(SS,df),sigmahat = SS/df)
     SS$comp <- as.character(SS$comp)
-
+    
     ## final run
     write.files <- function(comp,weights){
       if(!is.null(cv.floor)){
         weights$sigmahat[weights$comp %in% restr.SI] <-
           pmax(weights$sigmahat[weights$comp %in% restr.SI],cv.floor)
       }
-
+      
       if(sum(weights$sigmahat == 0) >0){
         warning(sprintf('Perfect fit for component %s, weight 10*df used',
                         weights$comp[weights$sigmahat == 0]))
         weights$sigmahat[weights$sigmahat == 0] <- 0.1
       }
-
+      
       main <- main.base
       if(!is.null(printfile)){
         write.gadget.printfile(printfile,
@@ -604,15 +604,15 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
       }
       main$likelihoodfiles <- sprintf('%s/likelihood.%s',wgts,comp)
       write.gadget.main(main,sprintf('%s/main.%s',wgts,comp))
-
+      
       likelihood <- likelihood.base
       likelihood$weights[weights$comp,'weight'] <- 1/weights$sigmahat
-
+      
       write.gadget.likelihood(likelihood,
                               file=sprintf('%s/likelihood.%s',wgts,comp))
     }
-
-
+    
+    
     write.files('final',SS)
     write.files('nodf',SS %>% dplyr::mutate(sigmahat=SS))
     
@@ -624,24 +624,24 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
       write.files('sIw',SS)
       comp <- as.list(c('final','nodf','sIw'))
     }
-
+    
     if(run.serial){
-        lapply(comp,run.final)
+      lapply(comp,run.final)
     } else if(Sys.info()[['sysname']]=='Windows'){
-        cl <- makeCluster(detectCores(logical=TRUE))
-        res <- parLapply(cl,run.string,run.final)
-        stopCluster(cl)
+      cl <- parallel::makeCluster(parallel::detectCores(logical=TRUE))
+      res <- parallel::parLapply(cl,run.string,run.final)
+      parallel::stopCluster(cl)
     } else {
-        mclapply(comp,run.final,
-                 mc.cores = detectCores(logical = TRUE))
+      parallel::mclapply(comp,run.final,
+                         mc.cores = parallel::detectCores(logical = TRUE))
     }
-
+    
   } else {
     comp <- NULL
   }
-
+  
   invisible(list(comp=run.string,final=comp,wgts=wgts))
-
+  
 }
 
 
@@ -697,7 +697,7 @@ gadget.sensitivity <- function(file='params.out',
                                main.file='main',
                                sens.dir = 'SENS',
                                calc.full = FALSE
-                               ){
+){
   dir.create(sens.dir,showWarnings=FALSE)
   lik.out <- paste(sens.dir,lik.out,sep='/')
   params <- read.gadget.parameters(file=file)
@@ -755,7 +755,7 @@ gadget.sensitivity <- function(file='params.out',
   header <- paste('switches',paste(names(param.table),collapse='\t'),sep='\t')
   write.unix(header,f=sens.in)
   write.gadget.table(param.table,file=sens.in,col.names=FALSE,append=TRUE,
-              quote=FALSE,sep='\t',row.names=FALSE)
+                     quote=FALSE,sep='\t',row.names=FALSE)
   main <- read.gadget.main(main.file)
   main$printfiles <- NULL
   write.gadget.main(main,file=sprintf('%s/%s.sens',sens.dir,main.file))
@@ -766,8 +766,8 @@ gadget.sensitivity <- function(file='params.out',
   lik.sens <- read.gadget.lik.out(lik.out)
   sens.data <- lik.sens$data
   sens.data$parameter <- row.names(param.table)
-#  attr(sens.data,'params') <- params
-#  attr(sens.data,'comps') <-
+  #  attr(sens.data,'params') <- params
+  #  attr(sens.data,'comps') <-
   class(sens.data) <- c('gadgetSens',class(sens.data))
   return(sens.data)
 }
@@ -780,14 +780,14 @@ gadget.sensitivity <- function(file='params.out',
 ##' @return ggplot object
 ##' @export
 plot.gadgetSens <- function(sens,comp='score'){
-
+  
   sens$parameter <- sapply(strsplit(sens$parameter,'.',fixed=TRUE),
                            function(x) paste(x[-length(x)],collapse='.'))
   lik.comps <- attr(sens,'Likelihood components')
   if(!(comp %in% c(lik.comps,'score')))
     stop(sprintf('Component %s not found in lik.comps',comp))
   params <- attr(sens,'Parameters')
-  tmp <- ddply(sens,'parameter',
+  tmp <- plyr::ddply(sens,'parameter',
                function(x){
                  tmp <- cbind(x[x$parameter[1]],x[comp])
                  names(tmp) <- c('Value','score')
@@ -795,13 +795,13 @@ plot.gadgetSens <- function(sens,comp='score'){
                })
   plo <- ggplot(tmp, aes(Value,score)) +
     geom_line() +
-      facet_wrap(~parameter,scale='free') +
-        xlab('') + ylab('') +
-          opts(axis.text.x=theme_text(angle=-90,hjust=0))
-
-
+    facet_wrap(~parameter,scale='free') +
+    xlab('') + ylab('') +
+    opts(axis.text.x=theme_text(angle=-90,hjust=0))
+  
+  
   return(plo)
-
+  
 }
 
 ##' Phased minimization based on variables
@@ -825,7 +825,7 @@ gadget.phasing <- function(phase,params.in='params.in',main='main',
     stop('params.in is not a valid gadget.parameters object')
   }
   #tmp <- params.in$optimise
-
+  
   for(p in names(phase)){
     print(sprintf('In phase %s',p))
     params.in$optimise <- NULL
@@ -877,30 +877,30 @@ gadget.bootstrap <- function(bs.likfile = 'likelihood.bs',
                              run.final = FALSE,
                              PBS=TRUE,
                              cv.floor=NULL
-                             ){
+){
   ## Ensure all files exist
   if(!file.exists(main)) {
     stop('Main file not found')
   }
-
+  
   if(!file.exists(params.file)) {
     stop('Parameter file not found')
   }
-
+  
   if(!file.exists(optinfofile)) {
     stop('Optinfofile not found')
   }
-
+  
   if(!file.exists(bs.likfile)) {
     stop('likelihoodfile not found')
   }
-
+  
   ## Do stuff
-
+  
   dir.create(bs.wgts,showWarnings=FALSE)
   main <- read.gadget.main(main)
   bs.lik <- read.gadget.likelihood(bs.likfile)
-
+  
   foreach(i=bs.samples) %dopar% {
     print(i)
     dir.create(sprintf('%s/BS.%s',bs.wgts,i),showWarnings=FALSE)
@@ -927,7 +927,7 @@ gadget.bootstrap <- function(bs.likfile = 'likelihood.bs',
         write.unix('sleep 6m',f=qsub.script,append=TRUE)
       else
         print(sprintf('# bootstrap sample %s',i))
-
+      
     } else {
       tmp <- gadget.iterative(main.file = bs.main.file,
                               params.file = params.file,
@@ -944,10 +944,10 @@ gadget.bootstrap <- function(bs.likfile = 'likelihood.bs',
       if(PBS)
         write.unix(sprintf('# bootstrap sample %s',i),f=qsub.script,append=TRUE)
       if(i > 100 & PBS)
-          write.unix('sleep 6m',f=qsub.script,append=TRUE)
+        write.unix('sleep 6m',f=qsub.script,append=TRUE)
       else
         print(sprintf('# bootstrap (final) sample %s',i))
-
+      
     }
   }
   return(NULL)
@@ -989,11 +989,11 @@ gadget.ypr <- function(params.file = 'params.in',
   if(!file.exists(params.file)) {
     stop('Parameter file not found')
   }
-
+  
   if(!file.exists(main.file)) {
     stop('Main file not found')
   }
-
+  
   ## model setup
   if(check.previous){
     if(file.exists(sprintf('%s/ypr.Rdata',ypr))){
@@ -1001,7 +1001,7 @@ gadget.ypr <- function(params.file = 'params.in',
       return(res)
     }
   }
-
+  
   ## File I/O
   dir.create(ypr,showWarnings = FALSE, recursive = TRUE)
   dir.create(sprintf('%s/Aggfiles',ypr),
@@ -1012,54 +1012,54 @@ gadget.ypr <- function(params.file = 'params.in',
   params <- read.gadget.parameters(params.file)
   time <- read.gadget.time(main$timefile)
   area <- read.gadget.area(main$areafile)
-
+  
   ## basic setup
   time$lastyear <-  end
   time$firstyear <- begin
   time$laststep <- length(time$notimesteps)
   time$firststep <- 1
-
+  
   time.grid <- expand.grid(year = time$firstyear:time$lastyear,
                            step = 1:length(time$notimesteps),
                            area = area$areas)
-
+  
   area$temperature <- mutate(time.grid,
                              temperature = 5)
-
+  
   main$areafile <- sprintf('%s/area',ypr)
   write.gadget.area(area,file=sprintf('%s/area',ypr))
   write.unix(sprintf('allareas %s',paste(area$areas,collapse=' ')),
              f=sprintf('%s/Aggfiles/allareas.agg',ypr))
-
-  fleet <- llply(fleet,
+  
+  fleet <- plyr::llply(fleet,
                  function(x){
                    tmp <- subset(x,fleet %in% fleets$fleet)
                  })
-  fleet$fleet <- mutate(fleet$fleet,
+  fleet$fleet <- plyr::mutate(fleet$fleet,
                         multiplicative = '1#effort',
                         amount = sprintf('%s/fleet.ypr', ypr),
                         type = 'linearfleet')
-
-  fleet.predict <- ddply(fleets,'fleet',function(x){
-    tmp <- mutate(time.grid,
+  
+  fleet.predict <- plyr::ddply(fleets,'fleet',function(x){
+    tmp <- plyr::mutate(time.grid,
                   ratio = x$ratio)
     return(tmp)
   })
-
-
+  
+  
   write.gadget.table(fleet.predict[c('year','step','area','fleet','ratio')],
-              file=sprintf('%s/fleet.ypr',ypr),
-              col.names=FALSE,row.names=FALSE,
-              quote = FALSE)
-
+                     file=sprintf('%s/fleet.ypr',ypr),
+                     col.names=FALSE,row.names=FALSE,
+                     quote = FALSE)
+  
   main$fleetfiles <- sprintf('%s/fleet', ypr)
   write.gadget.fleet(fleet,file=sprintf('%s/fleet', ypr))
-
+  
   write.gadget.time(time,file=sprintf('%s/time.ypr',ypr))
   main$timefile <- sprintf('%s/time.ypr',ypr)
-
+  
   ## basic printfile
-
+  
   print.txt <-
     paste('[component]',
           'type\tpredatorpreyprinter',
@@ -1071,8 +1071,8 @@ gadget.ypr <- function(params.file = 'params.in',
           'lenaggfile\t%2$s/Aggfiles/%1$s.alllen.agg',
           'printfile\t%2$s/out/%1$s.prey',
           'yearsandsteps\tall all',
-           sep = '\n')
-
+          sep = '\n')
+  
   print.ssb <- NULL
   if(!is.null(ssb.stock)){
     if(sum(ssb.stock %in% names(stocks)) == length(ssb.stock)){
@@ -1086,29 +1086,29 @@ gadget.ypr <- function(params.file = 'params.in',
               'printfile\t%2$s/out/%1$s.ssb',
               'yearsandsteps\tall 1',
               sep = '\n')
-
+      
     } else {
       warning(sprintf('warning in gadget.ypr, SSB stock %s not found',
                       ssb.stock))
-
+      
     }
   }
   print.mat <- NULL
   if(!is.null(mat.par)){
-      print.mat <-
-        paste('[component]',
-              'type\tstockprinter',
-              'stocknames\t%1$s',
-              'areaaggfile\t%2$s/Aggfiles/allareas.agg',
-              'ageaggfile\t%2$s/Aggfiles/%1$s.allages.agg',
-              'lenaggfile\t%2$s/Aggfiles/%1$s.len.agg',
-              'printfile\t%2$s/out/%1$s.mat',
-              'yearsandsteps\tall 1',
-              sep = '\n')
+    print.mat <-
+      paste('[component]',
+            'type\tstockprinter',
+            'stocknames\t%1$s',
+            'areaaggfile\t%2$s/Aggfiles/allareas.agg',
+            'ageaggfile\t%2$s/Aggfiles/%1$s.allages.agg',
+            'lenaggfile\t%2$s/Aggfiles/%1$s.len.agg',
+            'printfile\t%2$s/out/%1$s.mat',
+            'yearsandsteps\tall 1',
+            sep = '\n')
   }
   
-    
-
+  
+  
   printfile <- paste(sprintf(print.txt,unique(fleet$prey$stock), ypr),
                      collapse='\n;\n')
   if(!is.null(ssb.stock)){
@@ -1118,7 +1118,7 @@ gadget.ypr <- function(params.file = 'params.in',
                   collapse='\n;\n'),
             sep='\n;\n')
   }
-
+  
   if(!is.null(mat.par)){
     printfile <-
       paste(printfile,
@@ -1131,11 +1131,11 @@ gadget.ypr <- function(params.file = 'params.in',
   dir.create(sprintf('%s/out',ypr),showWarnings = FALSE, recursive = TRUE)
   main$printfiles <- sprintf('%s/printfile.ypr',ypr)
   write.unix(printfile,f=sprintf('%s/printfile.ypr',ypr))
-
-
+  
+  
   ## remove recruitment and initialdata from the stockfiles
-
-  l_ply(stocks,function(x){
+  
+  plyr::l_ply(stocks,function(x){
     x@initialdata[,3] <- 0 ## nothing in the beginning
     if(x@doesrenew==1){
       tmp <- subset(time.grid,step == 1)
@@ -1152,14 +1152,14 @@ gadget.ypr <- function(params.file = 'params.in',
     }
     gadget_dir_write(gd,x)
   })
-
+  
   main$stockfiles <- sprintf('%s/%s',ypr,
-                             laply(stocks,function(x) x@stockname))
-
+                             plyr::laply(stocks,function(x) x@stockname))
+  
   main$likelihoodfiles <- ';'
-
+  
   write.gadget.main(main,file=sprintf('%s/main.ypr',ypr))
-
+  
   ## model parameters
   if(sum(names(params) %in% c('switch','value',
                               'lower','upper','optimise'))==5){
@@ -1167,57 +1167,57 @@ gadget.ypr <- function(params.file = 'params.in',
     names(tmp) <- params$switch
     params <- tmp
   }
-
-
-
+  
+  
+  
   params.aug <- ldply(effort,
                       function(x){
                         tmp <- params
                         tmp$effort <- x
                         return(tmp)
                       })
-
+  
   write.gadget.parameters(params.aug,file=sprintf('%s/params.ypr',ypr),
                           columns = FALSE)
-
+  
   callGadget(s=1,i=sprintf('%s/params.ypr',ypr),main=sprintf('%s/main.ypr',ypr))
-
+  
   ## read output
-
-  out <- ddply(data.frame(stock = unique(fleet$prey$stock),tmp=1),
+  
+  out <- plyr::ddply(data.frame(stock = unique(fleet$prey$stock),tmp=1),
                'stock',
                function(x){
                  stock.prey <- read.table(file = sprintf("%1$s/out/%2$s.prey",
-                                            ypr,x$stock),
+                                                         ypr,x$stock),
                                           comment.char = ';')
-
+                 
                  names(stock.prey) <-
                    c('year', 'step','area','age','length','number.consumed',
                      'biomass.consumed','fishing.mortality')
-
+                 
                  stock.prey$trial <-
                    rep(1:c(nrow(stock.prey)/(
                      length(unique(stock.prey$area))*
-                     length(unique(stock.prey$step))*
-                     length(unique(stock.prey$year)))),
-                       each=length(unique(stock.prey$area))*
+                       length(unique(stock.prey$step))*
+                       length(unique(stock.prey$year)))),
+                     each=length(unique(stock.prey$area))*
                        length(unique(stock.prey$year))*
                        length(unique(stock.prey$step)))
                  stock.prey <- merge(stock.prey,
-                                    data.frame(trial=1:length(effort),
-                                               effort=effort),
-                                    all.x=TRUE)
+                                     data.frame(trial=1:length(effort),
+                                                effort=effort),
+                                     all.x=TRUE)
                  stock.prey$age <- stock.prey$year - begin +
                    getMinage(stocks[[x$stock]])
                  ## clean up
                  file.remove(sprintf('%s/out/%s.prey',ypr,x$stock))
-
+                 
                  return(stock.prey)
                })
   if(!is.null(ssb.stock)){
-    ssb.out <- ldply(ssb.stock,function(x){
+    ssb.out <- plyr::ldply(ssb.stock,function(x){
       ssb.out <- read.table(file = sprintf("%1$s/out/%2$s.ssb",
-                              ypr,x), comment.char = ';')
+                                           ypr,x), comment.char = ';')
       file.remove(sprintf('%s/out/%s.ssb',ypr,x))
       names(ssb.out) <-
         c('year', 'step','area','age','length','number',
@@ -1225,26 +1225,26 @@ gadget.ypr <- function(params.file = 'params.in',
       ssb.out$trial <-
         rep(1:c(nrow(ssb.out)/(
           length(unique(ssb.out$area))*
-          length(unique(ssb.out$step))*
-          length(unique(ssb.out$year)))),
-            each=length(unique(ssb.out$area))*
+            length(unique(ssb.out$step))*
+            length(unique(ssb.out$year)))),
+          each=length(unique(ssb.out$area))*
             length(unique(ssb.out$year))*
             length(unique(ssb.out$step)))
       ssb.out <- merge(ssb.out,
                        data.frame(trial=1:length(effort),
                                   effort=effort),
                        all.x=TRUE)
-      mutate(ddply(ssb.out,~effort,summarise,ssb=max(number*biomass)),
+      plyr::mutate(plyr::ddply(ssb.out,~effort,summarise,ssb=max(number*biomass)),
              ssb.ratio=ssb/max(ssb))
-
+      
     })
-
+    
   } else {
     ssb.out <- NULL
   }
-
+  
   if(!is.null(mat.par)){
-    mat.out <- ldply(unique(fleet$prey$stock),function(x){
+    mat.out <- plyr::ldply(unique(fleet$prey$stock),function(x){
       mat.out <- 
         read.table(file = sprintf("%1$s/out/%2$s.mat",
                                   ypr,x), comment.char = ';')
@@ -1254,7 +1254,7 @@ gadget.ypr <- function(params.file = 'params.in',
           'biomass')
       mat.out %>% 
         mutate(length = as.numeric(gsub('len','',length)),
-          trial = cut(1:length(year),c(0,which(diff(year)<0),1e9),labels = FALSE)) %>% 
+               trial = cut(1:length(year),c(0,which(diff(year)<0),1e9),labels = FALSE)) %>% 
         left_join(data.frame(trial=1:length(effort),
                              effort=effort)) %>% 
         group_by(effort,year) %>% 
@@ -1273,7 +1273,7 @@ gadget.ypr <- function(params.file = 'params.in',
   if(!is.null(age.range)){
     out <- subset(out,age >= min(age.range) & age <= max(age.range))
   }
-  res <- ddply(out,'effort',
+  res <- plyr::ddply(out,'effort',
                function(x) c(num=sum(x$number.consumed)/1e6,
                              bio=sum(x$biomass.consumed)/1e6))
   secant <- diff(res$bio)/diff(res$effort)
@@ -1281,13 +1281,13 @@ gadget.ypr <- function(params.file = 'params.in',
   fmax <- min(res$effort[which(res$bio==max(res$bio,na.rm=TRUE))])
   res <- list(params=params,out=out,ypr=res,fmax=fmax,
               f0.1=f0.1,ssb=ssb.out,mat.out=mat.out)
-
-
+  
+  
   class(res) <- c('gadget.ypr',class(res))
   if(save.results){
     save(res, file = sprintf('%s/ypr.Rdata',ypr))
   }
-
+  
   return(res)
 }
 ##' .. content for \description{} (no empty lines) ..
@@ -1312,8 +1312,8 @@ plot.gadget.ypr <- function(ypr){
     geom_segment(aes(x = effort,xend=effort,y=-Inf,yend=bio),
                  data=subset(tmp, effort == ypr$f0.1)) +
     geom_text(data=subset(tmp,effort == ypr$fmax),
-               aes(label = sprintf('Fmax = %s',effort),
-                   x = effort+0.04,y=0.2,angle=90)) +
+              aes(label = sprintf('Fmax = %s',effort),
+                  x = effort+0.04,y=0.2,angle=90)) +
     geom_text(data=subset(tmp,effort == ypr$f0.1),
               aes(label = sprintf('F0.1 = %s',effort),
                   x = effort+0.04,y=0.2,angle=90)) +
@@ -1321,7 +1321,7 @@ plot.gadget.ypr <- function(ypr){
     theme(legend.position='none',plot.margin = unit(c(0,0,0,0),'cm'))
   if(!is.null(ypr$ssb)){
     plo <- plo + geom_line(aes(effort,ssb.ratio),
-                            lty=2,col='gray')
+                           lty=2,col='gray')
   }
   return(plo)
 }
@@ -1353,25 +1353,25 @@ gadget.bootypr <- function(params.file='params.final',
                            bs.samples = 1:1000,
                            .parallel = TRUE){
   tmp <-
-    llply(bs.samples,function(x){
-
+    plyr::llply(bs.samples,function(x){
+      
       tryCatch(gadget.ypr(params.file = sprintf('%s/BS.%s/%s',
-                            bs.wgts,x,params.file),
-                 main.file = sprintf('%s/BS.%s/%s',bs.wgts,x,main.file),
-                 effort = effort,
-                 begin = begin, end = end, fleets = fleets,
-                 ypr = sprintf('%s/BS.%s/%s',bs.wgts,x,ypr)),
+                                                bs.wgts,x,params.file),
+                          main.file = sprintf('%s/BS.%s/%s',bs.wgts,x,main.file),
+                          effort = effort,
+                          begin = begin, end = end, fleets = fleets,
+                          ypr = sprintf('%s/BS.%s/%s',bs.wgts,x,ypr)),
                error = function(e){
                  print(sprintf('YPR run %s was corrupted',x))
                })
-
+      
     },.parallel = .parallel)
   print('ypr finished -- tidying up')
   names(tmp) <- sprintf('BS.%s',bs.samples)
   tmp.names <- c('params','out','ypr','fmax','f0.1')
   names(tmp.names) <- c('params','out','ypr','fmax','f0.1')
-  bsypr <- llply(tmp.names,
-                 function(x) ldply(tmp,function(y) y[[x]]))
+  bsypr <- plyr::llply(tmp.names,
+                 function(x) plyr::ldply(tmp,function(y) y[[x]]))
   save(bsypr,file=sprintf('%s/bsypr.RData',bs.wgts))
   return(bsypr)
 }
@@ -1415,7 +1415,7 @@ gadget.retro <- function(path='.',
   
   for(year in 1:num.years){
     Rdir <- gadget.variant.dir(path,variant_dir = sprintf('%s/R%s',pre,year))
-
+    
     gadgettime(main[[1]]$timefile,path) %>% 
       gadget_update(lastyear = .[[1]]$lastyear-year) %>% 
       write.gadget.file(Rdir)
@@ -1450,7 +1450,7 @@ gadget.retro <- function(path='.',
     }
   }
   parallel::mclapply(1:num.years,run.func, 
-                      mc.cores = detectCores(logical = TRUE))
+                     mc.cores = detectCores(logical = TRUE))
   
   Sys.unsetenv('GADGET_WORKING_DIR')
 }

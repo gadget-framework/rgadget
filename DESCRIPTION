@@ -7,12 +7,11 @@ Author: Bjarki Thor Elvarsson
 Maintainer: Bjarki Thor Elvarsson <bthe@hafro.is>
 Description: Companion R package for Gadget (Globally applicable area disagregated ecosystem toolbox)
 Depends:
-    R (>= 2.11.1),
-    ggplot2,
+    R (>= 3.3.0),
+    tidyverse
+Imports:
     plyr,
     reshape2,
-    dplyr,
-    data.table,
     parallel,
     lubridate,
     stringr,

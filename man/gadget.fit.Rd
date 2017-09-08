@@ -4,11 +4,10 @@
 \alias{gadget.fit}
 \title{Gadget fit}
 \usage{
-gadget.fit(wgts = "WGTS", main.file = NULL,
-  fleet.predict = data.frame(fleet = "comm", ratio = 1), mat.par = NULL,
-  params.file = NULL, f.age.range = NULL, fit.folder = "FIT",
-  compile.fleet.info = TRUE, printfile.printatstart = 1,
-  printfile.steps = 1, rec.length.param = NULL)
+gadget.fit(wgts = "WGTS", main.file = NULL, fleet.predict = NULL,
+  mat.par = NULL, params.file = NULL, f.age.range = NULL,
+  fit.folder = "FIT", printfile.printatstart = 1, printfile.steps = 1,
+  rec.length.param = NULL)
 }
 \arguments{
 \item{wgts}{Location of the iterative reweighting folder, if null gadget.fit requires a parameter file}
@@ -25,8 +24,6 @@ gadget.fit(wgts = "WGTS", main.file = NULL,
 Input columns should include stock, age.min and age.max}
 
 \item{fit.folder}{location of the output}
-
-\item{compile.fleet.info}{should the harvest rate be calculated}
 
 \item{printfile.printatstart}{should the stock standared output be printed at the beginning or the end of the timestep}
 

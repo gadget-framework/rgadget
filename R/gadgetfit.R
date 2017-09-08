@@ -7,7 +7,6 @@
 ##' @param mat.par parameters for the maturity ogive
 ##' @param params.file parameter file used in the fit (defaults to "WGTS/params.final")
 ##' @param fit.folder location of the output
-##' @param compile.fleet.info should the harvest rate be calculated 
 ##' @param printfile.printatstart should the stock standared output be printed at the beginning or the end of the timestep
 ##' @param printfile.steps what steps should be printed
 ##' @param f.age.range data.frame describing the desired age range where the F's are calculated, if null this defaults to the apical F fro all stocks. 
@@ -18,10 +17,9 @@
 ##' @author Bjarki Thor Elvarsson
 ##' @export
 gadget.fit <- function(wgts = 'WGTS', main.file = NULL,
-                       fleet.predict = data.frame(fleet='comm',ratio=1),
+                       fleet.predict = NULL,# data.frame(fleet='comm',ratio=1),
                        mat.par=NULL, params.file=NULL,
                        f.age.range=NULL, fit.folder = 'FIT',
-                       compile.fleet.info = TRUE,
                        printfile.printatstart = 1, printfile.steps = 1,
                        rec.length.param = NULL){
   
@@ -37,7 +35,7 @@ gadget.fit <- function(wgts = 'WGTS', main.file = NULL,
     }
   }
   
-  main <- read.gadget.main(file=main.file)
+  main <- read.gadget.main(main.file)
   
   if(!is.null(wgts)){
     resTable <- read.gadget.results(wgts=wgts)
@@ -76,40 +74,13 @@ gadget.fit <- function(wgts = 'WGTS', main.file = NULL,
   out <- read.printfiles(sprintf('%s/out.fit',wgts))
   SS <- read.gadget.lik.out(sprintf('%s/SS.print',wgts))
   stocks <- read.gadget.stockfiles(main$stockfiles)
-  fleets <- read.gadget.fleet(main$fleetfiles)
-  catches <- get.gadget.catches(fleets,params)
-  
-  gss.suit <- 
-    
-    plyr::ldply(stocks,
-                function(x){
-                  tryCatch(subset(get.gadget.suitability(fleets,params,
-                                                         getLengthGroups(x)),
-                                  stock == x@stockname),
-                           error = function(y){
-                             print('warning -- suitability parameters could not be read')
-                             0
-                           })
-                })
-  
+
   stock.growth <-
     tryCatch(get.gadget.growth(stocks,params,age.based=TRUE,
                                recl = rec.length.param),
              warning = function(x) NULL,
              error = function(x) NULL)
   stock.recruitment <- get.gadget.recruitment(stocks,params)
-  
-  harv.suit <- function(l,stockname){
-    tryCatch(plyr::ddply(merge(
-      subset(get.gadget.suitability(fleets,params,l),
-             stock==stockname),
-      fleet.predict),~l,
-      plyr::summarise, harv=sum(ratio*suit))$harv,
-      error = function(x){
-        print('warning -- fleet parameters could not be read')
-        return(0)
-      })
-  }
   
   stock.full <-
     out[sprintf('%s.full',names(stocks))] %>% 
@@ -135,36 +106,51 @@ gadget.fit <- function(wgts = 'WGTS', main.file = NULL,
     purrr::set_names(.,names(.)) %>% 
     dplyr::bind_rows(.id='stock') %>% 
     tidyr::separate(stock,c('prey','predator'),sep='\\.prey\\.') %>% 
-    dplyr::as_data_frame()
+    dplyr::as_data_frame() %>% 
+    dplyr::group_by(year,step,prey,predator) %>% 
+    dplyr::mutate(suit = mortality/max(mortality),
+                  length = gsub('len', '', length) %>% 
+                    as.numeric())
   
   
-  if(compile.fleet.info){
-    ## this if statement is here due to incompatibility with timevariables
-    fleet.catches <- 
-      plyr::ddply(fleets$fleet,~fleet,function(x){
-        tmp <- 
-          read.table(file=x$amount,comment.char = ';')
-        names(tmp) <- 
-          c('year','step','area','fleet','amount')
-        tmp$amount <- as.numeric(tmp$amount)
-        filter(tmp,fleet == x$fleet)
-      }) 
-    
-    fleet.info <- 
-      stock.full %>%
-      dplyr::mutate(area = as.numeric(gsub('area','',area))) %>%
-      dplyr::left_join(select(gss.suit,.id,length=l,suit,fleet,stock)) %>%
-      dplyr::group_by(year,step,area,fleet) %>%
-      dplyr::summarise(harv.bio = sum(suit*number*mean.weight)) %>%
-      dplyr::left_join(fleet.catches %>% 
-                         dplyr::group_by(year,fleet,area) %>% 
-                         dplyr::summarise(amount=sum(amount))) %>%
-      dplyr::group_by(year,step,area,fleet) %>%
-      dplyr::mutate(amount = ifelse(is.na(amount),0,amount),
-                    harv.rate = amount/harv.bio)
+  fleet.catches <- 
+    predator.prey %>% 
+    dplyr::group_by(year,area,predator,prey) %>% 
+    dplyr::summarise(amount = sum(biomass.consumed)) %>% 
+    dplyr::rename(fleet = predator, stock = prey)
+  
+  fleet.info <- 
+    stock.full %>%
+    dplyr::left_join(predator.prey %>% 
+                       dplyr::select(year,
+                                     step, 
+                                     area,
+                                     fleet = predator, 
+                                     stock = prey, 
+                                     length, 
+                                     suit)) %>%
+    dplyr::group_by(year,step,area,fleet) %>%
+    dplyr::summarise(harv.bio = sum(suit*number*mean.weight)) %>%
+    dplyr::left_join(fleet.catches %>% 
+                       dplyr::group_by(year,fleet,area) %>% 
+                       dplyr::summarise(amount=sum(amount))) %>%
+    dplyr::group_by(year,step,area,fleet) %>%
+    dplyr::mutate(amount = ifelse(is.na(amount),0,amount),
+                  harv.rate = amount/harv.bio)
+  
+  if(!is.null(fleet.predict)){
+    d <- 
+      predator.prey %>% 
+      dplyr::filter(predator %in% fleet.predict$fleet)
   } else {
-    fleet.info <- data.frame()
+    d <- predator.prey
   }
+  
+  harv.suit <- 
+    d %>% 
+    dplyr::group_by(year,step,prey,length) %>% 
+    dplyr::filter(biomass.consumed > 0) %>% 
+    dplyr::summarise(suit = sum(biomass.consumed*suit)/sum(biomass.consumed)) 
   
   ## merge data and estimates
   if('surveyindices' %in% names(lik.dat$dat)){
@@ -262,19 +248,17 @@ gadget.fit <- function(wgts = 'WGTS', main.file = NULL,
     res.by.year <- 
       stock.full %>% 
       dplyr::filter(step == 1) %>%
+      dplyr::left_join(harv.suit) %>% 
       dplyr::group_by(stock,year,area) %>%
       dplyr::summarise(total.number = sum(number),
                        total.biomass = sum(number*mean.weight),
-                       harv.biomass =
-                         sum(mean.weight*
-                               harv.suit(length,stock)*
-                               number),
+                       harv.biomass = sum(number*suit*mean.weight),
                        ssb = sum(mean.weight*logit(mat.par[1],
                                                    mat.par[2],
                                                    length)*
                                    number)) %>% 
       dplyr::left_join(f.by.year %>%
-                         mutate(area = area),
+                         dplyr::mutate(area = area),
                        by = c("stock","year","area")) %>% 
       dplyr::left_join(stock.recruitment %>% 
                          dplyr::mutate(stock = as.character(stock),
@@ -315,8 +299,8 @@ gadget.fit <- function(wgts = 'WGTS', main.file = NULL,
                              'stock','upper','lower'),
                         suffix = c('.y','.x')) %>% 
       dplyr::group_by(name,year, step, area, age, length) %>% 
-      dplyr::mutate(obs.ratio = number.x/sum(number.x,na.rm=TRUE),
-                    pred.ratio = number.y/sum(number.y)) %>% 
+      dplyr::mutate(pred.ratio = number.x/sum(number.x,na.rm=TRUE),
+                    obs.ratio = number.y/sum(number.y)) %>% 
       dplyr::ungroup() %>% 
       dplyr::mutate(length = (lower+upper)/2) %>% 
       dplyr::inner_join(lik$stockdistribution %>% 
@@ -349,7 +333,8 @@ gadget.fit <- function(wgts = 'WGTS', main.file = NULL,
                                     prey.length = (prey.lower+prey.upper)/2,
                                     pred.length = (lower+upper)/2,
                                     component=x)
-                  })
+                  }) %>% 
+      dplyr::as_tibble()
     
   } else {
     stomachcontent <- NULL
@@ -357,11 +342,13 @@ gadget.fit <- function(wgts = 'WGTS', main.file = NULL,
   
   out <- 
     list(sidat = sidat, resTable = resTable, nesTable = nesTable,
-         suitability = gss.suit, 
+         suitability = predator.prey %>% 
+           select(year,step,stock=prey,fleet=predator,length,suit),# gss.suit, 
          stock.growth = stock.growth,
          stock.recruitment = stock.recruitment,
-         res.by.year = res.by.year, stomachcontent = stomachcontent,
-         likelihoodsummary = out$likelihoodsummary,
+         res.by.year = res.by.year, 
+         stomachcontent = stomachcontent,
+         likelihoodsummary = out$likelihoodsummary %>% dplyr::as_tibble(),
          catchdist.fleets = catchdist.fleets, 
          stockdist = stockdist,
          #out.fit=out, 
@@ -397,109 +384,109 @@ bind.gadget.fit <- function(...){
   return(tmp)
 }
 
-##' .. content for \description{} (no empty lines) ..
-##'
-##' .. content for \details{} ..
-##' @title bootstrap fit
-##' @param main
-##' @param dparam.file
-##' @param bsprint.file
-##' @param fleet.predict
-##' @param mat.par
-##' @param .parallel
-##' @return list of bootstrap fit things
-##' @author Bjarki Thor Elvarsson
-gadget.bootfit <- function(main = 'main', dparam.file = 'bsres_v1.RData',
-                           bsprint.file = 'bsprint.RData',
-                           fleet.predict = data.frame(fleet='comm',ratio=1),
-                           mat.par=NULL, .parallel = TRUE
-){
-  
-  
-  load(dparam.file)
-  load(bsprint.file)
-  main <- read.gadget.main(main)
-  lik <- read.gadget.likelihood(main$likelihoodfiles)
-  lik.dat <- read.gadget.data(lik)
-  
-  fleets <- read.gadget.fleet(main$fleetfiles)
-  stocks <- read.gadget.stockfiles(main$stockfiles)
-  dfinal <- subset(dparam,comp=='final')
-  dfinal$comp <- NULL
-  boot.rec <-
-    ddply(melt(dfinal,id.vars='bs.data',variable.name = 'switch'),
-          ~bs.data,function(x){
-            rownames(x) <- x$switch
-            get.gadget.recruitment(stocks,x)
-          })
-  boot.sel <-
-    ddply(melt(dfinal,id.vars='bs.data',variable.name = 'switch'),
-          ~bs.data,function(x){
-            rownames(x) <- x$switch
-            get.gadget.suitability(fleets,x,getLengthGroups(stocks[[1]]))
-          })
-  boot.growth <-
-    ddply(melt(dfinal,id.vars='bs.data',variable.name = 'switch'),
-          ~bs.data,function(x){
-            rownames(x) <- x$switch
-            get.gadget.growth(stocks,x,age.based = TRUE)
-          })
-  
-  #  boot.ldistfit <-
-  #    rbindlist(llply(names(lik.dat$dat$catchdistribution),
-  #                    function(x){
-  #                      si <-
-  #                        data.table(noageprint[[x]]) %.%
-  #                        group_by(.id,year,step,area) %.%
-  #                        mutate(proportion = number/sum(number)) %.%
-  #                        group_by(year,step,age,length,add=FALSE) %.%
-  #                        summarise(upper = quantile(proportion,0.975,na.rm=TRUE),
-  #                                  lower = quantile(proportion,0.025,na.rm=TRUE))
-  #                      si$fleet <- x
-  #                      return(si)
-  #                    }))
-  
-  harv.suit <- function(l, .id){
-    x <- subset(melt(dfinal,id.vars='bs.data',variable.name = 'switch'),
-                bs.data == .id)
-    rownames(x) <- x$switch
-    ddply(merge(get.gadget.suitability(fleets,x,l),fleet.predict),~l,
-          summarise, harv=sum(ratio*suit))$harv
-  }
-  
-  res.by.year <-
-    ldply(laply(stocks,function(x) x@stockname),function(x){
-      f.by.year <- ddply(bsprint[[sprintf('%s.prey',x)]],
-                         ~year + .id,
-                         summarise,
-                         F=max(Z-0.15,na.rm=TRUE)) ### ATH!!!!!!!!
-      ## making sure this works for a relic from the good old times:)
-      txt <- ifelse(sum(grepl('.full',names(bsprint),fixed=TRUE))==1,
-                    sprintf('%s.full',x), sprintf('%s.lw',x))
-      
-      bio.by.year <- ddply(subset(bsprint[[txt]],
-                                  step == 1),
-                           ~year + area + .id,
-                           plyr::here(summarise),
-                           total.biomass = sum(number*mean.weight),
-                           harv.biomass =
-                             sum(mean.weight*
-                                   harv.suit(as.numeric(gsub('len','',length)),
-                                             .id[1])*
-                                   number),
-                           ssb = sum(mean.weight*logit(mat.par[1],
-                                                       mat.par[2],as.numeric(gsub('len','',length)))*
-                                       number),
-                           .parallel = .parallel)
-      
-      bio <- merge(f.by.year,bio.by.year)
-      bio$stock <- x
-      return(bio)
-    })
-  res.by.year <- merge(res.by.year,boot.rec,all.x = TRUE)
-  boot.fit <- list(bootparams = dfinal,res.by.year = res.by.year,
-                   boot.rec = boot.rec, boot.sel = boot.sel,
-                   boot.growth = boot.growth)
-  save(boot.fit,file='digestedBoot.RData')
-  invisible(boot.fit)
-}
+# ##' .. content for \description{} (no empty lines) ..
+# ##'
+# ##' .. content for \details{} ..
+# ##' @title bootstrap fit
+# ##' @param main
+# ##' @param dparam.file
+# ##' @param bsprint.file
+# ##' @param fleet.predict
+# ##' @param mat.par
+# ##' @param .parallel
+# ##' @return list of bootstrap fit things
+# ##' @author Bjarki Thor Elvarsson
+# gadget.bootfit <- function(main = 'main', dparam.file = 'bsres_v1.RData',
+#                            bsprint.file = 'bsprint.RData',
+#                            fleet.predict = data.frame(fleet='comm',ratio=1),
+#                            mat.par=NULL, .parallel = TRUE
+# ){
+#   
+#   
+#   load(dparam.file)
+#   load(bsprint.file)
+#   main <- read.gadget.main(main)
+#   lik <- read.gadget.likelihood(main$likelihoodfiles)
+#   lik.dat <- read.gadget.data(lik)
+#   
+#   fleets <- read.gadget.fleet(main$fleetfiles)
+#   stocks <- read.gadget.stockfiles(main$stockfiles)
+#   dfinal <- subset(dparam,comp=='final')
+#   dfinal$comp <- NULL
+#   boot.rec <-
+#     ddply(melt(dfinal,id.vars='bs.data',variable.name = 'switch'),
+#           ~bs.data,function(x){
+#             rownames(x) <- x$switch
+#             get.gadget.recruitment(stocks,x)
+#           })
+#   boot.sel <-
+#     ddply(melt(dfinal,id.vars='bs.data',variable.name = 'switch'),
+#           ~bs.data,function(x){
+#             rownames(x) <- x$switch
+#             get.gadget.suitability(fleets,x,getLengthGroups(stocks[[1]]))
+#           })
+#   boot.growth <-
+#     ddply(melt(dfinal,id.vars='bs.data',variable.name = 'switch'),
+#           ~bs.data,function(x){
+#             rownames(x) <- x$switch
+#             get.gadget.growth(stocks,x,age.based = TRUE)
+#           })
+#   
+#   #  boot.ldistfit <-
+#   #    rbindlist(llply(names(lik.dat$dat$catchdistribution),
+#   #                    function(x){
+#   #                      si <-
+#   #                        data.table(noageprint[[x]]) %.%
+#   #                        group_by(.id,year,step,area) %.%
+#   #                        mutate(proportion = number/sum(number)) %.%
+#   #                        group_by(year,step,age,length,add=FALSE) %.%
+#   #                        summarise(upper = quantile(proportion,0.975,na.rm=TRUE),
+#   #                                  lower = quantile(proportion,0.025,na.rm=TRUE))
+#   #                      si$fleet <- x
+#   #                      return(si)
+#   #                    }))
+#   
+#   harv.suit <- function(l, .id){
+#     x <- subset(melt(dfinal,id.vars='bs.data',variable.name = 'switch'),
+#                 bs.data == .id)
+#     rownames(x) <- x$switch
+#     ddply(merge(get.gadget.suitability(fleets,x,l),fleet.predict),~l,
+#           summarise, harv=sum(ratio*suit))$harv
+#   }
+#   
+#   res.by.year <-
+#     ldply(laply(stocks,function(x) x@stockname),function(x){
+#       f.by.year <- ddply(bsprint[[sprintf('%s.prey',x)]],
+#                          ~year + .id,
+#                          summarise,
+#                          F=max(Z-0.15,na.rm=TRUE)) ### ATH!!!!!!!!
+#       ## making sure this works for a relic from the good old times:)
+#       txt <- ifelse(sum(grepl('.full',names(bsprint),fixed=TRUE))==1,
+#                     sprintf('%s.full',x), sprintf('%s.lw',x))
+#       
+#       bio.by.year <- ddply(subset(bsprint[[txt]],
+#                                   step == 1),
+#                            ~year + area + .id,
+#                            plyr::here(summarise),
+#                            total.biomass = sum(number*mean.weight),
+#                            harv.biomass =
+#                              sum(mean.weight*
+#                                    harv.suit(as.numeric(gsub('len','',length)),
+#                                              .id[1])*
+#                                    number),
+#                            ssb = sum(mean.weight*logit(mat.par[1],
+#                                                        mat.par[2],as.numeric(gsub('len','',length)))*
+#                                        number),
+#                            .parallel = .parallel)
+#       
+#       bio <- merge(f.by.year,bio.by.year)
+#       bio$stock <- x
+#       return(bio)
+#     })
+#   res.by.year <- merge(res.by.year,boot.rec,all.x = TRUE)
+#   boot.fit <- list(bootparams = dfinal,res.by.year = res.by.year,
+#                    boot.rec = boot.rec, boot.sel = boot.sel,
+#                    boot.growth = boot.growth)
+#   save(boot.fit,file='digestedBoot.RData')
+#   invisible(boot.fit)
+# }

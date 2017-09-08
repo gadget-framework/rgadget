@@ -60,7 +60,7 @@ plot.gadget.fit <- function(fit,data = 'sidat',type='direct',dat.name=NULL){
   } else if(data=='catchdist.fleets'){
     if(type == 'direct'){
       if(is.null(dat.name)){
-        ldist.fit <- llply(unique(fit$catchdist.fleets$name),
+        ldist.fit <- plyr::llply(unique(fit$catchdist.fleets$name),
                            function(x){
                              dat <- subset(fit$catchdist.fleets,name == x)
                              if(length(unique(dat$age))==1){
@@ -78,14 +78,14 @@ plot.gadget.fit <- function(fit,data = 'sidat',type='direct',dat.name=NULL){
                                         strip.background = element_blank(),
                                         strip.text.x = element_blank())
                              } else {
-                               dat <- mutate(ddply(dat,~year+step+age,summarise,
+                               dat <- plyr::mutate(plyr::ddply(dat,~year+step+age,summarise,
                                                    predicted=sum(predicted),
                                                    observed=sum(observed,na.rm=TRUE)),
                                              age=as.numeric(gsub('age','',age)))
                                ggplot(dat,aes(age,predicted)) +
                                  geom_line(aes(age,observed),col='gray') +
                                  facet_wrap(~year+step) + theme_bw() + geom_line() +
-                                 geom_text(data=mutate(subset(dat,
+                                 geom_text(data=plyr::mutate(subset(dat,
                                                               age==min(age)),y=Inf),
                                            aes(age,y,label=year), vjust = 2,hjust = -1)+
                                  ylab('Proportion') + xlab('Age') +
@@ -116,7 +116,7 @@ plot.gadget.fit <- function(fit,data = 'sidat',type='direct',dat.name=NULL){
                    strip.background = element_blank(),
                    strip.text.x = element_blank())
         } else {
-          dat <- mutate(ddply(dat,~year+step+age,summarise,
+          dat <- plyr::mutate(plyr::ddply(dat,~year+step+age,summarise,
                               predicted=sum(predicted),
                               observed=sum(observed,na.rm=TRUE)),
                         age=as.numeric(gsub('age','',age)))

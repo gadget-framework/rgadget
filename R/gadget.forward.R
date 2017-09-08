@@ -156,35 +156,35 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
   write.gadget.area(area,file=sprintf('%s/area',pre))
   
   ## fleet setup 
-  fleet <- llply(fleet,
-                 function(x){
-                   tmp <- subset(x,fleet %in% fleets$fleet)
-                 })
+  fleet <- plyr::llply(fleet,
+                       function(x){
+                         tmp <- subset(x,fleet %in% fleets$fleet)
+                       })
   
-  fleet$fleet <- mutate(fleet$fleet,
-                        fleet = sprintf('%s.pre',fleet),
-                        multiplicative = '#rgadget.effort',   #effort,
-                        amount = sprintf('%s/fleet.pre', pre),
-                        type = 'linearfleet')
+  fleet$fleet <- dplyr::mutate(fleet$fleet,
+                               fleet = sprintf('%s.pre',fleet),
+                               multiplicative = '#rgadget.effort',   #effort,
+                               amount = sprintf('%s/fleet.pre', pre),
+                               type = 'linearfleet')
   
-  fleet$prey <- mutate(fleet$prey,
-                       fleet = sprintf('%s.pre',fleet))
+  fleet$prey <- dplyr::mutate(fleet$prey,
+                              fleet = sprintf('%s.pre',fleet))
   
   
-  fleet.predict <- ddply(fleets,'fleet',function(x){
-    tmp <- mutate(subset(time.grid,
-                         (year >= sim.begin | (year==(sim.begin-1) &
-                                                 step > time$laststep)) &
-                           area %in% fleet$fleet$livesonareas
-    ),
-    fleet = sprintf('%s.pre',x$fleet),
-    ratio = x$ratio)
+  fleet.predict <- plyr::ddply(fleets,'fleet',function(x){
+    tmp <- 
+      time.grid %>% 
+      dplyr::filter((year >= sim.begin | 
+                      (year==(sim.begin-1) & step > time$laststep)) &
+                      area %in% fleet$fleet$livesonareas) %>% 
+      dplyr::mutate(fleet = sprintf('%s.pre',x$fleet),
+                    ratio = x$ratio)
     return(tmp)
   })
   
   
-  write.gadget.table(arrange(fleet.predict[c('year','step','area','fleet','ratio')],
-                             year,step,area),
+  write.gadget.table(dplr::arrange(fleet.predict[c('year','step','area','fleet','ratio')],
+                                   year,step,area),
                      file=sprintf('%s/fleet.pre',pre),
                      col.names=FALSE,row.names=FALSE,
                      quote = FALSE)

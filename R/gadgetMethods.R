@@ -48,7 +48,7 @@ setGeneric('getMaxage',def=function(object){standardGeneric("getMaxage")})
 setMethod('getMaxage','gadget-stock', function(object) return(object@maxage))
 setMethod('getMaxage','gadget-main',
           function(object){
-            maxage <- max(laply(object@stocks,getMaxage))
+            maxage <- max(sapply(object@stocks,getMaxage))
             return(maxage)
           })
 
@@ -56,7 +56,7 @@ setGeneric('getMinage',def=function(object){standardGeneric("getMinage")})
 setMethod('getMinage','gadget-stock', function(object) return(object@minage))
 setMethod('getMinage','gadget-main',
           function(object){
-            minage <- min(laply(object@stocks,getMinage))
+            minage <- min(sapply(object@stocks,getMinage))
             return(minage)
           })
 
@@ -66,7 +66,7 @@ setGeneric('getMaxlength',def=function(object){standardGeneric("getMaxlength")})
 setMethod('getMaxlength','gadget-stock', function(object) return(object@maxlength))
 setMethod('getMaxlength','gadget-main',
           function(object){
-            maxlength <- max(laply(object@stocks,getMaxlength))
+            maxlength <- max(sapply(object@stocks,getMaxlength))
             return(maxlength)
           })
 
@@ -74,7 +74,7 @@ setGeneric('getMinlength',def=function(object){standardGeneric("getMinlength")})
 setMethod('getMinlength','gadget-stock', function(object) return(object@minlength))
 setMethod('getMinlength','gadget-main',
           function(object){
-            minlength <- min(laply(object@stocks,getMinlength))
+            minlength <- min(sapply(object@stocks,getMinlength))
             return(minlength)
           })
 
@@ -86,7 +86,7 @@ setGeneric('getStockNames',def=function(object){standardGeneric("getStockNames")
 setMethod('getStockNames','gadget-stock',
           function(object) return(object@stockname))
 setMethod('getStockNames','gadget-main',
-          function(object) laply(object@stocks,getStockNames))
+          function(object) sapply(object@stocks,getStockNames))
 
 
 
@@ -123,7 +123,7 @@ setMethod('getLengthGroups', 'gadget-stock',
             }
             })
 setMethod('getLengthGroups', 'gadget-main',
-          function(object) llply(object@stocks,getLengthGroups))
+          function(object) lapply(object@stocks,getLengthGroups))
 
 
 setGeneric('getNumTimeSteps',def=function(object){
@@ -160,7 +160,7 @@ setGeneric('getFleetNames',def=function(object){standardGeneric("getFleetNames")
 setMethod('getFleetNames','gadget-fleet',
           function(object) object@name)
 setMethod('getFleetNames','gadget-main',
-          function(object) laply(object@fleets,getFleetNames))
+          function(object) sapply(object@fleets,getFleetNames))
 
 setGeneric('getNumTagging',def=function(object){standardGeneric("getNumTagging")})
 setMethod('getNumTagging', 'gadget-tagging',
@@ -179,12 +179,12 @@ setMethod('isPredator', 'gadget-stock',
           function(object) object@doeseat )
 setGeneric('getNumPredators',def=function(object){standardGeneric("getNumPredators")})
 setMethod('getNumPredators', 'gadget-main',
-          function(object) sum(laply(object@stocks,isPredator)))
+          function(object) sum(sapply(object@stocks,isPredator)))
 
 setGeneric('getPredatorNames',def=function(object){standardGeneric("getPredatorNames")})
 setMethod('getPredatorNames','gadget-main',
           function(object){
-            tmp <- laply(object@stocks,
+            tmp <- sapply(object@stocks,
                          function(x){
                            if(isPredator(x)==1)
                              getStockNames(x)
@@ -236,10 +236,10 @@ setMethod('getGrowth', 'gadget-main',
           function(object){
             yearstep <- getTimeSteps(object@time)
             yearstep$dt <- yearstep$step/12
-            llply(object@stocks,
+            plyr::llply(object@stocks,
                   function(x){
                     func <- getGrowth(x)
-                    daply(yearstep,c('year','step'),
+                    plyr::daply(yearstep,c('year','step'),
                           function(y){
                             func(y[1])
                           })
@@ -279,7 +279,7 @@ setGeneric('getSpawnFunc',
            def=function(object, par){standardGeneric("getSpawnFunc")})
 setMethod('getSpawnFunc','gadget-main',
           function(object, par=data.frame()){
-              llply(object@stocks,function(x){ getSpawnFunc(x,par)})
+              plyr::llply(object@stocks,function(x){ getSpawnFunc(x,par)})
           })
 
 setMethod('getSpawnFunc','gadget-stock',
@@ -288,13 +288,13 @@ setMethod('getSpawnFunc','gadget-stock',
                   
                   l <- getLengthGroups(object)
                   w <- getWeight(object,l,par)
-                  p <- llply(object@spawning@recruitment[-1],
+                  p <- plyr::llply(object@spawning@recruitment[-1],
                              function(x) {
                                  eval.gadget.formula(x,par)$V1
                              })                  
                   type <- object@spawning@recruitment[1]                      
                   function(n,i=1){
-                      pp <- laply(p,function(x){
+                      pp <- sapply(p,function(x){
                           if(length(x)>1){
                               x[min(length(x),i)]
                           } else {
@@ -313,7 +313,7 @@ setGeneric('getFleetSuitability',
            def=function(object, par){standardGeneric("getFleetSuitability")})
 setMethod('getFleetSuitability','gadget-fleet',
           function(object,par=data.frame()){
-            dlply(object@suitability,~stock,function(x){
+            plyr::dlply(object@suitability,~stock,function(x){
               function(l){
                 tmp <-
                   merge.formula(unlist(strsplit(as.character(x[1,-(1:3)]),
@@ -328,7 +328,7 @@ setMethod('getFleetSuitability','gadget-fleet',
 )
 setMethod('getFleetSuitability','gadget-main',
           function(object,par){
-            llply(object@fleets,function(x) getFleetSuitability(x,par))
+            plyr::llply(object@fleets,function(x) getFleetSuitability(x,par))
           })
 
 
@@ -342,7 +342,7 @@ setMethod('getMortality','gadget-stock',
           )
 setMethod('getMortality','gadget-main',
           function(object,par){
-            llply(object@stocks,function(x) getMortality(x,par))
+            plyr::llply(object@stocks,function(x) getMortality(x,par))
           })
 
 
@@ -362,12 +362,12 @@ setMethod('getInitData','gadget-stock',
 )
 setMethod('getInitData','gadget-main',
           function(object,par){ ## a bit of a hack
-            llply(object@stocks,getInitData,par)
+            plyr::llply(object@stocks,getInitData,par)
 })
 
 setMethod('getMortality','gadget-main',
           function(object,par){
-            llply(object@stocks,function(x) getMortality(x,par))
+            plyr::llply(object@stocks,function(x) getMortality(x,par))
           })
 setGeneric('getRecStocks',def=function(object, par){standardGeneric("getRecStocks")})
 setGeneric('getRecruitment',def=function(object, par){standardGeneric("getRecruitment")})
