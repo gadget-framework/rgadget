@@ -104,6 +104,7 @@ gadget.fit <- function(wgts = 'WGTS', main.file = NULL,
   predator.prey <- 
     out[grepl('.+\\.prey\\..+',names(out))] %>% 
     purrr::set_names(.,names(.)) %>% 
+    purrr::keep(~'number.consumed' %in% names(.)) %>% 
     dplyr::bind_rows(.id='stock') %>% 
     tidyr::separate(stock,c('prey','predator'),sep='\\.prey\\.') %>% 
     dplyr::as_data_frame() %>% 
@@ -320,7 +321,7 @@ gadget.fit <- function(wgts = 'WGTS', main.file = NULL,
                     
                     dat <-
                       merge(lik.dat$dat$stomachcontent[[x]],
-                            join(join(out[[x]],
+                            plyr::join(plyr::join(out[[x]],
                                       attr(lik.dat$dat$stomachcontent[[x]],
                                            'prey.agg'),
                                       by='prey'),
