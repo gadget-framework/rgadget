@@ -1138,14 +1138,9 @@ gadget.ypr <- function(params.file = 'params.in',
   plyr::l_ply(stocks,function(x){
     x@initialdata[,3] <- 0 ## nothing in the beginning
     if(x@doesrenew==1){
-      tmp <- subset(time.grid,step == 1)
-      tmp <- mutate(tmp,
-                    age = x@renewal.data[1,4],
-                    number = 0,
-                    mean = x@renewal.data[1,6],
-                    stddev = x@renewal.data[1,7],
-                    alpha = x@renewal.data[1,8],
-                    beta = x@renewal.data[1,9])
+      tmp %>% 
+        dplyr::filter(step == 1) %>% 
+        dplyr::bind_cols(slice(x@renewal.data %>% select(-c(year,step,area)),rep(1,nrow(.))))
       tmp$number[1] <- 100
       x@renewal.data <- tmp
       x@doesspawn <- 0
