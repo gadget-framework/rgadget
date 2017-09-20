@@ -1285,9 +1285,7 @@ gadget.ypr <- function(params.file = 'params.in',
   
   return(res)
 }
-##' .. content for \description{} (no empty lines) ..
-##'
-##' .. content for \details{} ..
+
 ##' @title Plot yield per recruit
 ##' @param ypr gadget.ypr object
 ##' @return ggplot object
@@ -1321,9 +1319,6 @@ plot.gadget.ypr <- function(ypr){
   return(plo)
 }
 
-##' .. content for \description{} (no empty lines) ..
-##'
-##' .. content for \details{} ..
 ##' @title Gadget bootstrap yield per recruit
 ##' @param params.file
 ##' @param main.file
@@ -1337,7 +1332,6 @@ plot.gadget.ypr <- function(ypr){
 ##' @param .parallel
 ##' @return yield per recruit for the bootstrap
 ##' @author Bjarki Thor Elvarsson
-##' @export
 gadget.bootypr <- function(params.file='params.final',
                            main.file = 'main.final',
                            effort = seq(0, 1, by=0.01),

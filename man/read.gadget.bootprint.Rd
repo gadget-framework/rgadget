@@ -10,12 +10,6 @@ read.gadget.bootprint(bs.wgts = "BS.WGTS", bs.samples = 1:1000,
 \value{
 print output for all bootstrap samples
 }
-\description{
-.. content for \description{} (no empty lines) ..
-}
-\details{
-.. content for \details{} ..
-}
 \author{
 Bjarki Thor Elvarsson
 }

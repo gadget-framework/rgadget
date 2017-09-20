@@ -9,12 +9,6 @@ get.gadget.suitability(fleets, params, lengths, normalize = FALSE)
 \value{
 suitability function for a fleet
 }
-\description{
-.. content for \description{} (no empty lines) ..
-}
-\details{
-.. content for \details{} ..
-}
 \author{
 Bjarki Thor Elvarsson
 }

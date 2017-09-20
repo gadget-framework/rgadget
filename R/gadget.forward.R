@@ -52,7 +52,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
     body <- tmp[!grepl(';',tmp)]
     header <- preamble[grepl('year-step-area',preamble)] %>% 
       gsub('; (*)','\\1',.) %>% 
-      str_split('-') %>% 
+      stringr::str_split('-') %>% 
       unlist() %>% 
       gsub(' ','_',.)
     body %>% 
@@ -400,7 +400,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
   
   main$likelihoodfiles <- ';'
   
-  llply(stocks,function(x){
+  plyr::llply(stocks,function(x){
     tmp <- 
       prj.rec %>% 
       dplyr::filter(stock == x@stockname,trial == 1) %>% 
@@ -412,7 +412,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
         dplyr::filter(year < sim.begin) %>% 
         dplyr::bind_rows(x@renewal.data %>% 
                            dplyr::filter(year == min(ref.years)) %>% 
-                           dplyr::slice(rep(1:n(),nrow(tmp))) %>% 
+                           dplyr::slice(rep(1:n(),length(unique(tmp$year)))) %>% 
                            dplyr::mutate(year=as.character(tmp$year),
                                          number = sprintf('(* (* 0.0001 #%s.rec.%s.%s ) %s)',
                                                           x@stockname,year,step, 
@@ -424,7 +424,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
   })
   
   main$stockfiles <- paste(sprintf('%s/%s',pre,
-                                   laply(stocks,function(x) x@stockname)),
+                                   plyr::laply(stocks,function(x) x@stockname)),
                            collapse = ' ')
   
   
@@ -496,9 +496,7 @@ plot.gadget.forward <- function(gadfor,type='catch',quotayear=FALSE){
   }
 }
 
-##' .. content for \description{} (no empty lines) ..
-##'
-##' .. content for \details{} ..
+
 ##' @title Gadget bootstrap forward
 ##' @param years
 ##' @param params.file
@@ -515,8 +513,7 @@ plot.gadget.forward <- function(gadfor,type='catch',quotayear=FALSE){
 ##' @param stochastic
 ##' @param .parallel
 ##' @return list of bootstrap results
-##' @author Bjarki Thor Elvarsson
-##' @export
+##' @author Bjarki Thor Elvarssont
 gadget.bootforward <- function(years = 20,
                                params.file='params.final',
                                main.file = 'main.final',
@@ -532,7 +529,7 @@ gadget.bootforward <- function(years = 20,
                                stochastic = TRUE,
                                .parallel = TRUE){
   tmp <-
-    llply(bs.samples,function(x){
+    plyr::llply(bs.samples,function(x){
       gadget.forward(years = years,
                      num.trials = num.trials,
                      params.file = sprintf('%s/BS.%s/%s',

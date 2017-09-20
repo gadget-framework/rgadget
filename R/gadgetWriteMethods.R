@@ -282,7 +282,7 @@ setMethod("gadget_dir_write",
           }
           stock.text['renewal'] <-
             paste(paste(names(x@renewal),
-                        laply(x@renewal,
+                        plyr::laply(x@renewal,
                               function(x)
                               paste(x,collapse=' ')),
                         sep='\t',collapse = '\n'),
@@ -428,9 +428,7 @@ setMethod("gadget_dir_write",
     }
 ) 
 
-##' .. content for \description{} (no empty lines) ..
-##'
-##' .. content for \details{} ..
+
 ##' @title Write gadget main
 ##' @return NULL
 ##' @author Bjarki Thor Elvarsson

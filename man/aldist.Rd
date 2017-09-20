@@ -16,12 +16,6 @@ aldist(stock.dat, sigma = 0, dl = 1)
 \value{
 data.frame
 }
-\description{
-.. content for \description{} (no empty lines) ..
-}
-\details{
-.. content for \details{} ..
-}
 \author{
 Bjarki Thor Elvarsson
 }

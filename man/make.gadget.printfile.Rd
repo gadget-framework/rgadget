@@ -20,12 +20,6 @@ make.gadget.printfile(main = "main", output = "out",
 \value{
 gadget.mainfile object
 }
-\description{
-.. content for \description{} (no empty lines) ..
-}
-\details{
-.. content for \details{} ..
-}
 \author{
 Bjarki Thor Elvarsson
 }

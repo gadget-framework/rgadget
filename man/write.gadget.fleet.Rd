@@ -9,12 +9,6 @@ write.gadget.fleet(fleet, file = "fleet")
 \value{
 nothing
 }
-\description{
-<description>
-}
-\details{
-<details>
-}
 \author{
 Bjarki Þór Elvarsson
 }

@@ -24,12 +24,6 @@ read.gadget.wgts(params.file = "params.in", wgts = "WGTS",
 \value{
 data.frame with parameter estimates and likelihood output from the iterative reweighting folder.
 }
-\description{
-.. content for \description{} (no empty lines) ..
-}
-\details{
-.. content for \details{} ..
-}
 \author{
 Bjarki Thor Elvarsson
 }

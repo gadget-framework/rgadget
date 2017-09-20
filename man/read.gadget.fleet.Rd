@@ -9,12 +9,6 @@ read.gadget.fleet(fleet.file = "fleet")
 \value{
 fleet file object
 }
-\description{
-<description>
-}
-\details{
-function only tested for linear and totalfleets>
-}
 \author{
 Bjarki Þór Elvarsson
 }

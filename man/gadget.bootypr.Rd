@@ -12,12 +12,6 @@ gadget.bootypr(params.file = "params.final", main.file = "main.final",
 \value{
 yield per recruit for the bootstrap
 }
-\description{
-.. content for \description{} (no empty lines) ..
-}
-\details{
-.. content for \details{} ..
-}
 \author{
 Bjarki Thor Elvarsson
 }

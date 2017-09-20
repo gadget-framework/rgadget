@@ -67,9 +67,9 @@ gadgetstock <- function(stock_name, path, missingOkay = FALSE) {
 #' Replace components of a gadgetstock with either new values or or content
 #' derived from an MFDB query.
 #'
-#' @param gf		The gadgetfile object to update
+#' @param gf The gadgetfile object to update
 #' @param component	The component to update, or 'stock' to update the initial values
-#' @param ...		Either 0, data = (mfdb_query), or keys to update. See details.
+#' @param ...	Either 0, data = (mfdb_query), or keys to update. See details.
 #'
 #' @details
 #' If \code{...} is \code{0}, then the component is replaced with "doesgrow 0", for instance.

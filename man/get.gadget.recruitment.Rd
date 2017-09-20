@@ -9,12 +9,6 @@ get.gadget.recruitment(stocks, params, collapse = TRUE)
 \value{
 recruitment by year
 }
-\description{
-.. content for \description{} (no empty lines) ..
-}
-\details{
-.. content for \details{} ..
-}
 \author{
 Bjarki Thor Elvarsson
 }

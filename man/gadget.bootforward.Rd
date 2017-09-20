@@ -14,12 +14,6 @@ gadget.bootforward(years = 20, params.file = "params.final",
 \value{
 list of bootstrap results
 }
-\description{
-.. content for \description{} (no empty lines) ..
-}
-\details{
-.. content for \details{} ..
-}
 \author{
-Bjarki Thor Elvarsson
+Bjarki Thor Elvarssont
 }

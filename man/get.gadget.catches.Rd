@@ -9,12 +9,6 @@ get.gadget.catches(fleets, params)
 \value{
 catches by year + step
 }
-\description{
-.. content for \description{} (no empty lines) ..
-}
-\details{
-.. content for \details{} ..
-}
 \author{
 Bjarki Thor Elvarsson
 }

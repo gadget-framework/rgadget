@@ -474,9 +474,7 @@ write.gadget.parameters <- function(params,file='params.out',columns=TRUE){
 
 }
 
-##' .. content for \description{} (no empty lines) ..
-##'
-##' .. content for \details{} ..
+
 ##' @title Make gadget printfile
 ##' @param main location of main file
 ##' @param output location of output folder
@@ -484,7 +482,6 @@ write.gadget.parameters <- function(params,file='params.out',columns=TRUE){
 ##' @param file name of resulting printfile
 ##' @return gadget.mainfile object
 ##' @author Bjarki Thor Elvarsson
-##' @export
 make.gadget.printfile <- function(main='main',output='out',
                                   aggfiles='print.aggfiles',
                                   file='printfile',
@@ -1479,9 +1476,7 @@ read.gadget.bootstrap <- function(params.file='params.in',
   return(dboot)
 }
 
-##' .. content for \description{} (no empty lines) ..
-##'
-##' .. content for \details{} ..
+
 ##' @title read wgts
 ##' @param params.file base parameter file
 ##' @param wgts location of the reweighting folder
@@ -1582,9 +1577,7 @@ read.gadget.wgtsprint <- function(wgts = 'WGTS',
   return(tmp)
 }
 
-##' .. content for \description{} (no empty lines) ..
-##'
-##' .. content for \details{} ..
+
 ##' @title read bootprint
 ##' @param bs.wgts
 ##' @param bs.samples
@@ -1622,9 +1615,6 @@ read.gadget.bootprint <- function(bs.wgts='BS.WGTS',
 }
 
 
-##' .. content for \description{} (no empty lines) ..
-##'
-##' .. content for \details{} ..
 ##' @title merge txt to gadget.formula
 ##' @param txt
 ##' @return txt where the formula has been properly compiled
@@ -1670,7 +1660,6 @@ merge.formula <- function(txt){
 ##' @param par gadget parameters object
 ##' @return a vector of evaluated gadget formulas
 ##' @author Bjarki Thor Elvarsson
-##' @export
 eval.gadget.formula <- function(gad.for,par=data.frame()){
   tmp <- strsplit(gsub(')',' )',gsub('(','',gad.for,fixed=TRUE)),' ')
   plyr::ldply(tmp,
@@ -1694,15 +1683,11 @@ eval.gadget.formula <- function(gad.for,par=data.frame()){
           return(eval(parse(text=x)))
         })
 }
-##' .. content for \description{} (no empty lines) ..
-##'
-##' .. content for \details{} ..
 ##' @title read.gadget.table
 ##' @param file path to file
 ##' @param header logical, should the header be read from the file
 ##' @return data.frame with
 ##' @author Bjarki Thor Elvarsson
-##' @export
 read.gadget.table <- function(file,header=FALSE){
   dat <- strip.comments(file)
   if(class(dat) == 'list')
@@ -1722,14 +1707,10 @@ read.gadget.table <- function(file,header=FALSE){
 
 
 
-##' <description>
-##'
-##' function only tested for linear and totalfleets>
 ##' @title read gadget fleet
 ##' @param fleet.file
 ##' @return fleet file object
 ##' @author Bjarki Þór Elvarsson
-##' @export
 read.gadget.fleet <- function(fleet.file='fleet'){
   fleet <- strip.comments(fleet.file)
   comp.loc <- grep('fleetcomponent|component',fleet)
@@ -1760,9 +1741,6 @@ read.gadget.fleet <- function(fleet.file='fleet'){
   return(list(fleet=fleet.dat,prey=prey))
 }
 
-##' <description>
-##'
-##' <details>
 ##' @title write gadget fleet
 ##' @param fleet
 ##' @param file
@@ -1802,45 +1780,7 @@ write.gadget.fleet <- function(fleet,file='fleet'){
 }
 
 
-make.gadget.fleet <- function(name='comm',
-                              type='totalfleet',                     
-                              suitability = 'exponential',
-                              fleet.data = data.frame(area=1),
-                              stocknames = NULL,
-                              ...){
-    if(is.null(stocknames)){ #changed by pfrater to avoid warning with multiple stocknames
-        stop('No stockname supplied')
-    }
-    params <-
-        switch(suitability,
-               andersenfleet = paste(sprintf('#%s.%s',name,paste('p',1:6, sep='')),
-                   collapse = ' '),
-               andersen = paste(sprintf('#%s.%s',name,paste('p',1:5, sep='')),
-                   collapse = ' '),
-               exponential = paste(sprintf('#%s.%s',name,c('alpha','beta',
-                   'gamma','delta')),
-                   collapse = ' '),
-               exponentiall50 = paste(sprintf('#%s.%s',name,c('alpha','l50')),
-                   collapse = ' '),
-               richards = paste(sprintf('#%s.%s',name,paste('p',1:5, sep='')),
-                   collapse = ' '),
-               straightline = sprintf('#%s.%s',name,'alpha'),
-               gamma = paste(sprintf('#%s.%s',name,paste('p',1:5, sep=''),
-                   collapse = ' ')))
-    
-    fleet.data$fleetname <- name
-    new('gadget-fleet',name=name,type=type,
-        livesonareas=as.numeric(unique(fleet.data$area)),
-        amount = fleet.data[c('year','step','area','fleetname',
-            'number')],
-        suitability = data.frame(stock=stocknames,
-            suitability=suitability,params=params),
-        ...)
-}
 
-##' .. content for \description{} (no empty lines) ..
-##'
-##' .. content for \details{} ..
 ##' @title get gadget suitability
 ##' @param fleets
 ##' @param params
@@ -1894,15 +1834,11 @@ get.gadget.growth <- function(stocks,params,dt=0.25,age.based=FALSE,recl=NULL){
   })
 }
 
-##' .. content for \description{} (no empty lines) ..
-##'
-##' .. content for \details{} ..
 ##' @title get gadget recruitment
 ##' @param stocks
 ##' @param params
 ##' @return recruitment by year
 ##' @author Bjarki Thor Elvarsson
-##' @export
 get.gadget.recruitment <- function(stocks,params,collapse=TRUE){
   plyr::ldply(stocks, function(x){
     if(x@doesrenew == 1){
@@ -1927,15 +1863,11 @@ get.gadget.recruitment <- function(stocks,params,collapse=TRUE){
   })
 }
 
-##' .. content for \description{} (no empty lines) ..
-##'
-##' .. content for \details{} ..
 ##' @title get gadget catches
 ##' @param fleets
 ##' @param params
 ##' @return catches by year + step
 ##' @author Bjarki Thor Elvarsson
-##' @export
 get.gadget.catches <- function(fleets,params){
   tmp <- plyr::ddply(fleets$fleet,~fleet,
                function(x){
@@ -1950,9 +1882,6 @@ get.gadget.catches <- function(fleets,params){
   return(tmp)
 }
 
-##' .. content for \description{} (no empty lines) ..
-##'
-##' .. content for \details{} ..
 ##' @title read gadget grouping
 ##' @param lik
 ##' @param wgts

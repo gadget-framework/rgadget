@@ -7,12 +7,6 @@
 \usage{
 \S4method{gadget_dir_write}{list,`gadget-main`}(gd, x)
 }
-\description{
-.. content for \description{} (no empty lines) ..
-}
-\details{
-.. content for \details{} ..
-}
 \author{
 Bjarki Thor Elvarsson
 }

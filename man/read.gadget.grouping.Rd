@@ -9,12 +9,6 @@ read.gadget.grouping(lik = read.gadget.likelihood(), wgts = "WGTS")
 \value{
 list of wgts groupings
 }
-\description{
-.. content for \description{} (no empty lines) ..
-}
-\details{
-.. content for \details{} ..
-}
 \author{
 Bjarki Thor Elvarsson
 }

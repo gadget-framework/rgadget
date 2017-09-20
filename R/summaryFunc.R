@@ -4,7 +4,6 @@
 ##' @param sigma sigma for a log-normal noise for the indicies
 ##' @return Dataframe with the survey indices 
 ##' @author Bjarki Þór Elvarsson
-##' @export
 survey.index <- function(stock.dat,split,sigma=0,alpha=0,beta=1){
   ##Calculates the total catch  
   
@@ -21,16 +20,12 @@ survey.index <- function(stock.dat,split,sigma=0,alpha=0,beta=1){
   return(sidat)
 }
 
-##' .. content for \description{} (no empty lines) ..
-##'
-##' .. content for \details{} ..
 ##' @title Length distributions
 ##' @param stock.dat 
 ##' @param sigma 
 ##' @param dl 
 ##' @return data.frame
 ##' @author Bjarki Thor Elvarsson
-##' @export
 ldist <- function(stock.dat,sigma=0,dl=1){
   stock.dat$lgroup <- cut(stock.dat$length,
                           seq(min(stock.dat$length)-1,
@@ -48,16 +43,13 @@ ldist <- function(stock.dat,sigma=0,dl=1){
     mutate(p=num/sum(num))
   return(ldist)
 }
-##' .. content for \description{} (no empty lines) ..
-##'
-##' .. content for \details{} ..
+
 ##' @title Age length dist
 ##' @param stock.dat 
 ##' @param sigma 
 ##' @param dl 
 ##' @return data.frame
 ##' @author Bjarki Thor Elvarsson
-##' @export
 aldist <- function(stock.dat,sigma=0,dl=1){
   stock.dat$lgroup <- cut(stock.dat$length,
                           seq(min(stock.dat$length)-1,
@@ -74,14 +66,11 @@ aldist <- function(stock.dat,sigma=0,dl=1){
     mutate(p=num/sum(num))
   return(aldist)
 }
-##' .. content for \description{} (no empty lines) ..
-##'
-##' .. content for \details{} ..
+
 ##' @title toDataFrame
 ##' @param sim 
 ##' @return data.frame
 ##' @author Bjarki Thor Elvarsson
-##' @export
 toDataFrame <- function(sim){
   worker.fun <- function(x){
     tmp <- as.data.frame.table(x,responseName='num',

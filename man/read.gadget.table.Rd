@@ -14,12 +14,6 @@ read.gadget.table(file, header = FALSE)
 \value{
 data.frame with
 }
-\description{
-.. content for \description{} (no empty lines) ..
-}
-\details{
-.. content for \details{} ..
-}
 \author{
 Bjarki Thor Elvarsson
 }
