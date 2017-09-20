@@ -183,7 +183,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
   })
   
   
-  write.gadget.table(dplr::arrange(fleet.predict[c('year','step','area','fleet','ratio')],
+  write.gadget.table(dplyr::arrange(fleet.predict[c('year','step','area','fleet','ratio')],
                                    year,step,area),
                      file=sprintf('%s/fleet.pre',pre),
                      col.names=FALSE,row.names=FALSE,
