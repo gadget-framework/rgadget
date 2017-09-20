@@ -9,7 +9,8 @@ gadget.forward(years = 20, params.file = "params.out", main.file = "main",
   effort = 0.2, rec.scalar = NULL, check.previous = FALSE,
   save.results = TRUE, stochastic = TRUE, rec.window = NULL,
   mat.par = c(0, 0), gd = list(dir = ".", rel.dir = "PRE"),
-  method = "AR1", ref.years = NULL, custom.print = NULL)
+  method = "AR1", ref.years = NULL, custom.print = NULL,
+  prj.func = NULL, ...)
 }
 \arguments{
 \item{years}{Number of years to predictc}
@@ -40,7 +41,15 @@ fishing mortality of fully recruited through the relation F=-log(1-E)}
 
 \item{gd}{gadget directory}
 
+\item{method}{what method should be used to generate the projected recruitment, defaults to AR1}
+
+\item{ref.years}{what years should be used as the basis for the projections}
+
 \item{custom.print}{filename of customise printfile}
+
+\item{prj.func}{if method is "custom" then the user can supply a function that generates the recruitment}
+
+\item{...}{passed to prj.func}
 }
 \description{
 This function implements a crude forward simulation for a Gadget model.

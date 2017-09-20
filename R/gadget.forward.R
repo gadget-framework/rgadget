@@ -4,6 +4,7 @@
 #' This function implements a crude forward simulation for a Gadget model.
 #' NOTE: the function currently assumes at least one recruiting stock. 
 #' -- details to come--
+#'
 #' @param years Number of years to predictc
 #' @param params.file parameter file to base the prediction upon
 #' @param main.file main file for the model
@@ -20,6 +21,10 @@
 #' @param mat.par parameters determining the maturity ogive
 #' @param gd gadget directory
 #' @param custom.print filename of customise printfile
+#' @param method what method should be used to generate the projected recruitment, defaults to AR1
+#' @param ref.years what years should be used as the basis for the projections
+#' @param prj.func if method is "custom" then the user can supply a function that generates the recruitment
+#' @param ... passed to prj.func
 #'
 #' @return
 #' @export
@@ -36,7 +41,9 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
                            gd=list(dir='.',rel.dir='PRE'),
                            method = 'AR1',
                            ref.years=NULL,
-                           custom.print=NULL){
+                           custom.print=NULL,
+                           prj.func = NULL,
+                           ...){
   ## helper function
   readoutput <- function(x){
     tmp <- readLines(x)
@@ -236,7 +243,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
         dplyr::bind_rows(.id='stock') %>% 
         dplyr::select(stock,year,trial,recruitment)
       
-    } else {
+    } else if(tolower(method) == 'ar1'){
       ## fit an AR model to the fitted recruiment
       prj.rec <- 
         tmp %>% 
@@ -257,6 +264,20 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
         select(stock,year,trial,recruitment = rec)
       
       ## project next n years
+    } else if(tolower(method) == 'custom'){
+      if(!is.function(prj.func)){
+        prj.rec <- 
+          tmp %>% 
+          prj.func(...) 
+        if(!('data.frame' %in% class(prj.rec)))
+          stop('prj.func does not return a data.frame')
+        if(!(c('stock','year','trial','recruitment') %in% names(prj.rec)))
+          stop('prj.func does include columns stock, year, trial and recruitment')
+      } else {
+        stop('No projection function supplied')    
+      }
+    }else {
+      stop('Invalid projection method')
     }
   } else {
     prj.rec <- 
