@@ -414,8 +414,8 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
                            dplyr::filter(year == min(ref.years)) %>% 
                            dplyr::slice(rep(1:n(),nrow(tmp))) %>% 
                            dplyr::mutate(year=as.character(tmp$year),
-                                         number = sprintf('(* (* 0.0001 #%s.rec.%s ) %s)',
-                                                          x@stockname,year, 
+                                         number = sprintf('(* (* 0.0001 #%s.rec.%s.%s ) %s)',
+                                                          x@stockname,year,step, 
                                                           tmp$rec.scalar*tmp$rec.ratio)) %>% 
                            dplyr::select_(.dots = names(x@renewal.data))) %>% 
         as.data.frame()
