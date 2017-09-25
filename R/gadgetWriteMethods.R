@@ -255,7 +255,7 @@ setMethod("gadget_dir_write",
           write.unix('; migratio file',
                      sprintf('%s/Modelfiles/%s.migratio',
                              rel.dir,x@stockname))
-          l_ply(names(x@migrationratio),
+          plyr::l_ply(names(x@migrationratio),
                 function(y){
                   migratio <- sprintf('%s/Modelfiles/%s.migratio',
                                       rel.dir,x@stockname)
