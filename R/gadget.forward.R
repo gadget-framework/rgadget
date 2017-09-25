@@ -18,7 +18,6 @@
 #' @param save.results Should the results be saved? Defaults to TRUE
 #' @param stochastic Should the projection be stochastic (default) or deterministic (assuming the average three year recruitment)?
 #' @param rec.window What timeperiod should be used to estimate the distribution of recruits.
-#' @param mat.par parameters determining the maturity ogive
 #' @param gd gadget directory
 #' @param custom.print filename of customise printfile
 #' @param method what method should be used to generate the projected recruitment, defaults to AR1
@@ -37,7 +36,6 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
                            save.results = TRUE,
                            stochastic = TRUE,
                            rec.window = NULL,
-                           mat.par=c(0,0),
                            gd=list(dir='.',rel.dir='PRE'),
                            method = 'AR1',
                            ref.years=NULL,
@@ -115,12 +113,12 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
       min(rec$year)
   }
   
-  rec.step.ratio <- 
-    rec %>% 
-    dplyr::group_by(stock,step) %>% 
-    dplyr::filter(year %in% ref.years) %>% 
-    dplyr::summarise(rec.ratio = sum(recruitment)) %>% 
-    dplyr::mutate(rec.ratio = rec.ratio/sum(rec.ratio))
+  # rec.step.ratio <- 
+  #   rec %>% 
+  #   dplyr::group_by(stock,step) %>% 
+  #   dplyr::filter(year %in% ref.years) %>% 
+  #   dplyr::summarise(rec.ratio = sum(recruitment)) %>% 
+  #   dplyr::mutate(rec.ratio = rec.ratio/sum(rec.ratio))
   
   rec <- 
     rec %>% 
@@ -177,18 +175,22 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
   fleet$prey <- dplyr::mutate(fleet$prey,
                               fleet = sprintf('%s.pre',fleet))
   
+  fleet.predict <- 
+    time.grid %>% 
+    dplyr::filter((year >= sim.begin | 
+                     (year==(sim.begin-1) & step > time$laststep)) &
+                    area %in% fleet$fleet$livesonareas) 
   
-  fleet.predict <- plyr::ddply(fleets,'fleet',function(x){
-    tmp <- 
-      time.grid %>% 
-      dplyr::filter((year >= sim.begin | 
-                      (year==(sim.begin-1) & step > time$laststep)) &
-                      area %in% fleet$fleet$livesonareas) %>% 
-      dplyr::mutate(fleet = sprintf('%s.pre',x$fleet),
+  if('year' %in% names(fleets) | 'step' %in% names(fleets)){
+    fleet.predict <- 
+      fleet.predict %>% 
+      dplyr::left_join(fleets)
+  } else {
+    fleet.predict <- 
+      fleet.predict %>% 
+      tidyr::expand(fleet = sprintf('%s.pre',x$fleet),
                     ratio = x$ratio)
-    return(tmp)
-  })
-  
+  }
   
   write.gadget.table(dplyr::arrange(fleet.predict[c('year','step','area','fleet','ratio')],
                                    year,step,area),
@@ -403,8 +405,8 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
   plyr::llply(stocks,function(x){
     tmp <- 
       prj.rec %>% 
-      dplyr::filter(stock == x@stockname,trial == 1) %>% 
-      dplyr::left_join(rec.step.ratio,by=c('stock'))
+      dplyr::filter(stock == x@stockname,trial == 1) #%>% 
+      #dplyr::left_join(rec.step.ratio,by=c('stock'))
     
     if(x@doesrenew==1){
       x@renewal.data <-
@@ -416,7 +418,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
                            dplyr::mutate(year=as.character(tmp$year),
                                          number = sprintf('(* (* 0.0001 #%s.rec.%s.%s ) %s)',
                                                           x@stockname,year,step, 
-                                                          tmp$rec.scalar*tmp$rec.ratio)) %>% 
+                                                          tmp$rec.scalar)) %>% #*tmp$rec.ratio)) %>% 
                            dplyr::select_(.dots = names(x@renewal.data))) %>% 
         as.data.frame()
     }
@@ -494,65 +496,5 @@ plot.gadget.forward <- function(gadfor,type='catch',quotayear=FALSE){
       geom_bar(stat='identity') + theme_bw() +
       ylab("Recruitment (in millions)") + xlab('Year')     
   }
-}
-
-
-##' @title Gadget bootstrap forward
-##' @param years
-##' @param params.file
-##' @param main.file
-##' @param pre
-##' @param effort
-##' @param fleets
-##' @param num.trials
-##' @param bs.wgts
-##' @param bs.samples
-##' @param check.previous
-##' @param rec.window
-##' @param mat.par
-##' @param stochastic
-##' @param .parallel
-##' @return list of bootstrap results
-##' @author Bjarki Thor Elvarssont
-gadget.bootforward <- function(years = 20,
-                               params.file='params.final',
-                               main.file = 'main.final',
-                               pre = 'PRE',
-                               effort = 0.2,
-                               fleets = data.frame(fleet='comm',ratio=1),
-                               num.trials = 10,
-                               bs.wgts = 'BS.WGTS',
-                               bs.samples = 1:1000,
-                               check.previous = FALSE,
-                               rec.window = NULL,
-                               mat.par = NULL,
-                               stochastic = TRUE,
-                               .parallel = TRUE){
-  tmp <-
-    plyr::llply(bs.samples,function(x){
-      gadget.forward(years = years,
-                     num.trials = num.trials,
-                     params.file = sprintf('%s/BS.%s/%s',
-                                           bs.wgts,x,params.file),
-                     rec.window = rec.window,
-                     main.file = sprintf('%s/BS.%s/%s',bs.wgts,x,main.file),
-                     effort = effort, fleets = fleets,
-                     pre = sprintf('%s/BS.%s/%s',bs.wgts,x,pre),
-                     check.previous = check.previous,
-                     mat.par = mat.par,
-                     stochastic=stochastic,
-                     save.results = FALSE)
-      
-    },.parallel = .parallel)
-  names(tmp) <- sprintf('BS.%s',bs.samples)
-  
-  out <- list(lw = ldply(tmp,function(y) y[[1]]),
-              catch = ldply(tmp,function(y) y[[2]]),
-              recruitment = ldply(tmp,function(y) y[[3]]),
-              effort = effort,
-              fleets = fleets)
-  
-  save(out,file=sprintf('%s/bsforward.RData',bs.wgts))
-  return(out)
 }
 
