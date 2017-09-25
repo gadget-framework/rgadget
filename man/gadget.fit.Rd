@@ -14,7 +14,7 @@ gadget.fit(wgts = "WGTS", main.file = NULL, fleet.predict = NULL,
 
 \item{main.file}{if the main file is different from the 'main' or 'wgts/main.final'}
 
-\item{fleet.predict}{the basis fleets used to calculate the harvestable biomass}
+\item{fleet.predict}{data.frame containing the basis fleets used to calculate the harvestable biomass. Fleet names should be specified in the fleet column.}
 
 \item{mat.par}{parameters for the maturity ogive}
 

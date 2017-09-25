@@ -3,7 +3,7 @@
 ##'
 ##' @param wgts Location of the iterative reweighting folder, if null gadget.fit requires a parameter file
 ##' @param main.file if the main file is different from the 'main' or 'wgts/main.final'
-##' @param fleet.predict the basis fleets used to calculate the harvestable biomass
+##' @param fleet.predict data.frame containing the basis fleets used to calculate the harvestable biomass. Fleet names should be specified in the fleet column.
 ##' @param mat.par parameters for the maturity ogive
 ##' @param params.file parameter file used in the fit (defaults to "WGTS/params.final")
 ##' @param fit.folder location of the output
@@ -40,7 +40,10 @@ gadget.fit <- function(wgts = 'WGTS', main.file = NULL,
   if(!is.null(wgts)){
     resTable <- read.gadget.results(wgts=wgts)
     nesTable <- read.gadget.results(wgts=wgts,normalize = TRUE)
-    params <- read.gadget.parameters(sprintf('%s/params.final',wgts))
+    if(is.null(params.file)){
+      params.file <- sprintf('%s/params.final',wgts)
+    }
+    params <- read.gadget.parameters(params.file)
     lik <- read.gadget.likelihood(sprintf('%s/likelihood.final',wgts))
   } else {
     resTable <- list()
@@ -65,9 +68,7 @@ gadget.fit <- function(wgts = 'WGTS', main.file = NULL,
   write.gadget.main(main,file = sprintf('%s/main.print',wgts))
   
   callGadget(s=1,
-             i = ifelse(is.null(params.file),
-                        sprintf('%s/params.final',wgts),
-                        params.file),
+             i = params.file,
              main = sprintf('%s/main.print',wgts),
              o = sprintf('%s/SS.print',wgts))
   

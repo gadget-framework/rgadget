@@ -255,7 +255,7 @@ gadget.skeleton <- function(time,area,stocks,fleets=NULL){
   area.temp$area <- 1
   area.temp$temperature <- area$area.temperature
   
-  area.temp <- ddply(data.frame(area=tmp),~area,
+  area.temp <- plyr::ddply(data.frame(area=tmp),~area,
                      function(x){
                        area.temp$area <- x$area
                        return(area.temp)
@@ -270,7 +270,7 @@ gadget.skeleton <- function(time,area,stocks,fleets=NULL){
   ## recruitment age
   rec.age <- min(sapply(stocks,function(x) x$minage))
   stocks <- 
-    llply(stocks,function(x){
+    plyr::llply(stocks,function(x){
         print(x$name)
         Growth <- new('gadget-growth',
                       growthfunction = 'lengthvbsimple',
@@ -453,7 +453,7 @@ gadget.skeleton <- function(time,area,stocks,fleets=NULL){
   ## fleet operations
 
   if(!is.null(fleets)){
-      fleets <- llply(fleets,
+      fleets <- plyr::llply(fleets,
                       function(x){
                           if(x$type %in% c('linearfleet','effortfleet')){
                               fleetdat <- 
@@ -465,7 +465,7 @@ gadget.skeleton <- function(time,area,stocks,fleets=NULL){
                               fleetdat <- x$amount
                           }
                           
-                          tmp <- ddply(x$suitability,~stock,function(x)
+                          tmp <- plyr::ddply(x$suitability,~stock,function(x)
                                        c(params=paste(x[,-(1:2)],collapse=' ')))
                           fleet.suit <- data.frame(fleet=x$name,
                                                    stock=x$suitability$stock,
