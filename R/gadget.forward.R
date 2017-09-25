@@ -211,6 +211,13 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
         rec %>%
         dplyr::ungroup() %>% 
         dplyr::filter(as.numeric(year) < rec.window)
+    } else if(class(rec.window) == 'data.frame'){
+      tmp <- 
+        rec %>%
+        dplyr::ungroup() %>% 
+        dplyr::left_join(rec.window,by = 'stock') %>% 
+        dplyr::filter(as.numeric(year) < upper,
+                      as.numeric(year) > lower)
     } else {
       tmp <- 
         rec %>% 
