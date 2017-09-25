@@ -19,6 +19,7 @@
 ##' @export
 ##' @param type 
 gadget.options <- function(type=c('simple2stock','spawning')){
+  warning('The gadget-skeleton functions are deprecated, please adapt your scripts to the new gadget-update functions')
   opt <- list(
 #############################################################
 #
@@ -237,6 +238,7 @@ gadget.options <- function(type=c('simple2stock','spawning')){
 ##'                       stocks=opt$stocks,fleets=opt$fleets)
 ##' @export
 gadget.skeleton <- function(time,area,stocks,fleets=NULL){
+  warning('The gadget-skeleton functions are deprecated, please adapt your scripts to the new gadget-update functions')
   ## Definition of time
   time <- new('gadget-time',
               firstyear = time$firstyear,
