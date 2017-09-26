@@ -18,8 +18,11 @@ Imports:
     grid,
     purrr
 Suggests:
-    unittest (>= 1.2)
+    unittest (>= 1.2),
+    knitr,
+    rmarkdown
 License: GPL
 LazyLoad: yes
 LazyData: true
 RoxygenNote: 6.0.1
+VignetteBuilder: knitr

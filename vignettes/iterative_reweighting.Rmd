@@ -1,0 +1,104 @@
+---
+title: "Weighing likelihood components using Rgadget"
+author: "Bjarki Þór Elvarsson"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+One of the main aims of a multi-species model, such as those
+implemented using Gadget, is to estimate values of selected unknown
+parameters. The likelihood function serves as a general measure of how
+well a model with a given set of parameters fits data and parameter
+estimation is therefore undertaken by maximizing the likelihood
+function over values of the unknown parameters.
+
+The form of the likelihood function for a particular model and data
+set will vary depending on the nature of the data. Since fisheries
+data come from various sources, a large number of different likelihood
+functions have been implemented in Gadget. When such different data
+sources are combined in on analysis, the likelihood function becomes a
+product of the likelihood function for each data set. The individual
+pieces are referred to as likelihood components.
+
+As is common practice, maximum likelihood estimation of parameters is
+implemented in Gadget through minimizing the negative
+log--likelihood. The negative log--likelihood function will referred
+to as the objective function. Thus the objective function serves as a
+measure of the discrepancy between the output of the model and
+measurements.
+
+As noted in the introduction, several components enter the objective
+function in any single estimation. Therefore the objective function
+becomes a weighted sum of several components:
+$$l = \sum_{i} w_i l_i $$
+The weights, $w_i$, are necessary for several reasons. Notably, they
+can be used to prevent some components from dominating the likelihood
+function, to reduce the effect of low quality data and as *a
+  priori* estimates of the variance in each subset of the data.
+
+
+In this setting the assignment of these weights is, as noted above,
+generally not trivial, except in the case of a weighted regression. In
+@taylor2007simple an objective reweighting scheme for likelihood
+components is described for cod in Icelandic waters.  A simple
+heuristic, where the weights are the inverse of the initial sums of
+squares for the respective component resulting in an initials score
+equal to the number of components, is sometimes used. This has
+the intutitive advantage of all components being normalised. There is
+however a drawback to this since the component scores, given the
+initial parametrisation, are most likely not equally far from their
+respective optima and this in turn results in a sub-optimal weighting.
+
+The iterative reweighting heuristic [described first in @stefansson2003issues which
+is inspired by the weighted regression case]
+tackles this problem by optimising each component separately in order
+to determine the lowest possible value for each component. This is
+then used to determine the final weights.  The reasoning for this
+approach is as follows: 
+
+Conceptually the likelihood components can be thought of as residual
+sums of squares (SS), and as such their variance can be esimated by
+dividing the SS by the degrees of freedom.  The optimal weighting
+strategy is then inverse of the variance.  Here the iteration starts
+with assigning the inverse SS as the initial weight, that is the
+initial score of each component when multiplied with the weight is 1.
+Then a series of optimisation runs for each component with the intial
+contribution for that component to the objective function is set to
+10000, while other component contribute only 1.  After this series of
+optimisation runs the inverse of the resulting mininum SS is
+multiplied by the effective number of datapoints and used as the final
+weight for that particular component.
+
+
+The effective number of datapoints is used as a proxy for the degrees
+of freedom is determined from the number of non-zero datapoints. This
+is viewed as satisfactory proxy when the dataset is large, but for
+smaller datasets this could be a gross overestimate. In particular, if
+the survey indices are weighted on their own while the yearly
+recruitment is esimated they could be overfitted. If there are two
+surveys within the year @taylor2007simple suggests that the
+corresponding indices from each survey are weigthed simultaneously in
+order to make sure that there are at least two measurements for each
+recruiting yearclass, this is done through component grouping. In general
+when there is a chance of overfitting, e.g. the model has
+flexibility to almost perfectly predict the observations it worth
+while to consider grouping together related datasets. 
+
+## Examples
+```{r,eval=FALSE}
+gadget.iterative(rew.sI=TRUE,
+                 main='main',
+                 grouping=list(sind1=c('si.20-50','si.50-60','si.60-70'),
+                               sind2=c('si.70-80','si.80-90','si.90-100',
+                                       'si.100-160'),
+                               comm=c('ldist.gil','ldist.bmt',
+                                      'aldist.gil','aldist.bmt')),
+                 #cv.floor = 0.05,
+                 params.file = 'params.init',
+                 wgts='WGTS')
+```
+
