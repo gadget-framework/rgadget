@@ -187,9 +187,10 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
       dplyr::left_join(fleets)
   } else {
     fleet.predict <- 
-      fleet.predict %>% 
-      tidyr::expand(fleet = sprintf('%s.pre',x$fleet),
-                    ratio = x$ratio)
+      fleets %>% 
+      split(.$fleet) %>% 
+      purrr::map(~cbind(fleet.predict,.)) %>% 
+      dplyr::bind_rows()
   }
   
   write.gadget.table(dplyr::arrange(fleet.predict[c('year','step','area','fleet','ratio')],

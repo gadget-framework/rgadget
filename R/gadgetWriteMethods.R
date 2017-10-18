@@ -252,7 +252,7 @@ setMethod("gadget_dir_write",
                       row.names = FALSE,
                       col.names = FALSE,
                       quote=FALSE)
-          write.unix('; migratio file',
+          write.unix('; migration file',
                      sprintf('%s/Modelfiles/%s.migratio',
                              rel.dir,x@stockname))
           plyr::l_ply(names(x@migrationratio),
@@ -315,8 +315,12 @@ setMethod("gadget_dir_write",
                   sprintf('coefficients %s',
                           paste(x@coefficients,collapse='\t')),
                   sep='\n')
+          if(x@maturitysteps != ''){
+            maturityfile <- 
+              paste(maturityfile, sprintf('maturitysteps\t%s',x@maturitysteps))
+          }
           write.unix(maturityfile,f=sprintf('%s/Modelfiles/%s.maturity',
-                                      gd$dir,x@stockname))
+                                            rel.dir,x@stockname))
 
         }
         if(x@doesmove == 1){

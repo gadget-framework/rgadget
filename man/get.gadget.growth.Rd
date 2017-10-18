@@ -5,7 +5,7 @@
 \title{get gadget growth}
 \usage{
 get.gadget.growth(stocks, params, dt = 0.25, age.based = FALSE,
-  recl = NULL)
+  recl = FALSE)
 }
 \value{
 growth matrix
