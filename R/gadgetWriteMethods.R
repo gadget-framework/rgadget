@@ -270,13 +270,13 @@ setMethod("gadget_dir_write",
         }
 
         if(x@doesrenew == 1){
-          if(ncol(x@renewal.data==9)){
+          if(ncol(x@renewal.data) == 9){
             rec.type <- 'normalparam'
 
-          } else if(ncol(x@renewal.data==8)){
+          } else if(ncol(x@renewal.data) == 8){
             rec.type <- 'normalcond'
 
-          } else if(ncol(x@renewal.data==6)){
+          } else if(ncol(x@renewal.data) == 6){
             rec.type <- 'number'
 
           }

@@ -421,9 +421,10 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
         x@renewal.data %>% 
         dplyr::filter(year < sim.begin) %>% 
         dplyr::bind_rows(x@renewal.data %>% 
-                           dplyr::filter(year == min(ref.years)) %>% 
-                           dplyr::slice(rep(1:n(),length(unique(tmp$year)))) %>% 
-                           dplyr::mutate(year=as.character(tmp$year),
+                           dplyr::filter(year == min(ref.years)) %>%
+                           dplyr::mutate(n = n()) %>% 
+                           dplyr::slice(rep(1:n[1],length(unique(tmp$year)))) %>% 
+                           dplyr::mutate(year=rep(as.character(tmp$year),each = n[1]),
                                          number = sprintf('(* (* 0.0001 #%s.rec.%s.%s ) %s)',
                                                           x@stockname,year,step, 
                                                           tmp$rec.scalar)) %>% #*tmp$rec.ratio)) %>% 
