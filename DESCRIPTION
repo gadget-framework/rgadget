@@ -16,7 +16,8 @@ Imports:
     lubridate,
     stringr,
     grid,
-    purrr
+    purrr,
+    broom
 Suggests:
     unittest (>= 1.2),
     knitr,
