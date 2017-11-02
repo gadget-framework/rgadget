@@ -1165,7 +1165,7 @@ gadget.ypr <- function(params.file = 'params.in',
   
   
   
-  params.aug <- ldply(effort,
+  params.aug <- plyr::ldply(effort,
                       function(x){
                         tmp <- params
                         tmp$effort <- x
