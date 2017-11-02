@@ -1032,17 +1032,17 @@ gadget.ypr <- function(params.file = 'params.in',
              f=sprintf('%s/Aggfiles/allareas.agg',ypr))
   
   fleet <- plyr::llply(fleet,
-                 function(x){
-                   tmp <- subset(x,fleet %in% fleets$fleet)
-                 })
+                       function(x){
+                         tmp <- subset(x,fleet %in% fleets$fleet)
+                       })
   fleet$fleet <- plyr::mutate(fleet$fleet,
-                        multiplicative = '1#effort',
-                        amount = sprintf('%s/fleet.ypr', ypr),
-                        type = 'linearfleet')
+                              multiplicative = '1#effort',
+                              amount = sprintf('%s/fleet.ypr', ypr),
+                              type = 'linearfleet')
   
   fleet.predict <- plyr::ddply(fleets,'fleet',function(x){
     tmp <- plyr::mutate(time.grid,
-                  ratio = x$ratio)
+                        ratio = x$ratio)
     return(tmp)
   })
   
@@ -1138,11 +1138,11 @@ gadget.ypr <- function(params.file = 'params.in',
   plyr::l_ply(stocks,function(x){
     x@initialdata[,3] <- 0 ## nothing in the beginning
     if(x@doesrenew==1){
-      tmp %>% 
+      x@renewal.data <- 
+        time.grid %>% 
         dplyr::filter(step == 1) %>% 
-        dplyr::bind_cols(slice(x@renewal.data %>% select(-c(year,step,area)),rep(1,nrow(.))))
-      tmp$number[1] <- 100
-      x@renewal.data <- tmp
+        dplyr::bind_cols(slice(x@renewal.data %>% select(-c(year,step,area)),rep(1,nrow(.)))) %>% 
+        dplyr::mutate(number = ifelse(year==begin,1,0))
       x@doesspawn <- 0
     }
     gadget_dir_write(gd,x)
