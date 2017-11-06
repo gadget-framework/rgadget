@@ -455,7 +455,11 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
   out <- 
     list.files(paste(pre,'out',sep='/')) %>%
     purrr::set_names(paste(paste(pre,'out',sep='/'),.,sep='/'),.) %>% 
-    map(readoutput)
+    purrr::map(readoutput) %>% 
+    purrr::map(~.x %>% 
+                 dplyr::left_join(dplyr::data_frame(trial = 0:(num.trials*length(effort)-1),
+                                                    effort = rep(effort,each=num.trials)),
+                                  by = 'trial'))
     
   catch <- 
     out[catch.files] %>% 
