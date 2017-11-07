@@ -255,7 +255,8 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
                                        trial = rep(1:num.trials,each=years),
                                        recruitment = .$recruitment)) %>% 
         dplyr::bind_rows(.id='stock') %>% 
-        dplyr::select(stock,year,trial,recruitment)
+        dplyr::select(stock,year,trial,recruitment) %>% 
+        dplyr::mutate(step = 1)
       
     } else if(tolower(method) == 'ar1'){
       ## fit an AR model to the fitted recruiment
@@ -275,7 +276,8 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
         dplyr::bind_rows(.id='stock')  %>% 
         dplyr::mutate(rec = x + b*dplyr::lag(x),
                       rec = ifelse(is.na(rec),x,rec)) %>% 
-        select(stock,year,trial,recruitment = rec)
+        select(stock,year,trial,recruitment = rec) %>% 
+        dplyr::mutate(step = 1)
       
       ## project next n years
     } else if(tolower(method) == 'custom'){
@@ -285,8 +287,8 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
           prj.func(...) 
         if(!('data.frame' %in% class(prj.rec)))
           stop('prj.func does not return a data.frame')
-        if(!(c('stock','year','trial','recruitment') %in% names(prj.rec)))
-          stop('prj.func does include columns stock, year, trial and recruitment')
+        if(!(c('stock','year','trial','recruitment','step') %in% names(prj.rec)))
+          stop('prj.func does include columns stock, year, step, trial and recruitment')
       } else {
         stop('No projection function supplied')    
       }
@@ -327,7 +329,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
       tidyr::spread(switch,value) %>% 
       dplyr::slice(rep(1,num.trials*length(effort))) %>% 
       dplyr::bind_cols(prj.rec %>% 
-                         dplyr::mutate(switch = paste(stock,'rec',year,sep='.')) %>% 
+                         dplyr::mutate(switch = paste(stock,'rec',year,step,sep='.')) %>% 
                          dplyr::select(trial,switch,recruitment) %>% 
                          tidyr::spread(switch,recruitment) %>% 
                          dplyr::select(-trial) %>% 
