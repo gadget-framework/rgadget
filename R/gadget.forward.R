@@ -190,8 +190,12 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
       fleets %>% 
       split(.$fleet) %>% 
       purrr::map(~cbind(fleet.predict,.)) %>% 
-      dplyr::bind_rows()
+      dplyr::bind_rows() 
   }
+  
+  fleet.predict <- 
+    fleet.predict %>% 
+    dplyr::mutate(fleet = paste(fleet,'pre',sep='.'))
   
   write.gadget.table(dplyr::arrange(fleet.predict[c('year','step','area','fleet','ratio')],
                                    year,step,area),
@@ -458,7 +462,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
     purrr::map(readoutput) %>% 
     purrr::map(~.x %>% 
                  dplyr::left_join(dplyr::data_frame(trial = 0:(num.trials*length(effort)-1),
-                                                    effort = rep(effort,each=num.trials)),
+                                                    effort = rep(effort,num.trials)),
                                   by = 'trial'))
     
   catch <- 
