@@ -122,9 +122,9 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
   
   rec <- 
     rec %>% 
-    dplyr::group_by(stock,year) %>% 
-    dplyr::summarise(recruitment = sum(recruitment)) %>% 
-    dplyr::arrange(stock,year)
+#    dplyr::group_by(stock,year) %>% 
+#    dplyr::summarise(recruitment = sum(recruitment)) %>% 
+    dplyr::arrange(stock,year,step)
   
   
   ## Write agg files
@@ -242,6 +242,8 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
     if(tolower(method) == 'bootstrap'){
       prj.rec <-
         tmp %>% 
+        dplyr::group_by(stock,year) %>% 
+        dplyr::summarise(recruitment = sum(recruitment)) %>% 
         split(.$stock) %>% 
         purrr::map(~dplyr::select(.,recruitment) %>% 
                      dplyr::slice(plyr::rlply(ceiling(num.trials*years/nrow(tmp)),
@@ -256,12 +258,14 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
                                        recruitment = .$recruitment)) %>% 
         dplyr::bind_rows(.id='stock') %>% 
         dplyr::select(stock,year,trial,recruitment) %>% 
-        dplyr::mutate(step = 1)
+        dplyr::mutate(step = (rec$step[rec$year == min(ref.years)])[1])
       
     } else if(tolower(method) == 'ar1'){
       ## fit an AR model to the fitted recruiment
       prj.rec <- 
         tmp %>% 
+        dplyr::group_by(stock,year) %>% 
+        dplyr::summarise(recruitment = sum(recruitment)) %>% 
         split(.$stock) %>% 
         purrr::map(~lm(.$recruitment[-1]~head(.$recruitment,-1))) %>%
         purrr::map(~dplyr::bind_cols(broom::glance(.),
@@ -277,7 +281,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
         dplyr::mutate(rec = x + b*dplyr::lag(x),
                       rec = ifelse(is.na(rec),x,rec)) %>% 
         select(stock,year,trial,recruitment = rec) %>% 
-        dplyr::mutate(step = 1)
+        dplyr::mutate(step = (rec$step[rec$year == min(ref.years)])[1])
       
       ## project next n years
     } else if(tolower(method) == 'custom'){
@@ -425,6 +429,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
     if(x@doesrenew==1){
       x@renewal.data <-
         x@renewal.data %>% 
+        dplyr::arrange(year,step) %>% 
         dplyr::filter(year < sim.begin) %>% 
         dplyr::bind_rows(x@renewal.data %>% 
                            dplyr::filter(year == min(ref.years)) %>%

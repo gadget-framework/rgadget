@@ -342,6 +342,27 @@ gadget.fit <- function(wgts = 'WGTS', main.file = NULL,
     stomachcontent <- NULL
   }
   
+  if('catchstatistics' %in% names(lik.dat$dat)){
+    catchstatistics <- 
+      lik.dat$dat$catchstatistics %>% 
+      names() %>% 
+      purrr::set_names(.,.) %>% 
+      purrr::map(function(x){
+        out[[x]] %>% 
+          dplyr::rename(fitted_mean = mean,
+                        fitted_number = number) %>% 
+          dplyr::left_join(lik.dat$dat$catchstatistics[[x]],
+                           by = c("year", "step", "area",  "age")) %>% 
+          dplyr::rename(observed_mean = mean,
+                        observed_number = number)
+        }) %>% 
+      dplyr::bind_rows(.id = 'name') %>% 
+      dplyr::as_tibble()
+  } else {
+    catchstatistics <- NULL
+  }
+  
+  
   out <- 
     list(sidat = sidat, resTable = resTable, nesTable = nesTable,
          suitability = predator.prey %>% 
@@ -360,7 +381,8 @@ gadget.fit <- function(wgts = 'WGTS', main.file = NULL,
          stock.prey = stock.prey,
          fleet.info = fleet.info,
          predator.prey = predator.prey,
-         params = params)
+         params = params,
+         catchstatistics = catchstatistics)
   class(out) <- c('gadget.fit',class(out))
   save(out,file=sprintf('%s/WGTS.Rdata',wgts))
   return(out)
