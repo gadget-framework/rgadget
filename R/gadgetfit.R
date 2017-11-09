@@ -111,6 +111,7 @@ gadget.fit <- function(wgts = 'WGTS', main.file = NULL,
     dplyr::as_data_frame() %>% 
     dplyr::group_by(year,step,prey,predator) %>% 
     dplyr::mutate(suit = mortality/max(mortality),
+                  suit = ifelse(is.finite(suit),suit,0),
                   length = gsub('len', '', length) %>% 
                     as.numeric())
   
