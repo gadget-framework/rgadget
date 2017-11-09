@@ -267,19 +267,15 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
         dplyr::group_by(stock,year) %>% 
         dplyr::summarise(recruitment = sum(recruitment)) %>% 
         split(.$stock) %>% 
-        purrr::map(~lm(.$recruitment[-1]~head(.$recruitment,-1))) %>%
+        purrr::map(~lm(head(.$recruitment,-1)~tail(.$recruitment,-1))) %>%
         purrr::map(~dplyr::bind_cols(broom::glance(.),
                                      as.data.frame(t(broom::tidy(.)$estimate)))) %>% 
         purrr::map(~dplyr::rename(.,a=V1,b=V2)) %>% 
         purrr::map(~data.frame(year = rep((sim.begin):(sim.begin+years-1),num.trials),
                                trial = rep(1:num.trials,each=years),
-                               x = pmax(rnorm(years*num.trials,.$a,.$sigma),0),
-                               a = .$a,
-                               b = .$b,
-                               sigma = .$sigma)) %>% 
+                               rec = pmax(arima.sim(years*num.trials,model=list(ar=.$b),sd=.$sigma) + .$a,0))) %>% 
         dplyr::bind_rows(.id='stock')  %>% 
-        dplyr::mutate(rec = x + b*dplyr::lag(x),
-                      rec = ifelse(is.na(rec),x,rec)) %>% 
+        dplyr::mutate(rec = ifelse(is.na(rec),x,rec)) %>% 
         select(stock,year,trial,recruitment = rec) %>% 
         dplyr::mutate(step = (rec$step[rec$year == min(ref.years)])[1])
       
