@@ -9,15 +9,14 @@
 ##' @export
 plot.gadget.fit <- function(fit,data = 'sidat',type='direct',dat.name=NULL){
   if(data=='summary'){
-    ggplot(subset(fit$likelihoodsummary,
-                  year!='all'),
-           aes(as.numeric(year), likelihood.value)) +
-      geom_point() + facet_wrap(~component,scale='free_y') +theme_bw()+
-      xlab('Year') + ylab('Score') +
-      theme (panel.margin = unit(0,'cm'), plot.margin = unit(c(0,0,0,0),'cm'),
-             strip.background = element_blank(),axis.text.y=element_blank(),
-             axis.ticks=element_blank())
-    
+    fit$likelihoodsummary %>% 
+      dplyr::filter(year!='all') %>% 
+      dplyr::mutate(year = as.numeric(year)) %>% 
+      ggplot(aes(year, likelihood.value)) +
+      geom_point() + 
+      facet_wrap(~component,scale='free_y') +
+      theme_bw()+
+      xlab('Year') + ylab('Score') 
     
   } else if(data=='sidat' & type == 'direct'){
     ggplot(fit$sidat, aes(year,observed)) +
@@ -172,7 +171,7 @@ plot.gadget.fit <- function(fit,data = 'sidat',type='direct',dat.name=NULL){
     
   } else if(data == 'suitability') {
     ggplot(fit$suitability,
-           aes(l,suit,lty=fleet)) +
+           aes(length,suit,lty=fleet)) +
       geom_line() + theme_bw() + ylab('Suitability') + xlab('Length') +
       theme(legend.position = c(0.8,0.25), legend.title = element_blank(),
             plot.margin = unit(c(0,0,0,0),'cm'))
