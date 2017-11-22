@@ -765,7 +765,8 @@ read.gadget.data <- function(likelihood,debug=FALSE,year_range=NULL){
                            'lengthgivenvar'))
         names(dat) <- c('year','step','area','age','number','mean','stddev')
       if(x[['function']] %in% c('weightgivenstddevlen'))
-        names(dat) <- c('year','step','area','length','number','mean','stddev')
+        names(dat) <- c('year','step','area','age','number','mean','stddev') ## tempfix: gadget output is wrong
+        #names(dat) <- c('year','step','area','length','number','mean','stddev')
       
     }
     if(x$type=='stockdistribution'){
@@ -777,9 +778,9 @@ read.gadget.data <- function(likelihood,debug=FALSE,year_range=NULL){
       if(x$sitype=='ages')
         names(dat) <- c('year','step','area','age','number')
       if(x$sitype=='acoustic')
-        names(dat) <- c('year','step','area','survey','acoustic')
+        names(dat) <- c('year','step','area','survey','number')
       if(x$sitype=='effort')
-        names(dat) <- c('year','step','area','fleet','effort')
+        names(dat) <- c('year','step','area','fleet','number')
     }
     if(x$type == 'surveydistribution'){
       names(dat) <- c('year','step','area','age','length','number')
