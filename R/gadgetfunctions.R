@@ -1395,7 +1395,7 @@ gadget.retro <- function(path='.',
     stop('No optinfo file found')
   }
   
-  if(!file.exists(paste(path,paramsþfile))){
+  if(!file.exists(paste(path,paramsfile))){
     stop('No parameter file found')
   }
   
