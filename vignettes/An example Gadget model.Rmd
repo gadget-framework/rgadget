@@ -1,0 +1,29 @@
+---
+title: "An example Gadget model: cod in Icelandic waters"
+author: "Bjarki Þór Elvarsson"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Short description of the model
+
+
+
+## How to access the model 
+```{r}
+system.file('exdata', 'cod_model.tgz', package = 'Rgadget') %>% 
+  untar(exdir = '~/gadget_example/')
+```
+
+
