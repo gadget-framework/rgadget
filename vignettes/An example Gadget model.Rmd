@@ -22,8 +22,8 @@ knitr::opts_chunk$set(
 
 ## How to access the model 
 ```{r}
-system.file('exdata', 'cod_model.tgz', package = 'Rgadget') %>% 
-  untar(exdir = '~/gadget_example/')
+system.file('extdata', 'cod_model.tgz', package = 'Rgadget') %>% 
+  untar(exdir = path.expand('~/gadget_example/'))
 ```
 
 
