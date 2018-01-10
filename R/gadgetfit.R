@@ -266,7 +266,8 @@ gadget.fit <- function(wgts = 'WGTS', main.file = NULL,
       dplyr::left_join(stock.recruitment %>% 
                          dplyr::mutate(stock = as.character(stock),
                                        area = paste0('area',area),
-                                       year = as.numeric(year)))
+                                       year = as.numeric(year))) %>% 
+      dplyr::ungroup()
   } else {
     res.by.year <- NULL
   }

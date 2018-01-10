@@ -348,11 +348,11 @@ setMethod("toString",
                 params = '',
                 sprintf('beta\t%s',x@beta),
                 sprintf('maxlengthgroupgrowth\t%s',x@maxlengthgroupgrowth))
-            if(x@growthfunction == 'lengthvbsimple'){
+            if(tolower(x@growthfunction) == 'lengthvbsimple'){
               growth.text['params'] <-
                 paste(sprintf('growthparameters\t%s',
                               paste(x@growthparameters,collapse = '\t')))
-            } else if(x@growthfunction == 'weightvb'){
+            } else if(tolower(x@growthfunction) == 'weightvb'){
               growth.text['params'] <-
                 paste(sprintf('wgrowthparameters\t%s',
                               paste(x@wgrowthparameters,collapse = '\t')),
