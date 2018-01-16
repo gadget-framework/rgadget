@@ -131,7 +131,8 @@ plot.gadget.fit <- function(fit,data = 'sidat',type='direct',dat.name=NULL){
         unique(fit$catchdist.fleets$name) %>% 
         purrr::set_names(.,.) %>% 
         purrr::map(function(x){
-          dat <- subset(fit$catchdist.fleets,name == x)
+          dat <- fit$catchdist.fleets %>% 
+            dplyr::filter(name == x)
           if(length(unique(dat$age))==1){
             dat %>% 
               dplyr::ungroup() %>% 
@@ -242,8 +243,36 @@ plot.gadget.fit <- function(fit,data = 'sidat',type='direct',dat.name=NULL){
                                         group=round(lower,1))) +
         geom_boxplot() + facet_wrap(~name)  + ylab('Residual') +
         xlab('Length')
-    }
-    
+    } else if(type == 'bubble'){
+        
+      pl <- 
+        list(ldist = 
+               fit$catchdist.fleets %>% 
+               dplyr::group_by(name) %>% 
+               dplyr::mutate(n=n_distinct(age)) %>% 
+               dplyr::filter(n==1) %>% 
+               left_join(fit$SS$weights %>% rename(name=Component)) %>% 
+               ggplot(aes(year+(step-1)/4,avg.length,size=abs((observed-predicted)*sqrt(Weight)), 
+                          col=as.factor(sign((observed-predicted))))) + 
+               geom_point() + facet_wrap(~name)  + 
+               theme_light() + scale_color_manual(values=c('darkblue','red')) + 
+               scale_size_area() + theme(legend.position = 'none') + 
+               labs(x='Year',y='Length'),
+             aldist = 
+               fit$catchdist.fleets %>% 
+               dplyr::group_by(name) %>% 
+               dplyr::mutate(n=n_distinct(age)) %>% 
+               dplyr::filter(n!=1) %>% 
+               dplyr::mutate(age=as.numeric(gsub('age','',age))) %>% 
+               dplyr::group_by(name,year,age,step,total.catch) %>% 
+               dplyr::summarise(o=sum(observed,na.rm=TRUE),
+                                p=sum(predicted)) %>% 
+               dplyr::mutate(o=ifelse(o==0,NA,o)) %>% 
+               left_join(fit$SS$weights %>% rename(name=Component)) %>% 
+               ggplot(aes(year+(step-1)/4,age,size=abs((o-p)*sqrt(Weight)), 
+                          col=as.factor(sign((o-p))))) + geom_point() + 
+               facet_wrap(~name)  + theme_light() + 
+               scale_color_manual(values=c('darkblue','red'))+ theme(legend.position = 'none'))
   }
 
   if(data == 'res.by.year' & type == 'F'){
