@@ -76,7 +76,7 @@ This function sets up all necessary switches and calls gadget from R
 and attempts to read the runtime output from gadget. This has currently
 only been tested on unix based platforms (but should in principle work on
 windows, given that gadget can be compiled).
-The source code for gadget can be obtained from http://www.hafro.is/gadget
+The source code for gadget can be obtained from https://github.com/hafro/gadget
 }
 \details{
 Gadget is a flexible and powerful tool for creating ecosystem models.

@@ -1,6 +1,36 @@
 #' Plot Gadget fit
 ##'
-##' Plot the results from gadget.fit. The function produces a different 
+##' Plot the results from gadget.fit. The function produces a different plots by datatype and plottype. 
+##' Valid datatypes are:
+##' \describe{
+##'   \item{sidat}{Surveyindices}
+##'   \item{summary}{Likelihood summary data}
+##'   \item{catchdist.fleets}{Catchdistribution data}
+##'   \item{stockdist}{Stockdistribution data}
+##'   \item{res.by.year}{Results by year}
+##'   \item{stock.std}{Age composition from the model} 
+##'   \item{suitability}{Suitability estimated from the model by year and step} 
+##' }
+##' and valid plottypes are:
+##' \describe{
+##'   \item{direct}{Default value, plots direct comparisons of data with model output. Valid for all datatype except 'res.by.year'}
+##'   \item{weighted}{Only for 'summary'. Plots the weighted likelihood value for each component.}
+##'   \item{pie}{Only for 'summary'. Plots the likelihood composition as a pie chart}
+##'   \item{lengths}{Only for 'sidat'. Plot the surveyindex based on the SI length group instead of component name.}
+##'   \item{bio}{Only for 'sidat'. Plot the biomass weighted survey index, assumes length based abundance index.}
+##'   \item{x-y}{Only for 'sidat'. Produces a x-y scatter-plot for the fitted and observed index.}
+##'   \item{resid}{Only for 'catchdist.fleets'. Produces a residual plot for each component.}
+##'   \item{bubble}{Only for 'catchdist.fleets'. Produces a bubble plot for each component.}
+##'   \item{growth}{Only for 'catchdist.fleets'. Produces a plot of fitted growth for each age-length component.}
+##'   \item{resid}{Only for 'catchdist.fleets'. Produces a residual plot for each component.}
+##'   \item{F}{Only for 'res.by.year'. Produces a F plot by stock.}
+##'   \item{total}{Only for 'res.by.year'. Produces a total biomass plot by stock.}
+##'   \item{catch}{Only for 'res.by.year'. Produces a total catch plot by stock.}
+##'   \item{rec}{Only for 'res.by.year'. Produces a recruitment biomass plot by stock.}
+##'   
+##'   
+##'   
+##' }
 ##' @title plot gadget fit
 ##'
 ##' @param fit results from gadget fit
@@ -9,6 +39,15 @@
 ##' @return ggplot object
 ##' @author Bjarki Þór Elvarsson
 ##' @export
+##' @examples 
+##' \dontrun{
+##' ## collect the data from gadget
+##' fit <- gadget.fit()
+##' ## plot survey indices
+##' plot(fit) 
+##' ## plot likelihood
+##' plot(fit,data='summary')
+##' }
 plot.gadget.fit <- function(fit,data = 'sidat',type='direct'){
   pl <- NULL
   
