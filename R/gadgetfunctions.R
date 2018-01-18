@@ -1387,15 +1387,16 @@ gadget.retro <- function(path='.',
                          num.years=5,
                          pre = 'RETRO',
                          iterative =FALSE,...){
+  
   if(!file.exists(paste(path,mainfile,sep='/'))){
     stop('No main file found')
   }
   
-  if(!file.exists(paste(path,optinfofile))){
+  if(!file.exists(paste(path,optinfofile, sep = '/'))){
     stop('No optinfo file found')
   }
   
-  if(!file.exists(paste(path,paramsfile))){
+  if(!file.exists(paste(path,params.file, sep = '/'))){
     stop('No parameter file found')
   }
   
