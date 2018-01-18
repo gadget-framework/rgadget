@@ -1,13 +1,15 @@
 #' Plot Gadget fit
 ##'
-##' Plot the results from gadget.fit
+##' Plot the results from gadget.fit. The function produces a different 
 ##' @title plot gadget fit
+##'
 ##' @param fit results from gadget fit
+##' @param type The type of plot that is returned, depends on the input data (see details)
 ##' @param data what results should be plotted
 ##' @return ggplot object
 ##' @author Bjarki Þór Elvarsson
 ##' @export
-plot.gadget.fit <- function(fit,data = 'sidat',type='direct',dat.name=NULL){
+plot.gadget.fit <- function(fit,data = 'sidat',type='direct'){
   pl <- NULL
   
   if(data=='summary' & type == 'direct'){
@@ -273,6 +275,7 @@ plot.gadget.fit <- function(fit,data = 'sidat',type='direct',dat.name=NULL){
                           col=as.factor(sign((o-p))))) + geom_point() + 
                facet_wrap(~name)  + theme_light() + 
                scale_color_manual(values=c('darkblue','red'))+ theme(legend.position = 'none'))
+    }
   }
 
   if(data == 'res.by.year' & type == 'F'){
