@@ -552,7 +552,8 @@ read.gadget.file <- function(path, file_name, file_type = "generic",
                              sep = "\t",
                              col.names = header,
                              comment.char = "",
-                             fileEncoding = 'utf8')
+                             fileEncoding = 'utf8',
+                             stringsAsFactors = FALSE)
       attr(cur_comp, 'preamble') <- comp_preamble
       
       # Test columns for gadget formule, if so convert
