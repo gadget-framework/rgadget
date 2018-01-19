@@ -33,13 +33,15 @@ Input columns should include stock, age.min and age.max}
 \item{printfile.steps}{what steps should be printed}
 
 \item{rec.len.param}{Logical. TRUE if you want growth calculated as age.based and using a formula other than get.gadget.growth default}
+
+\item{...}{any number of gadget.fit objects}
 }
 \value{
 list containing the output from Gadget.
 }
 \description{
-This function calls Gadget and compiles fit statistics, relevant biomass trajectories and consumption.
-These objects are: \describe{
+\code{gadget.fit} calls Gadget and compiles fit statistics, relevant biomass trajectories and consumption.
+It returns an object of class 'gadget.fit' which is essentially a list containing the following objects: \describe{
 \item{sidat}{data.frame containing the model fit to the surveyindices}
 \item{resTable}{Table of likelihood component scores from the different stages of the iterative reweighting run}
 \item{nesTable}{Same as resTable but normalised with the minimum score for each component}
@@ -60,6 +62,10 @@ These objects are: \describe{
 \item{params}{parameter values used for the fit}
 \item{catchstatistics}{Data compared with model output for the catchdstatistics components}
 }
+
+\code{bind.gadget.fit} combines two (or more) gadget.fit objects into a 
+single list. Each object in the list will have an extra column indicating the model, 
+if the list is named those names will be used to identify the model.
 }
 \author{
 Bjarki Thor Elvarsson

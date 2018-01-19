@@ -84,9 +84,10 @@ read.printfiles <- function(path='.',suppress=FALSE){
   class(printfiles) <- c('gadgetOut','list')
   return(printfiles)
 }
-##' This functions reads the likelihood (input) file for gadget. The format of
+##' \code{read.gadget.likelihood} reads the likelihood (input) file for gadget. The format of
 ##' the likelihood file is described in gadget's user manual.
-##' @title Read likelihood
+##' @title Old style gadget file input and output (mostly deprecated)
+##' @rdname gadgetFileIO 
 ##' @param files a vector of character strings containing the names of the likelihood files
 ##' @return object of class gadget.likelihood, i.e. a list containing the various likelihood components
 ##' @author Bjarki ??r Elvarsson
@@ -171,15 +172,14 @@ read.gadget.likelihood <- function(files='likelihood'){
   class(likelihood) <- c(class(likelihood),'gadget.likelihood')
   return(likelihood)
 }
-##' Write a likelihood object to file
-##' @title Write likelihood
+##' \code{write.gadget.likelihood} writes a likelihood object to file
+##' @rdname gadgetFileIO
 ##' @param lik object of class gadget.likelihood
 ##' @param file name of the likelihood file
 ##' @param data.folder location of data folder (if changed)
 ##' @param bs.sample (for bootstrap), appends the appropriate replicate number to data file
 ##' @return character string corresponding to the likelihood file (if desired)
 ##' @author Bjarki ??r Elvarsson
-##' @export
 write.gadget.likelihood <- function(lik,file='likelihood',
                                     data.folder=NULL, bs.sample=NULL){
   lik.text <- sprintf('; Likelihood file - created in Rgadget\n; %s - %s',
@@ -238,13 +238,12 @@ write.gadget.likelihood <- function(lik,file='likelihood',
   invisible(lik.text)
 }
 
-##' This function merges to likelihood objects in one
-##' @title Merge gadget likelihood
+##' \code{merge.gadget.likelihood} merges to likelihood objects in one
+##' @rdname gadgetFileIO
 ##' @param lik1 likelihood object
 ##' @param lik2 likelihood object
 ##' @return merged gadget likelihood object
 ##' @author Bjarki Thor Elvarsson
-##' @export
 merge.gadget.likelihood <- function(lik1,lik2){
   tmp <- within(list(),
                 for(comp in unique(c(names(lik1),names(lik2)))){
@@ -256,14 +255,13 @@ merge.gadget.likelihood <- function(lik1,lik2){
   return(tmp)
 }
 
-##' This function retrives selected parts of the likelihood object
-##' @title Get Gagdget likelihood component(s)
+##' \code{get.gadget.likelihood} retrives selected parts of the likelihood object
+##' @rdname gadgetFileIO
 ##' @param likelihood likelihood object
 ##' @param comp selected likelihood components
 ##' @param inverse (logical) should inverse selection be applied
 ##' @return likelihood object
 ##' @author Bjarki Thor Elvarsson
-##' @export
 get.gadget.likelihood <- function(likelihood,comp,inverse=FALSE){
   if(inverse)
     weights <- subset(likelihood$weights,!(name %in% comp))
@@ -287,12 +285,11 @@ get.gadget.likelihood <- function(likelihood,comp,inverse=FALSE){
 }
 
 
-##' Read gadget's main file
-##' @title Read main
+##' \code{read.gadget.file} reads gadget's main file
+##' @rdname gadgetFileIO
 ##' @param file main file location
 ##' @return object of class gadget.main
 ##' @author Bjarki ??r Elvarsson
-##' @export
 read.gadget.main <- function(file='main'){
   if(!file.exists(file)) {
     stop('Main file not found')
@@ -312,13 +309,12 @@ read.gadget.main <- function(file='main'){
 }
 
 
-##' Write gadget.main object to file
-##' @title Write main
+##' \code{write.gadget.main} writes gadget.main object to file
+##' @rdname gadgetFileIO
 ##' @param main gadget.main object
 ##' @param file name of main file
 ##' @return text of the main file (if desired)
 ##' @author Bjarki ??r Elvarsson
-##' @export
 write.gadget.main <- function(main,file='main'){
   main.text <- sprintf('; main file for gadget - created in Rgadget\n; %s - %s',
                        file,date())
@@ -352,8 +348,8 @@ write.gadget.main <- function(main,file='main'){
   invisible(main.text)
 }
 
-##' Clear tab and spaces from a string and return a list or a matrix of values
-##' @title Clear spaces
+##' \code{clear.spaces} clears tab and spaces from a string and return a list or a matrix of values
+##' @rdname gadgetFileIO
 ##' @param text string
 ##' @return list or matrix containing the (non-empty) values from the string
 ##' @author Bjarki ??r Elvarsson
@@ -367,8 +363,9 @@ clear.spaces <- function(text){
 }
 
 
-##' Read gadget parameter file
-##' @title Read param
+##' \code{read.gadget.parameters} reads a gadget parameter file
+##' @title Gadget parameters
+##' @rdname gadget.parameters
 ##' @param file parameter file
 ##' @return dataframe
 ##' @author Bjarki  Thor Elvarsson
@@ -446,8 +443,8 @@ read.gadget.parameters <- function(file='params.in'){
   return(params)
 }
 
-##' Write gadget input parameters
-##' @title Write params
+##' \code{write.gadget.parameters} writes gadget input parameters
+##' @rdname gadget.parameters 
 ##' @param params params dataframe
 ##' @param file a string naming the file to write to
 ##' @param columns should a conventional column based parameter file be written out or
@@ -705,8 +702,8 @@ read.gadget.results <- function(grouping=list(),
 }
 
 
-##' Read data used by the various components
-##' @title Read likelihood data
+##' @rdname gadgetFileIO
+##' @description \code{read.gadget.data} reads data used by the various components
 ##' @param likelihood object of class gadget.likelihood
 ##' @param debug should debug information be printed
 ##' @return list of dataframes and degress of freedom
@@ -859,8 +856,9 @@ read.gadget.data <- function(likelihood,debug=FALSE,year_range=NULL){
   return(gadDat)
 }
 
-##' Read optinfo parameters from file
-##' @title Read gadget
+##' @description \code{read.gadget.optinfor} reads optinfo parameters from file
+##' @rdname gadget.optinfo
+##' @title Gadget optimiser settings
 ##' @param file location of the optinfofile
 ##' @return optinfo object
 ##' @author Bjarki ??r Elvarsson
@@ -890,8 +888,8 @@ read.gadget.optinfo <- function(file='optinfofile'){
   return(optinfo)
 }
 
-##' Write optinfo to file
-##' @title Write gadget optinfo
+##' @description \code{write.gadget.optinfo} write optinfo to file
+##' @rdname gadget.optinfo
 ##' @param optinfo optinfo object
 ##' @param file file
 ##' @param location location
@@ -975,9 +973,9 @@ read.gadget.lik.out <- function(file='lik.out',suppress=FALSE){
 
 
 
-##' Helper function created to clear out all comments (indicated by ';') and
+##' \code{strip.comments} is a helper function created to clear out all comments (indicated by ';') and
 ##' unwanted spaces from gadget input and output files.
-##' @title Strip comments
+##' @rdname gadgetFileIO
 ##' @param file location of the gadget input file
 ##' @return list containing the lines from the file stripped of unwanted text.
 ##' @author Bjarki Thor Elvarsson
@@ -1059,11 +1057,10 @@ read.gadget.model <- function(main.file='main',model.name='Gadget-model'){
 }
 
 
-##' Read in Gadget stockfiles DEPRECATED
-##' @title read gadget stock
+##' @rdname gadgetFileIO
+##' @description \code{read.gadget.stockfiles} reads in Gadget stockfiles DEPRECATED
 ##' @param stock.files location of stock file
 ##' @return list of gadget-stock objects
-##' @author Bjarki Thor Elvarsson
 read.gadget.stockfiles <- function(stock.files){
   tmp.func <- function(sf){
     stock <- strip.comments(sf)
@@ -1350,10 +1347,8 @@ read.gadget.stockfiles <- function(stock.files){
   return(stocks)
 }
 
-##' <description> DEPRECATED
-##'
-##' <details>
-##' @title read gadget area file
+##' @rdname gadgetFileIO
+##' @description \code{read.gadget.area} reads the gadget area file
 ##' @param area.file location of the area file
 ##' @return areafile object
 ##' @author Bjarki Thor Elvarsson
@@ -1369,10 +1364,9 @@ read.gadget.area <- function(area.file='area'){
   return(area)
 }
 
-##' <description>
-##'
-##' <details>
-##' @title write gadget area file
+
+##' @rdname gadgetFileIO
+##' @description \code{write.gadget.area} writes a gadget area file
 ##' @param area data frame with area and temperature
 ##' @param file location of the area file
 ##' @return nothing
@@ -1390,13 +1384,11 @@ write.gadget.area <- function(area,file='area'){
   write.gadget.table(area$temperature,file=file,col.names=FALSE,append=TRUE,
                      quote=FALSE,sep='\t',row.names=FALSE)
 }
-##' <description>
-##'
-##' <details>
-##' @title read gadget time file
+
+##' \code{read.gadget.time} reads gadget time file
+##' @rdname gadgetFileIO
 ##' @param time.file location of the file
 ##' @return timefile objects
-##' @author Bjarki Thor Elvarsson
 read.gadget.time <- function(time.file='time'){
   time <- strip.comments(time.file)
   time.names <- sapply(time,function(x) x[1])
@@ -1411,14 +1403,11 @@ read.gadget.time <- function(time.file='time'){
   return(time)
 }
 
-##' <description>
-##'
-##' <details>
-##' @title write gadget time file
+##' \code{write.gadget.time} writes gadget time file
+##' @rdname gadgetFileIO
 ##' @param time data.frame with time
 ##' @param file location of the time file
 ##' @return nothing
-##' @author Bjarki Thor Elvarsson
 write.gadget.time <- function(time,file='time'){
   header <- sprintf('; time file created in Rgadget\n; %s - %s',file,date())
   time.file <-
@@ -1435,21 +1424,11 @@ write.gadget.time <- function(time,file='time'){
   write.unix(time.file,f=file)
 }
 
-##' Gadget Penalty file
-##' @param file name of the file that is to contain the penalty
-write.gadget.penalty <- function(file='penaltyfile'){
-  penalty <- paste("; penalty file for the gadget example",
-                   sprintf('; %s created at %s using Rgadget',file,date()),
-                   "; switch - power - lower - upper",
-                   "default\t2\t10000\t10000 ; defaults",
-                   sep='\n')
-  write.unix(penalty,f=file)
-}
 
 
 
-
-##' @title read wgts
+##' @rdname gadgetFitHelpers
+##' @description \code{read.gadget.wgts} reads the output from iterative weighting likelihood output
 ##' @param params.file base parameter file
 ##' @param wgts location of the reweighting folder
 ##' @param likelihood likelihood file
@@ -1457,7 +1436,6 @@ write.gadget.penalty <- function(file='penaltyfile'){
 ##' @param params.pre strings matching the parameter estimates
 ##' @param parallel should the files be read in parallel
 ##' @return data.frame with parameter estimates and likelihood output from the iterative reweighting folder.
-##' @author Bjarki Thor Elvarsson
 read.gadget.wgts <- function(params.file = 'params.in',
                              wgts = 'WGTS',
                              likelihood = 'likelihood',
@@ -1526,33 +1504,10 @@ read.gadget.wgts <- function(params.file = 'params.in',
   return(dparam)
 }
 
-
-##' @title read wgts print
-##' @param wgts location of the WGTS folder
-##' @param comp likelihood component
-##' @param out.pre output
-##' @param parallel logical
-##' @return printfiles from the wgts
-##' @author Bjarki Thor Elvarsson
-read.gadget.wgtsprint <- function(wgts = 'WGTS',
-                                  comp = 'final',
-                                  out.pre = 'out.',
-                                  parallel = FALSE){
-  bs.print <- plyr::llply(sprintf('%s/%s%s',wgts,out.pre,comp),
-                    read.printfiles,.parallel=parallel)
-  names(bs.print) <- comp
-  tmp <- plyr::llply(names(bs.print[[1]]),
-               function(x) plyr::ldply(bs.print,function(y) y[[x]]),.parallel=TRUE)
-  names(tmp) <- names(bs.print[[1]])
-  return(tmp)
-}
-
-
-
-##' @title merge txt to gadget.formula
+##' @rdname gadgetFitHelpers
+##' @description \code{merge.formula} merges txt to gadget.formula
 ##' @param txt gadget formula text
 ##' @return txt where the formula has been properly compiled
-##' @author Bjarki Thor Elvarsson
 merge.formula <- function(txt){
   openP <- grep('(',txt,fixed=TRUE)
   closeP <- grep(')',txt,fixed=TRUE)
@@ -1584,12 +1539,12 @@ merge.formula <- function(txt){
 }
 
 
-
-##' Evaluate gadget formulas, which are in reverse polish notation, ie
+##' @title gadget.fit helper functions
+##' @description \code{eval.gadget.formula} Evaluate gadget formulas, which are in reverse polish notation, ie
 ##' '(* x y)' which is equivalent to 'x*y'. The evaluation supports the following
 ##' symbols '*','/','+','-','exp','log','sqrt'. The evaluation uses a gadget
 ##' parameter object for its evaluation.
-##' @title eval.gadget.formula
+##' @rdname gadgetFitHelpers
 ##' @param gad.for gadget formula
 ##' @param par gadget parameters object
 ##' @return a vector of evaluated gadget formulas
@@ -1618,11 +1573,11 @@ eval.gadget.formula <- function(gad.for,par=data.frame()){
         })
 }
 
-##' @title read.gadget.table
+##' \code{read.gadget.table} reads gadget tables
+##' @rdname gadgetFileIO
 ##' @param file path to file
 ##' @param header logical, should the header be read from the file
-##' @return data.frame with
-##' @author Bjarki Thor Elvarsson
+##' @return data.frame 
 read.gadget.table <- function(file,header=FALSE){
   dat <- strip.comments(file)
   if(class(dat) == 'list')
@@ -1642,10 +1597,10 @@ read.gadget.table <- function(file,header=FALSE){
 
 
 
-##' @title read gadget fleet
+##' @rdname gadgetFileIO
+##' @description \code{read.gadget.fleet} read gadget fleet
 ##' @param fleet.file location of the fleet file
 ##' @return fleet file object
-##' @author Bjarki Þór Elvarsson
 read.gadget.fleet <- function(fleet.file='fleet'){
   fleet <- strip.comments(fleet.file)
   comp.loc <- grep('fleetcomponent|component',fleet)
@@ -1676,11 +1631,11 @@ read.gadget.fleet <- function(fleet.file='fleet'){
   return(list(fleet=fleet.dat,prey=prey))
 }
 
-##' @title write gadget fleet DEPRECATED
+##' \code{write.gadget.fleet} writes gadget fleet DEPRECATED
+##' @rdname gadgetFileIO
 ##' @param fleet a gadget.fleet 
 ##' @param file location of the file
 ##' @return nothing
-##' @author Bjarki Þór Elvarsson
 write.gadget.fleet <- function(fleet,file='fleet'){
   base.text <-
     paste('[fleetcomponent]',
@@ -1716,31 +1671,14 @@ write.gadget.fleet <- function(fleet,file='fleet'){
 
 
 
-##' @title get gadget suitability
-##' @param fleets gadget.fleet object
-##' @param params gadget parameter
-##' @param lengths length vector
-##' @param normalize logical
-##' @return suitability function for a fleet
-##' @author Bjarki Thor Elvarsson
-get.gadget.suitability <- function(fleets,params,lengths,normalize=FALSE){
-  plyr::ddply(fleets$prey,~fleet+stock,
-        function(x){
-          txt.split <- merge.formula(unlist(strsplit(x$params[1],' ')))
-          suit.par <- eval.gadget.formula(txt.split,params)$V1
-          suitability(suit.par,l = lengths, type = x$suitability,
-                      to.data.frame = TRUE, normalize = normalize)
-        })
-}
-
-##' @title get gadget growth
+##' \code{get.gadget.growth} get gadget growth
+##' @rdname gadgetFitHelpers
 ##' @param stocks gadget.stock
 ##' @param params gadget.parms
 ##' @param dt delta t
 ##' @param age.based logical
 ##' @param recl recruitment length
 ##' @return growth matrix
-##' @author Bjarki Thor Elvarsson
 get.gadget.growth <- function(stocks,params,dt=0.25,age.based=FALSE,recl=FALSE){
   plyr::ldply(stocks,function(x){
     txt.split <- merge.formula(unlist(strsplit(x@growth@growthparameters,' ')))
@@ -1779,11 +1717,11 @@ get.gadget.growth <- function(stocks,params,dt=0.25,age.based=FALSE,recl=FALSE){
   })
 }
 
-##' @title get gadget recruitment
+##' @rdname gadgetFitHelpers
+##' @description \code{get.gadget.recruitment} gets gadget recruitment
 ##' @param stocks gadget.stock
 ##' @param params gadget.params
 ##' @return recruitment by year
-##' @author Bjarki Thor Elvarsson
 get.gadget.recruitment <- function(stocks,params,collapse=TRUE){
   plyr::ldply(stocks, function(x){
     if(x@doesrenew == 1){
@@ -1808,11 +1746,11 @@ get.gadget.recruitment <- function(stocks,params,collapse=TRUE){
   })
 }
 
-##' @title get gadget catches
+##' \code{get.gadget.catches} gets gadget catches
+##' @rdname gadgetFitHelpers
 ##' @param fleets gadget.fleet
 ##' @param params gadget.params
 ##' @return catches by year + step
-##' @author Bjarki Thor Elvarsson
 get.gadget.catches <- function(fleets,params){
   tmp <- plyr::ddply(fleets$fleet,~fleet,
                function(x){
@@ -1827,11 +1765,11 @@ get.gadget.catches <- function(fleets,params){
   return(tmp)
 }
 
-##' @title read gadget grouping
+##' @rdname gadgetFitHelpers
+##' @description \code{read.gadget.grouping} reads the the likelihood grouping from the WGTS folder
 ##' @param lik old style gadget likelihood object
 ##' @param wgts logcation of the WGTS folder
 ##' @return list of wgts groupings
-##' @author Bjarki Thor Elvarsson
 read.gadget.grouping <- function(lik = read.gadget.likelihood(),
                                  wgts = 'WGTS'){
   lik.tmp <- subset(lik$weights,
@@ -1865,7 +1803,7 @@ read.gadget.grouping <- function(lik = read.gadget.likelihood(),
 
 
 
-#
+
 write.unix <- function(x,f,append=FALSE,...){
     f <- file(f,open=ifelse(append,'ab','wb'))
     write(x,file=f,...)
