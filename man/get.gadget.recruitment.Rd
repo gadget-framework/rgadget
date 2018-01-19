@@ -6,6 +6,11 @@
 \usage{
 get.gadget.recruitment(stocks, params, collapse = TRUE)
 }
+\arguments{
+\item{stocks}{gadget.stock}
+
+\item{params}{gadget.params}
+}
 \value{
 recruitment by year
 }

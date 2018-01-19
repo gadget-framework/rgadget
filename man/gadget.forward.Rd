@@ -48,6 +48,9 @@ fishing mortality of fully recruited through the relation F=-log(1-E)}
 
 \item{...}{passed to prj.func}
 }
+\value{
+list of simulation results
+}
 \description{
 This function implements a crude forward simulation for a Gadget model.
 NOTE: the function currently assumes at least one recruiting stock. 

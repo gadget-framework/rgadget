@@ -17,6 +17,8 @@ containing the initial value for the optimisation.}
 \item{main}{name of the main file used in the optimisation.}
 
 \item{phase.dir}{output directory}
+
+\item{optinfofile}{location of the optinfofile}
 }
 \value{
 final optimised parameter values

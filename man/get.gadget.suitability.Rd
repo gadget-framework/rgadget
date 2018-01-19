@@ -6,6 +6,15 @@
 \usage{
 get.gadget.suitability(fleets, params, lengths, normalize = FALSE)
 }
+\arguments{
+\item{fleets}{gadget.fleet object}
+
+\item{params}{gadget parameter}
+
+\item{lengths}{length vector}
+
+\item{normalize}{logical}
+}
 \value{
 suitability function for a fleet
 }

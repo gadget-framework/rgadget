@@ -1,0 +1,95 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+
+```{r}
+library(Rgadget)
+library(mfdb)
+
+gd <- tempdir()
+
+codimm <- 
+  gadgetstock('codimm',gd,missingOkay = TRUE) %>%
+  gadget_update('stock',
+                minage = 1,
+                maxage = 10,
+                minlength = 4,
+                maxlength = 130,
+                dl = 2) %>%
+  ## does"something" updates should also allow for other names, e.g. doesrenew -> recruitment etc..
+  gadget_update('doesgrow',  
+                ## 1) some error catching would be useful here to ensure that the inputs are valid
+                ## i.e. make sure that the variables declared are valid
+                ## 2) the following could be set as default values for this component, although 
+                ## one might want to add the the name of the stock to the variable (like 'codimm.Linf') 
+                growthfunction = 'lengthvbsimple',
+                growthparameters = c(linf='#Linf',k='( * 0.001 #k)', '#walpha','#wbeta'),
+                beta='(* 10 #bbin)', 
+                maxlengthgroupgrowth=15) %>%
+  gadget_update('naturalmortality',   
+                ## here it would be useful to be able to call parameters defined above akin to dplyr::mutate  
+                ## default value should be 0.2 repeated for all ages
+                c(0.5,  0.35, 0.2, 0.2,  0.2, 0.2, 0.2, 0.2, 0.2, 0.3)) %>%
+  gadget_update('refweight',
+                ## would be useful to have an option to have just alpha and beta from the relationship 
+                ## W=alpha*L^beta 
+                ## also just supply a normal data.frame
+                data=data_frame(length=seq(4,130,2),mean=6.5e-6*length^3.07)
+  ) %>% 
+  gadget_update('iseaten',1) %>% 
+  gadget_update('doesmature', 
+                maturityfunction = 'continuous',
+                maturestocksandratios = 'codmat 1',
+                coefficients = '( * 0.001 #cod.mat1) #cod.mat2 0 0') %>% 
+  gadget_update('doesmove',
+                transitionstockandratios = 'codmat 1',
+                transitionstep = 4) %>% 
+  gadget_update('doesrenew',
+                ## year-step-area-age-number-mean-stddev-a-b
+                normalparam = data_frame(year=1960:2016,
+                                         step=1,
+                                         area=1,
+                                         age=1,
+                                         number=sprintf('(* #cod.rec.scale #cod.rec.%s)',year),
+                                         mean = to.gadget.formulae(quote(Linf * (1 - exp(-1 * (0.001 * k) * (1 - (1 + log(1 - recl/Linf)/(0.001 * k))))))),
+                                         stddev=to.gadget.formulae(quote(cod.recl.sd)),
+                                         alpha = '#walpha',
+                                         beta = '#wbeta'))
+
+
+
+codmat <- 
+  gadgetstock('codmat',gd,missingOkay = TRUE) %>%
+  gadget_update('stock',
+                minage = 3,
+                maxage = 12,
+                minlength = 20,
+                maxlength = 140,
+                dl = 2) %>%
+  ## does"something" updates should also allow for other names, e.g. doesrenew -> recruitment etc..
+  gadget_update('doesgrow',  
+                ## 1) some error catching would be useful here to ensure that the inputs are valid
+                ## i.e. make sure that the variables declared are valid
+                ## 2) the following could be set as default values for this component, although 
+                ## one might want to add the the name of the stock to the variable (like 'codimm.Linf') 
+                growthfunction = 'lengthvbsimple',
+                growthparameters = c(linf='#Linf',k='( * 0.001 #k)', '#walpha','#wbeta'),
+                beta='(* 10 #bbin)', 
+                maxlengthgroupgrowth=15) %>%
+  gadget_update('naturalmortality',   
+                ## here it would be useful to be able to call parameters defined above akin to dplyr::mutate  
+                ## default value should be 0.2 repeated for all ages
+                c(0.2,	0.2,	0.2,	0.2,	0.2,	0.2,	0.2,	0.3,	0.5,	0.7)) %>%
+  gadget_update('refweight',
+                ## would be useful to have an option to have just alpha and beta from the relationship 
+                ## W=alpha*L^beta 
+                ## also just supply a normal data.frame 
+                data=data_frame(length=seq(20,140,2),mean=3.5e-6*length^3.22)
+  ) %>% 
+  gadget_update('iseaten',1) 
+
+```
+

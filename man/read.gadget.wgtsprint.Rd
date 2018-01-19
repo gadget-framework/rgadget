@@ -7,14 +7,17 @@
 read.gadget.wgtsprint(wgts = "WGTS", comp = "final", out.pre = "out.",
   parallel = FALSE)
 }
+\arguments{
+\item{wgts}{location of the WGTS folder}
+
+\item{comp}{likelihood component}
+
+\item{out.pre}{output}
+
+\item{parallel}{logical}
+}
 \value{
 printfiles from the wgts
-}
-\description{
-.. content for \description{} (no empty lines) ..
-}
-\details{
-.. content for \details{} ..
 }
 \author{
 Bjarki Thor Elvarsson

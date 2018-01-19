@@ -6,6 +6,9 @@
 \usage{
 read.gadget.area(area.file = "area")
 }
+\arguments{
+\item{area.file}{location of the area file}
+}
 \value{
 areafile object
 }

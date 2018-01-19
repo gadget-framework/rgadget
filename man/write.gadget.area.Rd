@@ -6,6 +6,11 @@
 \usage{
 write.gadget.area(area, file = "area")
 }
+\arguments{
+\item{area}{data frame with area and temperature}
+
+\item{file}{location of the area file}
+}
 \value{
 nothing
 }

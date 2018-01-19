@@ -6,6 +6,9 @@
 \usage{
 \method{merge}{formula}(txt)
 }
+\arguments{
+\item{txt}{gadget formula text}
+}
 \value{
 txt where the formula has been properly compiled
 }

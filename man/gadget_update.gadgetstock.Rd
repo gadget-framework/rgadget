@@ -11,21 +11,16 @@
 
 \item{component}{The component to update, or 'stock' to update the initial values}
 
-\item{...}{Either 0, data = (mfdb_query), or keys to update. See details.}
-}
-\description{
-Replace components of a gadgetstock with either new values or or content
-derived from an MFDB query.
-}
-\details{
+\item{...}{Either 0, data = (mfdb_query), or keys to update. See details.
+
 If \code{...} is \code{0}, then the component is replaced with "doesgrow 0", for instance.
 If \code{...} is \code{data = mfdb_query}, then the component is generated based
 on the data. How depends in which component:
 \describe{
-  \item{stock} The query should contain age & length columns, inserts min/max for both
-  \item{refweight} The query should contain age & length columns, inserted into refweight file
-  \item{initialconditions} The query should contain area, age, length, number, mean columns
-  \item{doesrenew} The query should contain year, step, area, age, length, number, mean columns 
+  \item{stock}{The query should contain age & length columns, inserts min/max for both}
+  \item{refweight}{The query should contain age & length columns, inserted into refweight file}
+  \item{initialconditions}{The query should contain area, age, length, number, mean columns}
+  \item{doesrenew}{The query should contain year, step, area, age, length, number, mean columns} 
 }
 Finally, any other value of \code{...} will update the relevant keys/values in that component.
 
@@ -45,7 +40,11 @@ from \code{maturityfunction}, e.g.
 \code{gadget_update('maturation',maturityfunction = 'constant', maturestocksandratios = c( ... ), coefficients = c( ... ))}
 
 doesrenew / recruitment can be populated from MFDB queries, e.g.
-\code{gadget_update('doesrenew', number = data)}
+\code{gadget_update('doesrenew', number = data)}}
+}
+\description{
+Replace components of a gadgetstock with either new values or or content
+derived from an MFDB query.
 }
 \examples{
 path <- './model'

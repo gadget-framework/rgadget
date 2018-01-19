@@ -5,7 +5,7 @@
 \title{Iterative reweighting for Gadget models}
 \usage{
 gadget.iterative(main.file = "main", gadget.exe = "gadget",
-  params.file = "params.in", rew.sI = FALSE, run.final = TRUE,
+  params.file = "params.in", rew.sI = TRUE, run.final = TRUE,
   resume.final = FALSE, wgts = "WGTS", grouping = NULL,
   optinfofile = "optinfofile", PBS = FALSE, qsub.script = NULL,
   run.base = FALSE, run.serial = FALSE, method = "lm", cv.floor = NULL,

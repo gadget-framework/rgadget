@@ -2,9 +2,14 @@
 % Please edit documentation in R/gadgetFileIO.R
 \name{write.gadget.fleet}
 \alias{write.gadget.fleet}
-\title{write gadget fleet}
+\title{write gadget fleet DEPRECATED}
 \usage{
 write.gadget.fleet(fleet, file = "fleet")
+}
+\arguments{
+\item{fleet}{a gadget.fleet}
+
+\item{file}{location of the file}
 }
 \value{
 nothing

@@ -2,6 +2,7 @@
 % Please edit documentation in R/gadgetfunctions.R
 \name{gadget.ypr}
 \alias{gadget.ypr}
+\alias{plot.gadget.ypr}
 \title{Gadget Yield per Recruit}
 \usage{
 gadget.ypr(params.file = "params.in", main.file = "main", effort = seq(0,
@@ -9,6 +10,8 @@ gadget.ypr(params.file = "params.in", main.file = "main", effort = seq(0,
   fleets = data.frame(fleet = "comm", ratio = 1), ssb.stock = NULL,
   mat.par = NULL, check.previous = FALSE, save.results = TRUE,
   gd = list(dir = ".", rel.dir = "YPR"))
+
+\method{plot}{gadget.ypr}(ypr)
 }
 \arguments{
 \item{params.file}{Parameter file for the gagdet model}
@@ -40,7 +43,22 @@ Fmax and F0.1
 Calculate yield per recruit of a stock in a Gadget model
 }
 \details{
-Assumes sed is present in the command line
+\code{gadget.ypr} returns the results from a yield per recruit simulation. 
+The function sets up a new Gadget run based on a given model 
+and parameter settings where the initial conditions and recruiment 
+parameters are all set to zero appart from one year class which is 
+set to a nominal value (10000 individuals). The model is the run with 
+a range of fishing effort settings. The fishing effort is formulated in
+relation to linearfleets whose selection is the same as the one in the 
+fleets in the model. The user can specify what fleets will be used in
+in the yield per recruit simulation.
+}
+\examples{
+\dontrun{
+ypr <- gadget.ypr(ssb.stock = 'codmat',
+                  params.file = 'WGTS/params.final')
+plot(ypr)
+}
 }
 \author{
 Bjarki Thor Elvarsson

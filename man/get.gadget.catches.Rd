@@ -6,6 +6,11 @@
 \usage{
 get.gadget.catches(fleets, params)
 }
+\arguments{
+\item{fleets}{gadget.fleet}
+
+\item{params}{gadget.params}
+}
 \value{
 catches by year + step
 }

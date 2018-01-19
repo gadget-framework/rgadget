@@ -2,9 +2,9 @@
 #'
 #' Create a gadgetstock object, from fresh or an existing file
 #'
-#' @param stock_name	The name of the stock, as 
-#' @param path		The path to the gadget directory to read from
-#' @param missingOkay	If \code{TRUE}, return an empty gadgetstock object if file does not exist.
+#' @param stock_name The name of the stock, as 
+#' @param path The path to the gadget directory to read from
+#' @param missingOkay If \code{TRUE}, return an empty gadgetstock object if file does not exist.
 #' @return A list of lists representing the gadget stock file
 #' @examples
 #' path <- './cod-model'
@@ -68,18 +68,17 @@ gadgetstock <- function(stock_name, path, missingOkay = FALSE) {
 #' derived from an MFDB query.
 #'
 #' @param gf The gadgetfile object to update
-#' @param component	The component to update, or 'stock' to update the initial values
-#' @param ...	Either 0, data = (mfdb_query), or keys to update. See details.
-#'
-#' @details
+#' @param component The component to update, or 'stock' to update the initial values
+#' @param ... Either 0, data = (mfdb_query), or keys to update. See details.
+#' 
 #' If \code{...} is \code{0}, then the component is replaced with "doesgrow 0", for instance.
 #' If \code{...} is \code{data = mfdb_query}, then the component is generated based
 #' on the data. How depends in which component:
 #' \describe{
-#'   \item{stock} The query should contain age & length columns, inserts min/max for both
-#'   \item{refweight} The query should contain age & length columns, inserted into refweight file
-#'   \item{initialconditions} The query should contain area, age, length, number, mean columns
-#'   \item{doesrenew} The query should contain year, step, area, age, length, number, mean columns 
+#'   \item{stock}{The query should contain age & length columns, inserts min/max for both}
+#'   \item{refweight}{The query should contain age & length columns, inserted into refweight file}
+#'   \item{initialconditions}{The query should contain area, age, length, number, mean columns}
+#'   \item{doesrenew}{The query should contain year, step, area, age, length, number, mean columns} 
 #' }
 #' Finally, any other value of \code{...} will update the relevant keys/values in that component.
 #'

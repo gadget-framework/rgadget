@@ -647,8 +647,6 @@ write.gadget.printfile <- function(print,file='prinfile',output.dir='out'){
 }
 
 ##' Produce diagnostics
-##'
-##' .. content for \details{} ..
 ##' @title Gadget results
 ##' @param grouping --defunct--
 ##' @param final --defunct--
@@ -1063,7 +1061,7 @@ read.gadget.model <- function(main.file='main',model.name='Gadget-model'){
 
 ##' Read in Gadget stockfiles DEPRECATED
 ##' @title read gadget stock
-##' @param stock.files
+##' @param stock.files location of stock file
 ##' @return list of gadget-stock objects
 ##' @author Bjarki Thor Elvarsson
 read.gadget.stockfiles <- function(stock.files){
@@ -1356,7 +1354,7 @@ read.gadget.stockfiles <- function(stock.files){
 ##'
 ##' <details>
 ##' @title read gadget area file
-##' @param area.file
+##' @param area.file location of the area file
 ##' @return areafile object
 ##' @author Bjarki Thor Elvarsson
 read.gadget.area <- function(area.file='area'){
@@ -1375,8 +1373,8 @@ read.gadget.area <- function(area.file='area'){
 ##'
 ##' <details>
 ##' @title write gadget area file
-##' @param area
-##' @param file
+##' @param area data frame with area and temperature
+##' @param file location of the area file
 ##' @return nothing
 ##' @author Bjarki Thor Elvarsson
 write.gadget.area <- function(area,file='area'){
@@ -1396,7 +1394,7 @@ write.gadget.area <- function(area,file='area'){
 ##'
 ##' <details>
 ##' @title read gadget time file
-##' @param time.file
+##' @param time.file location of the file
 ##' @return timefile objects
 ##' @author Bjarki Thor Elvarsson
 read.gadget.time <- function(time.file='time'){
@@ -1417,8 +1415,8 @@ read.gadget.time <- function(time.file='time'){
 ##'
 ##' <details>
 ##' @title write gadget time file
-##' @param time
-##' @param file
+##' @param time data.frame with time
+##' @param file location of the time file
 ##' @return nothing
 ##' @author Bjarki Thor Elvarsson
 write.gadget.time <- function(time,file='time'){
@@ -1449,33 +1447,6 @@ write.gadget.penalty <- function(file='penaltyfile'){
 }
 
 
-
-##' .. content for \description{} (no empty lines) ..
-##'
-##' .. content for \details{} ..
-##' @title read gadget bootstrap
-##' @param params.file
-##' @param bs.wgts
-##' @param bs.samples
-##' @param bs.lik
-##' @param lik.pre
-##' @param params.pre
-##' @param parallel
-##' @return wgts from all bootstrap samples
-##' @author Bjarki Thor Elvarsson
-read.gadget.bootstrap <- function(params.file='params.in',
-                                 bs.wgts='BS.WGTS',
-                                 bs.samples=1:100,
-                                 bs.lik='likelihood',
-                                 lik.pre = 'lik.',
-                                 params.pre = 'params.',
-                                 parallel=FALSE
-                                 ){
-  wgts <- sprintf('%s/BS.%s',bs.wgts,bs.samples)
-  dboot <- read.gadget.wgts(params.file,wgts,
-                            bs.lik,lik.pre,params.pre,parallel)
-  return(dboot)
-}
 
 
 ##' @title read wgts
@@ -1555,14 +1526,12 @@ read.gadget.wgts <- function(params.file = 'params.in',
   return(dparam)
 }
 
-##' .. content for \description{} (no empty lines) ..
-##'
-##' .. content for \details{} ..
+
 ##' @title read wgts print
-##' @param wgts
-##' @param comp
-##' @param out.pre
-##' @param parallel
+##' @param wgts location of the WGTS folder
+##' @param comp likelihood component
+##' @param out.pre output
+##' @param parallel logical
 ##' @return printfiles from the wgts
 ##' @author Bjarki Thor Elvarsson
 read.gadget.wgtsprint <- function(wgts = 'WGTS',
@@ -1579,45 +1548,9 @@ read.gadget.wgtsprint <- function(wgts = 'WGTS',
 }
 
 
-##' @title read bootprint
-##' @param bs.wgts
-##' @param bs.samples
-##' @param printfile
-##' @param final
-##' @return print output for all bootstrap samples
-##' @author Bjarki Thor Elvarsson
-read.gadget.bootprint <- function(bs.wgts='BS.WGTS',
-                                  bs.samples=1:1000,
-                                  printfile='printfile',
-                                  final = 'final'){
-  printfile <- read.gadget.printfile(printfile)
-  run.func <- function(bs.data){
-    path <- sprintf('%s/BS.%s',bs.wgts,bs.data)
-
-    dir.create(paste(path,sprintf('out.%s',final),sep='/'))
-    main.print <- read.gadget.main(sprintf('%s/main.%s',path,final))
-    main.print$printfiles <- sprintf('%s/print.%s',path,final)
-    write.gadget.main(main.print,sprintf('%s/main.print',path))
-    write.gadget.printfile(printfile,file=sprintf('%s/print.%s',path,final),
-                           output.dir=paste(path,sprintf('out.%s',final),
-                             sep='/'))
-    callGadget(s=1,main=sprintf('%s/main.print',path),
-               i=sprintf('%s/params.%s',path,final),
-               o=sprintf('%s/lik.print',path))
-    out <- read.printfiles(sprintf('%s/out.%s',path,final))
-    return(out)
-  }
-  bs.print <- plyr::llply(bs.samples,
-                    run.func,.parallel=TRUE)
-  names(bs.print) <- sprintf('BS.%s',bs.samples)
-  tmp <- plyr::llply(names(printfile),function(x) plyr::ldply(bs.print,function(y) y[[x]]))
-  names(tmp) <- names(printfile)
-  return(tmp)
-}
-
 
 ##' @title merge txt to gadget.formula
-##' @param txt
+##' @param txt gadget formula text
 ##' @return txt where the formula has been properly compiled
 ##' @author Bjarki Thor Elvarsson
 merge.formula <- function(txt){
@@ -1684,6 +1617,7 @@ eval.gadget.formula <- function(gad.for,par=data.frame()){
           return(eval(parse(text=x)))
         })
 }
+
 ##' @title read.gadget.table
 ##' @param file path to file
 ##' @param header logical, should the header be read from the file
@@ -1709,7 +1643,7 @@ read.gadget.table <- function(file,header=FALSE){
 
 
 ##' @title read gadget fleet
-##' @param fleet.file
+##' @param fleet.file location of the fleet file
 ##' @return fleet file object
 ##' @author Bjarki Þór Elvarsson
 read.gadget.fleet <- function(fleet.file='fleet'){
@@ -1742,9 +1676,9 @@ read.gadget.fleet <- function(fleet.file='fleet'){
   return(list(fleet=fleet.dat,prey=prey))
 }
 
-##' @title write gadget fleet
-##' @param fleet
-##' @param file
+##' @title write gadget fleet DEPRECATED
+##' @param fleet a gadget.fleet 
+##' @param file location of the file
 ##' @return nothing
 ##' @author Bjarki Þór Elvarsson
 write.gadget.fleet <- function(fleet,file='fleet'){
@@ -1783,10 +1717,10 @@ write.gadget.fleet <- function(fleet,file='fleet'){
 
 
 ##' @title get gadget suitability
-##' @param fleets
-##' @param params
-##' @param lengths
-##' @param normalize
+##' @param fleets gadget.fleet object
+##' @param params gadget parameter
+##' @param lengths length vector
+##' @param normalize logical
 ##' @return suitability function for a fleet
 ##' @author Bjarki Thor Elvarsson
 get.gadget.suitability <- function(fleets,params,lengths,normalize=FALSE){
@@ -1799,15 +1733,12 @@ get.gadget.suitability <- function(fleets,params,lengths,normalize=FALSE){
         })
 }
 
-##' .. content for \description{} (no empty lines) ..
-##'
-##' .. content for \details{} ..
 ##' @title get gadget growth
-##' @param stocks
-##' @param params
-##' @param dt
-##' @param age.based
-##' @param recl
+##' @param stocks gadget.stock
+##' @param params gadget.parms
+##' @param dt delta t
+##' @param age.based logical
+##' @param recl recruitment length
 ##' @return growth matrix
 ##' @author Bjarki Thor Elvarsson
 get.gadget.growth <- function(stocks,params,dt=0.25,age.based=FALSE,recl=FALSE){
@@ -1849,8 +1780,8 @@ get.gadget.growth <- function(stocks,params,dt=0.25,age.based=FALSE,recl=FALSE){
 }
 
 ##' @title get gadget recruitment
-##' @param stocks
-##' @param params
+##' @param stocks gadget.stock
+##' @param params gadget.params
 ##' @return recruitment by year
 ##' @author Bjarki Thor Elvarsson
 get.gadget.recruitment <- function(stocks,params,collapse=TRUE){
@@ -1878,8 +1809,8 @@ get.gadget.recruitment <- function(stocks,params,collapse=TRUE){
 }
 
 ##' @title get gadget catches
-##' @param fleets
-##' @param params
+##' @param fleets gadget.fleet
+##' @param params gadget.params
 ##' @return catches by year + step
 ##' @author Bjarki Thor Elvarsson
 get.gadget.catches <- function(fleets,params){
@@ -1897,8 +1828,8 @@ get.gadget.catches <- function(fleets,params){
 }
 
 ##' @title read gadget grouping
-##' @param lik
-##' @param wgts
+##' @param lik old style gadget likelihood object
+##' @param wgts logcation of the WGTS folder
 ##' @return list of wgts groupings
 ##' @author Bjarki Thor Elvarsson
 read.gadget.grouping <- function(lik = read.gadget.likelihood(),

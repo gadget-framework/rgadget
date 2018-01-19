@@ -8,14 +8,36 @@ callParamin(i = "params.in", func = "gadget -s -n", opt = "optinfo",
   network = "network", o = "params.out", scale = NULL, condor = NULL,
   paramin.exe = "paramin")
 }
+\arguments{
+\item{i}{input file}
+
+\item{func}{function name}
+
+\item{opt}{location of the optinfofile}
+
+\item{network}{location of the network file}
+
+\item{o}{output filename}
+
+\item{scale}{deprecated}
+
+\item{condor}{deprecated}
+
+\item{paramin.exe}{location of the paramin binary}
+}
 \value{
 null
 }
 \description{
-Probably defunct
+Call paramin
 }
 \details{
-<details>
+Paramin runs the optimisation routines in parallel across a network of processors 
+which will (hopefully) result in a much faster optimisation run. The current version 
+of paramin is implemented with MPI, Message Passing Interface, which handles all the
+message passing between the master process, paramin, and the slave processes, which 
+are Gadget simulation runs. The setup is very similar to a normal Gadget run, with 
+all the Gadget input files are the same, it's only the optimisation execution that differs.
 }
 \author{
 Bjarki Thor Elvarsson

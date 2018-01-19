@@ -2,12 +2,15 @@
 % Please edit documentation in R/gadgetfit.R
 \name{gadget.fit}
 \alias{gadget.fit}
+\alias{bind.gadget.fit}
 \title{Gadget fit}
 \usage{
 gadget.fit(wgts = "WGTS", main.file = NULL, fleet.predict = NULL,
   mat.par = NULL, params.file = NULL, f.age.range = NULL,
   fit.folder = "FIT", printfile.printatstart = 1, printfile.steps = 1,
   rec.len.param = FALSE)
+
+bind.gadget.fit(...)
 }
 \arguments{
 \item{wgts}{Location of the iterative reweighting folder, if null gadget.fit requires a parameter file}
@@ -32,10 +35,31 @@ Input columns should include stock, age.min and age.max}
 \item{rec.len.param}{Logical. TRUE if you want growth calculated as age.based and using a formula other than get.gadget.growth default}
 }
 \value{
-list of fit things
+list containing the output from Gadget.
 }
 \description{
-This function calls Gadget and compiles fit statistics, relevant biomass trajectories and consumption
+This function calls Gadget and compiles fit statistics, relevant biomass trajectories and consumption.
+These objects are: \describe{
+\item{sidat}{data.frame containing the model fit to the surveyindices}
+\item{resTable}{Table of likelihood component scores from the different stages of the iterative reweighting run}
+\item{nesTable}{Same as resTable but normalised with the minimum score for each component}
+\item{suitability}{The model estimated fleet predator suitability}
+\item{stock.growth}{Model estimated growth}
+\item{stock.recruitment}{Recruitment by stock}
+\item{res.by.year}{Results by year}
+\item{stomachconten}{Fit combined with data from the stomachcontent likelihood}
+\item{likelihoodsummary}{Likelihood component scores by year and step} 
+\item{catchdist.fleets}{Data compared with model output for the catchdistribution components}
+\item{stockdist}{Data compared with model output for the stockdistribution components}
+\item{SS}{The likelihood output from the model}
+\item{stock.full}{Modeled abundance and mean weight by year,step, length and stock}
+\item{stock.std}{Modeled abundance, mean weight, number consumed by age, stock and year}
+\item{stock.prey}{Consumption of prey (or fleet catches) by prey, length, year and step}
+\item{fleet.info}{Information on catches, harvest rate and harvestable biomass by fleet, year and step}
+\item{predator.prey}{consumption of preys by predators, length, year and step}
+\item{params}{parameter values used for the fit}
+\item{catchstatistics}{Data compared with model output for the catchdstatistics components}
+}
 }
 \author{
 Bjarki Thor Elvarsson

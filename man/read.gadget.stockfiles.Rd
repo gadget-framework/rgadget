@@ -6,6 +6,9 @@
 \usage{
 read.gadget.stockfiles(stock.files)
 }
+\arguments{
+\item{stock.files}{location of stock file}
+}
 \value{
 list of gadget-stock objects
 }

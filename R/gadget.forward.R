@@ -25,7 +25,7 @@
 #' @param prj.func if method is "custom" then the user can supply a function that generates the recruitment
 #' @param ... passed to prj.func
 #'
-#' @return
+#' @return list of simulation results
 #' @export
 gadget.forward <- function(years = 20,params.file = 'params.out',
                            main.file = 'main', num.trials = 10,

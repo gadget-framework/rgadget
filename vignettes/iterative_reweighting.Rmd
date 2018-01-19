@@ -88,18 +88,20 @@ when there is a chance of overfitting, e.g. the model has
 flexibility to almost perfectly predict the observations it worth
 while to consider grouping together related datasets. 
 
+
+
 ## Examples
+
+As an illustrative example consider the model for Icelandic cod. Following the logic of @taylor2007simple the survey indices are grouped together by size category to prevent overfitting, as you will have more than one observation for each recruitment variable. That is done with the `grouping` input variable. It essentially takes a list of vectors, where each vector lists the likelihood component names from the likelihood file that should be grouped. 
+
+
 ```{r,eval=FALSE}
-gadget.iterative(rew.sI=TRUE,
-                 main='main',
-                 grouping=list(sind1=c('si.20-50','si.50-60','si.60-70'),
-                               sind2=c('si.70-80','si.80-90','si.90-100',
-                                       'si.100-160'),
-                               comm=c('ldist.gil','ldist.bmt',
-                                      'aldist.gil','aldist.bmt')),
-                 #cv.floor = 0.05,
-                 params.file = 'params.init',
+gadget.iterative(main='main',
+                 grouping=list(sind1=c('si.gp1','si.gp1a'),
+                               sind2=c('si.gp2','si.gp2a'),
+                               sind3=c('si.gp3','si.gp3a')),
+                 params.file = 'params.in',
                  wgts='WGTS')
 ```
 
-The above
+In the above example Other options to the function include  

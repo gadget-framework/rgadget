@@ -6,6 +6,11 @@
 \usage{
 write.gadget.time(time, file = "time")
 }
+\arguments{
+\item{time}{data.frame with time}
+
+\item{file}{location of the time file}
+}
 \value{
 nothing
 }

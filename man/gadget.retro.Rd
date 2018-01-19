@@ -2,25 +2,35 @@
 % Please edit documentation in R/gadgetfunctions.R
 \name{gadget.retro}
 \alias{gadget.retro}
-\title{gadget.retro}
+\title{Analytical retrospective}
 \usage{
-gadget.retro(path = ".", mainfile = "main", params.file = "params.in",
+gadget.retro(path = ".", main.file = "main", params.file = "params.in",
   optinfofile = "optinfofile", num.years = 5, pre = "RETRO",
   iterative = FALSE, ...)
 }
 \arguments{
-\item{path}{}
+\item{path}{location of the Gadget model}
 
-\item{mainfile}{}
+\item{main.file}{name of the main file, defaults to 'main'}
 
-\item{params.file}{}
+\item{params.file}{name of the starting parameter value file, defaults to 'params.in'}
 
-\item{optinfofile}{}
+\item{optinfofile}{name of the file containing the optimizer settings, defaults to 'optinfofile'}
 
-\item{num.years}{}
+\item{num.years}{number of years (models) should be used, defaults to 5 yeaes}
 
-\item{pre}{}
+\item{pre}{location of the model runs, defaults to 'RETRO'}
+
+\item{iterative}{logical should the iterative reweighting be used, defaults FALSE}
+}
+\value{
+null
 }
 \description{
-gadget.retro
+\code{gadget.retro} runs an analytical retrospective model fitting run.
+}
+\examples{
+\dontrun{
+gadget.retro(iterative =TRUE)
+}
 }

@@ -6,6 +6,9 @@
 \usage{
 read.gadget.fleet(fleet.file = "fleet")
 }
+\arguments{
+\item{fleet.file}{location of the fleet file}
+}
 \value{
 fleet file object
 }

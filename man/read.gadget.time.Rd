@@ -6,6 +6,9 @@
 \usage{
 read.gadget.time(time.file = "time")
 }
+\arguments{
+\item{time.file}{location of the file}
+}
 \value{
 timefile objects
 }

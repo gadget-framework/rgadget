@@ -1,6 +1,26 @@
-##' This function calls Gadget and compiles fit statistics, relevant biomass trajectories and consumption
+##' This function calls Gadget and compiles fit statistics, relevant biomass trajectories and consumption.
+##' These objects are: \describe{
+##' \item{sidat}{data.frame containing the model fit to the surveyindices}
+##' \item{resTable}{Table of likelihood component scores from the different stages of the iterative reweighting run}
+##' \item{nesTable}{Same as resTable but normalised with the minimum score for each component}
+##' \item{suitability}{The model estimated fleet predator suitability}
+##' \item{stock.growth}{Model estimated growth}
+##' \item{stock.recruitment}{Recruitment by stock}
+##' \item{res.by.year}{Results by year}
+##' \item{stomachconten}{Fit combined with data from the stomachcontent likelihood}
+##' \item{likelihoodsummary}{Likelihood component scores by year and step} 
+##' \item{catchdist.fleets}{Data compared with model output for the catchdistribution components}
+##' \item{stockdist}{Data compared with model output for the stockdistribution components}
+##' \item{SS}{The likelihood output from the model}
+##' \item{stock.full}{Modeled abundance and mean weight by year,step, length and stock}
+##' \item{stock.std}{Modeled abundance, mean weight, number consumed by age, stock and year}
+##' \item{stock.prey}{Consumption of prey (or fleet catches) by prey, length, year and step}
+##' \item{fleet.info}{Information on catches, harvest rate and harvestable biomass by fleet, year and step}
+##' \item{predator.prey}{consumption of preys by predators, length, year and step}
+##' \item{params}{parameter values used for the fit}
+##' \item{catchstatistics}{Data compared with model output for the catchdstatistics components}
+##' }
 ##' @title Gadget fit
-##'
 ##' @param wgts Location of the iterative reweighting folder, if null gadget.fit requires a parameter file
 ##' @param main.file if the main file is different from the 'main' or 'wgts/main.final'
 ##' @param fleet.predict data.frame containing the basis fleets used to calculate the harvestable biomass. Fleet names should be specified in the fleet column.
@@ -12,15 +32,18 @@
 ##' @param f.age.range data.frame describing the desired age range where the F's are calculated, if null this defaults to the apical F fro all stocks. 
 ##' Input columns should include stock, age.min and age.max 
 ##' @param rec.len.param Logical. TRUE if you want growth calculated as age.based and using a formula other than get.gadget.growth default
-##'
-##' @return list of fit things
+##' @return list containing the output from Gadget. 
 ##' @author Bjarki Thor Elvarsson
 ##' @export
-gadget.fit <- function(wgts = 'WGTS', main.file = NULL,
-                       fleet.predict = NULL,# data.frame(fleet='comm',ratio=1),
-                       mat.par=NULL, params.file=NULL,
-                       f.age.range=NULL, fit.folder = 'FIT',
-                       printfile.printatstart = 1, printfile.steps = 1,
+gadget.fit <- function(wgts = 'WGTS', 
+                       main.file = NULL,
+                       fleet.predict = NULL,
+                       mat.par=NULL, 
+                       params.file=NULL,
+                       f.age.range=NULL, 
+                       fit.folder = 'FIT',
+                       printfile.printatstart = 1, 
+                       printfile.steps = 1,
                        rec.len.param = FALSE){
   
   if(!is.null(f.age.range) & class(f.age.range) != 'data.frame'){
@@ -391,12 +414,7 @@ gadget.fit <- function(wgts = 'WGTS', main.file = NULL,
 }
 
 
-#' Merge gadget.fit objects
-#'
-#' This function merges gadget.fit objects from different gadget runs. This allow for simpler comparisons between models.
-#' @param ... an arbitrary number of gadget.fit objects as named input. 
-#'
-#' @return a merged gadget.fit object
+#' @rdname gadget.fit
 #' @export
 bind.gadget.fit <- function(...){
   tmp <- 

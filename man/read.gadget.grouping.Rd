@@ -6,6 +6,11 @@
 \usage{
 read.gadget.grouping(lik = read.gadget.likelihood(), wgts = "WGTS")
 }
+\arguments{
+\item{lik}{old style gadget likelihood object}
+
+\item{wgts}{logcation of the WGTS folder}
+}
 \value{
 list of wgts groupings
 }

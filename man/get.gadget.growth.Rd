@@ -7,14 +7,19 @@
 get.gadget.growth(stocks, params, dt = 0.25, age.based = FALSE,
   recl = FALSE)
 }
+\arguments{
+\item{stocks}{gadget.stock}
+
+\item{params}{gadget.parms}
+
+\item{dt}{delta t}
+
+\item{age.based}{logical}
+
+\item{recl}{recruitment length}
+}
 \value{
 growth matrix
-}
-\description{
-.. content for \description{} (no empty lines) ..
-}
-\details{
-.. content for \details{} ..
 }
 \author{
 Bjarki Thor Elvarsson

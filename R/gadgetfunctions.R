@@ -174,18 +174,23 @@ callGadget <- function(l=NULL,
   invisible(run.history)
 }
 
-##' Probably defunct
-##'
-##' <details>
+##' Call paramin
+##' 
+##' Paramin runs the optimisation routines in parallel across a network of processors 
+##' which will (hopefully) result in a much faster optimisation run. The current version 
+##' of paramin is implemented with MPI, Message Passing Interface, which handles all the
+##' message passing between the master process, paramin, and the slave processes, which 
+##' are Gadget simulation runs. The setup is very similar to a normal Gadget run, with 
+##' all the Gadget input files are the same, it's only the optimisation execution that differs.
 ##' @title Call paramin
-##' @param i
-##' @param func
-##' @param opt
-##' @param network
-##' @param o
-##' @param scale
-##' @param condor
-##' @param paramin.exe
+##' @param i input file
+##' @param func function name
+##' @param opt location of the optinfofile
+##' @param network location of the network file
+##' @param o output filename
+##' @param scale deprecated
+##' @param condor deprecated
+##' @param paramin.exe location of the paramin binary
 ##' @return null
 ##' @author Bjarki Thor Elvarsson
 callParamin <- function(i='params.in',
@@ -311,7 +316,7 @@ callParamin <- function(i='params.in',
 ##' }
 gadget.iterative <- function(main.file='main',gadget.exe='gadget',
                              params.file='params.in',
-                             rew.sI=FALSE,
+                             rew.sI=TRUE,
                              run.final=TRUE,
                              resume.final=FALSE,
                              wgts = 'WGTS',
@@ -812,7 +817,7 @@ plot.gadgetSens <- function(sens,comp='score'){
 ##' containing the initial value for the optimisation.
 ##' @param main name of the main file used in the optimisation.
 ##' @param phase.dir output directory
-##' @param optinfofile
+##' @param optinfofile location of the optinfofile
 ##' @return final optimised parameter values
 ##' @author Bjarki Thor Elvarsson
 ##' @export
@@ -844,118 +849,18 @@ gadget.phasing <- function(phase,params.in='params.in',main='main',
 
 
 
-##' <description>
-##'
-##' <details>
-##' @title Bootstrap control
-##' @param bs.likfile Likelihood template file
-##' @param bs.samples number (or vector of numbers) indicating what bootstrap
-##' samples should be used
-##' @param main Main file for the gagdet model
-##' @param optinfofile optinfofile used in the optimization.
-##' @param bs.wgts folder containing the resulting reweights
-##' @param bs.data folder containing the bootstrap dataset obtain from the DW
-##' @param params.file
-##' @param rew.sI should the survey indices be reweighted seperately
-##' @param grouping list of grouped likelihood components
-##' @param qsub.script name of the qsub script if the calculations is meant to be run on a cluser
-##' @param run.final logical, is this the final run or weighting run.
-##' @param PBS logical, is this a cluster run?
-##' @return NULL
-##' @author Bjarki Thor Elvarsson
-##' @export
-gadget.bootstrap <- function(bs.likfile = 'likelihood.bs',
-                             bs.samples = 1,
-                             main='main',
-                             optinfofile='optinfo',
-                             bs.wgts='BS.WGTS',
-                             bs.data=NULL,
-                             params.file = 'params.in',
-                             rew.sI = FALSE,
-                             grouping = NULL,
-                             qsub.script = 'bootstrap.sh',
-                             run.final = FALSE,
-                             PBS=TRUE,
-                             cv.floor=NULL
-){
-  ## Ensure all files exist
-  if(!file.exists(main)) {
-    stop('Main file not found')
-  }
-  
-  if(!file.exists(params.file)) {
-    stop('Parameter file not found')
-  }
-  
-  if(!file.exists(optinfofile)) {
-    stop('Optinfofile not found')
-  }
-  
-  if(!file.exists(bs.likfile)) {
-    stop('likelihoodfile not found')
-  }
-  
-  ## Do stuff
-  
-  dir.create(bs.wgts,showWarnings=FALSE)
-  main <- read.gadget.main(main)
-  bs.lik <- read.gadget.likelihood(bs.likfile)
-  
-  foreach(i=bs.samples) %dopar% {
-    print(i)
-    dir.create(sprintf('%s/BS.%s',bs.wgts,i),showWarnings=FALSE)
-    bs.lik.file <- sprintf('%s/BS.%s/likelihood',bs.wgts,i)
-    bs.main.file <- sprintf('%s/BS.%s/main',bs.wgts,i)
-    if(!run.final) {
-      bs.main <- main
-      bs.main$likelihoodfiles <- bs.lik.file
-      write.gadget.main(bs.main,bs.main.file)
-      write.gadget.likelihood(bs.lik,bs.lik.file,bs.data,sprintf('.%s',i))
-      tmp <- gadget.iterative(main.file=bs.main.file,
-                              params.file = params.file,
-                              grouping = grouping,
-                              optinfofile = optinfofile,
-                              rew.sI = rew.sI,
-                              PBS = PBS,
-                              qsub.script = qsub.script,
-                              wgts = sprintf('%s/BS.%s',bs.wgts,i),
-                              run.final = FALSE,
-                              run.serial = TRUE)
-      if(PBS)
-        write.unix(sprintf('# bootstrap sample %s',i),f=qsub.script,append=TRUE)
-      if(i > 100 & PBS)
-        write.unix('sleep 6m',f=qsub.script,append=TRUE)
-      else
-        print(sprintf('# bootstrap sample %s',i))
-      
-    } else {
-      tmp <- gadget.iterative(main.file = bs.main.file,
-                              params.file = params.file,
-                              grouping = grouping,
-                              PBS = PBS,
-                              optinfofile = optinfofile,
-                              rew.sI = rew.sI,
-                              qsub.script = qsub.script,
-                              wgts = sprintf('%s/BS.%s',bs.wgts,i),
-                              resume.final = TRUE,
-                              run.final = TRUE,
-                              run.serial = TRUE,
-                              cv.floor = cv.floor)
-      if(PBS)
-        write.unix(sprintf('# bootstrap sample %s',i),f=qsub.script,append=TRUE)
-      if(i > 100 & PBS)
-        write.unix('sleep 6m',f=qsub.script,append=TRUE)
-      else
-        print(sprintf('# bootstrap (final) sample %s',i))
-      
-    }
-  }
-  return(NULL)
-}
 
 ##' Calculate yield per recruit of a stock in a Gadget model
 ##'
-##' Assumes sed is present in the command line
+##' \code{gadget.ypr} returns the results from a yield per recruit simulation. 
+##' The function sets up a new Gadget run based on a given model 
+##' and parameter settings where the initial conditions and recruiment 
+##' parameters are all set to zero appart from one year class which is 
+##' set to a nominal value (10000 individuals). The model is the run with 
+##' a range of fishing effort settings. The fishing effort is formulated in
+##' relation to linearfleets whose selection is the same as the one in the 
+##' fleets in the model. The user can specify what fleets will be used in
+##' in the yield per recruit simulation.
 ##' @title Gadget Yield per Recruit
 ##' @param params.file Parameter file for the gagdet model
 ##' @param main.file Main file for the gagdet model
@@ -972,6 +877,11 @@ gadget.bootstrap <- function(bs.likfile = 'likelihood.bs',
 ##' Fmax and F0.1
 ##' @author Bjarki Thor Elvarsson
 ##' @export
+##' @examples \dontrun{
+##' ypr <- gadget.ypr(ssb.stock = 'codmat',
+##'                   params.file = 'WGTS/params.final')
+##' plot(ypr)
+##' }
 gadget.ypr <- function(params.file = 'params.in',
                        main.file = 'main',
                        effort = seq(0, 1, by=0.01),
@@ -1286,10 +1196,7 @@ gadget.ypr <- function(params.file = 'params.in',
   return(res)
 }
 
-##' @title Plot yield per recruit
-##' @param ypr gadget.ypr object
-##' @return ggplot object
-##' @author Bjarki Thor Elvarsson
+##' @rdname gadget.ypr
 ##' @export
 plot.gadget.ypr <- function(ypr){
   if(!is.null(ypr$ssb)){
@@ -1319,69 +1226,26 @@ plot.gadget.ypr <- function(ypr){
   return(plo)
 }
 
-##' @title Gadget bootstrap yield per recruit
-##' @param params.file
-##' @param main.file
-##' @param effort
-##' @param begin
-##' @param end
-##' @param fleets
-##' @param ypr
-##' @param bs.wgts
-##' @param bs.samples
-##' @param .parallel
-##' @return yield per recruit for the bootstrap
-##' @author Bjarki Thor Elvarsson
-gadget.bootypr <- function(params.file='params.final',
-                           main.file = 'main.final',
-                           effort = seq(0, 1, by=0.01),
-                           begin=1990,end=2020,
-                           fleets = data.frame(fleet='comm',ratio=1),
-                           ypr='YPR',
-                           bs.wgts = 'BS.WGTS',
-                           bs.samples = 1:1000,
-                           .parallel = TRUE){
-  tmp <-
-    plyr::llply(bs.samples,function(x){
-      
-      tryCatch(gadget.ypr(params.file = sprintf('%s/BS.%s/%s',
-                                                bs.wgts,x,params.file),
-                          main.file = sprintf('%s/BS.%s/%s',bs.wgts,x,main.file),
-                          effort = effort,
-                          begin = begin, end = end, fleets = fleets,
-                          ypr = sprintf('%s/BS.%s/%s',bs.wgts,x,ypr)),
-               error = function(e){
-                 print(sprintf('YPR run %s was corrupted',x))
-               })
-      
-    },.parallel = .parallel)
-  print('ypr finished -- tidying up')
-  names(tmp) <- sprintf('BS.%s',bs.samples)
-  tmp.names <- c('params','out','ypr','fmax','f0.1')
-  names(tmp.names) <- c('params','out','ypr','fmax','f0.1')
-  bsypr <- plyr::llply(tmp.names,
-                 function(x) plyr::ldply(tmp,function(y) y[[x]]))
-  save(bsypr,file=sprintf('%s/bsypr.RData',bs.wgts))
-  return(bsypr)
-}
 
 
-
-#' gadget.retro
+#' Analytical retrospective
 #'
-#' @param path 
-#' @param mainfile 
-#' @param params.file 
-#' @param optinfofile 
-#' @param num.years 
-#' @param pre 
-#'
-#' @return
+#' \code{gadget.retro} runs an analytical retrospective model fitting run. 
+#' @param path location of the Gadget model
+#' @param main.file name of the main file, defaults to 'main'
+#' @param params.file name of the starting parameter value file, defaults to 'params.in'
+#' @param optinfofile name of the file containing the optimizer settings, defaults to 'optinfofile'
+#' @param num.years number of years (models) should be used, defaults to 5 yeaes
+#' @param pre location of the model runs, defaults to 'RETRO'
+#' @param iterative logical should the iterative reweighting be used, defaults FALSE
+#' @return null
 #' @export
 #'
-#' @examples
+#' @examples \dontrun{
+#' gadget.retro(iterative =TRUE)
+#' }
 gadget.retro <- function(path='.',
-                         mainfile='main',
+                         main.file='main',
                          params.file='params.in',
                          optinfofile='optinfofile',
                          num.years=5,

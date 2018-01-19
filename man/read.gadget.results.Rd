@@ -23,9 +23,6 @@ table with SS
 \description{
 Produce diagnostics
 }
-\details{
-.. content for \details{} ..
-}
 \author{
 Bjarki Thor Elvarsson
 }
