@@ -15,6 +15,8 @@ split_gadgetfile_line <- function (line) {
     paste(string, collapse = " ")
   }
   
+  # Remove all comments
+  line <- gsub(';.+', '', line)
   # Split by any whitespace first
   parts <- unlist(strsplit(line, "\\s+"))
   # Compare count of opening brackets and closing brackets in parts
@@ -551,7 +553,7 @@ read.gadget.file <- function(path, file_name, file_type = "generic",
                              quote = "",
                              sep = "\t",
                              col.names = header,
-                             comment.char = "",
+                             comment.char = ";",
                              fileEncoding = 'utf8',
                              stringsAsFactors = FALSE)
       attr(cur_comp, 'preamble') <- comp_preamble
