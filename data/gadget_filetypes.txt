@@ -2,7 +2,7 @@ file_type	mainfile_section	bare_component	sub_component	implicit_component	df_co
 main		NA			FALSE		""		""			""
 time		timefile		FALSE		""		""			""
 area		areafile		TRUE		""		""			""
-stock		stockfiles		TRUE		""		"^(growthandeatlengths|doesgrow|naturalmortality|iseaten|doeseat|initialconditions|doesmigrate|doesmature|doesmove|doesrenew|doesspawn|doesstray)$"	""
+stock		stockfiles		TRUE		""		"^(growthandeatlengths|doesgrow|naturalmortality|iseaten|doeseat|doesmigrate|doesmature|doesmove|doesrenew|doesspawn|doesstray)$"	""
 tag		tagfiles		FALSE		""		""			""
 otherfood	otherfoodfiles		FALSE		""		""			""
 fleet		fleetfiles		FALSE		"^(suitability|amount)$"	""	""
