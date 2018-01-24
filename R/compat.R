@@ -39,10 +39,82 @@ fix_headers <- function(main.file = 'main',gd=list(dir='.')){
       x
     }) %>% 
     map(~write.gadget.file(.,gd$dir))
-  
+  profvis({
   lik <- 
     main$likelihood %>% 
-    map(~read.gadget.file(file_name = ., file_type = 'likelihood', path = gd$dir,recursive = TRUE))
+    map(~read.gadget.file(file_name = ., file_type = 'likelihood', path = gd$dir,recursive = TRUE)) 
+  })
+    lik %>% 
+    map(~map(.,function(x){
+      if(x$type=='catchdistribution'){
+        attributes(x$datafile[[1]])$preamble  <- 
+          c('-- data --',paste(c('year','step','area','age','length','number'),collapse = '\t'))
+      }
+      if(x$type=='catchstatistics'){
+        if(x[['function']] %in% c('lengthcalcstddev','weightnostddev','lengthnostddev'))
+          attributes(x$datafile[[1]])$preamble  <- 
+            c('-- data --', paste(c('year','step','area','age','number','mean'), collapse = '\t'))
+        if(x[['function']] %in% c('lengthgivenstddev','weightgivenstddev', 'lengthgivenvar'))
+          attributes(x$datafile[[1]])$preamble  <- 
+            c('-- data --',paste(c('year','step','area','age','number','mean','stddev'),collapse = '\t'))
+        if(x[['function']] %in% c('weightgivenstddevlen'))
+          attributes(x$datafile[[1]])$preamble  <- 
+            c('-- data --',paste(c('year','step','area','age','number','mean','stddev'),collapse = '\t')) 
+        
+      }
+      if(x$type=='stockdistribution'){
+        attributes(x$datafile[[1]])$preamble  <- 
+          c('-- data --',paste(c('year','step','area','stock','age','length','number'),collapse = '\t'))
+      }
+      if(x$type=='surveyindices'){
+        if(x$sitype %in% c('lengths','fleets') )
+          attributes(x$datafile[[1]])$preamble  <- 
+            c('-- data --',paste(c('year','step','area','length','number'), collapse = '\t'))
+        if(x$sitype=='ages')
+          attributes(x$datafile[[1]])$preamble  <- 
+            c('-- data --',paste(c('year','step','area','age','number'), collapse = '\t'))
+        if(x$sitype=='acoustic')
+          attributes(x$datafile[[1]])$preamble  <- 
+            c('-- data --',paste(c('year','step','area','survey','number'), collapse = '\t'))
+        if(x$sitype=='effort')
+          attributes(x$datafile[[1]])$preamble  <- 
+            c('-- data --',paste(c('year','step','area','fleet','number'), collapse = '\t'))
+      }
+      if(x$type == 'surveydistribution'){
+        attributes(x$datafile[[1]])$preamble  <- 
+          c('-- data --',paste(c('year','step','area','age','length','number'), collapse = '\t'))
+      }
+      if(x$type=='stomachcontent'){
+        attributes(x$datafile[[1]])$preamble  <- 
+          c('-- data --',paste(c('year','step','area','predator','prey','ratio'), collapse = '\t'))
+      }
+      if(x$type=='recaptures'){
+        attributes(x$datafile[[1]])$preamble  <- 
+          c('-- data --',paste( c('tagid','year','step','area','length','number'), collapse = '\t'))
+      }
+      if(x$type=='recstatistics'){
+        if(x[['function']] == 'lengthgivenstddev')
+          attributes(x$datafile[[1]])$preamble  <- 
+            c('-- data --',paste(c('tagid','year','step','area','number','mean','stddev'), collapse = '\t'))
+        else
+          attributes(x$datafile[[1]])$preamble  <- 
+            c('-- data --',paste( c('tagid','year','step','area','number','mean'), collapse = '\t'))
+      }
+      if(x$type=='catchinkilos'){
+        if(ncol(dat)==4) #x$aggregationlevel==1)
+          attributes(x$datafile[[1]])$preamble  <- 
+            c('-- data --',paste(c('year','area','fleet','biomass'), collapse = '\t'))
+        else
+          attributes(x$datafile[[1]])$preamble  <- 
+            c('-- data --',paste(c('year','step','area','fleet','biomass'), collapse = '\t'))
+      } 
+      x
+    }))->tmp
+  
+  attributes(tmp[[1]]) <- attributes(lik[[1]])
+  
+  tmp[[1]]%>% 
+    write.gadget.file(gd$dir)
 }
 
 # time <- main[[1]]$timefile[[1]]
