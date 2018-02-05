@@ -60,8 +60,8 @@ read.printfiles <- function(path='.',suppress=FALSE){
       regr <- read.table(text=regr.txt,stringsAsFactors = FALSE)[c(1,3,5,7,8)]
       names(regr) <- c('label','intercept','slope','sse','area')
       data <- merge(data,regr)
-      data <- mutate(data,
-                     predict = exp(intercept)*number^slope) ## 1000 hmm
+  #    data <- mutate(data,
+  #                   predict = exp(intercept)*number^slope) ## 1000 hmm
     }
     # pos <- grep('; Standard output file for the stock',tmp)
     # if(length(pos) != 0){

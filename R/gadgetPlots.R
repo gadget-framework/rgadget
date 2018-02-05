@@ -291,8 +291,9 @@ plot.gadget.fit <- function(fit,data = 'sidat',type='direct'){
                fit$catchdist.fleets %>% 
                dplyr::group_by(name) %>% 
                dplyr::mutate(n=n_distinct(age)) %>% 
-               dplyr::filter(n==1) %>% 
-               left_join(fit$SS$weights %>% rename(name=Component)) %>% 
+               dplyr::filter(n==1,
+                             abs(observed-predicted)!=0) %>% 
+               dplyr::left_join(fit$SS$weights %>% rename(name=Component)) %>% 
                ggplot(aes(year+(step-1)/4,avg.length,size=abs((observed-predicted)*sqrt(Weight)), 
                           col=as.factor(sign((observed-predicted))))) + 
                geom_point() + facet_wrap(~name)  + 
@@ -308,8 +309,9 @@ plot.gadget.fit <- function(fit,data = 'sidat',type='direct'){
                dplyr::group_by(name,year,age,step,total.catch) %>% 
                dplyr::summarise(o=sum(observed,na.rm=TRUE),
                                 p=sum(predicted)) %>% 
-               dplyr::mutate(o=ifelse(o==0,NA,o)) %>% 
-               left_join(fit$SS$weights %>% rename(name=Component)) %>% 
+               dplyr::mutate(o=ifelse(o==0,NA,o)) %>%
+               dplyr::filter(abs(o-p)!=0) %>% 
+               dplyr::left_join(fit$SS$weights %>% rename(name=Component)) %>% 
                ggplot(aes(year+(step-1)/4,age,size=abs((o-p)*sqrt(Weight)), 
                           col=as.factor(sign((o-p))))) + geom_point() + 
                facet_wrap(~name)  + theme_light() + 

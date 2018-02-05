@@ -1,13 +1,32 @@
-fix_headers <- function(main.file = 'main',gd=list(dir='.')){
-  main <- read.gadget.file(gd$dir,main.file,file_type = 'main',recursive = TRUE)
+#' Fix data headers in Gadget input files
+#'
+#' Recent revisions of RGadget introduced the gadgetfile class, which is a fairly flexible S3 class to interact with Gadget input files. 
+#' To ensure that data object are read properly, i.e. as data.frame, the following header needs to be inserted to indicate that the following 
+#' sections indicate data\cr
+#' \cr
+#' \code{; -- data --} \cr
+#' \code{; col1 col2 ...}\cr
+#' \cr
+#' This function attempts to translate older gadget models, i.e. those not developed using Rgadget, to the new format 
+#' @param main.file name of the main file
+#' @param path location of the gadget model directory
+#'
+#' @return NULL
+#' @export
+#'
+#' @examples \dontrun{
+#' fix_headers()
+#' }
+fix_headers <- function(main.file = 'main',path='.'){
+  main <- read.gadget.file(path,main.file,file_type = 'main',recursive = TRUE)
   ## fix the areafile
   attributes(main[[1]]$areafile[[1]][4][[1]])$preamble <- 
     list('-- data --', "year\tstep\tarea\ttemperature")
-  main[[1]]$areafile %>% write.gadget.file(gd$dir)
+  main[[1]]$areafile %>% write.gadget.file(path)
   
   st <-
     main$stock$stockfiles %>% 
-    map(~read.gadget.file(file_name = ., file_type = 'stock', path = gd$dir,recursive = TRUE)) %>% 
+    map(~read.gadget.file(file_name = ., file_type = 'stock', path = path,recursive = TRUE)) %>% 
     map(function(x){
       x$initialconditions <- c(x$initialconditions,x$numbers)
       x$numbers <- NULL
@@ -38,11 +57,11 @@ fix_headers <- function(main.file = 'main',gd=list(dir='.')){
       }
       x
     }) %>% 
-    map(~write.gadget.file(.,gd$dir))
+    map(~write.gadget.file(.,path))
   profvis({
   lik <- 
     main$likelihood %>% 
-    map(~read.gadget.file(file_name = ., file_type = 'likelihood', path = gd$dir,recursive = TRUE)) 
+    map(~read.gadget.file(file_name = ., file_type = 'likelihood', path = path,recursive = TRUE)) 
   })
     lik %>% 
     map(~map(.,function(x){
@@ -114,7 +133,7 @@ fix_headers <- function(main.file = 'main',gd=list(dir='.')){
   attributes(tmp[[1]]) <- attributes(lik[[1]])
   
   tmp[[1]]%>% 
-    write.gadget.file(gd$dir)
+    write.gadget.file(path)
 }
 
 # time <- main[[1]]$timefile[[1]]
