@@ -3,8 +3,9 @@ Type: Package
 Title: R package for Gadget models
 Version: 0.5
 Date: 2016-27-
-Author: Bjarki Thor Elvarsson
-Maintainer: Bjarki Thor Elvarsson <bthe@hafro.is>
+Author@R: c(person("Bjarki Thor", "Elvarsson", email="bjarki.elvarsson@hafogvatn.is",role = c("aut", "cre")),
+            person("Jamie", "Lentin", email="lentinj@shuttlethread.com",role = c("cre"))),
+Maintainer: Bjarki Thor Elvarsson <bjarki.elvarsson@hafogvatn.is>
 Description: Companion R package for Gadget (Globally applicable area disagregated ecosystem toolbox)
 Depends:
     R (>= 3.3.0),
