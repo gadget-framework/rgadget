@@ -781,7 +781,13 @@ read.gadget.data <- function(likelihood,debug=FALSE,year_range=NULL){
       names(dat) <- c('year','step','area','age','length','number')
     }
     if(x$type=='stomachcontent'){
-      names(dat) <- c('year','step','area','predator','prey','ratio')
+      if(ncol(dat)==6) {
+        names(dat) <- c('year','step','area','predator','prey','ratio')
+      } else if(ncol(dat) == '7'){
+        names(dat) <- c('year','step','area','predator','prey','ratio','std_dev')
+      } else if(ncol(dat) == 5){
+        names(dat) <- c('year','step','area','predator','ratio')
+      }
     }
     if(x$type=='recaptures'){
       names(dat) <- c('tagid','year','step','area','length','number')
