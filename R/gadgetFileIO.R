@@ -783,7 +783,7 @@ read.gadget.data <- function(likelihood,debug=FALSE,year_range=NULL){
     if(x$type=='stomachcontent'){
       if(ncol(dat)==6) {
         names(dat) <- c('year','step','area','predator','prey','ratio')
-      } else if(ncol(dat) == '7'){
+      } else if(ncol(dat) == 7){
         names(dat) <- c('year','step','area','predator','prey','ratio','std_dev')
       } else if(ncol(dat) == 5){
         names(dat) <- c('year','step','area','predator','ratio')
