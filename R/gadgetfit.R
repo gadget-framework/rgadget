@@ -345,26 +345,35 @@ gadget.fit <- function(wgts = 'WGTS',
   
   
   if('stomachcontent' %in% names(lik.dat$dat)){
+    pred.agg <- 
+      names(lik.dat$dat$stomachcontent) %>% 
+      purrr::set_names(.,.) %>% 
+      purrr::map(~attr(lik.dat$dat$stomachcontent[[.]],'pred.agg')) %>% 
+      dplyr::bind_rows(.id='component')
+    
+    prey.agg <- 
+      names(lik.dat$dat$stomachcontent) %>% 
+      purrr::set_names(.,.) %>% 
+      purrr::map(~attr(lik.dat$dat$stomachcontent[[.]],'prey.agg')) %>% 
+      dplyr::bind_rows(.id='component')
+    
+    
     stomachcontent <-
-      plyr::ldply(names(lik.dat$dat$stomachcontent),
-                  function(x){
-                    
-                    dat <-
-                      merge(lik.dat$dat$stomachcontent[[x]],
-                            plyr::join(plyr::join(out[[x]],
-                                      attr(lik.dat$dat$stomachcontent[[x]],
-                                           'prey.agg'),
-                                      by='prey'),
-                                 attr(lik.dat$dat$stomachcontent[[x]],'pred.agg'),
-                                 by='predator'),
-                            all.y=TRUE) %>%
-                      dplyr::group_by(year,step,predator) %>%
-                      dplyr::mutate(observed=ratio/sum(ratio,na.rm=TRUE),
-                                    predicted=number/sum(number,na.rm=TRUE),
-                                    prey.length = (prey.lower+prey.upper)/2,
-                                    pred.length = (lower+upper)/2,
-                                    component=x)
-                  }) %>% 
+      lik.dat$dat$stomachcontent %>% 
+      dplyr::bind_rows(.id = 'component') %>% 
+      dplyr::select(-c(prey.lower,prey.upper,lower,upper)) %>% 
+      dplyr::right_join(
+        out[lik.dat$dat$stomachcontent %>% 
+              names()] %>%
+          dplyr::bind_rows(.id = 'component') %>% 
+          left_join(prey.agg) %>% 
+          left_join(pred.agg),
+        by = c('component','predator','prey','year','step','area')) %>% 
+      dplyr::group_by(component,year,step,predator) %>%
+      dplyr::mutate(observed=ratio/sum(ratio,na.rm=TRUE),
+                    predicted=number/sum(number,na.rm=TRUE),
+                    prey.length = (prey.lower+prey.upper)/2,
+                    pred.length = (lower+upper)/2) %>% 
       dplyr::as_tibble()
     
   } else {
