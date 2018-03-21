@@ -177,7 +177,8 @@ gadget.fit <- function(wgts = 'WGTS',
     d %>% 
     dplyr::group_by(year,step,prey,length) %>% 
     dplyr::filter(biomass.consumed > 0) %>% 
-    dplyr::summarise(suit = sum(biomass.consumed*suit)/sum(biomass.consumed)) 
+    dplyr::summarise(suit = sum(biomass.consumed*suit)/sum(biomass.consumed)) %>% 
+    dplyr::rename(stock = prey)
   
   ## merge data and estimates
   if('surveyindices' %in% names(lik.dat$dat)){
