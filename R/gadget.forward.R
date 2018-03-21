@@ -281,7 +281,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
       
       ## project next n years
     } else if(tolower(method) == 'custom'){
-      if(!is.function(prj.func)){
+      if(is.function(prj.func)){
         prj.rec <- 
           tmp %>% 
           prj.func(...) 
