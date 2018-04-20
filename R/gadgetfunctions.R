@@ -1231,7 +1231,7 @@ plot.gadget.ypr <- function(ypr){
 #' Analytical retrospective
 #'
 #' \code{gadget.retro} runs an analytical retrospective model fitting run. 
-#' @param path location of the Gadget model
+#' @param path location of the Gadget model, all filenames are relative to the path
 #' @param main.file name of the main file, defaults to 'main'
 #' @param params.file name of the starting parameter value file, defaults to 'params.in'
 #' @param optinfofile name of the file containing the optimizer settings, defaults to 'optinfofile'
@@ -1252,7 +1252,7 @@ gadget.retro <- function(path='.',
                          pre = 'RETRO',
                          iterative =FALSE,...){
   
-  if(!file.exists(paste(path,mainfile,sep='/'))){
+  if(!file.exists(paste(path,main.file,sep='/'))){
     stop('No main file found')
   }
   
@@ -1265,7 +1265,7 @@ gadget.retro <- function(path='.',
   }
   
   
-  main <- read.gadget.file(path,mainfile,file_type = 'main',recursive = FALSE)
+  main <- read.gadget.file(path,main.file,file_type = 'main',recursive = FALSE)
   
   for(year in 1:num.years){
     Rdir <- gadget.variant.dir(path,variant_dir = sprintf('%s/R%s',pre,year))
@@ -1274,9 +1274,9 @@ gadget.retro <- function(path='.',
       gadget_update(lastyear = .[[1]]$lastyear-year) %>% 
       write.gadget.file(Rdir)
     
-    lik <- gadgetlikelihood(main[['likelihood']]$likelihoodfiles,Rdir) 
-    attr(lik,'file_config')$mainfile_overwrite <- TRUE
-    write.gadget.file(lik,Rdir)
+  #  lik <- gadgetlikelihood(main[['likelihood']]$likelihoodfiles,Rdir) 
+  #  attr(lik,'file_config')$mainfile_overwrite <- TRUE
+  #  write.gadget.file(lik,Rdir)
   }
   
   Sys.setenv(GADGET_WORKING_DIR=normalizePath(path))
@@ -1304,7 +1304,7 @@ gadget.retro <- function(path='.',
     }
   }
   parallel::mclapply(1:num.years,run.func, 
-                     mc.cores = detectCores(logical = TRUE))
+                     mc.cores = parallel::detectCores(logical = TRUE))
   
   Sys.unsetenv('GADGET_WORKING_DIR')
 }
