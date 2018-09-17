@@ -330,7 +330,11 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
                              cv.floor=NULL,
                              comp=NULL,
                              inverse=FALSE,
-                             cl=NULL) {
+                             cl=NULL,
+                             gd=list(dir='.',rel.dir='WGTS')) {
+  
+  ## Change the gadget working directory to whatever the gd says it should be
+  Sys.setenv(GADGET_WORKING_DIR=normalizePath(gd$dir))
   
   ## Ensure all files exist
   if(!file.exists(main.file)) {
