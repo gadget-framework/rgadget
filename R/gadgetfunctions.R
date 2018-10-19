@@ -120,7 +120,7 @@ callGadget <- function(l=NULL,
                     ifelse(is.null(printfinal),'',
                            paste('-printfinal',printfinal)),
                     ifelse(is.null(parallel),'',
-                           '-parallel'))
+                           paste('-parallel',parallel)))
   
   run.string <- paste(gadget.exe,switches)
   if(!PBS){
