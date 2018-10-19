@@ -8,8 +8,9 @@ gadget.iterative(main.file = "main", gadget.exe = "gadget",
   params.file = "params.in", rew.sI = TRUE, run.final = TRUE,
   resume.final = FALSE, wgts = "WGTS", grouping = NULL,
   optinfofile = "optinfofile", PBS = FALSE, qsub.script = NULL,
-  run.base = FALSE, run.serial = FALSE, method = "lm", cv.floor = NULL,
-  comp = NULL, inverse = FALSE, cl = NULL)
+  run.base = FALSE, run.serial = FALSE, method = "lm",
+  cv.floor = NULL, comp = NULL, inverse = FALSE, cl = NULL,
+  gd = list(dir = ".", rel.dir = "WGTS"), ...)
 }
 \arguments{
 \item{main.file}{a string containing the location of the main file}
@@ -60,6 +61,8 @@ components}
 
 \item{cl}{cluster references, used to parallelize this function on
 Windows or on a actual cluster. Make sure that Rgadget is loaded on all nodes.}
+
+\item{...}{pass to callGadget}
 
 \item{lik.dat}{Likelihood dataset}
 

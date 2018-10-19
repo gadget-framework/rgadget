@@ -12,3 +12,6 @@ parse.gadget.formulae(input_formulae)
 \value{
 An R expression representing the gadget formulae, which could be run with \code{eval(.., list(moo = 3))}
 }
+\description{
+Parse a GADGET formulae string
+}

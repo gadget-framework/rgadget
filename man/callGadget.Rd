@@ -5,11 +5,11 @@
 \title{Call GADGET}
 \usage{
 callGadget(l = NULL, s = NULL, n = NULL, v = NULL, h = NULL,
-  i = NULL, opt = NULL, main = NULL, m = NULL, p = NULL, o = NULL,
-  print = NULL, precision = NULL, log = NULL, printinitial = NULL,
-  printfinal = NULL, gadget.exe = "gadget", PBS = FALSE,
-  qsub.script = NULL, PBS.name = "run", qsub.output = "output",
-  ignore.stderr = TRUE)
+  i = NULL, opt = NULL, main = NULL, m = NULL, p = NULL,
+  o = NULL, print = NULL, precision = NULL, log = NULL,
+  printinitial = NULL, printfinal = NULL, gadget.exe = "gadget",
+  PBS = FALSE, qsub.script = NULL, PBS.name = "run",
+  qsub.output = "output", ignore.stderr = TRUE, parallel = NULL)
 }
 \arguments{
 \item{l}{performs a likelihood (optimising) model run}
@@ -67,6 +67,8 @@ desired. As with the PBS script R tries to set the permission to 777
 \item{qsub.output}{The directory where the output from the script is stored}
 
 \item{ignore.stderr}{should error output be ignored}
+
+\item{parallel}{(experimental) should the parallel option be used}
 }
 \value{
 the run history

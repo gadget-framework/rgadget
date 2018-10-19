@@ -161,19 +161,20 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
   write.gadget.area(area,file=sprintf('%s/area',pre))
   
   ## fleet setup 
-  fleet <- plyr::llply(fleet,
-                       function(x){
-                         tmp <- subset(x,fleet %in% fleets$fleet)
-                       })
+  fleet <-
+    fleet %>%
+    purrr::map(~dplyr::filter(.,fleet %in% fleets$fleet))
+    
+  fleet$fleet <- 
+    dplyr::mutate(fleet$fleet,
+                  fleet = sprintf('%s.pre',fleet),
+                  multiplicative = '#rgadget.effort',   #effort,
+                  amount = sprintf('%s/fleet.pre', pre),
+                  type = 'linearfleet')
   
-  fleet$fleet <- dplyr::mutate(fleet$fleet,
-                               fleet = sprintf('%s.pre',fleet),
-                               multiplicative = '#rgadget.effort',   #effort,
-                               amount = sprintf('%s/fleet.pre', pre),
-                               type = 'linearfleet')
-  
-  fleet$prey <- dplyr::mutate(fleet$prey,
-                              fleet = sprintf('%s.pre',fleet))
+  fleet$prey <- 
+    dplyr::mutate(fleet$prey,
+                  fleet = sprintf('%s.pre',fleet))
   
   fleet.predict <- 
     time.grid %>% 
@@ -216,7 +217,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
         rec %>%
         dplyr::ungroup() %>% 
         dplyr::filter(as.numeric(year) < rec.window)
-    } else if(class(rec.window) == 'data.frame'){
+    } else if( 'data.frame' %in% class(rec.window)){
       tmp <- 
         rec %>%
         dplyr::ungroup() %>% 
@@ -305,7 +306,9 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
                                      unlist,
                                    year = (sim.begin):(sim.begin+years-1),
                                    trial = 1:num.trials) %>% 
-                         dplyr::arrange(stock,year,trial))
+                         dplyr::arrange(stock,year,trial),
+                       by = 'stock') %>% 
+      dplyr::mutate(step = rec$step[rec$year == min(ref.years)])
   }
   
   if(num.trials == 1 & length(effort)==1){
@@ -365,7 +368,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
           'ageaggfile       %2$s/Aggfiles/%1$s.allages.agg',
           'lenaggfile       %2$s/Aggfiles/%1$s.len.agg',
           'printfile        %2$s/out/%1$s.lw',
-          'printatstart     0',
+          'printatstart     1',
           'yearsandsteps    all 1',
           sep = '\n')
   

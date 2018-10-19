@@ -20,6 +20,9 @@ sub.gadget.formulae(ex, replacements,
 \value{
 An R expression representing the gadget formulae, which could be run with \code{eval(.., list(moo = 3))}
 }
+\description{
+Replace variables in formulae
+}
 \examples{
 sub.gadget.formulae(quote(log(moo) + oink + baa), list(moo = "#fish", oink = quote(2 + 2), baa = 5))
 # ==> log(fish) + (2 + 2) + 5

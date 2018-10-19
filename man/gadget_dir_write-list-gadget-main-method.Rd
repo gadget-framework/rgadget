@@ -7,6 +7,9 @@
 \usage{
 \S4method{gadget_dir_write}{list,`gadget-main`}(gd, x)
 }
+\description{
+Write gadget main
+}
 \author{
 Bjarki Thor Elvarsson
 }

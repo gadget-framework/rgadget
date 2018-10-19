@@ -7,8 +7,8 @@
 \usage{
 gadget.fit(wgts = "WGTS", main.file = NULL, fleet.predict = NULL,
   mat.par = NULL, params.file = NULL, f.age.range = NULL,
-  fit.folder = "FIT", printfile.printatstart = 1, printfile.steps = 1,
-  rec.len.param = FALSE)
+  fit.folder = "FIT", printfile.printatstart = 1,
+  printfile.steps = 1, rec.len.param = FALSE)
 
 bind.gadget.fit(...)
 }

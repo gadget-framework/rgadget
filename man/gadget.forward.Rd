@@ -4,12 +4,13 @@
 \alias{gadget.forward}
 \title{Gadget forward}
 \usage{
-gadget.forward(years = 20, params.file = "params.out", main.file = "main",
-  num.trials = 10, fleets = data.frame(fleet = "comm", ratio = 1),
-  effort = 0.2, rec.scalar = NULL, check.previous = FALSE,
-  save.results = TRUE, stochastic = TRUE, rec.window = NULL,
-  gd = list(dir = ".", rel.dir = "PRE"), method = "AR1", ref.years = NULL,
-  custom.print = NULL, prj.func = NULL, ...)
+gadget.forward(years = 20, params.file = "params.out",
+  main.file = "main", num.trials = 10, fleets = data.frame(fleet =
+  "comm", ratio = 1), effort = 0.2, rec.scalar = NULL,
+  check.previous = FALSE, save.results = TRUE, stochastic = TRUE,
+  rec.window = NULL, gd = list(dir = ".", rel.dir = "PRE"),
+  method = "AR1", ref.years = NULL, custom.print = NULL,
+  prj.func = NULL, ...)
 }
 \arguments{
 \item{years}{Number of years to predictc}

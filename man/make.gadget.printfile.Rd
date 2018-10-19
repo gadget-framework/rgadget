@@ -20,6 +20,9 @@ make.gadget.printfile(main = "main", output = "out",
 \value{
 gadget.mainfile object
 }
+\description{
+Make gadget printfile
+}
 \author{
 Bjarki Thor Elvarsson
 }

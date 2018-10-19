@@ -11,8 +11,8 @@
 \title{gadget.fit helper functions}
 \usage{
 read.gadget.wgts(params.file = "params.in", wgts = "WGTS",
-  likelihood = "likelihood", lik.pre = "lik.", params.pre = "params.",
-  parallel = FALSE)
+  likelihood = "likelihood", lik.pre = "lik.",
+  params.pre = "params.", parallel = FALSE)
 
 \method{merge}{formula}(txt)
 
@@ -93,11 +93,7 @@ list of wgts groupings
 symbols '*','/','+','-','exp','log','sqrt'. The evaluation uses a gadget
 parameter object for its evaluation.
 
-\code{get.gadget.growth} get gadget growth
-
 \code{get.gadget.recruitment} gets gadget recruitment
-
-\code{get.gadget.catches} gets gadget catches
 
 \code{read.gadget.grouping} reads the the likelihood grouping from the WGTS folder
 }

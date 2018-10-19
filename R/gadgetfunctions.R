@@ -70,6 +70,7 @@
 ##' @param PBS.name Name of the pbs script (.sh will be appended).
 ##' @param qsub.output The directory where the output from the script is stored
 ##' @param ignore.stderr should error output be ignored
+##' @param parallel (experimental) should the parallel option be used
 ##' @return the run history
 ##' @export
 callGadget <- function(l=NULL,
@@ -93,8 +94,8 @@ callGadget <- function(l=NULL,
                        qsub.script=NULL,
                        PBS.name='run',
                        qsub.output='output',
-                       ignore.stderr=TRUE
-){
+                       ignore.stderr=TRUE,
+                       parallel=NULL){
   
   if(!is.null(.Options$gadget.path)){
     gadget.exe=.Options$gadget.path
@@ -117,7 +118,9 @@ callGadget <- function(l=NULL,
                     ifelse(is.null(printinitial),'',
                            paste('-printinitial',printinitial)),
                     ifelse(is.null(printfinal),'',
-                           paste('-printfinal',printfinal)))
+                           paste('-printfinal',printfinal)),
+                    ifelse(is.null(parallel),'',
+                           '-parallel'))
   
   run.string <- paste(gadget.exe,switches)
   if(!PBS){
@@ -302,6 +305,7 @@ callParamin <- function(i='params.in',
 ##' components
 ##' @param cl cluster references, used to parallelize this function on
 ##' Windows or on a actual cluster. Make sure that Rgadget is loaded on all nodes.
+##' @param ... pass to callGadget
 ##' @return a matrix containing the weights of the likelihood
 ##' components at each iteration (defaults to FALSE).
 ##' @author Bjarki Þór Elvarsson
@@ -331,7 +335,8 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
                              comp=NULL,
                              inverse=FALSE,
                              cl=NULL,
-                             gd=list(dir='.',rel.dir='WGTS')) {
+                             gd=list(dir='.',rel.dir='WGTS'),
+                             ...) {
   
   ## Change the gadget working directory to whatever the gd says it should be
   Sys.setenv(GADGET_WORKING_DIR=normalizePath(gd$dir))
@@ -383,7 +388,8 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
   write.gadget.main(main.init,file=paste(wgts,'main.init',sep='/'))
   callGadget(s=1,main=paste(wgts,'main.init',sep='/'),
              o=paste(wgts,'lik.init',sep='/'),
-             i=params.file,gadget.exe=gadget.exe)
+             i=params.file,gadget.exe=gadget.exe,
+             ...)
   
   
   ## degrees of freedom approximated by the number of datapoints
@@ -489,14 +495,16 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
                gadget.exe=gadget.exe,
                PBS=PBS,
                qsub.script=qsub.script,
-               PBS.name=paste(wgts,comp,sep='/'))
+               PBS.name=paste(wgts,comp,sep='/'),
+               ...)
     callGadget(s=1,
                main=paste(wgts,paste('main',comp,sep='.'),sep='/'),
                i=paste(wgts,paste('params',comp,sep='.'),sep='/'),
                o=paste(wgts,paste('lik',comp,sep='.'),sep='/'),
                gadget.exe=gadget.exe,
                PBS=PBS,
-               PBS.name=paste(wgts,comp,sep='/'))
+               PBS.name=paste(wgts,comp,sep='/'),
+               ...)
     print(sprintf('Comp %s completed',comp))
   }
   ##
@@ -572,12 +580,14 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
                  gadget.exe=gadget.exe,
                  PBS=PBS,
                  PBS.name=paste(wgts,comp,sep='/'),
-                 qsub.script=qsub.script)
+                 qsub.script=qsub.script,
+                 ...)
       callGadget(s=1,
                  main=sprintf('%s/main.%s',wgts,comp),
                  i=sprintf('%s/params.%s',wgts,comp),
                  o=sprintf('%s/lik.%s',wgts,comp),
-                 gadget.exe=gadget.exe)
+                 gadget.exe=gadget.exe,
+                 ...)
       print(sprintf('Comp %s completed',comp))
     }
     

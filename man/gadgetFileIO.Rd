@@ -153,22 +153,7 @@ nothing
 \code{read.gadget.likelihood} reads the likelihood (input) file for gadget. The format of
 the likelihood file is described in gadget's user manual.
 
-\code{write.gadget.likelihood} writes a likelihood object to file
-
-\code{merge.gadget.likelihood} merges to likelihood objects in one
-
-\code{get.gadget.likelihood} retrives selected parts of the likelihood object
-
-\code{read.gadget.file} reads gadget's main file
-
-\code{write.gadget.main} writes gadget.main object to file
-
-\code{clear.spaces} clears tab and spaces from a string and return a list or a matrix of values
-
 \code{read.gadget.data} reads data used by the various components
-
-\code{strip.comments} is a helper function created to clear out all comments (indicated by ';') and
-unwanted spaces from gadget input and output files.
 
 \code{read.gadget.stockfiles} reads in Gadget stockfiles DEPRECATED
 
@@ -176,15 +161,7 @@ unwanted spaces from gadget input and output files.
 
 \code{write.gadget.area} writes a gadget area file
 
-\code{read.gadget.time} reads gadget time file
-
-\code{write.gadget.time} writes gadget time file
-
-\code{read.gadget.table} reads gadget tables
-
 \code{read.gadget.fleet} read gadget fleet
-
-\code{write.gadget.fleet} writes gadget fleet DEPRECATED
 }
 \author{
 Bjarki ??r Elvarsson

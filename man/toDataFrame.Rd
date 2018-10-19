@@ -12,6 +12,9 @@ toDataFrame(sim)
 \value{
 data.frame
 }
+\description{
+toDataFrame
+}
 \author{
 Bjarki Thor Elvarsson
 }

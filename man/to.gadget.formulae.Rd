@@ -12,3 +12,6 @@ to.gadget.formulae(ex)
 \value{
 A character vector representing the GADGET formulae, e.g. "(+ 2 (log (- #moo 1)))"
 }
+\description{
+Turn R expression into GADGET formulae string
+}

@@ -26,8 +26,6 @@ a string containing the text of the params file (if desired)
 }
 \description{
 \code{read.gadget.parameters} reads a gadget parameter file
-
-\code{write.gadget.parameters} writes gadget input parameters
 }
 \author{
 Bjarki  Thor Elvarsson

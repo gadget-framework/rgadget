@@ -16,6 +16,9 @@ aldist(stock.dat, sigma = 0, dl = 1)
 \value{
 data.frame
 }
+\description{
+Age length dist
+}
 \author{
 Bjarki Thor Elvarsson
 }

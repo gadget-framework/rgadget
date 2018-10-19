@@ -6,9 +6,10 @@
 \usage{
 gadget.sensitivity(file = "params.out", outer.range = 0.5,
   outer.stepsize = 0.05, inner.range = 0.05, inner.stepsize = 0.01,
-  opt = TRUE, vars.all = TRUE, var.names = "", gadget.exe = "gadget",
-  sens.in = "sens.in", lik.out = "lik.sens", within.bounds = TRUE,
-  main.file = "main", sens.dir = "SENS", calc.full = FALSE)
+  opt = TRUE, vars.all = TRUE, var.names = "",
+  gadget.exe = "gadget", sens.in = "sens.in", lik.out = "lik.sens",
+  within.bounds = TRUE, main.file = "main", sens.dir = "SENS",
+  calc.full = FALSE)
 }
 \arguments{
 \item{file}{name of the input file with the initial point}

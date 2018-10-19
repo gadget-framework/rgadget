@@ -425,6 +425,12 @@ read.gadget.parameters <- function(file='params.in'){
     ifelse(length(msg)==0,NA,msg)
   }
 
+  safe_dates <- 
+    quietly(~gsub('; Gadget version .+ running on [A-Za-z].+','',.) %>% 
+             lubridate::parse_date_time('%a %b! %d! %H!:%M!:%S! %Y!'))
+  
+  date <- safe_dates(header[1]) %>% .$result
+    
 
   tmp <- list(simann=data.frame(numFunc=num.func(sim.func.str),
                 lik.val=lik.func(sim.pos+1),
@@ -440,6 +446,7 @@ read.gadget.parameters <- function(file='params.in'){
                 stringsAsFactors=FALSE))
   class(params) <- c('gadget.parameters',class(params))
   attr(params,'optim.info') <- tmp
+  attr(params,'data') <- date 
   return(params)
 }
 
