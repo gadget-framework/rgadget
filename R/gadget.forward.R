@@ -308,7 +308,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
                                    trial = 1:num.trials) %>% 
                          dplyr::arrange(stock,year,trial),
                        by = 'stock') %>% 
-      dplyr::mutate(step = rec$step[rec$year == min(ref.years)])
+      dplyr::mutate(step = min(rec$step[rec$year == min(ref.years)]))
   }
   
   if(num.trials == 1 & length(effort)==1){
