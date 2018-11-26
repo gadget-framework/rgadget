@@ -162,10 +162,13 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
   } else {
     area$temperature <- 
       area$temperature %>% 
-      dplyr::bind_rows(temperature)
+      dplyr::bind_rows(temperature) %>% 
+      dplyr::mutate(area = as.numeric(area))
     
     num.missing <- 
-      dplyr::anti_join(time.grid, area$temperature) %>% 
+      dplyr::anti_join(time.grid %>% 
+                         dplyr::mutate(area = as.numeric(area)), 
+                       area$temperature) %>% 
       summarise(n=n())
     if(num.missing$n>0){
       stop('Error temperature data mismatch')
