@@ -13,6 +13,7 @@
 #' which are the names of the fleets and the ratio of the harvestable biomass they consume.
 #' @param effort proportion of the harvestable biomass taken per year. Note that this relates to 
 #' fishing mortality of fully recruited through the relation F=-log(1-E)
+#' @param temperature (optional) data.frame containing temperature by year, step and area in the projections
 #' @param rec.scalar scaling schedule for recruitment going forward. Data frame with year, stock and rec.scalar
 #' @param check.previous Should previous results be loaded? Defaults to FALSE
 #' @param save.results Should the results be saved? Defaults to TRUE
@@ -31,6 +32,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
                            main.file = 'main', num.trials = 10,
                            fleets = data.frame(fleet='comm',ratio = 1),
                            effort = 0.2,
+                           temperature = NULL,
                            rec.scalar = NULL,
                            check.previous = FALSE,
                            save.results = TRUE,
@@ -153,10 +155,22 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
                 area = area$areas)
   
   ## hmm check this at some point
-  area$temperature <- 
-    dplyr::mutate(time.grid,
-                  temperature = 5)
-  
+  if(is.null(temperature)){
+    area$temperature <- 
+      dplyr::mutate(time.grid,
+                    temperature = 5)
+  } else {
+    area$temperature <- 
+      area$temperature %>% 
+      dplyr::bind_rows(temperature)
+    
+    num.missing <- 
+      dplyr::anti_join(time.grid, area$temperature) %>% 
+      summarise(n=n())
+    if(num.missing$n>0){
+      stop('Error temperature data mismatch')
+    }
+  }
   main$areafile <- sprintf('%s/area',pre)
   write.gadget.area(area,file=sprintf('%s/area',pre))
   
