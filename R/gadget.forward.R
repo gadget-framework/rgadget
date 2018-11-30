@@ -330,7 +330,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
   
   if(num.trials == 1 & length(effort)==1){
     prj.rec %>% 
-      dplyr::mutate(switch = paste(stock,'rec',year,sep='.'),
+      dplyr::mutate(switch = paste(stock,'rec',year,step,sep='.'),
                     lower = 0,
                     upper = recruitment + 1,
                     optimise = 0) %>% 
