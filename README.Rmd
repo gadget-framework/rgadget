@@ -57,6 +57,7 @@ To illustrate the use of Gadget we will use a model for cod in Icelandic waters 
 system.file('extdata', 'cod_model.tgz', package = 'Rgadget') %>% 
   untar(exdir = path.expand('./gadget_example/'))
 
+## change the working directory to the location of the gadget model
 setwd('gadget_example/cod_model')
 
 ```
