@@ -57,6 +57,8 @@ To illustrate the use of Gadget we will use a model for cod in Icelandic waters 
 system.file('extdata', 'cod_model.tgz', package = 'Rgadget') %>% 
   untar(exdir = path.expand('./gadget_example/'))
 
+setwd('gadget_example/cod_model')
+
 ```
 
 To estimate the model parameters the suggested procedure is to use the iterative reweighting approach with is implemented in the `gadget.iterative` function (see `?gadget.iterative` for further details).
