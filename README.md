@@ -57,6 +57,9 @@ To illustrate the use of Gadget we will use a model for cod in Icelandic waters 
 ```r
 system.file('extdata', 'cod_model.tgz', package = 'Rgadget') %>% 
   untar(exdir = path.expand('./gadget_example/'))
+
+## change the working directory to the location of the gadget model
+setwd('gadget_example/cod_model')
 ```
 
 To estimate the model parameters the suggested procedure is to use the iterative reweighting approach with is implemented in the `gadget.iterative` function (see `?gadget.iterative` for further details).
@@ -104,19 +107,19 @@ fit$sidat
 
 ```
 ## # A tibble: 135 x 20
-##    name   area  label  year  step  number intercept slope   sse stocknames
-##    <chr>  <chr> <chr> <int> <int>   <dbl>     <dbl> <dbl> <dbl> <chr>     
-##  1 si.gp1 area1 leng…  1985     2  2.31e⁸     -35.3  2.21  4.53 codimm    
-##  2 si.gp1 area1 leng…  1986     2  1.53e⁸     -35.3  2.21  4.53 codimm    
-##  3 si.gp1 area1 leng…  1987     2  8.71e⁷     -35.3  2.21  4.53 codimm    
-##  4 si.gp1 area1 leng…  1988     2  1.18e⁸     -35.3  2.21  4.53 codimm    
-##  5 si.gp1 area1 leng…  1989     2  9.48e⁷     -35.3  2.21  4.53 codimm    
-##  6 si.gp1 area1 leng…  1990     2  1.48e⁸     -35.3  2.21  4.53 codimm    
-##  7 si.gp1 area1 leng…  1991     2  1.13e⁸     -35.3  2.21  4.53 codimm    
-##  8 si.gp1 area1 leng…  1992     2  5.16e⁷     -35.3  2.21  4.53 codimm    
-##  9 si.gp1 area1 leng…  1993     2  1.20e⁸     -35.3  2.21  4.53 codimm    
-## 10 si.gp1 area1 leng…  1994     2  1.58e⁸     -35.3  2.21  4.53 codimm    
-## # ... with 125 more rows, and 10 more variables: sitype <chr>,
+##    name  area  label  year  step number intercept slope   sse stocknames
+##    <chr> <chr> <chr> <int> <int>  <dbl>     <dbl> <dbl> <dbl> <chr>     
+##  1 si.g… area1 leng…  1985     2 2.31e8     -35.3  2.21  4.53 codimm    
+##  2 si.g… area1 leng…  1986     2 1.53e8     -35.3  2.21  4.53 codimm    
+##  3 si.g… area1 leng…  1987     2 8.71e7     -35.3  2.21  4.53 codimm    
+##  4 si.g… area1 leng…  1988     2 1.18e8     -35.3  2.21  4.53 codimm    
+##  5 si.g… area1 leng…  1989     2 9.48e7     -35.3  2.21  4.53 codimm    
+##  6 si.g… area1 leng…  1990     2 1.48e8     -35.3  2.21  4.53 codimm    
+##  7 si.g… area1 leng…  1991     2 1.13e8     -35.3  2.21  4.53 codimm    
+##  8 si.g… area1 leng…  1992     2 5.16e7     -35.3  2.21  4.53 codimm    
+##  9 si.g… area1 leng…  1993     2 1.20e8     -35.3  2.21  4.53 codimm    
+## 10 si.g… area1 leng…  1994     2 1.58e8     -35.3  2.21  4.53 codimm    
+## # … with 125 more rows, and 10 more variables: sitype <chr>,
 ## #   fittype <chr>, length <chr>, age <chr>, survey <chr>, fleet <chr>,
 ## #   observed <int>, lower <int>, upper <int>, predict <dbl>
 ```

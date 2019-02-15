@@ -28,3 +28,4 @@ LazyLoad: yes
 LazyData: true
 RoxygenNote: 6.1.0
 VignetteBuilder: knitr
+ByteCompile: TRUE

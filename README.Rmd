@@ -6,7 +6,7 @@ output:
 ---
 
 ```{r "setup", include=FALSE}
-knitr::opts_knit$set(root.dir = '~/rgadget/gadget_example/cod_model')  # with something else than `getwd()`
+#knitr::opts_knit$set(root.dir = '~/rgadget/gadget_example/cod_model')  # with something else than `getwd()`
 ```
 
 Rgadget is a set of useful utilities for gadget, a statistical
