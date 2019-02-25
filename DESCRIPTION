@@ -15,6 +15,7 @@ Imports:
     reshape2,
     parallel,
     lubridate,
+    stringi,
     stringr,
     grid,
     purrr,
