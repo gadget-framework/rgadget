@@ -20,6 +20,10 @@ split_gadgetfile_line <- function (line) {
   parts <- unlist(strsplit(line, "\\s+"))
   # Compare count of opening brackets and closing brackets in parts
   stack <- stringi::stri_count_fixed(parts, "(") - stringi::stri_count_fixed(parts, ")")
+
+  # If there aren't any brackets to balance, return split parts now
+  if (all(stack == 0)) return(parts)
+
   # 0 ==> part of an unclosed expression, 1 ==> combine with any previous 0 parts
   stack <- c(1, ifelse(cumsum(stack) > 0, 0, 1))[1:length(stack)]
   # Use this as a factor to split up the parts into groups of whole expressions
