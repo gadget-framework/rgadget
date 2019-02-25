@@ -23,7 +23,7 @@ split_gadgetfile_line <- function (line) {
   # 0 ==> part of an unclosed expression, 1 ==> combine with any previous 0 parts
   stack <- c(1, ifelse(cumsum(stack) > 0, 0, 1))[1:length(stack)]
   # Use this as a factor to split up the parts into groups of whole expressions
-  parts <- split(parts, cumsum(stack))
+  parts <- split(parts, as.character(cumsum(stack)))
   # Collapse groups back together
   return(vapply(parts, join_strings, "", USE.NAMES = FALSE))
 }
