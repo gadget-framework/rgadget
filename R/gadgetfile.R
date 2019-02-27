@@ -1,3 +1,6 @@
+#' @importFrom stringi stri_count_fixed
+#' @importFrom stringi stri_match_first_regex
+
 # Helper to pull file_type out of datafile
 get_filetype <- function (file_type) {
   t <- Rgadget::gadget_filetypes[Rgadget::gadget_filetypes$file_type == file_type,]
@@ -7,10 +10,6 @@ get_filetype <- function (file_type) {
 
 # Split line whitespace-separated sections, keeping formulae together
 split_gadgetfile_line <- function (line) {
-  # Count the number of times (char) occurs in (string)
-  countchar <- function (string, char) {
-    vapply(regmatches(string, gregexpr(char, string, fixed = TRUE)), length, 0)
-  }
   join_strings <- function (string) {
     paste(string, collapse = " ")
   }
@@ -20,11 +19,15 @@ split_gadgetfile_line <- function (line) {
   # Split by any whitespace first
   parts <- unlist(strsplit(line, "\\s+"))
   # Compare count of opening brackets and closing brackets in parts
-  stack <- countchar(parts, "(") - countchar(parts, ")")
+  stack <- stringi::stri_count_fixed(parts, "(") - stringi::stri_count_fixed(parts, ")")
+
+  # If there aren't any brackets to balance, return split parts now
+  if (all(stack == 0)) return(parts)
+
   # 0 ==> part of an unclosed expression, 1 ==> combine with any previous 0 parts
   stack <- c(1, ifelse(cumsum(stack) > 0, 0, 1))[1:length(stack)]
   # Use this as a factor to split up the parts into groups of whole expressions
-  parts <- split(parts, cumsum(stack))
+  parts <- split(parts, as.character(cumsum(stack)))
   # Collapse groups back together
   return(vapply(parts, join_strings, "", USE.NAMES = FALSE))
 }
@@ -398,8 +401,9 @@ read.gadget.file <- function(path, file_name, file_type = "generic",
                              fileEncoding = "UTF-8", missingOkay = FALSE, recursive = TRUE) {
   extract <- function (pattern, line) {
     if (length(line) == 0) return(c())
-    m <- regmatches(line, regexec(pattern, line))[[1]]
-    if (length(m) > 1) m[2:length(m)] else c()
+    m <- stringi::stri_match_first_regex(line, pattern)
+    if (is.na(m[[1]])) return(c())
+    return(m[1,-1])
   }
   
   # Append (new) to (l), optionally naming it (name)
