@@ -6,10 +6,10 @@
 \usage{
 gadget.forward(years = 20, params.file = "params.out",
   main.file = "main", num.trials = 10, fleets = data.frame(fleet =
-  "comm", ratio = 1), effort = 0.2, rec.scalar = NULL,
-  check.previous = FALSE, save.results = TRUE, stochastic = TRUE,
-  rec.window = NULL, gd = list(dir = ".", rel.dir = "PRE"),
-  method = "AR1", ref.years = NULL, custom.print = NULL,
+  "comm", ratio = 1), effort = 0.2, temperature = NULL,
+  rec.scalar = NULL, check.previous = FALSE, save.results = TRUE,
+  stochastic = TRUE, rec.window = NULL, gd = list(dir = ".", rel.dir
+  = "PRE"), method = "AR1", ref.years = NULL, custom.print = NULL,
   prj.func = NULL, ...)
 }
 \arguments{
@@ -26,6 +26,8 @@ which are the names of the fleets and the ratio of the harvestable biomass they 
 
 \item{effort}{proportion of the harvestable biomass taken per year. Note that this relates to 
 fishing mortality of fully recruited through the relation F=-log(1-E)}
+
+\item{temperature}{(optional) data.frame containing temperature by year, step and area in the projections}
 
 \item{rec.scalar}{scaling schedule for recruitment going forward. Data frame with year, stock and rec.scalar}
 

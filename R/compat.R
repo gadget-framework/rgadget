@@ -58,11 +58,11 @@ fix_headers <- function(main.file = 'main',path='.'){
       x
     }) %>% 
     map(~write.gadget.file(.,path))
-  profvis({
+#  profvis({
   lik <- 
     main$likelihood %>% 
     map(~read.gadget.file(file_name = ., file_type = 'likelihood', path = path,recursive = TRUE)) 
-  })
+ # })
     lik %>% 
     map(~map(.,function(x){
       if(x$type=='catchdistribution'){

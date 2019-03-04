@@ -111,28 +111,24 @@ gadget.fit <- function(wgts = 'WGTS',
     out[sprintf('%s.full',names(stocks))] %>% 
     purrr::set_names(.,names(stocks)) %>% 
     dplyr::bind_rows(.id='stock') %>% 
-    dplyr::mutate(length=as.numeric(gsub('len','',length))) %>% 
-    dplyr::as_data_frame()
+    dplyr::mutate(length=as.numeric(gsub('len','',length))) 
   
   stock.std <- 
     out[sprintf('%s.std',names(stocks))] %>% 
     purrr::set_names(.,names(stocks)) %>% 
-    dplyr::bind_rows(.id='stock') %>% 
-    dplyr::as_data_frame()
+    dplyr::bind_rows(.id='stock') 
   
   stock.prey <- 
     out[sprintf('%s.prey',names(stocks))] %>% 
     purrr::set_names(.,names(stocks)) %>% 
-    dplyr::bind_rows(.id='stock') %>% 
-    dplyr::as_data_frame()
+    dplyr::bind_rows(.id='stock') 
   
   predator.prey <- 
     out[grepl('.+\\.prey\\..+',names(out))] %>% 
     purrr::set_names(.,names(.)) %>% 
-    purrr::keep(~'number.consumed' %in% names(.)) %>% 
+    purrr::keep(~'number_consumed' %in% names(.)) %>% 
     dplyr::bind_rows(.id='stock') %>% 
     tidyr::separate(stock,c('prey','predator'),sep='\\.prey\\.') %>% 
-    dplyr::as_data_frame() %>% 
     dplyr::group_by(year,step,prey,predator) %>% 
     dplyr::mutate(suit = mortality/max(mortality),
                   suit = ifelse(is.finite(suit),suit,0),
@@ -143,7 +139,7 @@ gadget.fit <- function(wgts = 'WGTS',
   fleet.catches <- 
     predator.prey %>% 
     dplyr::group_by(year,area,predator,prey) %>% 
-    dplyr::summarise(amount = sum(biomass.consumed)) %>% 
+    dplyr::summarise(amount = sum(biomass_consumed)) %>% 
     dplyr::rename(fleet = predator, stock = prey)
   
   fleet.info <- 
@@ -155,12 +151,14 @@ gadget.fit <- function(wgts = 'WGTS',
                                      fleet = predator, 
                                      stock = prey, 
                                      length, 
-                                     suit)) %>%
+                                     suit),
+                     by = c("stock", "year", "step", "area", "length")) %>%
     dplyr::group_by(year,step,area,fleet) %>%
-    dplyr::summarise(harv.bio = sum(suit*number*mean.weight)) %>%
+    dplyr::summarise(harv.bio = sum(suit*number*mean_weight)) %>%
     dplyr::left_join(fleet.catches %>% 
                        dplyr::group_by(year,fleet,area) %>% 
-                       dplyr::summarise(amount=sum(amount))) %>%
+                       dplyr::summarise(amount=sum(amount)),
+                     by = c("year", "area", "fleet")) %>%
     dplyr::group_by(year,step,area,fleet) %>%
     dplyr::mutate(amount = ifelse(is.na(amount),0,amount),
                   harv.rate = amount/harv.bio)
@@ -176,8 +174,8 @@ gadget.fit <- function(wgts = 'WGTS',
   harv.suit <- 
     d %>% 
     dplyr::group_by(year,step,prey,length) %>% 
-    dplyr::filter(biomass.consumed > 0) %>% 
-    dplyr::summarise(suit = sum(biomass.consumed*suit)/sum(biomass.consumed)) %>% 
+    dplyr::filter(biomass_consumed > 0) %>% 
+    dplyr::summarise(suit = sum(biomass_consumed*suit)/sum(biomass_consumed)) %>% 
     dplyr::rename(stock = prey)
   
   ## merge data and estimates
@@ -200,11 +198,11 @@ gadget.fit <- function(wgts = 'WGTS',
       dplyr::left_join(lik.dat$dat$surveyindices %>% 
                          purrr::set_names(.,names(.)) %>% 
                          dplyr::bind_rows(.id='name') %>% 
-                         dplyr::rename(observed=number)) %>% 
+                         dplyr::rename(observed=number),
+                       by = c("name", "year", "step", "area", "length")) %>% 
       dplyr::mutate(length = ifelse(sitype %in% c('lengths','fleets'),
                                     paste(lower,upper,sep=' - '),
                                     length)) %>% 
-      dplyr::as_data_frame() %>% 
       dplyr::mutate(predict = ifelse(grepl('loglinearfit',tolower(fittype)),
                                      exp(intercept)*number^slope,
                                      intercept + slope*number))
@@ -272,8 +270,8 @@ gadget.fit <- function(wgts = 'WGTS',
       stock.prey %>% 
       dplyr::left_join(f.age.range,by="stock") %>% 
       dplyr::group_by(stock,year,area) %>%
-      dplyr::summarise(catch=sum(biomass.consumed),
-                       num.catch=sum(number.consumed),
+      dplyr::summarise(catch=sum(biomass_consumed),
+                       num.catch=sum(number_consumed),
                        F=mean(mortality[age>=age.min&age<=age.max]))
     
     res.by.year <- 
@@ -282,9 +280,9 @@ gadget.fit <- function(wgts = 'WGTS',
       dplyr::left_join(harv.suit) %>% 
       dplyr::group_by(stock,year,area) %>%
       dplyr::summarise(total.number = sum(number),
-                       total.biomass = sum(number*mean.weight),
-                       harv.biomass = sum(number*suit*mean.weight),
-                       ssb = sum(mean.weight*logit(mat.par[1],
+                       total.biomass = sum(number*mean_weight),
+                       harv.biomass = sum(number*suit*mean_weight),
+                       ssb = sum(mean_weight*logit(mat.par[1],
                                                    mat.par[2],
                                                    length)*
                                    number)) %>% 

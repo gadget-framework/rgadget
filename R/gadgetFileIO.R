@@ -10,30 +10,25 @@
 ##' @return a list containing the data that has been read in named after the files found in path.
 ##' @export
 read.printfiles <- function(path='.',suppress=FALSE){
+
+ 
+  
   read.printfile <- function(file){
-#    file <- paste(path,file,sep='/')
+    #    file <- paste(path,file,sep='/')
     tmp <- readLines(file)
-    if(length(tmp) == 0){
-      if(!suppress)
-        warning(sprintf('Warning in read.printfile -- %s is of length 0',file))
-      return(NULL)
-    }
-    header <- 
-      max(grep(';',tmp[1:5])) %>% 
-      tmp[.] %>% 
-      gsub('; (*)','\\1',.) %>%
-      gsub(' ','.',.) %>% 
-      gsub('\\]|\\[','',.) %>% 
-      gsub('-',' ',.) %>% 
-      scan(text = .,what = 'character',quiet = TRUE)
     
-    data <- tryCatch(read.table(file,comment.char=';',header=FALSE,
-                                stringsAsFactors = FALSE),
-                     error = function(e){
-                       if(!suppress)
-                         print(sprintf('file corrupted -- %s', file))
-                       return(NULL)
-                     })
+    preamble <- tmp[grepl(';',tmp)]
+    body <- tmp[!grepl(';',tmp)]
+    header <- preamble[grepl('year step area',preamble)] %>% 
+      gsub('; (*)','\\1',.) %>% 
+      str_split(' ') %>% 
+      unlist() 
+    data <- body %>% 
+      paste(collapse='\n') %>% 
+      readr::read_table2(file = .,
+                         col_names = FALSE,
+                         guess_max = length(body))  
+    
     if(is.null(data))
       return(NULL)
     if(ncol(data) > length(header)){
@@ -49,38 +44,25 @@ read.printfiles <- function(path='.',suppress=FALSE){
         cbind(areas=.,n=diff(c(pos,length(tmp)+1))-1) %>%
         as.data.frame() %>%
         split(.$areas) %>%
-        map(function(x) data.frame(areas=rep(x$areas,x$n))) %>%
-        bind_rows()
+        purrr::map_df(function(x) data.frame(areas=rep(x$areas,x$n))) 
       
       regr.txt <- 
         tmp[-c(1:min(pos-1),pos)] %>%
         gsub('; ','',.) %>%
         paste(.,areas$areas)
       
-      regr <- read.table(text=regr.txt,stringsAsFactors = FALSE)[c(1,3,5,7,8)]
+      regr <- read.table(text=regr.txt,stringsAsFactors = FALSE)[c(1,3,5,7,8)] %>% 
+        tibble::as_tibble()
       names(regr) <- c('label','intercept','slope','sse','area')
-      data <- merge(data,regr)
-  #    data <- mutate(data,
-  #                   predict = exp(intercept)*number^slope) ## 1000 hmm
+      data <- data %>% 
+        dplyr::left_join(regr, by = c('area','label'))
     }
-    # pos <- grep('; Standard output file for the stock',tmp)
-    # if(length(pos) != 0){
-    #   step1 <- data[c('year','step','age','area','number')]
-    #   next1 <- mutate(subset(step1,age>1),year=year-1,age=as.integer(age-1))
-    #   names(next1)[5] <- 'num.after.harv'
-    #   tmp <- merge(step1,next1)
-    #   tmp$Z <- log(tmp$number) - log(tmp$num.after.harv)
-    #   data <- merge(data,tmp[c('year','step','age','area','Z')],all.x=TRUE)
-    # }
-
     return(data)
   }
-  out.files <- list.files(path=path,
-                          full.names=TRUE,recursive=TRUE)
-
-  printfiles <- plyr::llply(out.files,read.printfile)
-  names(printfiles) <- gsub('/','',gsub(path.expand(path),'',
-                                        out.files),fixed=TRUE)
+  printfiles <- 
+    fs::dir_ls(path) %>% 
+    purrr::map(read.printfile) %>% 
+    purrr::set_names(.,gsub(path,'',names(.)) %>% gsub('/','',.,fixed = TRUE))
   class(printfiles) <- c('gadgetOut','list')
   return(printfiles)
 }
@@ -497,12 +479,12 @@ make.gadget.printfile <- function(main='main',output='out',
     stocks <- read.gadget.stockfiles(main$stockfiles)
     fleets <- read.gadget.fleet(main$fleetfiles)
     
-    header <-
-        paste(sprintf('; gadget printfile, created in %s',Sys.Date()),
-              '[component]',
-              'type\tlikelihoodsummaryprinter',
-              sprintf('printfile\t%s/likelihoodsummary', output),
-              ';',sep='\n')
+    header <- sprintf('; gadget printfile, created in %s',Sys.Date())
+    lik.summary <- 
+      paste('[component]',
+            'type\tlikelihoodsummaryprinter',
+            sprintf('printfile\t%s/likelihoodsummary', output),
+            ';',sep='\n')
     
     
     lik.template <-
@@ -574,11 +556,19 @@ make.gadget.printfile <- function(main='main',output='out',
               writeAggfiles(x,folder=aggfiles)
           })
     
-    txt <- sprintf(lik.template,
-                   subset(lik$weights,
-                          !(type %in% c('understocking','penalty',
-                                        'migrationpenalty')))[['name']])
-    write.unix(paste(header,paste(txt,collapse='\n'),
+    if(length(lik$weights$weights)>0){
+      txt <- sprintf(lik.template,
+                     subset(lik$weights,
+                            !(type %in% c('understocking','penalty',
+                                          'migrationpenalty')))[['name']])
+    } else {
+      txt <- ';'
+      lik.summary <- ';'
+    }
+    
+    write.unix(paste(header,
+                     lik.summary,
+                     paste(txt,collapse='\n'),
                      paste(sprintf(stock.std,plyr::laply(stocks,
                                                    function(x) x@stockname)),
                            collapse='\n'),
@@ -848,10 +838,13 @@ read.gadget.data <- function(likelihood,debug=FALSE,year_range=NULL){
     attr(dat,'area.agg') <- area.agg
     return(dat)
   }
-
+  
+  if(length(likelihood$weights$weight) == 0)
+    return(list(dat=list(),df=list()))
+  
   lik.dat <- plyr::dlply(subset(likelihood$weights,
                           !(type %in% c('penalty', 'understocking',
-                                        'migrationpenalty'))),
+                                        'migrationpenalty','proglikelihood'))),
                    'type',
                    function(x) plyr::dlply(x,'name',read.func))
 
