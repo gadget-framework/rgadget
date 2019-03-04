@@ -556,7 +556,7 @@ make.gadget.printfile <- function(main='main',output='out',
               writeAggfiles(x,folder=aggfiles)
           })
     
-    if(length(lik$weights$weights)>0){
+    if(length(lik$weights$weight)>0){
       txt <- sprintf(lik.template,
                      subset(lik$weights,
                             !(type %in% c('understocking','penalty',
