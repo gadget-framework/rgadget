@@ -3,9 +3,6 @@
 \name{vonB}
 \alias{vonB}
 \title{Von Bertalanffy}
-\usage{
-vonB(lsup, k, a)
-}
 \arguments{
 \item{lsup}{\eqn{L_\infty }{L_infty} terminal length}
 

@@ -3,9 +3,6 @@
 \name{aldist}
 \alias{aldist}
 \title{Age length dist}
-\usage{
-aldist(stock.dat, sigma = 0, dl = 1)
-}
 \arguments{
 \item{stock.dat}{}
 

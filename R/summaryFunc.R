@@ -1,4 +1,5 @@
 ##' Calculates the survey indices for the simulated stocks. 
+##' @name survey.index
 ##' @title Survey indices
 ##' @param sim Results from a Rgadget simulation
 ##' @param sigma sigma for a log-normal noise for the indicies
@@ -21,6 +22,7 @@ survey.index <- function(stock.dat,split,sigma=0,alpha=0,beta=1){
 }
 
 ##' @title Length distributions
+##' @name ldist
 ##' @param stock.dat 
 ##' @param sigma 
 ##' @param dl 
@@ -45,6 +47,7 @@ ldist <- function(stock.dat,sigma=0,dl=1){
 }
 
 ##' @title Age length dist
+##' @name aldist
 ##' @param stock.dat 
 ##' @param sigma 
 ##' @param dl 
@@ -68,6 +71,7 @@ aldist <- function(stock.dat,sigma=0,dl=1){
 }
 
 ##' @title toDataFrame
+##' @name toDataFrame
 ##' @param sim 
 ##' @return data.frame
 ##' @author Bjarki Thor Elvarsson
@@ -93,6 +97,7 @@ toDataFrame <- function(sim){
 
 ##' Calculate the survey length index based on the provided lengthgroups
 ##' @title Survey length index
+##' @name survey.indexlen
 ##' @param sim Results from a Rgadget simulation
 ##' @param length.groups A vector of cutoff points for the length groups
 ##' @param sigma sigma for a log-normal error
@@ -137,6 +142,7 @@ survey.indexlen <- function(sim,length.groups=c(4,14,90),sigma=0){
 
 ##' Calculate the length distribution from the fleet by length groups and time.
 ##' @title Length Dist 
+##' @name lengthDist
 ##' @param sim Results from a Rgadget simulation
 ##' @param sigma sigma for a lognormal noise
 ##' @return Dataframe containing the fleet length distribution.
@@ -179,6 +185,7 @@ lengthDist <- function(sim,sigma=0){
 }
 ##' Calculates the age-length-key for the survey and commercial fleet.
 ##' @title Age length key
+##' @name age.length.key
 ##' @param sim Results from a Rgadget simulation
 ##' @param age.agg The desired age aggregation
 ##' @param len.agg The desired length aggregation
@@ -268,6 +275,7 @@ age.length.key <- function(sim,age.agg,len.agg){
 }
 ##' Calculates the overall weigth of the catches by time step and area.
 ##' @title Catch in Kilos 
+##' @name catch.in.kilos
 ##' @param sim Results from a Rgadget simulation
 ##' @return Dataframe with the catch in kilos by timestep and ared.
 ##' @author Bjarki Þór Elvarsson
@@ -303,6 +311,7 @@ catch.in.kilos <- function(sim){
 }
 ##' Plot the results from the summary functions of the Rgadget simulation.
 ##' @title Plot Rgadget
+##' @name plot.Rgadget
 ##' @param dat A Rgadget object
 ##' @author Bjarki Þór Elvarsson
 plot.Rgadget <- function(dat,compare.alk=TRUE){
@@ -347,6 +356,7 @@ plot.Rgadget <- function(dat,compare.alk=TRUE){
 
 ##' summary of the simulation defined by gadget.options
 ##' @title Summary of gadget.options
+##' @name summary.gadget.options
 ##' @param opt gadget.options list
 summary.gadget.options <- function(opt){
   summary.text <- paste('Summary of gadget options:',
@@ -410,6 +420,7 @@ summary.gadget.options <- function(opt){
                                
 ##' This function formats the output from RGadget to a dataframe and adds some 
 ##' trivial calculated values
+##' @name as.data.frame.gadget.sim
 ##' @title as.data.frame.gadget.sim
 ##' @param sim the results from RGadget
 ##' @return A dataframe 
@@ -473,6 +484,7 @@ as.data.frame.gadget.sim <- function(sim){
 }
 ##' Plots the suitability functions, the length weight relationship and the Von Bertalanffy growth curve.
 ##' @title Plot gadget options
+##' @name plot.gadget.options
 ##' @param opt Gadget options object
 ##' @author Bjarki Þór Elvarsson
 plot.gadget.options <- function(opt){
@@ -523,6 +535,7 @@ plot.gadget.options <- function(opt){
 ##' Calculate the Von Bertanlaffy curve according to the formula
 ##' \deqn{L(a) = L_\infty (1-e^{-\kappa a})}{L(a) = L_infty (1-e^{-kappa a})}
 ##' @title Von Bertalanffy 
+##' @name vonB
 ##' @param lsup \eqn{L_\infty }{L_infty} terminal length
 ##' @param k \eqn{\kappa}{kappa}, the growth parameter
 ##' @param a age of the individual
@@ -533,6 +546,7 @@ vonB <- function(lsup,k,a){
 }
 ##' Simulated length at age
 ##' @title Length at age
+##' @name length.at.age
 ##' @param sim The results from a Rgadget simulation
 ##' @return a dataframe containin the length at age for both fleets
 ##' @author Bjarki Þór Elvarsson

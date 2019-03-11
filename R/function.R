@@ -361,6 +361,7 @@ growthprob <-function(lt,
 ##' \deqn{N_{1,t} = p_{11}\cdot N_{1,t-1} + p_{12}\cdot N_{2,t-1} }
 ##' \deqn{N_{2,t} = p_{21}\cdot N_{2,t-1}+ p_{22}\cdot N_{2,t-1} }
 ##' @title Migrate
+##' @name migrate
 ##' @param N An array containing substock abundance by area (first dimension) and other variables
 ##' @param M an array with migration matricies
 ##' @return the migrated substock abundance array
@@ -384,6 +385,7 @@ migrate <- function(N,M){
 ##' As for the initial population, the number of recruits in each length
 ##' groups is given in the recruit input file. 
 ##' @title Recruitment
+##' @name recruits
 ##' @param n Number of recruited individuals
 ##' @param mu Vector of mean length per age.
 ##' @param sigma Vector of standard deviation of length per age.
@@ -420,6 +422,7 @@ recruits <- function(n,mu,sigma,
 ##' \deqn{=N_{L}M_{L}\frac{F_{L,l}}{\sum_lF_{L,l}+OA+HA}}
 ##' where $O$ is the density of otherfood.
 ##' @title Prey suitability
+##' @name suitability 
 ##' @param salpha \eqn{\alpha}{alpha} for the suitability function.
 ##' @param sbeta \eqn{\beta}{beta} for the suitability function.
 ##' @param sgamma \eqn{\gamma}{gamma} for the suitability function.
@@ -501,6 +504,7 @@ suitability <- function(params,
 
 
 #' Write suitability line for a predator
+#' @name pred_suit
 #' @param pred Character. The name of the predator
 #' @param prey Character. The preyname of the stock to be eaten
 #' @param fun Character. The selection function for the predator
@@ -540,6 +544,7 @@ pred_suit <- function(pred=NA,
 }
 
 #' Write suitability line for the surveydistribution likelihood component
+#' @name surveydist_suit
 #' @param survey.name Character. The name of the survey
 #' @param stock Character. The name of the stock surveyed
 #' @param fun Character. The selection function for the survey

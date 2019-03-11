@@ -3,9 +3,6 @@
 \name{age.length.key}
 \alias{age.length.key}
 \title{Age length key}
-\usage{
-age.length.key(sim, age.agg, len.agg)
-}
 \arguments{
 \item{sim}{Results from a Rgadget simulation}
 

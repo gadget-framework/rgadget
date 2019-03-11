@@ -3,9 +3,6 @@
 \name{as.data.frame.gadget.sim}
 \alias{as.data.frame.gadget.sim}
 \title{as.data.frame.gadget.sim}
-\usage{
-\method{as.data.frame}{gadget.sim}(sim)
-}
 \arguments{
 \item{sim}{the results from RGadget}
 }

@@ -3,9 +3,6 @@
 \name{survey.indexlen}
 \alias{survey.indexlen}
 \title{Survey length index}
-\usage{
-survey.indexlen(sim, length.groups = c(4, 14, 90), sigma = 0)
-}
 \arguments{
 \item{sim}{Results from a Rgadget simulation}
 

@@ -3,9 +3,6 @@
 \name{toDataFrame}
 \alias{toDataFrame}
 \title{toDataFrame}
-\usage{
-toDataFrame(sim)
-}
 \arguments{
 \item{sim}{}
 }

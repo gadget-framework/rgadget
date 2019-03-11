@@ -32,7 +32,7 @@
 ##'   
 ##' }
 ##' @title plot gadget fit
-##'
+##' @name plot.gadget.fit
 ##' @param fit results from gadget fit
 ##' @param type The type of plot that is returned, depends on the input data (see details)
 ##' @param data what results should be plotted

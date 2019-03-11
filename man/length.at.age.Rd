@@ -3,9 +3,6 @@
 \name{length.at.age}
 \alias{length.at.age}
 \title{Length at age}
-\usage{
-\method{length}{at.age}(sim)
-}
 \arguments{
 \item{sim}{The results from a Rgadget simulation}
 }

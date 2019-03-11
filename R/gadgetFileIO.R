@@ -19,10 +19,23 @@ read.printfiles <- function(path='.',suppress=FALSE){
     
     preamble <- tmp[grepl(';',tmp)]
     body <- tmp[!grepl(';',tmp)]
-    header <- preamble[grepl('year step area',preamble)] %>% 
+    header <- 
+      preamble[grepl('year step area',preamble)] %>% 
       gsub('; (*)','\\1',.) %>% 
       str_split(' ') %>% 
       unlist() 
+    
+    if(is.null(header)){
+      warning('Old style printfile detected, update gadget to the most recent version')
+      header <- 
+        preamble[grepl('year-step-area',preamble)] %>% 
+        gsub('; (*)','\\1',.) %>% 
+        str_split('-') %>% 
+        unlist() %>% 
+        gsub(' ','_',.)
+    }
+    
+    
     data <- body %>% 
       paste(collapse='\n') %>% 
       readr::read_table2(file = .,

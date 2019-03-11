@@ -3,9 +3,6 @@
 \name{lengthDist}
 \alias{lengthDist}
 \title{Length Dist}
-\usage{
-lengthDist(sim, sigma = 0)
-}
 \arguments{
 \item{sim}{Results from a Rgadget simulation}
 

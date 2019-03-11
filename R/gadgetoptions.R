@@ -10,6 +10,7 @@
 ##' the default values he will need to make the changes on the
 ##' resulting list.
 ##' @title Gagdet options
+##' @name gadget.options
 ##' @return a list of swithes
 ##' @author Bjarki Thor Elvarsson
 ##' @examples
@@ -225,6 +226,7 @@ gadget.options <- function(type=c('simple2stock','spawning')){
 ##' object, as S4 class, that can be used to create model input files
 ##' or drive the simple Gadget-like simulator implemented in
 ##' gadget.simulate
+##' @name gadget.skeleton
 ##' @title Gadget skeleton
 ##' @param time list describing the time step of the model
 ##' @param area list describing the spatial grid of the model

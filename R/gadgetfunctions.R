@@ -273,6 +273,7 @@ callParamin <- function(i='params.in',
 ##' variance from the above model as the weights between the
 ##' surveyindices.  After these weights have been determined all
 ##' surveyindices are weighted simultaneously.
+##' @name gadget.iterative
 ##' @title Iterative reweighting for Gadget models
 ##' @param main.file a string containing the location of the main file
 ##' @param gadget.exe a string containing the location of the gadget
@@ -671,6 +672,7 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
 ##' your model by up to +/- some percentage of the initial
 ##' value. Often a higher resolution near the optimum is desired than
 ##' is requried elsewhere.
+##' @name gadget.sensitivity 
 ##' @title Gadget sensitivity
 ##' @param file name of the input file with the initial point
 ##' @param outer.range The outer ranges of the parameter value
@@ -793,11 +795,11 @@ gadget.sensitivity <- function(file='params.out',
 
 ##' Plot the likelihood profile plot by parameter for a particular likelihood component
 ##'
+##' @name plot.gadget.sens
 ##' @title Plot likelihood sensitivity
 ##' @param sens resulsts from gadget sensitivity
 ##' @param comp what component to plot, defaults to overall score
 ##' @return ggplot object
-##' @export
 plot.gadgetSens <- function(sens,comp='score'){
   
   sens$parameter <- sapply(strsplit(sens$parameter,'.',fixed=TRUE),
@@ -824,6 +826,7 @@ plot.gadgetSens <- function(sens,comp='score'){
 }
 
 ##' Phased minimization based on variables
+##' @name gadget.phasing
 ##' @title Gadget Phasing
 ##' @param phase a dataframe where the columns indicate the parameters
 ##' that are to be optimised in that particular phase
@@ -876,6 +879,7 @@ gadget.phasing <- function(phase,params.in='params.in',main='main',
 ##' fleets in the model. The user can specify what fleets will be used in
 ##' in the yield per recruit simulation.
 ##' @title Gadget Yield per Recruit
+##' @name gadget.ypr
 ##' @param params.file Parameter file for the gagdet model
 ##' @param main.file Main file for the gagdet model
 ##' @param effort The range of fishing mortality
@@ -1211,6 +1215,7 @@ gadget.ypr <- function(params.file = 'params.in',
 }
 
 ##' @rdname gadget.ypr
+##' @name plot.gadget.ypr
 ##' @export
 plot.gadget.ypr <- function(ypr){
   if(!is.null(ypr$ssb)){
@@ -1245,6 +1250,7 @@ plot.gadget.ypr <- function(ypr){
 #' Analytical retrospective
 #'
 #' \code{gadget.retro} runs an analytical retrospective model fitting run. 
+#' @name gadget.retro
 #' @param path location of the Gadget model, all filenames are relative to the path
 #' @param main.file name of the main file, defaults to 'main'
 #' @param params.file name of the starting parameter value file, defaults to 'params.in'

@@ -3,13 +3,10 @@
 \name{survey.index}
 \alias{survey.index}
 \title{Survey indices}
-\usage{
-survey.index(stock.dat, split, sigma = 0, alpha = 0, beta = 1)
-}
 \arguments{
-\item{sigma}{sigma for a log-normal noise for the indicies}
-
 \item{sim}{Results from a Rgadget simulation}
+
+\item{sigma}{sigma for a log-normal noise for the indicies}
 }
 \value{
 Dataframe with the survey indices

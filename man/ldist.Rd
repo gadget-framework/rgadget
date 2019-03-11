@@ -3,9 +3,6 @@
 \name{ldist}
 \alias{ldist}
 \title{Length distributions}
-\usage{
-ldist(stock.dat, sigma = 0, dl = 1)
-}
 \arguments{
 \item{stock.dat}{}
 

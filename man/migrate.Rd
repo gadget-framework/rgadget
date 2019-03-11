@@ -3,9 +3,6 @@
 \name{migrate}
 \alias{migrate}
 \title{Migrate}
-\usage{
-migrate(N, M)
-}
 \arguments{
 \item{N}{An array containing substock abundance by area (first dimension) and other variables}
 
