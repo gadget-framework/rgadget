@@ -22,11 +22,12 @@ read.printfiles <- function(path='.',suppress=FALSE){
     header <- 
       preamble[grepl('year step area',preamble)] %>% 
       gsub('; (*)','\\1',.) %>% 
+      gsub('\\[|\\]','',.) %>% 
       str_split(' ') %>% 
       unlist() 
     
     if(is.null(header)){
-      warning('Old style printfile detected, update gadget to the most recent version')
+      warning('Old style printfile detected, update Gadget to the most recent version')
       header <- 
         preamble[grepl('year-step-area',preamble)] %>% 
         gsub('; (*)','\\1',.) %>% 
