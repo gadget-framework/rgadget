@@ -1,4 +1,3 @@
-
 #' von B formula
 #'
 #' This is a convenience function that creates the von B formulas for the recruitment and initial population files
