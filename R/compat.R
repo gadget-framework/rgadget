@@ -55,8 +55,11 @@ fix_headers <- function(main.file = 'main',path='.'){
             c('-- data --',paste(c('year', 'step', 'area', 'age', 'number', 'mean', 'stddev', 'relcond'),collapse = '\t'))
         } 
       }
+      attributes(x[[1]]$refweightfile[[1]])$preamble <- 
+        c('-- data --',paste(c('length', 'weight'), collapse = '\t'))
       x
-    }) %>% 
+      }
+      )
     map(~write.gadget.file(.,path))
 #  profvis({
   lik <- 
