@@ -187,10 +187,10 @@ gadget.fit <- function(wgts = 'WGTS',
       dplyr::left_join(lik$surveyindices %>% 
                          dplyr::select(name,stocknames,sitype,fittype), 
                        by='name') %>% 
-      dplyr::bind_rows(dplyr::data_frame(length=character(0),
-                                         age=character(0),
-                                         survey = character(0),
-                                         fleet = character(0))) %>% 
+      dplyr::bind_rows(dplyr::data_frame(length=NA,
+                                         age=NA,
+                                         survey = NA,
+                                         fleet = NA)) %>% 
       dplyr::mutate(age = ifelse(sitype == 'ages',label,age),
                     length = ifelse(sitype %in% c('lengths','fleets'),label,length),
                     fleet = ifelse(sitype == 'effort',label,fleet),
@@ -198,8 +198,14 @@ gadget.fit <- function(wgts = 'WGTS',
       dplyr::left_join(lik.dat$dat$surveyindices %>% 
                          purrr::set_names(.,names(.)) %>% 
                          dplyr::bind_rows(.id='name') %>% 
-                         dplyr::rename(observed=number),
-                       by = c("name", "year", "step", "area", "length")) %>% 
+                         dplyr::as_tibble() %>% 
+                         dplyr::rename(observed=number) %>% 
+                         dplyr::bind_rows(tibble(name = NA, year = NA, step = NA, 
+                                                 area = NA,length = NA,age = NA,
+                                                 fleet = NA,survey = NA,
+                                                 upper = NA, lower = NA)) %>% 
+                         dplyr::filter(!is.na(year)),
+                       by = c("name", "year", "step", "area", "age", "length","fleet","survey")) %>% 
       dplyr::mutate(length = ifelse(sitype %in% c('lengths','fleets'),
                                     paste(lower,upper,sep=' - '),
                                     length)) %>% 
