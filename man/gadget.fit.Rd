@@ -8,7 +8,7 @@
 gadget.fit(wgts = "WGTS", main.file = NULL, fleet.predict = NULL,
   mat.par = NULL, params.file = NULL, f.age.range = NULL,
   fit.folder = "FIT", printfile.printatstart = 1,
-  printfile.steps = 1, rec.len.param = FALSE)
+  printfile.steps = 1, rec.len.param = FALSE, gd = NULL)
 
 bind.gadget.fit(...)
 }
@@ -33,6 +33,8 @@ Input columns should include stock, age.min and age.max}
 \item{printfile.steps}{what steps should be printed}
 
 \item{rec.len.param}{Logical. TRUE if you want growth calculated as age.based and using a formula other than get.gadget.growth default}
+
+\item{gd}{gadget_directory object to optionally set the location of the gadget directory}
 
 \item{...}{any number of gadget.fit objects}
 }

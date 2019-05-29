@@ -33,6 +33,7 @@
 ##' @param f.age.range data.frame describing the desired age range where the F's are calculated, if null this defaults to the apical F fro all stocks. 
 ##' Input columns should include stock, age.min and age.max 
 ##' @param rec.len.param Logical. TRUE if you want growth calculated as age.based and using a formula other than get.gadget.growth default
+##' @param gd gadget_directory object to optionally set the location of the gadget directory
 ##' @return list containing the output from Gadget. 
 ##' @author Bjarki Thor Elvarsson
 ##' @export
@@ -45,7 +46,12 @@ gadget.fit <- function(wgts = 'WGTS',
                        fit.folder = 'FIT',
                        printfile.printatstart = 1, 
                        printfile.steps = 1,
-                       rec.len.param = FALSE){
+                       rec.len.param = FALSE,
+                       gd = NULL){
+  if(!is.null(gd)){
+    old.dir <- getwd()
+    setwd(gd$dir)
+  }
   
   if(!is.null(f.age.range) & class(f.age.range) != 'data.frame'){
     stop('F age range should be specified as a data.frame with columns stock, age.min and age.max')
@@ -428,6 +434,11 @@ gadget.fit <- function(wgts = 'WGTS',
          catchstatistics = catchstatistics)
   class(out) <- c('gadget.fit',class(out))
   save(out,file=sprintf('%s/WGTS.Rdata',wgts))
+  ## clean up
+  unlink(sprintf('%s/out.fit',wgts),recursive = TRUE)
+  if(!is.null(gd)){
+    setwd(old.dir)
+  }
   return(out)
 }
 
