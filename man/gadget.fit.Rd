@@ -7,8 +7,8 @@
 \usage{
 gadget.fit(wgts = "WGTS", main.file = NULL, fleet.predict = NULL,
   mat.par = NULL, params.file = NULL, f.age.range = NULL,
-  fit.folder = "FIT", printfile.printatstart = 1,
-  printfile.steps = 1, rec.len.param = FALSE, gd = NULL)
+  fit.folder = "FIT", printatstart = 1, steps = 1,
+  recruitment_step_age = NULL, gd = NULL)
 
 bind.gadget.fit(...)
 }
@@ -28,15 +28,15 @@ Input columns should include stock, age.min and age.max}
 
 \item{fit.folder}{location of the output}
 
-\item{printfile.printatstart}{should the stock standared output be printed at the beginning or the end of the timestep}
+\item{printatstart}{should the stock standard output be printed at the beginning or the end of the timestep}
 
-\item{printfile.steps}{what steps should be printed}
-
-\item{rec.len.param}{Logical. TRUE if you want growth calculated as age.based and using a formula other than get.gadget.growth default}
+\item{recruitment_step_age}{data frame defining the recruitment age by stock and time step. Default is the minimum age at step 1. Expects columns stock, age and step}
 
 \item{gd}{gadget_directory object to optionally set the location of the gadget directory}
 
 \item{...}{any number of gadget.fit objects}
+
+\item{psteps}{what steps should be printed}
 }
 \value{
 list containing the output from Gadget.
@@ -48,7 +48,6 @@ It returns an object of class 'gadget.fit' which is essentially a list containin
 \item{resTable}{Table of likelihood component scores from the different stages of the iterative reweighting run}
 \item{nesTable}{Same as resTable but normalised with the minimum score for each component}
 \item{suitability}{The model estimated fleet predator suitability}
-\item{stock.growth}{Model estimated growth}
 \item{stock.recruitment}{Recruitment by stock}
 \item{res.by.year}{Results by year}
 \item{stomachconten}{Fit combined with data from the stomachcontent likelihood}

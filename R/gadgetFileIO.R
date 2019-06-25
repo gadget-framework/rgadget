@@ -93,9 +93,11 @@ read.gadget.likelihood <- function(files='likelihood'){
   for(file in files){
     lik <- c(lik,sub(' +$','',gsub('\t',' ',readLines(file))))
   }
+  lik <- stringr::str_trim(lik)
   lik <- lik[lik!='']
   lik <- lik[!grepl(';',substring(lik,1,1))]
   lik <- sapply(strsplit(lik,';'),function(x) sub(' +$','',x[1]))
+
 
   comp.loc <- grep('component',lik)
   name.loc <- comp.loc+3
@@ -482,22 +484,51 @@ write.gadget.parameters <- function(params,file='params.out',columns=TRUE){
 ##' @param file name of resulting printfile
 ##' @return gadget.mainfile object
 ##' @author Bjarki Thor Elvarsson
-make.gadget.printfile <- function(main='main',output='out',
-                                  aggfiles='print.aggfiles',
+make.gadget.printfile <- function(main.file='main',
                                   file='printfile',
 								  printatstart = 1,
-								  steps = 1){
+								  steps = 1,
+								  recruitment_step_age = NULL,
+								  gd = list(dir='.',output = 'out',aggfiles = 'print.aggfiles')){
     
-    main <- read.gadget.main(main)
-    lik <- read.gadget.likelihood(main$likelihoodfiles)
-    stocks <- read.gadget.stockfiles(main$stockfiles)
-    fleets <- read.gadget.fleet(main$fleetfiles)
+    main <- read.gadget.file(gd$dir,main.file,file_type = 'main')
+    
+    if(length(main$likelihood$likelihoodfiles)>0){
+      lik <- 
+        main$likelihood$likelihoodfiles %>% 
+        purrr::map(~read.gadget.file(gd$dir,.,
+                                     file_type = 'likelihood',
+                                     recursive = FALSE))
+    } else {
+      lik <- NULL
+    }
+    stocks <- 
+      main$stock$stockfiles %>% 
+      purrr::map(~read.gadget.file(path=gd$dir,file_name = .,file_type = 'stock',recursive = FALSE)) 
+    names(stocks) <- stocks %>% purrr::map(1) %>% purrr::map('stockname') %>% unlist()
+      
+    if(is.null(recruitment_step_age)){
+      recruitment_step_age <- 
+        stocks %>% 
+        purrr::map(1) %>% 
+        purrr::map('minage') %>% 
+        dplyr::bind_rows() %>% 
+        dplyr::mutate(step=1) %>% 
+        tidyr::gather(stock,age,-step) 
+      
+    }
+    
+    fleets <- 
+      main$fleet$fleetfiles %>% 
+      purrr::map(~read.gadget.file(gd$dir,.,recursive = FALSE)) %>% purrr::flatten()
+    names(fleets) <- 
+      fleets %>% purrr::map(1) %>% unlist() %>% as.character()
     
     header <- sprintf('; gadget printfile, created in %s',Sys.Date())
     lik.summary <- 
       paste('[component]',
             'type\tlikelihoodsummaryprinter',
-            sprintf('printfile\t%s/likelihoodsummary', output),
+            sprintf('printfile\t%s/likelihoodsummary', gd$output),
             ';',sep='\n')
     
     
@@ -505,7 +536,7 @@ make.gadget.printfile <- function(main='main',output='out',
         paste('[component]',
               'type\tlikelihoodprinter',
               'likelihood\t%1$s',
-              sprintf('printfile\t%s/%%1$s',output),
+              sprintf('printfile\t%s/%%1$s',gd$output),
               ';', sep='\n')
     
     
@@ -513,31 +544,36 @@ make.gadget.printfile <- function(main='main',output='out',
         paste('[component]',
               'type\tstockstdprinter',
               'stockname\t%1$s',
-              sprintf('printfile\t%s/%%1$s.std',output),
+              sprintf('printfile\t%s/%%1$s.std',gd$output),
               sprintf('printatstart %s', printatstart),
-              sprintf('yearsandsteps\tall\t%s', steps),sep='\n')
+              sprintf('yearsandsteps\tall\t%s', steps),
+              ';',
+              sep='\n')
     
     stock.full <-
         paste('[component]',
               'type\tstockprinter',
               'stocknames\t%1$s',
-              sprintf('areaaggfile\t%s/%%1$s.area.agg',aggfiles),
-              sprintf('ageaggfile\t%s/%%1$s.allages.agg',aggfiles),
-              sprintf('lenaggfile\t%s/%%1$s.len.agg',aggfiles),
-              sprintf('printfile\t%s/%%1$s.full',output),
+              sprintf('areaaggfile\t%s/%%1$s.area.agg',gd$aggfiles),
+              sprintf('ageaggfile\t%s/%%1$s.allages.agg',gd$aggfiles),
+              sprintf('lenaggfile\t%s/%%1$s.len.agg',gd$aggfiles),
+              sprintf('printfile\t%s/%%1$s.full',gd$output),
               sprintf('printatstart\t%s', printatstart),
-              sprintf('yearsandsteps\tall\t%s', steps),sep='\n')
+              sprintf('yearsandsteps\tall\t%s', steps),
+              ';',
+              sep='\n')
     
     predator <-
         paste('[component]',
               'type\tpredatorpreyprinter',
               'predatornames\t%2$s',
               'preynames\t%1$s',
-              sprintf('areaaggfile\t%s/%%1$s.area.agg',aggfiles),
-              sprintf('ageaggfile\t%s/%%1$s.age.agg',aggfiles),
-              sprintf('lenaggfile\t%s/%%1$s.alllen.agg',aggfiles),
-              sprintf('printfile\t%s/%%1$s.prey',output),
+              sprintf('areaaggfile\t%s/%%1$s.area.agg',gd$aggfiles),
+              sprintf('ageaggfile\t%s/%%1$s.age.agg',gd$aggfiles),
+              sprintf('lenaggfile\t%s/%%1$s.alllen.agg',gd$aggfiles),
+              sprintf('printfile\t%s/%%1$s.prey',gd$output),
               'yearsandsteps\tall all',
+              ';',
               sep = '\n')
     
     predator.prey <-
@@ -545,36 +581,139 @@ make.gadget.printfile <- function(main='main',output='out',
               'type\tpredatorpreyprinter',
               'predatornames\t%2$s',
               'preynames\t%1$s',
-              sprintf('areaaggfile\t%s/%%1$s.area.agg',aggfiles),
-              sprintf('ageaggfile\t%s/%%1$s.allages.agg',aggfiles),
-              sprintf('lenaggfile\t%s/%%1$s.len.agg',aggfiles),
-              sprintf('printfile\t%s/%%1$s.prey.%%2$s',output),
+              sprintf('areaaggfile\t%s/%%1$s.area.agg',gd$aggfiles),
+              sprintf('ageaggfile\t%s/%%1$s.allages.agg',gd$aggfiles),
+              sprintf('lenaggfile\t%s/%%1$s.len.agg',gd$aggfiles),
+              sprintf('printfile\t%s/%%1$s.prey.%%2$s',gd$output),
               'yearsandsteps\tall all',
+              ';',
               sep = '\n')
     
-    prey.subset <- stocks[which(lapply(stocks, function(x) x@iseaten) == 1)]
+    recruitment.print <- 
+      paste('[component]',
+            'type\tstockprinter',
+            'stocknames\t%s',
+            sprintf('areaaggfile\t%s/%%1$s.area.agg',gd$aggfiles),
+            sprintf('ageaggfile\t%s/%%1$s.rec.age.agg',gd$aggfiles),
+            sprintf('lenaggfile\t%s/%%1$s.alllen.agg',gd$aggfiles),
+            sprintf('printfile\t%s/%%1$s.recruitment',gd$output),
+            'printatstart\t0',
+            'yearsandsteps\tall %s',
+            ';',
+            sep = '\n')
     
-    tmp <- expand.grid(preys = names(prey.subset),
-                       predators = c(fleets$fleet$fleet, stocks %>% 
-                                       purrr::set_names(.,names(.))%>% 
-                                       purrr::keep(~isPredator(.)==1) %>% 
-                                       unlist() %>% 
+    prey.subset <- 
+      stocks %>%  purrr::keep(~.$iseaten$iseaten == 1) %>% names()
+    
+    tmp <- expand.grid(preys = prey.subset,
+                       predators = c(names(fleets),
+                                     stocks %>% 
+                                       purrr::keep(~.$doeseat$doeseat == 1) %>% 
                                        names()))
     
     
-    dir.create(aggfiles, showWarnings = FALSE)
-    dir.create(output, showWarnings = FALSE)
+    dir.create(gd$output, showWarnings = FALSE)
+    dir.create(gd$aggfiles, showWarnings = FALSE)
     
-    plyr::l_ply(stocks,
-          function(x){
-              writeAggfiles(x,folder=aggfiles)
-          })
     
-    if(length(lik$weights$weight)>0){
-      txt <- sprintf(lik.template,
-                     subset(lik$weights,
-                            !(type %in% c('understocking','penalty',
-                                          'migrationpenalty')))[['name']])
+    stocks %>% 
+      purrr::map(function(x){
+        
+        lengths <- seq(x[[1]]$minlength,x[[1]]$maxlength,by = x[[1]]$dl)
+        lenAgg <- data.frame(length = paste('len',tail(lengths,-1),
+                                            sep = ''),
+                             min = head(lengths,-1),
+                             max = tail(lengths,-1))
+        
+        agg.head <-
+          paste(sprintf('; aggregation file for %s created using rgadget at %s',
+                        x[[1]]$stockname,Sys.Date()),
+                paste(c('; ',names(lenAgg)),collapse = '\t'),
+                sep = '\n')
+        write.unix(agg.head,f = sprintf('%s/%s.len.agg',gd$aggfiles,
+                                        x[[1]]$stockname))
+        
+        write.gadget.table(lenAgg,
+                           file = sprintf('%s/%s.len.agg',gd$aggfiles,
+                                          x[[1]]$stockname),
+                           col.names=FALSE,append=TRUE,
+                           quote=FALSE,sep='\t',row.names=FALSE)
+        
+        ## all length agg file
+        alllenAgg <- data.frame(length = 'alllen',
+                                min = min(lengths),
+                                max = max(lengths))
+        write.unix(agg.head,f = sprintf('%s/%s.alllen.agg',gd$aggfiles,
+                                        x[[1]]$stockname))
+        write.gadget.table(alllenAgg,
+                           file = sprintf('%s/%s.alllen.agg',gd$aggfiles,x[[1]]$stockname),
+                           col.names=FALSE,append=TRUE,
+                           quote=FALSE,sep='\t',row.names=FALSE)
+        
+        ## age agg file
+        ageAgg <- data.frame(label = x[[1]]$minage:x[[1]]$maxage,
+                             age = x[[1]]$minage:x[[1]]$maxage)
+        write.unix(agg.head,f = sprintf('%s/%s.age.agg',gd$aggfiles,x[[1]]$stockname))
+        write.gadget.table(ageAgg,
+                           file = sprintf('%s/%s.age.agg',gd$aggfiles,x[[1]]$stockname),
+                           col.names=FALSE,append=TRUE,
+                           quote=FALSE,sep='\t',row.names=FALSE)
+      
+        ## recruitment age agg file
+        rec.ageAgg <- 
+          recruitment_step_age %>% 
+          dplyr::filter(stock == x[[1]]$stockname) %>% 
+          dplyr::mutate(label = age) %>% 
+          select(label,age)
+          
+        if(nrow(rec.ageAgg)>0){  
+          write.unix(agg.head,f = sprintf('%s/%s.rec.age.agg',gd$aggfiles,x[[1]]$stockname))
+          write.gadget.table(rec.ageAgg,
+                             file = sprintf('%s/%s.rec.age.agg',gd$aggfiles,x[[1]]$stockname),
+                             col.names=FALSE,append=TRUE,
+                             quote=FALSE,sep='\t',row.names=FALSE)
+        }
+          
+        ## allages.agg
+        allagesAgg <- data.frame(label = 'allages',
+                                 age = paste(x[[1]]$minage:x[[1]]$maxage,
+                                             collapse = '\t'))
+        write.unix(agg.head,f = sprintf('%s/%s.allages.agg',gd$aggfiles,
+                                        x[[1]]$stockname))
+        write.gadget.table(allagesAgg,
+                           file = sprintf('%s/%s.allages.agg',gd$aggfiles,x[[1]]$stockname),
+                           col.names=FALSE,append=TRUE,
+                           quote=FALSE,sep='\t',row.names=FALSE)
+        ## Area agg file
+        areaAgg <- data.frame(label=paste('area',
+                                          x[[1]]$livesonareas,
+                                          sep = ''),
+                              area = x[[1]]$livesonareas)
+        write.unix(agg.head,f = sprintf('%s/%s.area.agg',gd$aggfiles,
+                                        x[[1]]$stockname))
+        write.gadget.table(areaAgg,
+                           file = sprintf('%s/%s.area.agg',gd$aggfiles,x[[1]]$stockname),
+                           col.names=FALSE,append=TRUE,
+                           quote=FALSE,sep='\t',row.names=FALSE)
+        
+      
+        
+        
+      })-> foo
+      
+    
+    if(length(lik)>0){
+      txt <- 
+        lik %>%
+        purrr::flatten() %>% 
+        purrr::discard(~.$type %in% c('understocking','penalty',
+                                      'migrationpenalty')) %>% 
+        purrr::map('name') %>% 
+        unlist() %>%
+        purrr::map(~sprintf(lik.template,.)) %>% 
+        unlist()
+      
+      
     } else {
       txt <- ';'
       lik.summary <- ';'
@@ -584,17 +723,19 @@ make.gadget.printfile <- function(main='main',output='out',
                      lik.summary,
                      paste(txt,collapse='\n'),
                      paste(sprintf(stock.std,plyr::laply(stocks,
-                                                   function(x) x@stockname)),
+                                                   function(x) x[[1]]$stockname)),
                            collapse='\n'),
                      paste(sprintf(stock.full,plyr::laply(stocks,
-                                                    function(x) x@stockname)),
+                                                    function(x) x[[1]]$stockname)),
                            collapse='\n'),
-                     paste(sprintf(predator,plyr::laply(prey.subset,
-                                                  function(x) x@stockname),
-                                   paste(fleets$fleet$fleet,collapse = ' ')),
+                     paste(sprintf(predator,prey.subset,
+                                   paste(names(fleets),collapse = ' ')),
                            collapse='\n'),
                      paste(sprintf(predator.prey,tmp$preys,tmp$predators),
                            collapse='\n'),
+                     paste(sprintf(recruitment.print,recruitment_step_age$stock,
+                                   recruitment_step_age$step),
+                           collapse = '\n'),
                      ';',
                      sep='\n'),
                f=file)
@@ -1140,6 +1281,19 @@ read.gadget.stockfiles <- function(stock.files){
                    ## growth implementation
                    beta = tmp$beta,
                    maxlengthgroupgrowth = tmp$maxlengthgroupgrowth)
+        } else if(tolower(tmp$growthfunction) == 'lengthpower'){
+          tmp <- new('gadget-growth',
+                     growthfunction = tmp$growthfunction,
+                     ## growthfunction parameters
+                     growthparameters = tmp$growthparameters,
+                     weightgrowthfile = tmp$weightgrowthfile,
+                     #                   lgrowthparameters = tmp$lgrowthparameters,
+                     #                   yeareffect = tmp$yeareffect,
+                     #                   stepeffect = tmp$stepeffect,
+                     #                   areaeffect = tmp$areaeffect,
+                     ## growth implementation
+                     beta = tmp$beta,
+                     maxlengthgroupgrowth = tmp$maxlengthgroupgrowth)
         } else {
           tmp <- new('gadget-growth',
                      growthfunction = tmp$growthfunction,

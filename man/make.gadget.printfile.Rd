@@ -4,18 +4,18 @@
 \alias{make.gadget.printfile}
 \title{Make gadget printfile}
 \usage{
-make.gadget.printfile(main = "main", output = "out",
-  aggfiles = "print.aggfiles", file = "printfile", printatstart = 1,
-  steps = 1)
+make.gadget.printfile(main.file = "main", file = "printfile",
+  printatstart = 1, steps = 1, recruitment_step_age = NULL,
+  gd = list(dir = ".", output = "out", aggfiles = "print.aggfiles"))
 }
 \arguments{
+\item{file}{name of resulting printfile}
+
 \item{main}{location of main file}
 
 \item{output}{location of output folder}
 
 \item{aggfiles}{location of aggfiles}
-
-\item{file}{name of resulting printfile}
 }
 \value{
 gadget.mainfile object

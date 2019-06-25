@@ -4,7 +4,6 @@
 ##' \item{resTable}{Table of likelihood component scores from the different stages of the iterative reweighting run}
 ##' \item{nesTable}{Same as resTable but normalised with the minimum score for each component}
 ##' \item{suitability}{The model estimated fleet predator suitability}
-##' \item{stock.growth}{Model estimated growth}
 ##' \item{stock.recruitment}{Recruitment by stock}
 ##' \item{res.by.year}{Results by year}
 ##' \item{stomachconten}{Fit combined with data from the stomachcontent likelihood}
@@ -28,11 +27,11 @@
 ##' @param mat.par parameters for the maturity ogive
 ##' @param params.file parameter file used in the fit (defaults to "WGTS/params.final")
 ##' @param fit.folder location of the output
-##' @param printfile.printatstart should the stock standared output be printed at the beginning or the end of the timestep
-##' @param printfile.steps what steps should be printed
+##' @param printatstart should the stock standard output be printed at the beginning or the end of the timestep
+##' @param psteps what steps should be printed
 ##' @param f.age.range data.frame describing the desired age range where the F's are calculated, if null this defaults to the apical F fro all stocks. 
 ##' Input columns should include stock, age.min and age.max 
-##' @param rec.len.param Logical. TRUE if you want growth calculated as age.based and using a formula other than get.gadget.growth default
+##' @param recruitment_step_age data frame defining the recruitment age by stock and time step. Default is the minimum age at step 1. Expects columns stock, age and step 
 ##' @param gd gadget_directory object to optionally set the location of the gadget directory
 ##' @return list containing the output from Gadget. 
 ##' @author Bjarki Thor Elvarsson
@@ -44,13 +43,15 @@ gadget.fit <- function(wgts = 'WGTS',
                        params.file=NULL,
                        f.age.range=NULL, 
                        fit.folder = 'FIT',
-                       printfile.printatstart = 1, 
-                       printfile.steps = 1,
-                       rec.len.param = FALSE,
+                       printatstart = 1, 
+                       steps = 1,
+                       recruitment_step_age = NULL,
                        gd = NULL){
   if(!is.null(gd)){
     old.dir <- getwd()
     setwd(gd$dir)
+  } else {
+    gd <- list(dir = '.')
   }
   
   if(!is.null(f.age.range) & class(f.age.range) != 'data.frame'){
@@ -84,34 +85,45 @@ gadget.fit <- function(wgts = 'WGTS',
     lik <- read.gadget.likelihood(main$likelihoodfiles)
   }
   
+  
+  print('Reading input data')
   lik.dat <- read.gadget.data(lik)
   
+  stocks <- 
+    main$stockfiles %>% 
+    purrr::map(~read.gadget.file(path=gd$dir,file_name = .,file_type = 'stock',recursive = FALSE)) 
+  names(stocks) <- stocks %>% map(1) %>% map('stockname') %>% unlist()
+  
   ## model output, i.e printfiles
-  make.gadget.printfile(main = main.file,
+  make.gadget.printfile(main.file = main.file,
                         file = sprintf('%s/printfile.fit',wgts),
-                        out = sprintf('%s/out.fit',wgts),
-                        aggfiles = sprintf('%s/print.aggfiles',wgts),
-                        printatstart = printfile.printatstart,
-                        steps = printfile.steps)
+                        gd = c(gd,output = sprintf('%s/out.fit',wgts),
+                               aggfiles = sprintf('%s/print.aggfiles',wgts)),
+                        recruitment_step_age = recruitment_step_age,
+                        printatstart = printatstart,
+                        steps = steps)
   
   main$printfiles <- sprintf('%s/printfile.fit',wgts)
   write.gadget.main(main,file = sprintf('%s/main.print',wgts))
   
+  print("Running Gadget")
   callGadget(s=1,
              i = params.file,
              main = sprintf('%s/main.print',wgts),
              o = sprintf('%s/SS.print',wgts))
   
+  print("Reading output files") 
   out <- read.printfiles(sprintf('%s/out.fit',wgts))
   SS <- read.gadget.lik.out(sprintf('%s/SS.print',wgts))
-  stocks <- read.gadget.stockfiles(main$stockfiles)
+  #stocks <- read.gadget.stockfiles(main$stockfiles)
+  
+  print('Gathering results')
 
-  stock.growth <-
-    tryCatch(get.gadget.growth(stocks,params,age.based=TRUE,
-                               recl = rec.len.param),
-             warning = function(x) NULL,
-             error = function(x) NULL)
-  stock.recruitment <- get.gadget.recruitment(stocks,params)
+  stock.recruitment <- 
+    out[sprintf('%s.recruitment',names(stocks))] %>% 
+    purrr::set_names(.,names(stocks)) %>% 
+    dplyr::bind_rows(.id='stock') %>% 
+    dplyr::select(stock,year,area,recruitment=number)
   
   stock.full <-
     out[sprintf('%s.full',names(stocks))] %>% 
@@ -184,6 +196,7 @@ gadget.fit <- function(wgts = 'WGTS',
     dplyr::summarise(suit = sum(biomass_consumed*suit)/sum(biomass_consumed)) %>% 
     dplyr::rename(stock = prey)
   
+  print('Merging input and output')
   ## merge data and estimates
   if('surveyindices' %in% names(lik.dat$dat)){
     sidat <- 
@@ -217,7 +230,8 @@ gadget.fit <- function(wgts = 'WGTS',
                                     length)) %>% 
       dplyr::mutate(predict = ifelse(grepl('loglinearfit',tolower(fittype)),
                                      exp(intercept)*number^slope,
-                                     intercept + slope*number))
+                                     intercept + slope*number)) %>% 
+      dplyr::filter(!is.na(name))
   } else {
     sidat <- NULL
   }
@@ -288,9 +302,10 @@ gadget.fit <- function(wgts = 'WGTS',
     
     res.by.year <- 
       stock.full %>% 
-      dplyr::filter(step == 1) %>%
-      dplyr::left_join(harv.suit) %>% 
-      dplyr::group_by(stock,year,area) %>%
+      dplyr::filter(step %in% steps) %>%
+      dplyr::left_join(harv.suit,
+                       by = c("stock", "year", "step", "length")) %>% 
+      dplyr::group_by(stock,year,area,step) %>%
       dplyr::summarise(total.number = sum(number),
                        total.biomass = sum(number*mean_weight),
                        harv.biomass = sum(number*suit*mean_weight),
@@ -301,10 +316,8 @@ gadget.fit <- function(wgts = 'WGTS',
       dplyr::left_join(f.by.year %>%
                          dplyr::mutate(area = area),
                        by = c("stock","year","area")) %>% 
-      dplyr::left_join(stock.recruitment %>% 
-                         dplyr::mutate(stock = as.character(stock),
-                                       area = paste0('area',area),
-                                       year = as.numeric(year))) %>% 
+      dplyr::left_join(stock.recruitment,
+                       by = c('stock','year','area')) %>% 
       dplyr::ungroup()
   } else {
     res.by.year <- NULL
@@ -416,7 +429,7 @@ gadget.fit <- function(wgts = 'WGTS',
     list(sidat = sidat, resTable = resTable, nesTable = nesTable,
          suitability = predator.prey %>% 
            select(year,step,stock=prey,fleet=predator,length,suit),# gss.suit, 
-         stock.growth = stock.growth,
+         #stock.growth = stock.growth,
          stock.recruitment = stock.recruitment,
          res.by.year = res.by.year, 
          stomachcontent = stomachcontent,
@@ -436,7 +449,7 @@ gadget.fit <- function(wgts = 'WGTS',
   save(out,file=sprintf('%s/WGTS.Rdata',wgts))
   ## clean up
   unlink(sprintf('%s/out.fit',wgts),recursive = TRUE)
-  if(!is.null(gd)){
+  if(gd$dir != '.'){
     setwd(old.dir)
   }
   return(out)
@@ -463,3 +476,37 @@ bind.gadget.fit <- function(...){
 }
 
 
+get_gadget_recruitment <- function(stocks,params){
+  stocks %>% 
+    purrr::map(function(x){
+      if(x$doesrenew$doesrenew){
+        
+        if('normalparamfile' %in% names(x$doesrenew)){
+          key <- 'normalparamfile'
+          col.names <- c('year','step','area','age','number','mean','stddev','alpha','beta')
+        } else if('normalcondfile' %in% names(x$doesrenew)){
+          key <- 'normalcondfile'
+          col.names <- c('year','step','area','age','number','mean','stddev','relcond')
+        } else {
+          key <- 'numberfile'
+          col.names <- c('year','step','area','age','length','number','weight')
+        }
+        capture.output(x$doesrenew[[key]] %>% print()) %>% 
+          read.table(text = ., comment.char = ';',sep = '\t',fill = TRUE,stringsAsFactors = FALSE) %>% 
+          na.omit() %>% 
+          set_names(.,col.names)
+      } else{
+        NULL
+      }
+    }) %>% 
+    dplyr::bind_rows(.id = 'stock') %>% 
+    dplyr::mutate_at(.vars=vars(-stock),
+                     ~purrr::map(.,function(x) 
+                       tryCatch(parse.gadget.formulae(x) %>% 
+                                  eval(params %>% 
+                                         dplyr::select(value) %>% 
+                                         t() %>% 
+                                         purrr::set_names(.,dimnames(.)[[2]]) %>% 
+                                         as.list()),
+                                error = function(e) 0)))
+}
