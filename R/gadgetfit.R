@@ -91,13 +91,13 @@ gadget.fit <- function(wgts = 'WGTS',
   
   stocks <- 
     main$stockfiles %>% 
-    purrr::map(~read.gadget.file(path=gd$dir,file_name = .,file_type = 'stock',recursive = FALSE)) 
+    purrr::map(~read.gadget.file(path='.',file_name = .,file_type = 'stock',recursive = FALSE)) 
   names(stocks) <- stocks %>% map(1) %>% map('stockname') %>% unlist()
   
   ## model output, i.e printfiles
   make.gadget.printfile(main.file = main.file,
                         file = sprintf('%s/printfile.fit',wgts),
-                        gd = c(gd,output = sprintf('%s/out.fit',wgts),
+                        gd = list(dir='.',output = sprintf('%s/out.fit',wgts),
                                aggfiles = sprintf('%s/print.aggfiles',wgts)),
                         recruitment_step_age = recruitment_step_age,
                         printatstart = printatstart,
