@@ -526,31 +526,28 @@ read.gadget.file <- function(path, file_name, file_type = "generic",
       if(length(header) < 2) stop(paste("Not enough parts in data header", header))
       header <- header[2:length(header)]  # Remove initial ';'
       
+      ## read in the data file to the end 
+      ## this assumes the data frame is positioned at the of the file
+      ## which is a safe assumption
+      lines <- readLines(fh, n = -1)
+      close(fh)
+      
+      ## clean the lines of unwanted spaces and extract the postamble
+      comp_postamble <- paste(lines[grepl('^;.*',lines)],collapse = '\n')
+      lines <- stringi::stri_trim_both(lines[!grepl('^;.*|^\\s+$',lines)])
+      
       # Read table into buffer
       data_fifo <- file("")
-      while (TRUE) {
-        line_preamble <- read_preamble(fh)
-        line <- readLines(fh, n = 1)
-        
-        if (is_eof(line)) {
-          close(fh)
-          comp_postamble <- line_preamble
-          break
-        }
-        if (is.list(is_component_header(line))) {
-          # Rewind to before preamble
-          if (length(line_preamble) > 0) {
-            pushBack(c(paste("; ", unlist(line_preamble)), line), fh)
-          } else {
-            pushBack(line, fh)
-          }
-          break
-        }
-        # Split line up so we can sanitise spacing
-        line <- split_gadgetfile_line(line)
-        writeLines(paste(line, collapse = "\t"), data_fifo)
-      }
       
+      if(sum(!grepl('#',lines))){
+        writeLines(paste(gsub('\\s+','\t',lines),collapse = '\n'), data_fifo)
+      } else {
+        for(i in 1:length(lines)) {
+          # Split line up so we can sanitise spacing
+          line <- split_gadgetfile_line(lines[i])
+          writeLines(paste(line, collapse = "\t"), data_fifo)
+        }
+      }
       # Re-read the buffer
       cur_comp <- read.table(data_fifo,
                              header=FALSE,
@@ -559,8 +556,10 @@ read.gadget.file <- function(path, file_name, file_type = "generic",
                              col.names = header,
                              comment.char = ";",
                              fileEncoding = 'utf8',
-                             stringsAsFactors = FALSE)
+                             stringsAsFactors = FALSE,
+                             fill = TRUE) 
       attr(cur_comp, 'preamble') <- comp_preamble
+      attr(cur_comp, 'postamble') <- comp_postamble
       
       # Test columns for gadget formule, if so convert
       # NB: We don't use colClasses to get a list instead of vector column

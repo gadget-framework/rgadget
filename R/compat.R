@@ -59,7 +59,7 @@ fix_headers <- function(main.file = 'main',path='.'){
         c('-- data --',paste(c('length', 'weight'), collapse = '\t'))
       x
       }
-      )
+      ) %>% 
     map(~write.gadget.file(.,path))
 #  profvis({
   lik <- 
@@ -148,3 +148,5 @@ fix_headers <- function(main.file = 'main',path='.'){
 #   arrange(year,step) %>% 
 #   filter(!(year == time$firstyear & step < time$firststep ),
 #          !(year == time$lastyear & step > time$laststep ))
+
+## Rprof() ; system.time({tmp <- read.gadget.file('.','Data/cod.alkeys.comm') }); Rprof(NULL)
