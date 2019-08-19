@@ -36,7 +36,7 @@ gadgetfleet <- function(file_name, path, missingOkay = FALSE) {
 gadget_update.gadgetfleet <- function(gf, component, ...) {
   if (!("gadget_fleet_component" %in% class(component))) {
     # Assume arguments are function call for gadget_fleet_component
-    component <- gadget_fleet_component(component, ...)
+    component <- mfdb::gadget_fleet_component(component, ...)
   }
   
   # fleet components always have some kind of preamble, to space out

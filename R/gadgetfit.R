@@ -114,7 +114,7 @@ gadget.fit <- function(wgts = 'WGTS',
   
   print("Reading output files") 
   out <- read.printfiles(sprintf('%s/out.fit',wgts))
-  SS <- read.gadget.lik.out(sprintf('%s/SS.print',wgts))
+  SS <- try(read.gadget.lik.out(sprintf('%s/SS.print',wgts)))
   #stocks <- read.gadget.stockfiles(main$stockfiles)
   
   print('Gathering results')
@@ -136,22 +136,36 @@ gadget.fit <- function(wgts = 'WGTS',
     purrr::set_names(.,names(stocks)) %>% 
     dplyr::bind_rows(.id='stock') 
   
-  stock.prey <- 
-    out[sprintf('%s.prey',names(stocks))] %>% 
-    purrr::set_names(.,names(stocks)) %>% 
-    dplyr::bind_rows(.id='stock') 
+  if(sum(grepl('prey',names(out)))>0){
   
-  predator.prey <- 
-    out[grepl('.+\\.prey\\..+',names(out))] %>% 
-    purrr::set_names(.,names(.)) %>% 
-    purrr::keep(~'number_consumed' %in% names(.)) %>% 
-    dplyr::bind_rows(.id='stock') %>% 
-    tidyr::separate(stock,c('prey','predator'),sep='\\.prey\\.') %>% 
-    dplyr::group_by(year,step,prey,predator) %>% 
-    dplyr::mutate(suit = mortality/max(mortality),
-                  suit = ifelse(is.finite(suit),suit,0),
-                  length = gsub('len', '', length) %>% 
-                    as.numeric())
+    stock.prey <- 
+      out[sprintf('%s.prey',names(stocks))] %>% 
+      purrr::set_names(.,names(stocks)) %>% 
+      dplyr::bind_rows(.id='stock') 
+    
+    predator.prey <- 
+      out[grepl('.+\\.prey\\..+',names(out))] %>% 
+      purrr::set_names(.,names(.)) %>% 
+      purrr::keep(~'number_consumed' %in% names(.)) %>% 
+      dplyr::bind_rows(.id='stock') %>% 
+      tidyr::separate(stock,c('prey','predator'),sep='\\.prey\\.') %>% 
+      dplyr::group_by(year,step,prey,predator) %>% 
+      dplyr::mutate(suit = mortality/max(mortality),
+                    suit = ifelse(is.finite(suit),suit,0),
+                    length = gsub('len', '', length) %>% 
+                      as.numeric())
+  } else {
+    stock.prey <- 
+      tibble(year=NA_real_, step=NA_real_, area=NA_character_, stock = NA_character_,
+             age=NA_real_,biomass_consumed=NA_real_,number_consumed=NA_real_, mortality = NA_real_)
+    predator.prey <- tibble(year=NA_real_, step=NA_real_, area=NA_character_,
+                            predator = NA_character_, 
+                            prey = NA_character_, 
+                            length = NA_real_, 
+                            suit = NA_real_,
+                            biomass_consumed = NA_real_, mortality = NA_real_)
+    
+  }
   
   
   fleet.catches <- 
@@ -181,6 +195,8 @@ gadget.fit <- function(wgts = 'WGTS',
     dplyr::mutate(amount = ifelse(is.na(amount),0,amount),
                   harv.rate = amount/harv.bio)
   
+  
+
   if(!is.null(fleet.predict)){
     d <- 
       predator.prey %>% 

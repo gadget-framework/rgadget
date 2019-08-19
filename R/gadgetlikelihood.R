@@ -35,7 +35,7 @@ gadgetlikelihood <- function(file_name, path, missingOkay = FALSE) {
 gadget_update.gadgetlikelihood <- function(gf, component, ...) {
     if (!("gadget_likelihood_component" %in% class(component))) {
         # Assume arguments are function call for gadget_likelihood_component
-        component <- gadget_likelihood_component(component, ...)
+        component <- mfdb::gadget_likelihood_component(component, ...)
     }
 
     # Likelihood components always have some kind of preamble, to space out

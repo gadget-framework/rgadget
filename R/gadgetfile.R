@@ -716,7 +716,7 @@ gadget_mainfile_update <- function (
   mfile <- read.gadget.file(path, mainfile, file_type = 'main', fileEncoding = fileEncoding, missingOkay = TRUE, recursive = FALSE)
   if (length(mfile) == 0) {
     mfile <- gadgetfile(mainfile, file_type = 'main', components = list(
-      list(timefile = NA, areafile = NA, printfiles = structure(c(), comment = "Required comment")),
+      list(timefile = NA, areafile = NA, printfiles = structure(list(), comment = "Required comment")),
       stock = list(),
       tagging = list(),
       otherfood = list(),
