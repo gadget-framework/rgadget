@@ -505,12 +505,16 @@ make.gadget.printfile <- function(main.file='main',
     stocks <- 
       main$stock$stockfiles %>% 
       purrr::map(~read.gadget.file(path=gd$dir,file_name = .,file_type = 'stock',recursive = FALSE)) 
+      
     names(stocks) <- stocks %>% purrr::map(1) %>% purrr::map('stockname') %>% unlist()
       
     if(is.null(recruitment_step_age)){
       recruitment_step_age <- 
         stocks %>% 
         purrr::map(1) %>% 
+        ## begin hack
+        purrr::map(~purrr::set_names(.,tolower(names(.)))) %>% 
+        ## end hack
         purrr::map('minage') %>% 
         dplyr::bind_rows() %>% 
         dplyr::mutate(step=1) %>% 
@@ -605,11 +609,12 @@ make.gadget.printfile <- function(main.file='main',
     prey.subset <- 
       stocks %>%  purrr::keep(~.$iseaten$iseaten == 1) %>% names()
     
-    tmp <- expand.grid(preys = prey.subset,
-                       predators = c(names(fleets),
-                                     stocks %>% 
-                                       purrr::keep(~.$doeseat$doeseat == 1) %>% 
-                                       names()))
+    pred_prey_table <- expand.grid(preys = prey.subset,
+                                   predators = c(names(fleets),
+                                                 stocks %>% 
+                                                   purrr::keep(~.$doeseat$doeseat == 1) %>% 
+                                                   names()), 
+                                   stringsAsFactors = FALSE)
     
     
     dir.create(gd$output, showWarnings = FALSE)
@@ -618,7 +623,9 @@ make.gadget.printfile <- function(main.file='main',
     
     stocks %>% 
       purrr::map(function(x){
-        
+        ## hack begins
+        names(x[[1]]) <- tolower(names(x[[1]]))
+        ## hack ends
         lengths <- seq(x[[1]]$minlength,x[[1]]$maxlength,by = x[[1]]$dl)
         lenAgg <- data.frame(length = paste('len',tail(lengths,-1),
                                             sep = ''),
@@ -731,7 +738,9 @@ make.gadget.printfile <- function(main.file='main',
                      paste(sprintf(predator,prey.subset,
                                    paste(names(fleets),collapse = ' ')),
                            collapse='\n'),
-                     paste(sprintf(predator.prey,tmp$preys,tmp$predators),
+                     paste(sprintf(predator.prey,
+                                   pred_prey_table$preys,
+                                   pred_prey_table$predators),
                            collapse='\n'),
                      paste(sprintf(recruitment.print,recruitment_step_age$stock,
                                    recruitment_step_age$step),
