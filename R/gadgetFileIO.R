@@ -39,6 +39,7 @@ read.printfiles <- function(path='.',suppress=FALSE){
     
     data <- body %>% 
       paste(collapse='\n') %>% 
+      paste('\n',sep='') %>% 
       readr::read_table2(file = .,
                          col_names = FALSE,
                          guess_max = length(body))  
