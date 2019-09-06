@@ -28,14 +28,14 @@ gadgetlikelihood <- function(file_name, path, missingOkay = FALSE) {
 #' @examples
 #' path <- './model'
 #' gadgetlikelihood('likelihood', path, missingOkay = TRUE) %>%
-#'    gadget_update(gadget_likelihood_component('understocking', name = 'understocking')) %>% # Add an understocking component
+#'    gadget_update(gadget_understocking_component(name = 'understocking')) %>% # Add an understocking component
 #'    gadget_update('understocking', name = 'understocking') %>% # Identical to above
 #'    write.gadget.file(path)
 #' @export
 gadget_update.gadgetlikelihood <- function(gf, component, ...) {
-    if (!("gadget_likelihood_component" %in% class(component))) {
+    if (!("gadget_likelihood_component" %in% class(component) || "gadgetlikelihoodcomponent" %in% class(component))) {
         # Assume arguments are function call for gadget_likelihood_component
-        component <- mfdb::gadget_likelihood_component(component, ...)
+        component <- gadgetlikelihoodcomponent(component, ...)
     }
 
     # Likelihood components always have some kind of preamble, to space out
