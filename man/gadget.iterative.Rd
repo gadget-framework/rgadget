@@ -33,13 +33,11 @@ scripts (defaults to FALSE).}
 
 \item{qsub.script}{Name of cluster submission script.}
 
-\item{run.base}{should the base (inverse initial SS) parameters be estimated}
-
 \item{run.serial}{should the weighting run be run in parallel (used in
 bootstrap).}
 
 \item{method}{linear model or loess smoother used to calculate SI
-weights outside the gadget model.}
+weights outside the gadget model. DEPRECATED}
 
 \item{cv.floor}{a value for an optional floor for survey indices
 CV, used to prevent overfitting in the final run.}

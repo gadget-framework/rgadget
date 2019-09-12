@@ -49,9 +49,9 @@ gadget.fit <- function(wgts = 'WGTS',
                        gd = NULL){
   if(!is.null(gd)){
     old.dir <- getwd()
-    setwd(gd$dir)
+    setwd(gd)
   } else {
-    gd <- list(dir = '.')
+    gd <-  gadget.variant.dir('.')
   }
   
   if(!is.null(f.age.range) & class(f.age.range) != 'data.frame'){
@@ -465,7 +465,7 @@ gadget.fit <- function(wgts = 'WGTS',
   save(out,file=sprintf('%s/WGTS.Rdata',wgts))
   ## clean up
   unlink(sprintf('%s/out.fit',wgts),recursive = TRUE)
-  if(gd$dir != '.'){
+  if(gd != '.'){
     setwd(old.dir)
   }
   return(out)

@@ -293,11 +293,10 @@ callParamin <- function(i='params.in',
 ##' @param PBS Logical, should the gadget runs be defined to be run in pbs
 ##' scripts (defaults to FALSE).
 ##' @param qsub.script Name of cluster submission script.
-##' @param run.base should the base (inverse initial SS) parameters be estimated
 ##' @param run.serial should the weighting run be run in parallel (used in
 ##' bootstrap).
 ##' @param method linear model or loess smoother used to calculate SI
-##' weights outside the gadget model.
+##' weights outside the gadget model. DEPRECATED
 ##' @param cv.floor a value for an optional floor for survey indices
 ##' CV, used to prevent overfitting in the final run.
 ##' @param comp string vector of names of likelihood components to be
@@ -329,18 +328,21 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
                              optinfofile='optinfofile',
                              PBS = FALSE,
                              qsub.script = NULL,
-                             run.base=FALSE,
                              run.serial = FALSE,
                              method = 'lm',
                              cv.floor=NULL,
                              comp=NULL,
                              inverse=FALSE,
                              cl=NULL,
-                             gd=list(dir='.',rel.dir='WGTS'),
+                             gd=NULL,
                              ...) {
   
-  ## Change the gadget working directory to whatever the gd says it should be
-  Sys.setenv(GADGET_WORKING_DIR=normalizePath(gd$dir))
+  if(!is.null(gd)){
+    ## Change the gadget working directory to whatever the gd says it should be
+    Sys.setenv(GADGET_WORKING_DIR=normalizePath(gd))
+    main.file <- paste(gd,attr(gd,'mainfile'),sep='/')
+    wgts <- paste(gd,wgts,sep = '/')
+  }
   
   ## Ensure all files exist
   if(!file.exists(main.file)) {
@@ -361,13 +363,7 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
   
   ## read model
   main <- read.gadget.main(main.file)
-  if(!is.null(main$printfiles)) {
-    printfile <- read.gadget.printfile(main$printfiles)
-  } else if(!is.null(main$printfile)){
-    printfile <- read.gadget.printfile(main$printfile)
-  } else {
-    printfile <- NULL
-  }
+  printfile <- NULL
   likelihood <- read.gadget.likelihood(main$likelihoodfiles)
   if(!is.null(comp)){
     likelihood <- get.gadget.likelihood(likelihood,
@@ -409,6 +405,7 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
   ##' @return internal weights for the survey index components
   ##' @author Bjarki Thor Elvarsson
   sI.weights <- function(lik.dat,method='lm'){
+    warning('Estimating survey weigths using a linear model is now deprecated and will be removed at later stage')
     if(method=='lm'){
       dat <- plyr::ldply(lik.dat$dat$surveyindices,
                          function(x) x)

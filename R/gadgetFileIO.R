@@ -335,13 +335,13 @@ write.gadget.main <- function(main,file='main'){
                  '[otherfood]',
                  paste('[otherfood]\notherfoodfiles',
                        paste(main$otherfoodfiles,collapse='\t'))),
-          ifelse(is.null(main$likelihoodfiles), # | main$likelihoodfiles == '',
+          ifelse(is.null(main$fleetfiles), # | main$likelihoodfiles == '',
                  '[fleet]',
                  paste('[fleet]\nfleetfiles',
                        paste(main$fleetfiles,collapse='\t'))),
-          '[likelihood]',
-          paste('likelihoodfiles',
-                paste(main$likelihoodfiles,collapse='\t')),
+          ifelse(is.null(main$likelihoodfiles),'[likelihood]',
+                 paste('[likelihood]\nlikelihoodfiles',
+                       paste(main$likelihoodfiles,collapse='\t'))),
           sep='\n')
   write.unix(main.text,f=file)
   invisible(main.text)
