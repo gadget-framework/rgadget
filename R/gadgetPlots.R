@@ -365,7 +365,7 @@ plot.gadget.fit <- function(fit,data = 'sidat',type='direct'){
     pl <-
       ggplot(fit$res.by.year,aes(year,num.catch/1e6,fill=stock)) + 
       geom_bar(stat='identity') +
-      lab(y="Catch in numbers (millions)",x='Year')
+      labs(y="Catch in numbers (millions)",x='Year')
     
   } 
   
