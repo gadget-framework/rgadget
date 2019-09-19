@@ -455,7 +455,8 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
   main.base$likelihoodfiles <- paste(wgts,'likelihood.base',sep='/')
   write.gadget.main(main.base,file=paste(wgts,'main.base',sep='/'))
   likelihood.base <- likelihood
-  if(sum(is.infinite(1/SS)>0)){
+  if(sum(is.infinite(1/unlist(SS))>0)){
+    SS <- unlist(SS)
     txt <- 
       names(SS[is.infinite(1/SS)])
     stop(sprintf('Model error, likelihood component %s returns a value of exactly 0',txt))
