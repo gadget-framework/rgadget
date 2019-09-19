@@ -114,7 +114,8 @@ gadget.fit <- function(wgts = 'WGTS',
   
   print("Reading output files") 
   out <- read.printfiles(sprintf('%s/out.fit',wgts))
-  SS <- try(read.gadget.lik.out(sprintf('%s/SS.print',wgts)))
+  SS <- tryCatch(read.gadget.lik.out(sprintf('%s/SS.print',wgts)),
+                 error = function(e) 'SS could not be read')
   #stocks <- read.gadget.stockfiles(main$stockfiles)
   
   print('Gathering results')
