@@ -56,7 +56,7 @@ plot.gadget.fit <- function(fit,data = 'sidat',type='direct'){
       fit$likelihoodsummary %>% 
       dplyr::filter(year!='all') %>% 
       dplyr::mutate(year = as.numeric(year)) %>%
-      ggplot(aes(year, likelihood.value)) +
+      ggplot(aes(year, likelihood_value)) +
       geom_point() + 
       facet_wrap(~component,scale='free_y') +
       xlab('Year') + ylab('Score') 
