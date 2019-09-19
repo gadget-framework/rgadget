@@ -623,6 +623,14 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
       write.gadget.main(main,sprintf('%s/main.%s',wgts,comp))
       
       likelihood <- likelihood.base
+      if(sum(is.infinite(1/weights$sigmahat))>0){
+        txt <- 
+          weights %>% 
+          filter(is.infinite(1/weights$sigmahat)) %>% 
+          .$comp 
+          
+        stop(sprintf('Model error, likelihood component %s returns a value of exactly 0',txt))
+      }
       likelihood$weights[weights$comp,'weight'] <- 1/weights$sigmahat
       
       write.gadget.likelihood(likelihood,
