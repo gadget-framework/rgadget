@@ -312,6 +312,18 @@ gadget_update.gadgetstock <- function(gf, component, ...) {
             maturityfile = gadgetfile(
                 paste0('Modelfiles/', gf[[1]]$stockname, '.maturity'),
                 components = list(args[names(args) != 'maturityfunction'])))
+    } else if (component == 'doesstray') {
+      gf$doesstray <- list(
+        doesstray = 1,
+        strayfile = gadgetfile(
+          paste0('Modelfiles/', gf[[1]]$stockname, '.stray'),
+          components = list(args)))
+    } else if (component == 'doesspawn' && 'recruitment' %in% names(args)) {
+      gf$doesspawn <- list(
+        doesspawn = 1,
+        spawnfile = gadgetfile(
+          paste0('Modelfiles/', gf[[1]]$stockname, '.spawn'),
+          components = list(args)))
     } else if (component == 'doesmove') {
       gf$doesmove <- list(
         doesmove = 1,

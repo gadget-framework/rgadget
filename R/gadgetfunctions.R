@@ -459,7 +459,7 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
     SS <- unlist(SS)
     txt <- 
       names(SS[is.infinite(1/SS)])
-    stop(sprintf('Model error, likelihood component %s returns a value of exactly 0',txt))
+    stop(sprintf('Model error, likelihood component %s returns a value of exactly 0\n',txt))
   }
   likelihood.base$weights[names(SS),'weight'] <- 1/as.numeric(SS)
   
