@@ -50,11 +50,14 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
     file.remove(x)
     preamble <- tmp[grepl(';',tmp)]
     body <- tmp[!grepl(';',tmp)]
-    header <- preamble[grepl('year-step-area',preamble)] %>% 
+    
+    header <- 
+      preamble[grepl('year step area',preamble)] %>% 
       gsub('; (*)','\\1',.) %>% 
-      stringr::str_split('-') %>% 
-      unlist() %>% 
-      gsub(' ','_',.)
+      gsub('\\[|\\]','',.) %>% 
+      str_split(' ') %>% 
+      unlist() 
+    
     body %>% 
       paste(collapse='\n') %>% 
       read.table(text=.,
