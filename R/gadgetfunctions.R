@@ -455,6 +455,12 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
   main.base$likelihoodfiles <- paste(wgts,'likelihood.base',sep='/')
   write.gadget.main(main.base,file=paste(wgts,'main.base',sep='/'))
   likelihood.base <- likelihood
+  if(sum(is.infinite(1/unlist(SS))>0)){
+    SS <- unlist(SS)
+    txt <- 
+      names(SS[is.infinite(1/SS)])
+    stop(sprintf('Model error, likelihood component %s returns a value of exactly 0\n',txt))
+  }
   likelihood.base$weights[names(SS),'weight'] <- 1/as.numeric(SS)
   
   
@@ -623,6 +629,14 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
       write.gadget.main(main,sprintf('%s/main.%s',wgts,comp))
       
       likelihood <- likelihood.base
+      if(sum(is.infinite(1/weights$sigmahat))>0){
+        txt <- 
+          weights %>% 
+          filter(is.infinite(1/weights$sigmahat)) %>% 
+          .$comp 
+          
+        stop(sprintf('Model error, likelihood component %s returns a value of exactly 0',txt))
+      }
       likelihood$weights[weights$comp,'weight'] <- 1/weights$sigmahat
       
       write.gadget.likelihood(likelihood,

@@ -56,7 +56,7 @@ plot.gadget.fit <- function(fit,data = 'sidat',type='direct'){
       fit$likelihoodsummary %>% 
       dplyr::filter(year!='all') %>% 
       dplyr::mutate(year = as.numeric(year)) %>%
-      ggplot(aes(year, likelihood.value)) +
+      ggplot(aes(year, likelihood_value)) +
       geom_point() + 
       facet_wrap(~component,scale='free_y') +
       xlab('Year') + ylab('Score') 
@@ -70,7 +70,7 @@ plot.gadget.fit <- function(fit,data = 'sidat',type='direct'){
       fit$likelihoodsummary %>% 
       dplyr::filter(year!='all') %>% 
       dplyr::mutate(year = as.numeric(year)) %>%
-      ggplot(aes(year, weight*likelihood.value)) +
+      ggplot(aes(year, weight*likelihood_value)) +
       geom_point() + 
       facet_wrap(~component,scale='free_y') +
       xlab('Year') + ylab('Weighted score')
@@ -81,7 +81,7 @@ plot.gadget.fit <- function(fit,data = 'sidat',type='direct'){
     pl <- 
       fit$likelihoodsummary %>% 
       dplyr::group_by(component) %>% 
-      dplyr::summarise(val = sum(likelihood.value*weight)) %>% 
+      dplyr::summarise(val = sum(likelihood_value*weight)) %>% 
       ggplot(aes(x="",y=val,fill = component)) + geom_bar(stat='identity',width = 1) + 
       coord_polar("y",start = 0) + 
       scale_fill_brewer(palette="Spectral")
@@ -365,7 +365,7 @@ plot.gadget.fit <- function(fit,data = 'sidat',type='direct'){
     pl <-
       ggplot(fit$res.by.year,aes(year,num.catch/1e6,fill=stock)) + 
       geom_bar(stat='identity') +
-      lab(y="Catch in numbers (millions)",x='Year')
+      labs(y="Catch in numbers (millions)",x='Year')
     
   } 
   
