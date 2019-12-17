@@ -13,6 +13,18 @@ dir_list <- function (dir) {
     )
 }
 
+# Is vector (snippet) part of (full)?
+part_of <- function(full, snippet) {
+    # If positions of each part of snippet make an ordered list from start
+    if (!is.na(match(snippet[[1]], full)) && identical(
+            match(snippet, full),
+            seq.int(match(snippet[[1]], full), along.with=snippet))) {
+        return(TRUE)
+    }
+    # Fall back to ut_cmp_identical, which will show some difference
+    ut_cmp_identical(full, snippet)
+}
+
 # Write string into temporary directory and read it back again as a gadget file
 read.gadget.string <- function(..., file_type = "generic") {
     dir <- tempfile()
@@ -803,4 +815,25 @@ ok_group("Numeric recruitment from MFDB data.frame", {
             "1998\tall\tB\tage10\t200\t17\t27",
             NULL)
     )), "Generate recruitment from MFDB data")
+})
+
+ok_group("Multiple suitability functions", {
+    path <- tempfile()
+
+    gadgetstock('simple_stock', path, missingOkay = TRUE) %>%
+        gadget_update('doeseat',
+                  suitability = list(
+                      prey = list(type='function',suit_func = 'constant', alpha = 1),
+                      otherfood = list(type='function',suit_func = 'constant', alpha = 1e5)),
+                  preference = list(prey = 0.75,otherfood = 0.25),
+                  maxconsumption = list(m0=1,m1=0,m2=0,m3=0,m4=0),
+                  halffeedingvalue = 0.5) %>%
+        write.gadget.file(path)
+    ok(part_of(dir_list(path)$simple_stock, c(
+        "suitability",
+        "prey\tfunction\tconstant\t1",
+        "otherfood\tfunction\tconstant\t1e+05",
+        "preference\t0.75\t0.25",
+        "maxconsumption\t1\t0\t0\t0\t0",
+        "halffeedingvalue\t0.5")), "suitibility functions each in a sub-section")
 })
