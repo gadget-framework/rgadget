@@ -21,7 +21,7 @@ Imports:
     purrr,
     broom
 Suggests:
-    unittest (>= 1.2),
+    unittest (>= 1.4),
     knitr,
     rmarkdown
 License: GPL

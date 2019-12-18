@@ -1,6 +1,9 @@
 library(Rgadget)
 library(unittest, quietly = TRUE)
-source('utils/helpers.R')
+
+cmp_str <- function(exp, expected_str) {
+    ut_cmp_identical(capture.output(str(exp)), expected_str)
+}
 
 ok_group("parse.gadget.formulae", {
     ok(cmp_str(
@@ -17,14 +20,14 @@ ok_group("parse.gadget.formulae", {
 })
 
 ok_group("to.gadget.formulae", {
-    ok(cmp(
+    ok(ut_cmp_identical(
         to.gadget.formulae(quote(2 + log(moo - 1))),
         "(+ 2 (log (- #moo 1)))"), "Can generate from quoted expressions")
-    ok(cmp(
+    ok(ut_cmp_identical(
         to.gadget.formulae(parse.gadget.formulae("(+ (2) (log (- (#moo) 1)))")),
         "(+ 2 (log (- #moo 1)))"), "Can generate from the output of parse.gadget.formulae")
 
-    ok(cmp(
+    ok(ut_cmp_identical(
         to.gadget.formulae(quote(4 + (2 - 8))),
         "(+ 4 (- 2 8))"), "We ignore R's explicit bracket function")
 })
@@ -59,13 +62,13 @@ ok_group("sub.gadget.formulae", {
         "2000    1       #grow2000",
         dir = path,
         file_type = "timevariable")
-    ok(cmp_error(
+    ok(ut_cmp_error(
         sub.gadget.formulae(quote(log(moo) + oink), list(moo = tv)),
         "Specify year"), "Need year before timevariables are useful")
-    ok(cmp_error(
+    ok(ut_cmp_error(
         sub.gadget.formulae(quote(log(moo) + oink), list(moo = tv), year = 1995),
         "Specify step"), "Need step before timevariables are useful")
-    ok(cmp_error(
+    ok(ut_cmp_error(
         sub.gadget.formulae(quote(log(moo) + oink), list(moo = tv), year = 1995, step = 99),
         "No value for moo"), "Outside timevariable range is an error")
     ok(cmp_str(
