@@ -14,6 +14,9 @@ split_gadgetfile_line <- function (line) {
     paste(string, collapse = " ")
   }
   
+  # Empty line should be returned untouched (NB: strsplit will return c() in this case)
+  if (line == "") return("")
+
   # Remove all comments
   line <- gsub(';.+', '', line)
   # Split by any whitespace first
