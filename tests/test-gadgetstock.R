@@ -677,15 +677,15 @@ disable_ok_group("initialconditions from MFDB data.frame", {
         "Modelfiles/codimm.init.number" = c(
             ver_string,
             "; -- data --",
-            "; area\tage\tlength\tnumber\tweight",
-            "A\tage5\t100\t10\t20",
-            "A\tage5\t200\t11\t21",
-            "A\tage10\t100\t12\t22",
-            "A\tage10\t200\t13\t23",
-            "B\tage5\t100\t14\t24",
-            "B\tage5\t200\t15\t25",
-            "B\tage10\t100\t16\t26",
-            "B\tage10\t200\t17\t27",
+            "; age\tarea\tlength\tnumber\tweight",
+            "age5\tA\t100\t10\t20",
+            "age5\tA\t200\t11\t21",
+            "age10\tA\t100\t12\t22",
+            "age10\tA\t200\t13\t23",
+            "age5\tB\t100\t14\t24",
+            "age5\tB\t200\t15\t25",
+            "age10\tB\t100\t16\t26",
+            "age10\tB\t200\t17\t27",
             NULL)
     )), "Generate initialconditions from MFDB data")
 })
