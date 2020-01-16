@@ -226,7 +226,7 @@ ok_group("Can read gadget files", {
         file_type = "generic")
     ok(ut_cmp_identical(
         unattr(gf),
-        list(list(a = 2, b = 4))), "Components read")
+        list(list(a = as.integer(2), b = as.integer(4)))), "Components read")
 
     # Strings / numbers
     gf <- read.gadget.string(
@@ -238,7 +238,7 @@ ok_group("Can read gadget files", {
     ok(ut_cmp_identical(
         unattr(gf),
         list(list(
-            allnumber = c(2,4,6,8),
+            allnumber = as.integer(c(2,4,6,8)),
             allstring = c("who", "do", "we", "appreciate?"),
             mix = c("1", "potato", "2", "potato", "3", "potato", "4!")))), "Strings/numbers read")
 
@@ -260,7 +260,7 @@ ok_group("Can read gadget files", {
     ok(ut_cmp_identical(
         unattr(gf),
         list(
-            structure(list(a = 6, b = 8), preamble = list("This is a comment that should be preserved")),
+            structure(list(a = as.integer(6), b = as.integer(8)), preamble = list("This is a comment that should be preserved")),
             carrots = structure(
                 list(like = structure("Yes-I-do", preamble = list("This is a line preamble"))),
                 preamble = list("This is a comment associated with the component below", "So is this")),
@@ -295,7 +295,7 @@ ok_group("Can read gadget files", {
         "3\t2\t9\t4",
         file_type = "generic")
     ok(ut_cmp_identical(unattr(gf), list(
-        list(a = 99),
+        list(a = as.integer(99)),
         structure(
             data.frame(col = as.integer(c(3,7,3)), colm = as.integer(c(5,5,2)), colt = as.integer(c(9,33,9)), coal = as.integer(c(3,3,4))),
             preamble = list("Preamble for data")))), "Data with preable")
@@ -331,20 +331,20 @@ ok_group("Can read gadget files", {
         ver_string,
         "; -- data --",
         "; col\tcolm\tcolt\tcoal",
-        "3    5\t(+ 10 (- #potato 12)\t) 13",
+        "3    5\t(+ 10\t#potato)) 13",
         file_type = "generic")
     ok(ut_cmp_identical(unattr(gf), list(
         data.frame(
             col = as.integer(3),
             colm = as.integer(5),
-            colt = I(list(quote(10 + (potato - 12)))),
+            colt = I(list(quote(10 + potato))),
             coal = as.integer(13)))), "Data with mangled spacing & formulae")
 
     gf <- read.gadget.string(
         ver_string,
         "; -- data --",
         "; col\tcolm\tcolt\tcoal",
-        "3    5\t(+ 10 (- #potato 12)) 13",
+        "3    5\t(+ 10 #potato) 13",
         "3    5\t(+ 10 (log #cabbage)) 13",
         "3    5\t(+ 10 (* #garlic #ginger)) 13",
         file_type = "generic")
@@ -353,7 +353,7 @@ ok_group("Can read gadget files", {
             col = as.integer(3),
             colm = as.integer(5),
             colt = I(list(
-                quote(10 + (potato - 12)),
+                quote(10 + potato),
                 quote(10 + log(cabbage)),
                 quote(10 + garlic * ginger)
                 )),
@@ -494,10 +494,10 @@ ok_group("Implicit component labels", {
         file_type = "generic")
     ok(ut_cmp_identical(unattr(gf), list(list(
         farmer = "giles",
-        cows = 2,
+        cows = as.integer(2),
         fresian = "daisy",
         highland = "bessie",
-        pigs = 4,
+        pigs = as.integer(4),
         oldspot = "george",
         gloucester = c("henry", "freddie")
         ))), "By default, lines are just extra key/value fields")
@@ -514,8 +514,8 @@ ok_group("Implicit component labels", {
         file_type = "stock")
     ok(ut_cmp_identical(unattr(gf), list(
         list(farmer = "giles"),
-        doesgrow = list(doesgrow = 2, fresian = "daisy", highland = "bessie"),
-        doeseat = list(doeseat = 4, oldspot = "george", gloucester = c("henry", "freddie"))
+        doesgrow = list(doesgrow = as.integer(2), fresian = "daisy", highland = "bessie"),
+        doeseat = list(doeseat = as.integer(4), oldspot = "george", gloucester = c("henry", "freddie"))
         )), "Turn on implicit components, and they get divided")
 
     test_loopback(
@@ -659,23 +659,23 @@ ok_group("Can read fleet files successfully", {
     ok(ut_cmp_identical(unattr(gf), list(
         fleetcomponent = list(
             totalfleet = "comm",
-            livesonareas = 1,
-            multiplicative = 1,
+            livesonareas = as.integer(1),
+            multiplicative = as.integer(1),
             suitability = list(
                 codimm = list("function", "exponential", "#acomm", quote(0.01 * bcomm), "0", "1"),
                 codmat = list("function", "exponential", "#acomm", quote(0.01 * bcomm), "0", "1")
             ),
-            amount = gadgetfile("Data/cod.fleet.data", components = list(comp = list(a=1)))
+            amount = gadgetfile("Data/cod.fleet.data", components = list(comp = list(a=as.integer(1))))
         ),
         fleetcomponent = list(
             totalfleet = "survey",
-            livesonareas = 1,
-            multiplicative = 1,
+            livesonareas = as.integer(1),
+            multiplicative = as.integer(1),
             suitability = list(
                 codimm = list("function", "exponential", "#acomm", quote(0.05 * bcomm), "0", "1"),
                 codmat = list("function", "exponential", "#acomm", quote(0.05 * bcomm), "0", "1")
             ),
-            amount = gadgetfile("Data/cod.survey.data", components = list(comp = list(b=2)))
+            amount = gadgetfile("Data/cod.survey.data", components = list(comp = list(b=as.integer(2))))
         )
     )), "Fleet file with multiple components read")
 })
@@ -686,8 +686,8 @@ ok_group("Can read nested files in one go", {
     # NB: all.equal can tell the difference between names() == "" and names() == NULL,
     # even though there's no sematic difference. Label all components to avoid this.
     nested_files <- gadgetfile("wobble", components = list(comp = list(
-        subfile = gadgetfile("sub/subfile", components = list(comp = list(potatoes = as.numeric(1:4)))),
-        anotherfile = gadgetfile("sub/anotherfile", components = list(comp = list(potatoes = as.numeric(6:8))))
+        subfile = gadgetfile("sub/subfile", components = list(comp = list(potatoes = as.integer(1:4)))),
+        anotherfile = gadgetfile("sub/anotherfile", components = list(comp = list(potatoes = as.integer(6:8))))
     )))
     write.gadget.file(nested_files, dir)
     ok(ut_cmp_identical(dir_list(dir), list(

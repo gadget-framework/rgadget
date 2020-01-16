@@ -17,6 +17,13 @@ ok_group("parse.gadget.formulae", {
     ok(cmp_str(
         parse.gadget.formulae("(+ (2) (log (- (#moo) 1)))"),
         " language 2 + log(moo - 1)"), "Bracketed constants are fine")
+
+    # NB: quote(10 + (potato - 12)) is not identical to call("+", 10, call("-", quote(potato), 12)))
+    # Depending on version of R the brackets are explicit in the first version
+    # Which is more correct I'm not sure currently, but identical notices the difference
+    ok(ut_cmp_identical(
+        parse.gadget.formulae("(+ 10 (- #potato 12))"),
+        call("+", 10, call("-", quote(potato), 12))), "We don't (yet) add explicit bracket functions to parse tree")
 })
 
 ok_group("to.gadget.formulae", {

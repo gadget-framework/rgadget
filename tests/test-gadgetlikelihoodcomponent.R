@@ -1,6 +1,27 @@
 library(Rgadget)
 library(unittest, quietly = TRUE)
-source('tests/utils/helpers.R')
+
+# From mfdb:tests/utils/helpers.R
+# Allow us to use agg_summary outside the package
+agg_summary_args <- NULL
+agg_summary <- function(...) {
+    agg_summary_args <<- list(...)
+    local({
+        do.call(agg_summary, agg_summary_args)
+    }, asNamespace('mfdb'))
+}
+
+# From mfdb:tests/utils/helpers.R
+fake_mdb <- function(save_temp_tables = FALSE) {
+    logger <- logging::getLogger('mfdb')
+    return(structure(list(
+            logger = logger,
+            save_temp_tables = save_temp_tables,
+            schema = 'fake_schema',
+            state = new.env(),
+            db = structure(list(), class="dbNull"),
+        class = "mfdb")))
+}
 
 all_components <- c(
         "penalty",
@@ -15,24 +36,24 @@ all_components <- c(
         NULL)
 
 ok_group("Can generate gadgetlikelihoodcomponent objects", {
-    expect_error(
+    ok(ut_cmp_error(
         gadgetlikelihoodcomponent("aardvark"),
-        "aardvark")
+        "aardvark"))
 
-    expect_error(
+    ok(ut_cmp_error(
         gadgetlikelihoodcomponent("e12 ; bobby tables"),
-        "e12 ; bobby tables")
+        "e12 ; bobby tables"))
 
-    expect_equal(
+    ok(ut_cmp_identical(
         class(gadgetlikelihoodcomponent("penalty")),
-        c("gadget_penalty_component", "gadgetlikelihoodcomponent"))
+        c("gadget_penalty_component", "gadgetlikelihoodcomponent")))
 })
 
 ok_group("Can use as.character on gadgetlikelihoodcomponents", {
     comp <- gadgetlikelihoodcomponent("penalty", name = "wibble", weight = 0.5)
-    expect_equal(comp$name, "wibble")
-    expect_equal(comp$weight, 0.5)
-    expect_equal(comp$type, "penalty")
+    ok(ut_cmp_identical(comp$name, "wibble"))
+    ok(ut_cmp_identical(comp$weight, 0.5))
+    ok(ut_cmp_identical(comp$type, "penalty"))
 })
 
 ok_group("Can nest data.frame in a list", {
@@ -143,12 +164,12 @@ ok_group("Can write likelihood components", {
 
     # Create some components
     gadget_dir_write(gd, gadgetlikelihoodcomponent("understocking", name="head-bone", weight = 0.3))
-    expect_equal(list.files(dir), c("likelihood", "main"))
-    expect_equal(
+    ok(ut_cmp_identical(list.files(dir), c("likelihood", "main")))
+    ok(ut_cmp_identical(
         gadget_dir_read(gd, "likelihood")$components,
         list(
             list(),
-            component = structure(list(name = "head-bone", weight = 0.3, type = "understocking"), preamble = list(gsub('^; ', '', ver_string), ""))))
+            component = structure(list(name = "head-bone", weight = 0.3, type = "understocking"), preamble = list(gsub('^; ', '', ver_string), "")))))
     ok(cmp_file(gd, "main",
         ver_string,
         "timefile\t",
@@ -165,12 +186,12 @@ ok_group("Can write likelihood components", {
     ok(ut_cmp_identical(
         list.files(dir, recursive = TRUE),
         c("Data/neck-bone.penaltyfile", "likelihood", "main")), "Created penaltyfile")
-    expect_equal(
+    ok(ut_cmp_identical(
         gadget_dir_read(gd, "likelihood")$components,
         list(
             list(),
             component = structure(list(name = "head-bone", weight = 0.3, type = "understocking"), preamble = list(gsub('^; ', '', ver_string), "")),
-            component = structure(list(name = "neck-bone", weight = 0.5, type = "penalty", datafile = "Data/neck-bone.penaltyfile"), preamble = list(""))))
+            component = structure(list(name = "neck-bone", weight = 0.5, type = "penalty", datafile = "Data/neck-bone.penaltyfile"), preamble = list("")))))
     ok(cmp_file(gd, "main",
         ver_string,
         "timefile\t",
@@ -186,13 +207,13 @@ ok_group("Can write likelihood components", {
     # Override one, add another
     gadget_dir_write(gd, gadgetlikelihoodcomponent("understocking", name="head-bone", weight = 0.8))
     gadget_dir_write(gd, gadgetlikelihoodcomponent("understocking", name="shoulder-bone", weight = 0.2))
-    expect_equal(
+    ok(ut_cmp_identical(
         gadget_dir_read(gd, "likelihood")$components,
         list(
             list(),
             component = structure(list(name = "head-bone", weight = 0.8, type = "understocking"), preamble = list(gsub('^; ', '', ver_string), "")),
             component = structure(list(name = "neck-bone", weight = 0.5, type = "penalty", datafile = "Data/neck-bone.penaltyfile"), preamble = list("")),
-            component = structure(list(name = "shoulder-bone", weight = 0.2, type = "understocking"), preamble = list(""))))
+            component = structure(list(name = "shoulder-bone", weight = 0.2, type = "understocking"), preamble = list("")))))
     ok(cmp_file(gd, "main",
         ver_string,
         "timefile\t",
@@ -209,34 +230,34 @@ ok_group("Can write likelihood components", {
 ###############################################################################
 ok_group("Can generate an understocking component with default parameters", {
     comp <- gadgetlikelihoodcomponent("understocking")
-    expect_equal(comp$name, "understocking")
-    expect_equal(comp$weight, 0)
-    expect_equal(comp$type, "understocking")
+    ok(ut_cmp_identical(comp$name, "understocking"))
+    ok(ut_cmp_identical(comp$weight, 0))
+    ok(ut_cmp_identical(comp$type, "understocking"))
 })
 
 ok_group("Can customise it", {
     comp <- gadgetlikelihoodcomponent("understocking", name = "alfred", weight = 0.3)
-    expect_equal(comp$name, "alfred")
-    expect_equal(comp$weight, 0.3)
-    expect_equal(comp$type, "understocking")
+    ok(ut_cmp_identical(comp$name, "alfred"))
+    ok(ut_cmp_identical(comp$weight, 0.3))
+    ok(ut_cmp_identical(comp$type, "understocking"))
 })
 
 ###############################################################################
 ok_group("Function either provided explicitly or based on generator", {
-    expect_error(
+    ok(ut_cmp_error(
         gadgetlikelihoodcomponent("catchstatistics"),
-        "No data provided")
-    expect_error(
+        "No data provided"))
+    ok(ut_cmp_error(
         gadgetlikelihoodcomponent("catchstatistics", data = data.frame()),
-        "Cannot work out the required function, and data_function not provided")
-    expect_error(
+        "Cannot work out the required function, and data_function not provided"))
+    ok(ut_cmp_error(
         gadgetlikelihoodcomponent("catchstatistics", data = structure(data.frame(), generator = "camel")),
-        "Unknown generator function camel")
+        "Unknown generator function camel"))
 
-    expect_equal(
+    ok(ut_cmp_identical(
         gadgetlikelihoodcomponent("catchstatistics",
             data = data.frame(), data_function = "customfunction")[['function']],
-        "customfunction")
+        "customfunction"))
 
     ok(ut_cmp_identical(
         gadgetlikelihoodcomponent("catchstatistics", data = structure(
@@ -510,7 +531,7 @@ ok_group("stomachcontent - matching of prey to labels", {
     # Create a temporary directory, starts off empty
     dir <- tempfile()
     gd <- gadget_directory(dir)
-    expect_equal(list.files(dir), character(0))
+    ok(ut_cmp_identical(list.files(dir), character(0)))
 
     sample_data <- data.frame(year = 1, step = 1, area = 1:3, predator_length = 'pred100',
         prey_length = c('cod', 'anacoda', 'cod.imm'),
