@@ -617,7 +617,7 @@ disable_ok_group("initialconditions from MFDB data.frame", {
             age = rep(c('age5', 'age10'), each = 2, times = 2),
             length = rep(c('len100', 'len200'), each = 1, times = 4),
             number = 10:17,
-            mean = 20:27,
+            weight = 20:27,
             stringsAsFactors = TRUE),
         area = list(A = 1:3, B = 4:6),
         age = list(age5 = c(5:9), age10 = c(10:15)),
@@ -626,7 +626,7 @@ disable_ok_group("initialconditions from MFDB data.frame", {
             len200 = structure(call("seq", 200, 300 - 1), min = 200, max = 300)))
 
     gadgetstock('codimm', path, missingOkay = TRUE) %>%
-        gadget_update('initialconditions', data = data) %>%
+        gadget_update('initialconditions', number = data) %>%
         write.gadget.file(path)
     ok(ut_cmp_identical(dir_list(path), list(
         "codimm" = c(
