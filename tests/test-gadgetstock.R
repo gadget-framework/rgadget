@@ -33,8 +33,6 @@ read.gadget.string <- function(..., file_type = "generic") {
     read.gadget.file(dir, "wibble", file_type = file_type)
 }
 
-disable_ok_group <- function (message, ...) { writeLines(paste0("# SKIP: ", message)) }
-
 ok_group("Can create new stocks with some default content", {
     path <- tempfile()
 
@@ -607,7 +605,7 @@ ok_group("Refweight from an MFDB data.frame", {
     )), "refweight tables can be derived from alpha/beta")
 })
 
-disable_ok_group("initialconditions from MFDB data.frame", {
+ok_group("initialconditions from MFDB data.frame", {
     path <- tempfile()
 
     # MFDB data should look roughly like this

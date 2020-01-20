@@ -241,11 +241,11 @@ gadget_update.gadgetstock <- function(gf, component, ...) {
           weight = data$weight,  # Assuming it's mean weight here
           stringsAsFactors = FALSE)
         gf$initialconditions <- list(
-          minage = if (is.null(args$minage)) gf[[1]]$minage else args$minage,
-          maxage = if (is.null(args$maxage)) gf[[1]]$maxage else args$maxage,
-          minlength = if (is.null(args$minlength)) gf[[1]]$minlength else args$minlength,
-          maxlength = if (is.null(args$maxlength)) gf[[1]]$maxlength else args$maxlength,
-          dl = if(is.null(args$dl)) gf[[1]]$dl else args$dl,
+          minage = min(unlist(agg_prop(attr(data, 'age'), "min"))),
+          maxage = max(unlist(agg_prop(attr(data, 'age'), "max"))),
+          minlength = min(unlist(agg_prop(attr(data, 'length'), "min"))),
+          maxlength = max(unlist(agg_prop(attr(data, 'length'), "max"))),
+          dl = min(unlist(agg_prop(attr(data, 'length'), "diff"))),
           numberfile = gadgetdata(paste0('Modelfiles/', gf[[1]]$stockname, '.init.number'), numberfile))
         
         
