@@ -817,22 +817,22 @@ ok_group("Can read time variable files successfully", {
         ver_string,
         "annualgrowth",
         "data",
-        "; year  step    value",
-        "1995    1       #grow1995",
-        "1996    1       #grow1996",
-        "1997    1       #grow1997",
-        "1998    1       #grow1998",
-        "1999    1       #grow1999",
-        "2000    1       #grow2000",
+        "; year	step	value",
+        "1995	1	#grow1995",
+        "1996	1	#grow1996",
+        "1997	1	#grow1997",
+        "1998	1	#grow1998",
+        "1999	1	#grow1999",
+        "2000	1	#grow2000",
         dir = path,
         file_type = "timevariable")
     ok(ut_cmp_identical(unattr(gf), list(list(
         annualgrowth = as.numeric(),
         data = data.frame(
             year = 1995:2000,
-            step = 1,
+            step = as.integer(1),
             value = paste0('#grow', 1995:2000),
-            stringsAsFactors = TRUE)
+            stringsAsFactors = FALSE)
     ))), "Time variable file read")
 })
 
