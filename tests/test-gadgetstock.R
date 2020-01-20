@@ -35,7 +35,7 @@ read.gadget.string <- function(..., file_type = "generic") {
 
 disable_ok_group <- function (message, ...) { writeLines(paste0("# SKIP: ", message)) }
 
-disable_ok_group("Can create new stocks with some default content", {
+ok_group("Can create new stocks with some default content", {
     path <- tempfile()
 
     # MFDB data should look roughly like this
@@ -410,7 +410,7 @@ ok_group("Doesgrow defaults", {
 
 })
 
-disable_ok_group("Refweight from a data.frame", {
+ok_group("Refweight from a data.frame", {
     path <- tempfile()
 
     gadgetstock('codimm', path, missingOkay = TRUE) %>%  # Create a skeleton if missing
@@ -502,7 +502,7 @@ disable_ok_group("Refweight from a data.frame", {
     )), "refweight tables can be derived from alpha/beta")
 })
 
-disable_ok_group("Refweight from an MFDB data.frame", {
+ok_group("Refweight from an MFDB data.frame", {
     path <- tempfile()
 
     # MFDB data should look roughly like this
