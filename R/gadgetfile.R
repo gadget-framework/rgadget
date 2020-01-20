@@ -536,7 +536,9 @@ read.gadget.file <- function(path, file_name, file_type = "generic",
       close(fh)
       
       ## clean the lines of unwanted spaces and extract the postamble
-      comp_postamble <- paste(lines[grepl('^;.*',lines)],collapse = '\n')
+      comp_postamble <- stringi::stri_match_first_regex(lines, '^;\\s*(.*)')[, 2]
+      comp_postamble <- as.list(comp_postamble[!is.na(comp_postamble)])
+      if (length(comp_postamble) == 0) comp_postamble <- NULL  # Hide postamble if there's no lines in it
       lines <- stringi::stri_trim_both(lines[!grepl('^;.*|^\\s+$',lines)])
       
       # Read table into buffer

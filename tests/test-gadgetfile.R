@@ -175,6 +175,30 @@ ok_group("Can include tabular data", {
             "3\t5",
         NULL)
     )), "Tabular data")
+
+    # Postambles also work for -- data -- components
+    gf <- read.gadget.string(
+        ver_string,
+        "; -- data --",
+        "; a\tb",
+        "1\t2",
+        "3\t5",
+        "; postamble for entire file",
+        "; The only way you can get one",
+        file_type = "generic")
+    ok(ut_cmp_identical(unattr(gf), list(
+        structure(
+            data.frame(a = as.integer(c(1,3)), b = as.integer(c(2,5))),
+            postamble = list("postamble for entire file", "The only way you can get one"))
+        )), "File postamble on end of -- data --")
+    test_loopback(
+        ver_string,
+        "; -- data --",
+        "; a\tb",
+        "1\t2",
+        "3\t5",
+        "; postamble for entire file",
+        "; The only way you can get one")
 })
 
 ok_group("Can nest gadgetfile objects", {
