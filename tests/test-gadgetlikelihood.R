@@ -181,7 +181,7 @@ ok_group("Can create likelihood files in a variant directory", {
             "name\tpenalty",
             "weight\t0.8",
             "type\tpenalty",
-            "datafile\tData/penalty.penaltyfile",
+            "datafile\tbs.1/Data/penalty.penaltyfile",
         NULL),
         "bs.1/main" = c(
             ver_string,
