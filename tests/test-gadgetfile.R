@@ -175,6 +175,30 @@ ok_group("Can include tabular data", {
             "3\t5",
         NULL)
     )), "Tabular data")
+
+    # Postambles also work for -- data -- components
+    gf <- read.gadget.string(
+        ver_string,
+        "; -- data --",
+        "; a\tb",
+        "1\t2",
+        "3\t5",
+        "; postamble for entire file",
+        "; The only way you can get one",
+        file_type = "generic")
+    ok(ut_cmp_identical(unattr(gf), list(
+        structure(
+            data.frame(a = as.integer(c(1,3)), b = as.integer(c(2,5))),
+            postamble = list("postamble for entire file", "The only way you can get one"))
+        )), "File postamble on end of -- data --")
+    test_loopback(
+        ver_string,
+        "; -- data --",
+        "; a\tb",
+        "1\t2",
+        "3\t5",
+        "; postamble for entire file",
+        "; The only way you can get one")
 })
 
 ok_group("Can nest gadgetfile objects", {
@@ -300,32 +324,6 @@ ok_group("Can read gadget files", {
             data.frame(col = as.integer(c(3,7,3)), colm = as.integer(c(5,5,2)), colt = as.integer(c(9,33,9)), coal = as.integer(c(3,3,4))),
             preamble = list("Preamble for data")))), "Data with preable")
 
-    # Double data
-    gf <- read.gadget.string(
-        ver_string,
-        "a\t99",
-        "; Preamble for data",
-        "; -- data --",
-        "; col\tcolm\tcolt\tcoal",
-        "3\t5\t9\t3",
-        "7\t5\t33\t3",
-        "3\t2\t9\t4",
-        "; -- data --",
-        "; a\tb\tc",
-        "1\t2\t3",
-        "1\t2\t3",
-        "1\t2\t3",
-        "[final]",
-        "moo\tyes",
-        file_type = "generic")
-    ok(ut_cmp_identical(unattr(gf), list(
-        list(a = 99),
-        structure(
-            data.frame(col = as.integer(c(3,7,3)), colm = as.integer(c(5,5,2)), colt = as.integer(c(9,33,9)), coal = as.integer(c(3,3,4))),
-            preamble = list("Preamble for data")),
-        data.frame(a = as.integer(c(1,1,1)), b = as.integer(c(2,2,2)), c = as.integer(c(3,3,3))),
-        final = list(moo = 'yes'))), "Double data frames")
-
     # Data with mangled spacing & formulae
     gf <- read.gadget.string(
         ver_string,
@@ -395,12 +393,9 @@ ok_group("Can read gadget files", {
     gf <- read.gadget.string(
         ver_string,
         "a\t99",
-        "; Preamble for data",
-        "; -- data --",
-        "; col\tcolm\tcolt\tcoal",
-        "3\t5\t9\t3",
-        "7\t5\t33\t3",
-        "3\t2\t9\t4",
+        "; Preamble for first",
+        "[first]",
+        "hello\t2",
         "[final]",
         "; preamble for line",
         "moo\tyes",
@@ -408,10 +403,10 @@ ok_group("Can read gadget files", {
         "; The only way you can get one",
         file_type = "generic")
     ok(ut_cmp_identical(unattr(gf), list(
-        list(a = 99),
-        structure(
-            data.frame(col = as.integer(c(3,7,3)), colm = as.integer(c(5,5,2)), colt = as.integer(c(9,33,9)), coal = as.integer(c(3,3,4))),
-            preamble = list("Preamble for data")),
+        list(a = as.integer(99)),
+        first = structure(
+            list(hello = as.integer(2)),
+            preamble = list("Preamble for first")),
         final = structure(
             list(moo = structure('yes', preamble = list("preamble for line"))),
             postamble = list("postamble for entire file", "The only way you can get one"))
@@ -419,12 +414,9 @@ ok_group("Can read gadget files", {
     test_loopback(
         ver_string,
         "a\t99",
-        "; Preamble for data",
-        "; -- data --",
-        "; col\tcolm\tcolt\tcoal",
-        "3\t5\t9\t3",
-        "7\t5\t33\t3",
-        "3\t2\t9\t4",
+        "; Preamble for first",
+        "[first]",
+        "hello\t2",
         "[final]",
         "; preamble for line",
         "moo\tyes",
@@ -825,22 +817,22 @@ ok_group("Can read time variable files successfully", {
         ver_string,
         "annualgrowth",
         "data",
-        "; year  step    value",
-        "1995    1       #grow1995",
-        "1996    1       #grow1996",
-        "1997    1       #grow1997",
-        "1998    1       #grow1998",
-        "1999    1       #grow1999",
-        "2000    1       #grow2000",
+        "; year	step	value",
+        "1995	1	#grow1995",
+        "1996	1	#grow1996",
+        "1997	1	#grow1997",
+        "1998	1	#grow1998",
+        "1999	1	#grow1999",
+        "2000	1	#grow2000",
         dir = path,
         file_type = "timevariable")
     ok(ut_cmp_identical(unattr(gf), list(list(
         annualgrowth = as.numeric(),
         data = data.frame(
             year = 1995:2000,
-            step = 1,
+            step = as.integer(1),
             value = paste0('#grow', 1995:2000),
-            stringsAsFactors = TRUE)
+            stringsAsFactors = FALSE)
     ))), "Time variable file read")
 })
 

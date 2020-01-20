@@ -33,9 +33,7 @@ read.gadget.string <- function(..., file_type = "generic") {
     read.gadget.file(dir, "wibble", file_type = file_type)
 }
 
-disable_ok_group <- function (message, ...) { writeLines(paste0("# SKIP: ", message)) }
-
-disable_ok_group("Can create new stocks with some default content", {
+ok_group("Can create new stocks with some default content", {
     path <- tempfile()
 
     # MFDB data should look roughly like this
@@ -410,7 +408,7 @@ ok_group("Doesgrow defaults", {
 
 })
 
-disable_ok_group("Refweight from a data.frame", {
+ok_group("Refweight from a data.frame", {
     path <- tempfile()
 
     gadgetstock('codimm', path, missingOkay = TRUE) %>%  # Create a skeleton if missing
@@ -502,7 +500,7 @@ disable_ok_group("Refweight from a data.frame", {
     )), "refweight tables can be derived from alpha/beta")
 })
 
-disable_ok_group("Refweight from an MFDB data.frame", {
+ok_group("Refweight from an MFDB data.frame", {
     path <- tempfile()
 
     # MFDB data should look roughly like this
@@ -607,7 +605,7 @@ disable_ok_group("Refweight from an MFDB data.frame", {
     )), "refweight tables can be derived from alpha/beta")
 })
 
-disable_ok_group("initialconditions from MFDB data.frame", {
+ok_group("initialconditions from MFDB data.frame", {
     path <- tempfile()
 
     # MFDB data should look roughly like this
@@ -617,7 +615,7 @@ disable_ok_group("initialconditions from MFDB data.frame", {
             age = rep(c('age5', 'age10'), each = 2, times = 2),
             length = rep(c('len100', 'len200'), each = 1, times = 4),
             number = 10:17,
-            mean = 20:27,
+            weight = 20:27,
             stringsAsFactors = TRUE),
         area = list(A = 1:3, B = 4:6),
         age = list(age5 = c(5:9), age10 = c(10:15)),
@@ -626,7 +624,7 @@ disable_ok_group("initialconditions from MFDB data.frame", {
             len200 = structure(call("seq", 200, 300 - 1), min = 200, max = 300)))
 
     gadgetstock('codimm', path, missingOkay = TRUE) %>%
-        gadget_update('initialconditions', data = data) %>%
+        gadget_update('initialconditions', number = data) %>%
         write.gadget.file(path)
     ok(ut_cmp_identical(dir_list(path), list(
         "codimm" = c(
@@ -677,15 +675,15 @@ disable_ok_group("initialconditions from MFDB data.frame", {
         "Modelfiles/codimm.init.number" = c(
             ver_string,
             "; -- data --",
-            "; area\tage\tlength\tnumber\tweight",
-            "A\tage5\t100\t10\t20",
-            "A\tage5\t200\t11\t21",
-            "A\tage10\t100\t12\t22",
-            "A\tage10\t200\t13\t23",
-            "B\tage5\t100\t14\t24",
-            "B\tage5\t200\t15\t25",
-            "B\tage10\t100\t16\t26",
-            "B\tage10\t200\t17\t27",
+            "; age\tarea\tlength\tnumber\tweight",
+            "age5\tA\t100\t10\t20",
+            "age5\tA\t200\t11\t21",
+            "age10\tA\t100\t12\t22",
+            "age10\tA\t200\t13\t23",
+            "age5\tB\t100\t14\t24",
+            "age5\tB\t200\t15\t25",
+            "age10\tB\t100\t16\t26",
+            "age10\tB\t200\t17\t27",
             NULL)
     )), "Generate initialconditions from MFDB data")
 })
