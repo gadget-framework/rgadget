@@ -5,7 +5,7 @@ gadgetfleetcomponent <- function (type,
                                     name = type,
                                     livesonareas = unique(data$area),
                                     multiplicative = 1,
-                                    suitability = NULL,
+                                    suitability = list(),
                                     fleetfile = 'fleet',
                                     data = stop("data not provided"),
                                     ...) {

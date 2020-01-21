@@ -31,6 +31,40 @@ ok_group("fleet", {
             area = 1,
             weight = 1,
             stringsAsFactors = FALSE)) %>% # Add an totalfleet component
+        write.gadget.file(path)
+
+    ok(cmp_dir(path, list(
+        "Data/fleet.comm.data" = c(
+            ver_string,
+            "; -- data --",
+            "; year\tstep\tarea\tfleetname\tweight",
+            "1990\t1\tNA\tcomm\t1",
+        NULL),
+        fleet = c(
+            ver_string,
+            "; ",
+            "[component]",
+            "totalfleet\tcomm",
+            "livesonareas\t",
+            "multiplicative\t1",
+            "suitability",
+            "amount\tData/fleet.comm.data",
+        NULL),
+        main = c(
+            ver_string,
+            "timefile\t",
+            "areafile\t",
+            "printfiles\t; Required comment",
+            "[stock]",
+            "[tagging]",
+            "[otherfood]",
+            "[fleet]",
+            "fleetfiles\tfleet",
+            "[likelihood]",
+        NULL)
+    )), "Created fleet file with a fleet component")
+
+    gadgetfleet('fleet', path, missingOkay = TRUE) %>%
         gadget_update('numberfleet', name = 'surv', data = data.frame(
             year = 1990,
             step = 1,
@@ -59,14 +93,14 @@ ok_group("fleet", {
             "totalfleet\tcomm",
             "livesonareas\t",
             "multiplicative\t1",
-            "suitability\t",
+            "suitability",
             "amount\tData/fleet.comm.data",
             "; ",
             "[component]",
             "numberfleet\tsurv",
             "livesonareas\t",
             "multiplicative\t1",
-            "suitability\t",
+            "suitability",
             "amount\tData/fleet.surv.data",
         NULL),
         main = c(
@@ -81,5 +115,5 @@ ok_group("fleet", {
             "fleetfiles\tfleet",
             "[likelihood]",
         NULL)
-    )), "Created fleet file with 2 fleet components")
+    )), "Added a second fleet")
 })
