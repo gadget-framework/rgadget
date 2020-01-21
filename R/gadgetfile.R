@@ -125,7 +125,7 @@ gadget_discard <- function(gf,comp_name, ...) UseMethod("gadget_discard",gf)
 #' \describe{
 #'     \item{file_type}{The name of the file type}
 #'     \item{mainfile_section}{Writing a file of this type will cause the corresponding mainfile entry to be updated}
-#'     \item{bare_component}{Keys matching this regex (or every component, if TRUE) do not have brackets around their names}
+#'     \item{bare_component}{Keys matching this regex are also treated as components}
 #'     \item{implicit_component}{Keys matching this regex are treated as if the are implicitly broken up into components}
 #' }
 #' 
@@ -155,14 +155,12 @@ is_implicit_component <- function(config, name) {
 }
 
 is_bare_component <- function(config, name) {
-  if (config$bare_component == "TRUE") return(TRUE)
   if (config$bare_component == "FALSE") return(FALSE)
   if (nzchar(config$bare_component) && regexpr(config$bare_component, name) >= 0) return(TRUE)
   return(FALSE)
 }
 
 bare_component_regex <- function(config) {
-  if (config$bare_component == "TRUE") return("^(\\w+)$")
   if (config$bare_component == "FALSE") return(NULL)
   if (nzchar(config$bare_component)) return(config$bare_component)
   return(NULL)
