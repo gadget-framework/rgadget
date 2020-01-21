@@ -424,55 +424,6 @@ ok_group("Can read gadget files", {
         "; The only way you can get one")
 })
 
-ok_group("Bare component labels", {
-    gf <- read.gadget.string(
-        ver_string,
-        "farmer\tgiles",
-        "cows",
-        "fresian\tdaisy",
-        "highland\tbessie",
-        "pigs",
-        "oldspot\tgeorge",
-        "pigs\thenry\tfreddie",
-        file_type = "generic")
-    ok(ut_cmp_identical(unattr(gf), list(list(
-        farmer = "giles",
-        cows = c(1)[c()],
-        fresian = "daisy",
-        highland = "bessie",
-        pigs = c(1)[c()],
-        oldspot = "george",
-        pigs = c("henry", "freddie")
-        ))), "By default, lines are just extra key/value fields")
-
-    gf <- read.gadget.string(
-        ver_string,
-        "farmer\tgiles",
-        "cows",
-        "fresian\tdaisy",
-        "highland\tbessie",
-        "pigs",
-        "oldspot\tgeorge",
-        "pigs\thenry\tfreddie",
-        file_type = "area")  # i.e. one with bare_component on
-    ok(ut_cmp_identical(unattr(gf), list(
-        list(farmer = "giles"),
-        cows = list(fresian = "daisy", highland = "bessie"),
-        pigs = list(oldspot = "george", pigs = c("henry", "freddie"))
-        )), "Bare_component turns these into items")
-
-    test_loopback(
-        ver_string,
-        "farmer\tgiles",
-        "cows",
-        "fresian\tdaisy",
-        "highland\tbessie",
-        "pigs",
-        "oldspot\tgeorge",
-        "pigs\thenry\tfreddie",
-        file_type = "area")  # i.e. one with bare_component on
-})
-
 ok_group("Implicit component labels", {
     gf <- read.gadget.string(
         ver_string,
@@ -858,4 +809,31 @@ ok_group("Can read stock variable files successfully", {
         biomass = as.integer(1),
         codimm = as.numeric(c()),
         codmat = as.numeric(c())))), "Stock variable file read")
+})
+
+ok_group("Can read area files successfully", {
+    path <- tempdir()
+
+    gf_lines <- c(
+        ver_string,
+        "areas\t1\t2\t3",
+        "size\t10\t20\t30",
+        "temperature",
+        "; year\tstep\tarea\ttemperature",
+        "2000\t1\t1\t21",
+        "2000\t1\t2\t22",
+        "2000\t1\t3\t23",
+        NULL)
+    gf <- read.gadget.string(gf_lines, dir = path, file_type = "area")
+
+    ok(ut_cmp_identical(unattr(gf), list(
+        list(
+            areas = as.integer(c(1, 2, 3)),
+            size = as.integer(c(10, 20, 30)),
+            temperature = data.frame(
+                year = as.integer(2000),
+                step = as.integer(1),
+                area = as.integer(c(1,2,3)),
+                temperature = as.integer(c(21, 22, 23)))))), "Read area file")
+    ok(ut_cmp_identical(capture.output(print(gf)), gf_lines), "Writing out gets original lines again")
 })
