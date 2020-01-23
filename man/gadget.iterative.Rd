@@ -60,18 +60,10 @@ components}
 Windows or on a actual cluster. Make sure that Rgadget is loaded on all nodes.}
 
 \item{...}{pass to callGadget}
-
-\item{lik.dat}{Likelihood dataset}
-
-\item{comp}{likelihood component}
 }
 \value{
 a matrix containing the weights of the likelihood
 components at each iteration (defaults to FALSE).
-
-internal weights for the survey index components
-
-Sums of squares
 }
 \description{
 An implementation of the iterative reweigthing of likelihood
@@ -141,13 +133,7 @@ tmp <- gadget.iterative(rew.sI=TRUE,
                         params.file='params.base',
                         wgts='WGTS')
 }
-Survey indices get special treatment
 }
 \author{
 Bjarki Þór Elvarsson
-
-Bjarki Thor Elvarsson
-Gadget set up stuff, needed for each component
-
-Bjarki Thor Elvarsson
 }

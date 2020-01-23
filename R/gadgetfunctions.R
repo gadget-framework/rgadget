@@ -399,11 +399,12 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
                  'catchinkilos'))
   SS <- read.gadget.lik.out(paste(wgts,'lik.init',
                                   sep='/'))$data[likelihood$weights$name[restr]]
-  ##' Survey indices get special treatment
-  ##' @title survey index weight
-  ##' @param lik.dat Likelihood dataset
-  ##' @return internal weights for the survey index components
-  ##' @author Bjarki Thor Elvarsson
+  ## NB: Internal function, so not Roxygen-ized
+  ## Survey indices get special treatment
+  ## @title survey index weight
+  ## @param lik.dat Likelihood dataset
+  ## @return internal weights for the survey index components
+  ## @author Bjarki Thor Elvarsson
   sI.weights <- function(lik.dat,method='lm'){
     warning('Estimating survey weigths using a linear model is now deprecated and will be removed at later stage')
     if(method=='lm'){
@@ -464,11 +465,12 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
   likelihood.base$weights[names(SS),'weight'] <- 1/as.numeric(SS)
   
   
-  ##' Gadget set up stuff, needed for each component
-  ##' @title run iterative
-  ##' @param comp likelihood component
-  ##' @return Sums of squares
-  ##' @author Bjarki Thor Elvarsson
+  ## NB: Internal function, so not Roxygen-ized
+  ## Gadget set up stuff, needed for each component
+  ## @title run iterative
+  ## @param comp likelihood component
+  ## @return Sums of squares
+  ## @author Bjarki Thor Elvarsson
   run.iterative <- function(comp){
     
     likelihood <- likelihood.base
