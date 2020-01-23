@@ -8,7 +8,7 @@
 \describe{
     \item{file_type}{The name of the file type}
     \item{mainfile_section}{Writing a file of this type will cause the corresponding mainfile entry to be updated}
-    \item{bare_component}{Keys matching this regex (or every component, if TRUE) do not have brackets around their names}
+    \item{bare_component}{Keys matching this regex are also treated as components}
     \item{implicit_component}{Keys matching this regex are treated as if the are implicitly broken up into components}
 }
 }

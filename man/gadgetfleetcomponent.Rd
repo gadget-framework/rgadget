@@ -6,7 +6,7 @@
 \usage{
 gadgetfleetcomponent(type, name = type,
   livesonareas = unique(data$area), multiplicative = 1,
-  suitability = NULL, fleetfile = "fleet",
+  suitability = list(), fleetfile = "fleet",
   data = stop("data not provided"), ...)
 }
 \description{
