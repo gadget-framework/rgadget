@@ -322,7 +322,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
       dplyr::group_by(stock) %>% 
       dplyr::summarise(recruitment = mean(recruitment)) %>% 
       dplyr::left_join(expand.grid(stock = stocks %>% 
-                                     purrr::map(Rgadget:::getStockNames) %>% 
+                                     purrr::map(getStockNames) %>% 
                                      unlist,
                                    year = (sim.begin):(sim.begin+years-1),
                                    trial = 1:num.trials) %>% 
