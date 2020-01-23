@@ -1,6 +1,6 @@
 Package: Rgadget
 Type: Package
-Title: R package for Gadget models
+Title: Tools to create and maintain Gadget models.
 Version: 0.5
 Date: 2016-27-
 Authors@R: c(person("Bjarki Thor", "Elvarsson", email="bjarki.elvarsson@hafogvatn.is",role = c("aut", "cre")),
