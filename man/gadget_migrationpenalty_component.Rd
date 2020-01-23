@@ -2,7 +2,7 @@
 % Please edit documentation in R/gadgetlikelihoodcomponent.R
 \name{gadget_migrationpenalty_component}
 \alias{gadget_migrationpenalty_component}
-\title{https://hafro.github.io/gadget/docs/userguide#migrationpenalty}
+\title{http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:migpenalty}
 \usage{
 gadget_migrationpenalty_component(weight = 0,
   name = "migrationpenalty", stockname = c(), powercoeffs = c())
@@ -13,5 +13,5 @@ gadget_migrationpenalty_component(weight = 0,
 \item{name}{A descriptive name for the component, default same as component type}
 }
 \description{
-https://hafro.github.io/gadget/docs/userguide#migrationpenalty
+http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:migpenalty
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/gadgetlikelihoodcomponent.R
 \name{gadget_understocking_component}
 \alias{gadget_understocking_component}
-\title{https://hafro.github.io/gadget/docs/userguide#understocking}
+\title{http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:understocking}
 \usage{
 gadget_understocking_component(weight = 0, name = "understocking")
 }
@@ -12,5 +12,5 @@ gadget_understocking_component(weight = 0, name = "understocking")
 \item{name}{A descriptive name for the component, default same as component type}
 }
 \description{
-https://hafro.github.io/gadget/docs/userguide#understocking
+http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:understocking
 }

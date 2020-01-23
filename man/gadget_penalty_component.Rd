@@ -2,7 +2,7 @@
 % Please edit documentation in R/gadgetlikelihoodcomponent.R
 \name{gadget_penalty_component}
 \alias{gadget_penalty_component}
-\title{https://hafro.github.io/gadget/docs/userguide#boundlikelihood_(%E2%80%9Cpenalty%E2%80%9D)}
+\title{http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:boundlike}
 \usage{
 gadget_penalty_component(weight = 0, name = "penalty", data = NULL)
 }
@@ -12,5 +12,5 @@ gadget_penalty_component(weight = 0, name = "penalty", data = NULL)
 \item{name}{A descriptive name for the component, default same as component type}
 }
 \description{
-https://hafro.github.io/gadget/docs/userguide#boundlikelihood_(%E2%80%9Cpenalty%E2%80%9D)
+http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:boundlike
 }

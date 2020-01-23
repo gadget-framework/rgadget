@@ -2,7 +2,7 @@
 % Please edit documentation in R/gadgetlikelihoodcomponent.R
 \name{gadget_catchdistribution_component}
 \alias{gadget_catchdistribution_component}
-\title{https://hafro.github.io/gadget/docs/userguide#catchdistribution}
+\title{http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:catchdist}
 \usage{
 gadget_catchdistribution_component(weight = 0,
   name = "catchdistribution", data_function = "sumofsquares",
@@ -16,5 +16,5 @@ gadget_catchdistribution_component(weight = 0,
 \item{name}{A descriptive name for the component, default same as component type}
 }
 \description{
-https://hafro.github.io/gadget/docs/userguide#catchdistribution
+http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:catchdist
 }

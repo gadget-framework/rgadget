@@ -2,7 +2,7 @@
 % Please edit documentation in R/gadgetlikelihoodcomponent.R
 \name{gadget_recaptures_component}
 \alias{gadget_recaptures_component}
-\title{https://hafro.github.io/gadget/docs/userguide#recaptures}
+\title{http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:recaptures}
 \usage{
 gadget_recaptures_component(weight = 0, name = "recaptures",
   data = NULL)
@@ -13,5 +13,5 @@ gadget_recaptures_component(weight = 0, name = "recaptures",
 \item{name}{A descriptive name for the component, default same as component type}
 }
 \description{
-https://hafro.github.io/gadget/docs/userguide#recaptures
+http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:recaptures
 }

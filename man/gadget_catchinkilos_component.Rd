@@ -2,7 +2,7 @@
 % Please edit documentation in R/gadgetlikelihoodcomponent.R
 \name{gadget_catchinkilos_component}
 \alias{gadget_catchinkilos_component}
-\title{https://hafro.github.io/gadget/docs/userguide#catchinkilos}
+\title{http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:catchinkilos}
 \usage{
 gadget_catchinkilos_component(weight = 0, name = "catchinkilos",
   data = NULL, data_function = "sumofsquares", epsilon = 10,
@@ -14,5 +14,5 @@ gadget_catchinkilos_component(weight = 0, name = "catchinkilos",
 \item{name}{A descriptive name for the component, default same as component type}
 }
 \description{
-https://hafro.github.io/gadget/docs/userguide#catchinkilos
+http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:catchinkilos
 }

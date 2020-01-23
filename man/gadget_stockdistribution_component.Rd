@@ -2,7 +2,7 @@
 % Please edit documentation in R/gadgetlikelihoodcomponent.R
 \name{gadget_stockdistribution_component}
 \alias{gadget_stockdistribution_component}
-\title{https://hafro.github.io/gadget/docs/userguide#stockdistribution}
+\title{http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:stockdist}
 \usage{
 gadget_stockdistribution_component(weight = 0,
   name = "stockdistribution", data_function = "sumofsquares",
@@ -15,5 +15,5 @@ gadget_stockdistribution_component(weight = 0,
 \item{name}{A descriptive name for the component, default same as component type}
 }
 \description{
-https://hafro.github.io/gadget/docs/userguide#stockdistribution
+http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:stockdist
 }

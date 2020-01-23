@@ -7,7 +7,7 @@ gadgetlikelihoodcomponent <- function (component, ...) {
     eval(x)
 }
 
-#' https://hafro.github.io/gadget/docs/userguide#boundlikelihood_(%E2%80%9Cpenalty%E2%80%9D)
+#' http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:boundlike
 #'
 #' @param name		A descriptive name for the component, default same as component type
 #' @param weight	A numeric weighting
@@ -23,7 +23,7 @@ gadget_penalty_component <- function (weight = 0, name = 'penalty', data = NULL)
     finalise_component('penalty', obj, name, weight)
 }
 
-#' https://hafro.github.io/gadget/docs/userguide#understocking
+#' http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:understocking
 #'
 #' @param name		A descriptive name for the component, default same as component type
 #' @param weight	A numeric weighting
@@ -32,7 +32,7 @@ gadget_understocking_component <- function (weight = 0, name = 'understocking') 
     finalise_component('understocking', list(), name, weight)
 }
 
-#' https://hafro.github.io/gadget/docs/userguide#catchstatistics
+#' http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:catchstat
 #'
 #' @param name		A descriptive name for the component, default same as component type
 #' @param weight	A numeric weighting
@@ -83,7 +83,7 @@ gadget_catchstatistics_component <- function (
         stocknames = stocknames), name, weight)
 }
 
-#' https://hafro.github.io/gadget/docs/userguide#catchdistribution
+#' http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:catchdist
 #'
 #' @param name		A descriptive name for the component, default same as component type
 #' @param weight	A numeric weighting
@@ -119,7 +119,7 @@ gadget_catchdistribution_component <- function (
             stocknames = stocknames)), name, weight)
 }
 
-#' https://hafro.github.io/gadget/docs/userguide#stockdistribution
+#' http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:stockdist
 #'
 #' @param name		A descriptive name for the component, default same as component type
 #' @param weight	A numeric weighting
@@ -153,7 +153,7 @@ gadget_stockdistribution_component <- function (
         stocknames = stocknames), name, weight)
 }
 
-#' https://hafro.github.io/gadget/docs/userguide#surveyindices
+#' http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:surveyindices
 #'
 #' @param name		A descriptive name for the component, default same as component type
 #' @param weight	A numeric weighting
@@ -238,7 +238,7 @@ gadget_surveyindices_component <- function (
         NULL), name, weight)
 }
 
-#' https://hafro.github.io/gadget/docs/userguide#surveydistribution
+#' http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:surveydistribution
 #'
 #' @param name		A descriptive name for the component, default same as component type
 #' @param weight	A numeric weighting
@@ -280,7 +280,7 @@ gadget_surveydistribution_component <- function (
         NULL), name, weight)
 }
 
-#' https://hafro.github.io/gadget/docs/userguide#stomachcontent
+#' http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:stomach
 #'
 #' @param name		A descriptive name for the component, default same as component type
 #' @param weight	A numeric weighting
@@ -347,7 +347,7 @@ gadget_stomachcontent_component <- function (
         preyaggfile = gadgetfile(fname('Aggfiles', fname_prefix('stomachcontent', name), 'prey.agg'),components=prey_components)), name, weight)
 }
 
-#' https://hafro.github.io/gadget/docs/userguide#recaptures
+#' http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:recaptures
 #'
 #' @param name		A descriptive name for the component, default same as component type
 #' @param weight	A numeric weighting
@@ -358,7 +358,7 @@ gadget_recaptures_component <- function (
     stop("Not implemented")
 }
 
-#' https://hafro.github.io/gadget/docs/userguide#recstatistics
+#' http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:recstat
 #'
 #' @param name		A descriptive name for the component, default same as component type
 #' @param weight	A numeric weighting
@@ -369,7 +369,7 @@ gadget_recstatistics_component <- function (
     stop("Not implemented")
 }
 
-#' https://hafro.github.io/gadget/docs/userguide#migrationpenalty
+#' http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:migpenalty
 #'
 #' @param name		A descriptive name for the component, default same as component type
 #' @param weight	A numeric weighting
@@ -384,7 +384,7 @@ gadget_migrationpenalty_component <- function (
         powercoeffs = powercoeffs), name, weight)
 }
 
-#' https://hafro.github.io/gadget/docs/userguide#catchinkilos
+#' http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:catchinkilos
 #'
 #' @param name		A descriptive name for the component, default same as component type
 #' @param weight	A numeric weighting

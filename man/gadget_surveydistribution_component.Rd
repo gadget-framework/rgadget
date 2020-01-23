@@ -2,7 +2,7 @@
 % Please edit documentation in R/gadgetlikelihoodcomponent.R
 \name{gadget_surveydistribution_component}
 \alias{gadget_surveydistribution_component}
-\title{https://hafro.github.io/gadget/docs/userguide#surveydistribution}
+\title{http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:surveydistribution}
 \usage{
 gadget_surveydistribution_component(weight = 0,
   name = "surveydistribution", data = NULL, area = NULL,
@@ -17,5 +17,5 @@ gadget_surveydistribution_component(weight = 0,
 \item{name}{A descriptive name for the component, default same as component type}
 }
 \description{
-https://hafro.github.io/gadget/docs/userguide#surveydistribution
+http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:surveydistribution
 }

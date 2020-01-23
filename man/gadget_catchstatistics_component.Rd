@@ -2,7 +2,7 @@
 % Please edit documentation in R/gadgetlikelihoodcomponent.R
 \name{gadget_catchstatistics_component}
 \alias{gadget_catchstatistics_component}
-\title{https://hafro.github.io/gadget/docs/userguide#catchstatistics}
+\title{http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:catchstat}
 \usage{
 gadget_catchstatistics_component(weight = 0, name = "catchstatistics",
   data_function = NULL, data = NULL, area = NULL, age = NULL,
@@ -14,5 +14,5 @@ gadget_catchstatistics_component(weight = 0, name = "catchstatistics",
 \item{name}{A descriptive name for the component, default same as component type}
 }
 \description{
-https://hafro.github.io/gadget/docs/userguide#catchstatistics
+http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:catchstat
 }

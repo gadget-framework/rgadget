@@ -2,7 +2,7 @@
 % Please edit documentation in R/gadgetlikelihoodcomponent.R
 \name{gadget_surveyindices_component}
 \alias{gadget_surveyindices_component}
-\title{https://hafro.github.io/gadget/docs/userguide#surveyindices}
+\title{http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:surveyindices}
 \usage{
 gadget_surveyindices_component(weight = 0, name = "surveyindices",
   sitype = "lengths", biomass = 0, data = NULL, area = NULL,
@@ -16,5 +16,5 @@ gadget_surveyindices_component(weight = 0, name = "surveyindices",
 \item{name}{A descriptive name for the component, default same as component type}
 }
 \description{
-https://hafro.github.io/gadget/docs/userguide#surveyindices
+http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:surveyindices
 }

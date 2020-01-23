@@ -2,7 +2,7 @@
 % Please edit documentation in R/gadgetlikelihoodcomponent.R
 \name{gadget_stomachcontent_component}
 \alias{gadget_stomachcontent_component}
-\title{https://hafro.github.io/gadget/docs/userguide#stomachcontent}
+\title{http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:stomach}
 \usage{
 gadget_stomachcontent_component(weight = 0, name = "stomachcontent",
   data_function = "scsimple", epsilon = 10, area = NULL,
@@ -16,5 +16,5 @@ gadget_stomachcontent_component(weight = 0, name = "stomachcontent",
 \item{name}{A descriptive name for the component, default same as component type}
 }
 \description{
-https://hafro.github.io/gadget/docs/userguide#stomachcontent
+http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:stomach
 }
