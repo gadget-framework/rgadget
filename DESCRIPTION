@@ -1,12 +1,12 @@
 Package: Rgadget
 Type: Package
-Title: Tools to create and maintain Gadget models.
+Title: Tools to create and maintain Gadget models
 Version: 0.5
 Date: 2016-27-
 Authors@R: c(person("Bjarki Thor", "Elvarsson", email="bjarki.elvarsson@hafogvatn.is",role = c("aut", "cre")),
             person("Jamie", "Lentin", email="lentinj@shuttlethread.com",role = c("aut")))
 Maintainer: Bjarki Thor Elvarsson <bjarki.elvarsson@hafogvatn.is>
-Description: Companion R package for Gadget (Globally applicable area disagregated ecosystem toolbox)
+Description: Companion R package for Gadget (Globally applicable area disagregated ecosystem toolbox).
 Depends:
     R (>= 3.3.0),
     tidyverse
