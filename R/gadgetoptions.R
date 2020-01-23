@@ -350,7 +350,7 @@ gadget.skeleton <- function(time,area,stocks,fleets=NULL){
         if(x$doesrenew==1){ 
           if(is.null(x$renewal.data)){
             x$renewal.data <- 
-              plyr:::mutate(subset(getTimeSteps(time), 
+              plyr::mutate(subset(getTimeSteps(time), 
                                    step == x$renewal.step),
                             area = 1:getNumOfAreas(area),
                             
