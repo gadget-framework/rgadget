@@ -530,3 +530,19 @@ get_gadget_recruitment <- function(stocks,params){
                                          as.list()),
                                 error = function(e) 0)))
 }
+
+
+gadget.retro.fit <- function(pre='RETRO'){
+  
+  tmp_func <- lift(bind.gadget.fit,.unnamed = TRUE)
+  list.files(pre,pattern = 'R[0-9]+') %>% 
+    purrr::set_names(.,.) %>% 
+    purrr::map(function(x){
+      print(x)
+      gadget.fit(main.file = sprintf('%s/%s/main',pre,x),
+                 params.file = sprintf('%s/params.retro.%s',pre,gsub('R','',x)),
+                 wgts = NULL)
+    }) %>% 
+    tmp_func()
+}
+

@@ -1301,9 +1301,13 @@ gadget.retro <- function(path='.',
   for(year in 1:num.years){
     Rdir <- gadget.variant.dir(path,variant_dir = sprintf('%s/R%s',pre,year))
     
+    attributes(main)$file_name <- 'main'
+    main %>% write.gadget.file(Rdir,recursive = FALSE)
+    
     gadgettime(main[[1]]$timefile,path) %>% 
       gadget_update(lastyear = .[[1]]$lastyear-year) %>% 
       write.gadget.file(Rdir)
+    
     
   #  lik <- gadgetlikelihood(main[['likelihood']]$likelihoodfiles,Rdir) 
   #  attr(lik,'file_config')$mainfile_overwrite <- TRUE
