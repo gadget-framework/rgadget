@@ -105,9 +105,9 @@ setMethod("gadget_dir_write",
 
         ## length aggregation
         lengths <- seq(x@minlength,x@maxlength,by = x@dl)
-        lenAgg <- data.frame(length = paste('len',tail(lengths,-1), sep = ''),
-                             min = head(lengths,-1),
-                             max = tail(lengths,-1)
+        lenAgg <- data.frame(length = paste('len',utils::tail(lengths,-1), sep = ''),
+                             min = utils::head(lengths,-1),
+                             max = utils::tail(lengths,-1)
                              )
         alllenAgg <- data.frame(length = 'alllen',
                                 min = min(lengths),

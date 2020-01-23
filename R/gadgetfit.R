@@ -511,8 +511,8 @@ get_gadget_recruitment <- function(stocks,params){
           key <- 'numberfile'
           col.names <- c('year','step','area','age','length','number','weight')
         }
-        capture.output(x$doesrenew[[key]] %>% print()) %>% 
-          read.table(text = ., comment.char = ';',sep = '\t',fill = TRUE,stringsAsFactors = FALSE) %>% 
+        utils::capture.output(x$doesrenew[[key]] %>% print()) %>% 
+          utils::read.table(text = ., comment.char = ';',sep = '\t',fill = TRUE,stringsAsFactors = FALSE) %>% 
           na.omit() %>% 
           set_names(.,col.names)
       } else{

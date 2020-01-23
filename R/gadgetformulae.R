@@ -87,7 +87,7 @@ to.gadget.formulae <- function(ex) {
             ")"))
     }
 
-    stop("Don't know what to do with: ", capture.output(str(ex)))
+    stop("Don't know what to do with: ", utils::capture.output(utils::str(ex)))
 }
 
 # Characters look like a gadget formulae
@@ -157,5 +157,5 @@ sub.gadget.formulae <- function (
         })))
     }
 
-    stop("Don't know what to do with: ", capture.output(str(ex)))
+    stop("Don't know what to do with: ", utils::capture.output(utils::str(ex)))
 }

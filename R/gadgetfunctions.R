@@ -521,9 +521,9 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
       
       loaded.package.names <- c(
         ## Base packages
-        sessionInfo()$basePkgs,
+        utils::sessionInfo()$basePkgs,
         ## Additional packages
-        names( sessionInfo()$otherPkgs ))
+        names( utils::sessionInfo()$otherPkgs ))
       
       this.env <- environment()
       while( identical( this.env, globalenv() ) == FALSE ) {
@@ -1121,7 +1121,7 @@ gadget.ypr <- function(params.file = 'params.in',
   out <- plyr::ddply(data.frame(stock = unique(fleet$prey$stock),tmp=1),
                'stock',
                function(x){
-                 stock.prey <- read.table(file = sprintf("%1$s/out/%2$s.prey",
+                 stock.prey <- utils::read.table(file = sprintf("%1$s/out/%2$s.prey",
                                                          ypr,x$stock),
                                           comment.char = ';')
                  
@@ -1150,7 +1150,7 @@ gadget.ypr <- function(params.file = 'params.in',
                })
   if(!is.null(ssb.stock)){
     ssb.out <- plyr::ldply(ssb.stock,function(x){
-      ssb.out <- read.table(file = sprintf("%1$s/out/%2$s.ssb",
+      ssb.out <- utils::read.table(file = sprintf("%1$s/out/%2$s.ssb",
                                            ypr,x), comment.char = ';')
       file.remove(sprintf('%s/out/%s.ssb',ypr,x))
       names(ssb.out) <-
@@ -1180,7 +1180,7 @@ gadget.ypr <- function(params.file = 'params.in',
   if(!is.null(mat.par)){
     mat.out <- plyr::ldply(unique(fleet$prey$stock),function(x){
       mat.out <- 
-        read.table(file = sprintf("%1$s/out/%2$s.mat",
+        utils::read.table(file = sprintf("%1$s/out/%2$s.mat",
                                   ypr,x), comment.char = ';')
       file.remove(sprintf('%s/out/%s.mat',ypr,x))
       names(mat.out) <-

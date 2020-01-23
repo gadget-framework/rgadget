@@ -66,7 +66,7 @@ read.printfiles <- function(path='.',suppress=FALSE){
         gsub('; ','',.) %>%
         paste(.,areas$areas)
       
-      regr <- read.table(text=regr.txt,stringsAsFactors = FALSE)[c(1,3,5,7,8)] %>% 
+      regr <- utils::read.table(text=regr.txt,stringsAsFactors = FALSE)[c(1,3,5,7,8)] %>% 
         tibble::as_tibble()
       names(regr) <- c('label','intercept','slope','sse','area')
       data <- data %>% 
@@ -125,7 +125,7 @@ read.gadget.likelihood <- function(files='likelihood'){
                                       }),' '),
                       function(x) as.character(x))
         if(class(tmp)!='list'){
-          names.tmp <- head(tmp,1)
+          names.tmp <- utils::head(tmp,1)
           tmp <- as.data.frame(tmp,stringsAsFactors=FALSE)[2,]
           names(tmp) <- names.tmp
           row.names(tmp) <- tmp$name
@@ -371,7 +371,7 @@ clear.spaces <- function(text){
 ##' @export
 read.gadget.parameters <- function(file='params.in'){
 
-  params <- tryCatch(read.table(file,header=TRUE,
+  params <- tryCatch(utils::read.table(file,header=TRUE,
                        comment.char=';',
                        stringsAsFactors=FALSE),
                      error = function(e){
@@ -628,10 +628,10 @@ make.gadget.printfile <- function(main.file='main',
         names(x[[1]]) <- tolower(names(x[[1]]))
         ## hack ends
         lengths <- seq(x[[1]]$minlength,x[[1]]$maxlength,by = x[[1]]$dl)
-        lenAgg <- data.frame(length = paste('len',tail(lengths,-1),
+        lenAgg <- data.frame(length = paste('len',utils::tail(lengths,-1),
                                             sep = ''),
-                             min = head(lengths,-1),
-                             max = tail(lengths,-1))
+                             min = utils::head(lengths,-1),
+                             max = utils::tail(lengths,-1))
         
         agg.head <-
           paste(sprintf('; aggregation file for %s created using rgadget at %s',
@@ -763,7 +763,7 @@ read.gadget.printfile <- function(file='printfile'){
   comp.loc <- grep('component',printfile)
   name.loc <- grep('printfile',printfile)
   name.print <- sapply(printfile[grep('printfile',printfile)],function(x) x[2])
-  name.print <- sapply(strsplit(name.print,'/'),function(x) tail(x,1))
+  name.print <- sapply(strsplit(name.print,'/'),function(x) utils::tail(x,1))
   diff.comp <- diff(c(comp.loc,length(printfile)+1))-1
 #  type.loc <- grep('type',printfile)
 #  types <- unique(sapply(printfile[type.loc],function(x) x[2]))
@@ -878,14 +878,14 @@ read.gadget.data <- function(likelihood,debug=FALSE,year_range=NULL){
       if(first){
           return(sapply(strsplit(readLines(x),'[\t ]'),function(x) x[1]))
       }  else {
-          return(read.table(x,stringsAsFactors=FALSE,comment.char=';'))
+          return(utils::read.table(x,stringsAsFactors=FALSE,comment.char=';'))
       }
   }
 
   read.preyagg <- function(x){
     tmp <- readLines(x)
     loc <- grep('lengths',tmp)
-    tmp2 <- read.table(text=tmp[grepl('lengths',tmp)])
+    tmp2 <- utils::read.table(text=tmp[grepl('lengths',tmp)])
     tmp2$V1 <- clear.spaces(tmp[loc-2])
     return(tmp2)
   }
@@ -894,7 +894,7 @@ read.gadget.data <- function(likelihood,debug=FALSE,year_range=NULL){
       if(debug){
           print(sprintf('reading datafile %s',x$datafile))
       }
-      dat <- tryCatch(read.table(x$datafile,comment.char=';',stringsAsFactors = FALSE),
+      dat <- tryCatch(utils::read.table(x$datafile,comment.char=';',stringsAsFactors = FALSE),
                       error = function(x) NULL)
       
       
@@ -1135,7 +1135,7 @@ read.gadget.lik.out <- function(file='lik.out',suppress=FALSE){
   weights$V3 <- as.numeric(weights$V3)
   names(weights) <- c('Component','Type','Weight')
 
-  data <- read.table(file,skip=(i2+1))
+  data <- utils::read.table(file,skip=(i2+1))
   names(data) <- c('iteration',names(switches),weights$Component,'score')
   attr(data,'Likelihood components') <- weights$Component
   attr(data,'Parameters') <- names(switches)
@@ -1330,7 +1330,7 @@ read.gadget.stockfiles <- function(stock.files){
       } else {
         tmp <- new('gadget-prey',
                    name = stock[[1]][2],
-                   preylengths = read.table(tmp[[2]][2],comment.char=';'),
+                   preylengths = utils::read.table(tmp[[2]][2],comment.char=';'),
                    energycontent = ifelse(length(tmp)==3,as.numeric(tmp[[3]][2]),
                      1))
       }
@@ -1421,7 +1421,7 @@ read.gadget.stockfiles <- function(stock.files){
 
     doesmigrate <- as.numeric(stock[[migrate.loc]][2])
     if(doesmigrate == 1){
-        yearstep <- read.table(stock[[migrate.loc+1]][-1],
+        yearstep <- utils::read.table(stock[[migrate.loc+1]][-1],
                                comment.char = ';',
                                stringsAsFactors=FALSE)
         tmp <- strip.comments(stock[[migrate.loc+2]][-1])
@@ -1481,8 +1481,8 @@ read.gadget.stockfiles <- function(stock.files){
           minlength = as.numeric(stock[[5]][2]),
           maxlength = as.numeric(stock[[6]][2]),
           dl = as.numeric(stock[[7]][2]),
-          refweight = read.table(stock[[8]][2],comment.char=';'),
-          growthandeatlengths = read.table(stock[[9]][2],comment.char=';'),
+          refweight = utils::read.table(stock[[8]][2],comment.char=';'),
+          growthandeatlengths = utils::read.table(stock[[9]][2],comment.char=';'),
           doesgrow = as.numeric(stock[[growth.loc]][2]),
           growth = growth.info(stock[growth.loc:(mort.loc-1)]),
           naturalmortality = merge.formula(stock[[mort.loc]][-1]),
@@ -1675,7 +1675,7 @@ read.gadget.wgts <- function(params.file = 'params.in',
             optim <- reshape(optim,idvar='fake.id',
                              timevar='.id',direction='wide')
             optim$fake.id <- NULL
-            dtmp <- cbind(bs.data=tail(unlist(strsplit(path,'/')),1),
+            dtmp <- cbind(bs.data=utils::tail(unlist(strsplit(path,'/')),1),
                           comp=x,
                           t(tmp['value']),
                           ss,
@@ -1715,7 +1715,7 @@ merge.formula <- function(txt){
       braces$group[i]
   }
 
-  braces <- plyr::ddply(braces,'group',function(x) head(x,1))
+  braces <- plyr::ddply(braces,'group',function(x) utils::head(x,1))
   for(i in length(braces$group):1){
     txt[braces$begin[i]] <- paste(txt[braces$begin[i]:braces$end[i]],
                                   collapse=' ')
@@ -1774,7 +1774,7 @@ read.gadget.table <- function(file,header=FALSE){
   }
   if(header){
     comments <- attr(dat,'comments')
-    header <- tail(comments,1)
+    header <- utils::tail(comments,1)
     ## unfinised business
   }
 
@@ -1811,7 +1811,7 @@ read.gadget.fleet <- function(fleet.file='fleet'){
                   plyr::ldply(fleet[x$begin:x$end],
                         function(x)
                         c(stock=x[1],suitability=x[3],
-                          params=paste(tail(x,-3),collapse=' ')))
+                          params=paste(utils::tail(x,-3),collapse=' ')))
 
                 })
   return(list(fleet=fleet.dat,prey=prey))
@@ -1998,6 +1998,6 @@ write.unix <- function(x,f,append=FALSE,...){
 
 write.gadget.table <- function(x,file='',append=FALSE,...){
     f <- file(file,open=ifelse(append,'ab','wb'))
-    write.table(x,file=f,eol='\n',...)
+    utils::write.table(x,file=f,eol='\n',...)
     close(f)
 }

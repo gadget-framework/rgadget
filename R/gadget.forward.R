@@ -60,7 +60,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
     
     body %>% 
       paste(collapse='\n') %>% 
-      read.table(text=.,
+      utils::read.table(text=.,
                  col.names = header,fill=TRUE,
                  stringsAsFactors = FALSE) %>% 
       dplyr::mutate(trial=cut(1:length(year),
@@ -288,7 +288,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
         dplyr::group_by(stock,year) %>% 
         dplyr::summarise(recruitment = sum(recruitment)) %>% 
         split(.$stock) %>% 
-        purrr::map(~lm(head(.$recruitment,-1)~tail(.$recruitment,-1))) %>%
+        purrr::map(~lm(utils::head(.$recruitment,-1)~utils::tail(.$recruitment,-1))) %>%
         purrr::map(~dplyr::bind_cols(broom::glance(.),
                                      as.data.frame(t(broom::tidy(.)$estimate)))) %>% 
         purrr::map(~dplyr::rename(.,a=V1,b=V2)) %>% 

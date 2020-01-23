@@ -115,7 +115,7 @@ setGeneric('getLengthGroups',def=function(object){standardGeneric("getLengthGrou
 setMethod('getLengthGroups', 'gadget-stock',
           function(object){
             if((object@maxlength-object@minlength)%%object@dl==0){
-              tail(seq(object@minlength, object@maxlength,by=object@dl),-1)
+              utils::tail(seq(object@minlength, object@maxlength,by=object@dl),-1)
             } else {
               # is this the proper way of dealing with this?
               seq(object@minlength, object@maxlength,by=object@dl)+
@@ -409,10 +409,10 @@ setMethod('writeAggfiles','gadget-stock',
 
             ## length aggregation file
             lengths <- seq(x@minlength,x@maxlength,by = x@dl)
-            lenAgg <- data.frame(length = paste('len',tail(lengths,-1),
+            lenAgg <- data.frame(length = paste('len',utils::tail(lengths,-1),
                                    sep = ''),
-                                 min = head(lengths,-1),
-                                 max = tail(lengths,-1)
+                                 min = utils::head(lengths,-1),
+                                 max = utils::tail(lengths,-1)
                                  )
 
             agg.head <-

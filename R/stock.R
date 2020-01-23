@@ -116,8 +116,8 @@ gadget.simulate <- function(gm, params=data.frame(),
     ## recruitment
     if(x@doesrenew == 1){
       rec <- subset(getRecruitment(x,params),
-                    year <= tail(tm$year,1) &
-                      step <= tail(tm$step,1))
+                    year <= utils::tail(tm$year,1) &
+                      step <= utils::tail(tm$step,1))
       stk[getAreas(gm),,getMinage(x),
           sprintf('Year_%s_Step_%s',rec$year,rec$step)] <- 
         acast(ddply(rec,~year+step+area+age,function(y){

@@ -448,9 +448,9 @@ gadget_update.gadgetstock <- function(gf, component, ...) {
           gf['growthandeatlengths'] <- NULL
           # Update growthandeatlengths 
           lgr <- seq(gf[[1]]$minlength,gf[[1]]$maxlength,by=gf[[1]]$dl)
-          len.agg <- data.frame(name = paste0('len',head(lgr,-1)),
-                                lower = head(lgr,-1),
-                                upper = tail(lgr,-1))
+          len.agg <- data.frame(name = paste0('len',utils::head(lgr,-1)),
+                                lower = utils::head(lgr,-1),
+                                upper = utils::tail(lgr,-1))
           gf[[1]]$growthandeatlengths <- 
             gadgetdata(paste0('Aggfiles/', gf[[1]]$stockname, '.stock.len.agg'), len.agg)
         }

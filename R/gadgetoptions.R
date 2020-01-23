@@ -298,9 +298,9 @@ gadget.skeleton <- function(time,area,stocks,fleets=NULL){
                                            x$maxlength,by=x$dl)),
                             weight = x$weight['a']*length^x$weight['b'])
         lengths <- refweight$length
-        lenAgg <- data.frame(length = paste('len',tail(lengths,-1), sep = ''),
-                             min = head(lengths,-1),
-                             max = tail(lengths,-1))
+        lenAgg <- data.frame(length = paste('len',utils::tail(lengths,-1), sep = ''),
+                             min = utils::head(lengths,-1),
+                             max = utils::tail(lengths,-1))
         
         info <- new('gadget-prey',
                     name = x$name,
