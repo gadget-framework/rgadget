@@ -412,15 +412,15 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
       
       dat$y <- log(dat$number)
       dat$year <- as.factor(dat$year)
-      fit <- lm(y~year+length+step,dat)
+      fit <- stats::lm(y~year+length+step,dat)
       weights <- (lik.dat$df$surveyindices -
                     tapply(dat$length,dat$name,function(x) length(unique(x))))/
-        tapply(resid(fit),dat$name,function(x) sum(x^2))
+        tapply(stats::resid(fit),dat$name,function(x) sum(x^2))
     } else {
       weights <- plyr::ldply(lik.dat$dat$surveyindices,
                              function(x){
                                time <- x$year + (x$step-1)/4
-                               fit <- predict(loess(log(x$number)~time))
+                               fit <- stats::predict(stats::loess(log(x$number)~time))
                                length(fit)/sum((fit - log(x$number))^2)
                              })$V1
     }

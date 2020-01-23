@@ -215,7 +215,7 @@ write.gadget.likelihood <- function(lik,file='likelihood',
     }
         
     
-    comp <- na.omit(reshape2::melt(merge(weights,comp,by='name',sort=FALSE),
+    comp <- stats::na.omit(reshape2::melt(merge(weights,comp,by='name',sort=FALSE),
                          id.vars = 'name'))
     comp.text <- plyr::ddply(comp,'name',function(x){
       paste('[component]',
@@ -1017,7 +1017,7 @@ read.gadget.data <- function(likelihood,debug=FALSE,year_range=NULL){
 
   df <- lapply(lik.dat,function(x)
               sapply(x,function(x){
-                x <- na.omit(x)
+                x <- stats::na.omit(x)
                 tmp <- 0
                 if(length(intersect(c('lower','upper'),names(x)))>0){
                   tmp <- 2
@@ -1038,7 +1038,7 @@ read.gadget.data <- function(likelihood,debug=FALSE,year_range=NULL){
 ##' @export
 read.gadget.optinfo <- function(file='optinfofile'){
   optinfo <- readLines(file)
-  optinfo <- na.omit(sapply(strsplit(optinfo,';'),function(x) x[1]))
+  optinfo <- stats::na.omit(sapply(strsplit(optinfo,';'),function(x) x[1]))
   simann <- (1:length(optinfo))[(optinfo == '[simann]')]
   hooke <- (1:length(optinfo))[(optinfo == '[hooke]')]
   bfgs <- (1:length(optinfo))[(optinfo == '[bfgs]')]
@@ -1672,7 +1672,7 @@ read.gadget.wgts <- function(params.file = 'params.in',
             }
             optim  <- plyr::ldply(attributes(tmp)$optim.info,
                             function(x) cbind(fake.id=1,x))
-            optim <- reshape(optim,idvar='fake.id',
+            optim <- stats::reshape(optim,idvar='fake.id',
                              timevar='.id',direction='wide')
             optim$fake.id <- NULL
             dtmp <- cbind(bs.data=utils::tail(unlist(strsplit(path,'/')),1),
@@ -1916,7 +1916,7 @@ get.gadget.recruitment <- function(stocks,params,collapse=TRUE){
         dplyr::mutate(stock = x@stockname,
                       recruitment = 1e4*unlist(eval.gadget.formula(number,params))) %>% 
         dplyr::select(stock,year,step,area,recruitment) %>% 
-        na.omit() 
+        stats::na.omit() 
       if(collapse){
         tmp %>% 
 		  # area added to accomodate merge with res.by.year in gadget.fit() - pfrater

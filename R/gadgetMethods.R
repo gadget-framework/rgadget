@@ -272,7 +272,7 @@ setMethod('getWeight','gadget-stock',
           function(object, l, par){
             #getWeight(object@growth,l,par)
             tmp <- object@refweight
-            approxfun(tmp$length,tmp$weight)(l)
+            stats::approxfun(tmp$length,tmp$weight)(l)
           })
 
 setGeneric('getSpawnFunc',

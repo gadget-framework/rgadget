@@ -513,7 +513,7 @@ get_gadget_recruitment <- function(stocks,params){
         }
         utils::capture.output(x$doesrenew[[key]] %>% print()) %>% 
           utils::read.table(text = ., comment.char = ';',sep = '\t',fill = TRUE,stringsAsFactors = FALSE) %>% 
-          na.omit() %>% 
+          stats::na.omit() %>% 
           set_names(.,col.names)
       } else{
         NULL

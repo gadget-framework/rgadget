@@ -16,7 +16,7 @@ survey.index <- function(stock.dat,split,sigma=0,alpha=0,beta=1){
       if(length(sigma) == (length(split)-1)){
           sigma <- rep(sigma,each=length(unique(sidat$year)))
       }
-      sidat$SI <- sidat$SI*exp(rnorm(nrow(sidat),0,sigma^2)-sigma^2/2)
+      sidat$SI <- sidat$SI*exp(stats::rnorm(nrow(sidat),0,sigma^2)-sigma^2/2)
   }
   return(sidat)
 }
@@ -38,7 +38,7 @@ ldist <- function(stock.dat,sigma=0,dl=1){
       summarise(num=sum(num))
   if(sigma!=0){
       
-    ldist$num <- ldist$num*exp(rnorm(nrow(ldist),0,sigma^2)-sigma^2/2)
+    ldist$num <- ldist$num*exp(stats::rnorm(nrow(ldist),0,sigma^2)-sigma^2/2)
   }
   ldist <- ldist %>%
     group_by(year,step,add=FALSE) %>%
@@ -62,7 +62,7 @@ aldist <- function(stock.dat,sigma=0,dl=1){
     group_by(age,lgroup,year,step) %>%
       summarise(num=sum(num))
   if(sigma!=0){
-    aldist$num <- aldist$num*exp(rnorm(nrow(aldist),0,sigma^2)-sigma^2/2)
+    aldist$num <- aldist$num*exp(stats::rnorm(nrow(aldist),0,sigma^2)-sigma^2/2)
   }
   aldist <- aldist %>%
     group_by(year,step,add=FALSE) %>%
@@ -117,7 +117,7 @@ survey.indexlen <- function(sim,length.groups=c(4,14,90),sigma=0){
                             breaks=length.groups,
                             labels=sprintf('lengp%s',
                               1:(length(length.groups)-1)))
-  IndexLen <- aggregate(Index$Freq,
+  IndexLen <- stats::aggregate(Index$Freq,
                         by=list(
                           year=Index$year,
                           step=Index$step,
@@ -125,7 +125,7 @@ survey.indexlen <- function(sim,length.groups=c(4,14,90),sigma=0){
                           length.group=Index$length.group),
                         sum)
   names(IndexLen)[5] <- 'index'
-  IndexLen$x <- IndexLen$index*exp(rnorm(length(IndexLen$index),0,
+  IndexLen$x <- IndexLen$index*exp(stats::rnorm(length(IndexLen$index),0,
                                      sigma^2) - sigma^2/2)
   
   IndexLen$time <- IndexLen$year+(IndexLen$step - 1)/opt$numoftimesteps
@@ -161,7 +161,7 @@ lengthDist <- function(sim,sigma=0){
   Index$step <- sapply(strsplit(Index$time,'_'),
                           function(x) as.numeric(x[4]))
   Index <- Index[Index$fleet=='comm'|Index$step==opt$survstep,]
-  IndexLen <- aggregate(Index$Freq,
+  IndexLen <- stats::aggregate(Index$Freq,
                          by=list(
                            year=Index$year,
                            step=Index$step,
@@ -170,7 +170,7 @@ lengthDist <- function(sim,sigma=0){
                            length=as.numeric(Index$length),
                            fleet=Index$fleet),                           
                          sum)
-  IndexLen$x <- IndexLen$x*exp(rnorm(length(IndexLen$x),0,
+  IndexLen$x <- IndexLen$x*exp(stats::rnorm(length(IndexLen$x),0,
                                      sigma^2) - sigma^2/2)
   IndexLen$time <- IndexLen$year+(IndexLen$step - 1)/opt$numoftimesteps
   class(IndexLen) <- c('Rgadget',class(IndexLen))
@@ -210,7 +210,7 @@ age.length.key <- function(sim,age.agg,len.agg){
     levels(catch.table$length.agg) <- paste('len',
                                             levels(catch.table$length.agg),
                                             sep='')
-    tmp <- aggregate(catch.table$Freq,
+    tmp <- stats::aggregate(catch.table$Freq,
                      by=list(
                        year=catch.table$year,
                        step=catch.table$step,
@@ -553,13 +553,13 @@ vonB <- function(lsup,k,a){
 length.at.age <- function(sim){
   sim.dat <- as.data.frame(sim)
   cols <- c('age','year','step','length.at.age','fleet')
-  comm.lat <- aggregate(cbind(Commercial.catch,Commercial.catch*length)~
+  comm.lat <- stats::aggregate(cbind(Commercial.catch,Commercial.catch*length)~
                         age+year+step,sim.dat[sim.dat$step %in% sim$opt$commstep,],sum)
   comm.lat$length.at.age <-  comm.lat[,5]/comm.lat[,4]
   comm.lat$fleet <- 'comm'
   comm.lat <- comm.lat[cols]
   
-  surv.lat <- aggregate(cbind(Survey.catch,Survey.catch*length)~
+  surv.lat <- stats::aggregate(cbind(Survey.catch,Survey.catch*length)~
                         age+year+step,sim.dat[sim.dat$step %in% sim$opt$survstep,],sum)
   surv.lat$length.at.age <-  surv.lat[,5]/surv.lat[,4]
   surv.lat$fleet <- 'surv'
@@ -583,15 +583,15 @@ tagging.recaptures <- function(sim,lambda,N){
   U <- apply(sim$Tagged.C,7,sum)
 #  p <- lambda/(1+lambda)
   
-  rec <- adply(U[-1],1,function(x) rnbinom(N,mu=x,size=x/lambda))
+  rec <- adply(U[-1],1,function(x) stats::rnbinom(N,mu=x,size=x/lambda))
 
   if(!is.null(sim$opt$dispersion)){
     Cstock <- c('C1','C2','C3')
     ci <- sim$opt$quota*10
-    Ri <- rpois(N,ci*(ci-1)/(2*sum(sim$opt$init.abund[Cstock])))
+    Ri <- stats::rpois(N,ci*(ci-1)/(2*sum(sim$opt$init.abund[Cstock])))
     rho <- apply(rec[,-1],2,sum)/Ri
   } else {
-    ci <-t(rmultinom(N,
+    ci <-t(stats::rmultinom(N,
                      size=sum(sim$Catches),
                      prob=apply(sim$Catches,2,sum)
                      ))
