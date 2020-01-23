@@ -81,7 +81,7 @@ gadget.simulate <- function(gm, params=data.frame(),
                             maxratioconsumed = 0.95){
   
   ## stock in numbers
-  stkArr <- llply(gm@stocks,function(x){    
+  stkArr <- plyr::llply(gm@stocks,function(x){    
     tm <- getTimeSteps(gm@time)
     stk <- 
       array(0,c(getNumOfAreas(gm),
@@ -132,7 +132,7 @@ gadget.simulate <- function(gm, params=data.frame(),
   dt <- (gm@time@notimesteps)/12
   
   ## Natural (unexplained) mortality
-  M <- llply(gm@stocks, function(x){
+  M <- plyr::llply(gm@stocks, function(x){
     mort <- getMortality(x,par=params)$V1
     ## if getMinage(x)>1
     outer(diag(c(rep(0,getMinage(x)-1),exp(-mort))),dt,'^')
@@ -140,7 +140,7 @@ gadget.simulate <- function(gm, params=data.frame(),
   
   
   # Defines the catch matrices
-  fleetArr <- llply(stkArr, function(x){
+  fleetArr <- plyr::llply(stkArr, function(x){
     tmp <- 0*((1:getNumFleets(gm))%o%x)
     dimnames(tmp)[[1]] <- getFleetNames(gm)
     names(dimnames(tmp))[1] <- 'fleet'
@@ -149,7 +149,7 @@ gadget.simulate <- function(gm, params=data.frame(),
   
   fleetSuit <- getFleetSuitability(gm,params)
   
-  W  <- llply(gm@stocks,function(x) {
+  W  <- plyr::llply(gm@stocks,function(x) {
     l <- getLengthGroups(x)
     getWeight(x,l,params)
   })
@@ -164,7 +164,7 @@ gadget.simulate <- function(gm, params=data.frame(),
   # Consumptions of other stocks
   
   if(getNumPredators(gm)>0){
-    EatArr <- llply(stkArr, function(x){
+    EatArr <- plyr::llply(stkArr, function(x){
       tmp <- (1:getNumStocks(gm))%o%x
       dimnames(tmp)[[1]] <- getStockNames(gm)
       names(dimnames(tmp))[1] <- 'Predator'
@@ -177,13 +177,13 @@ gadget.simulate <- function(gm, params=data.frame(),
   } 
   
   ## Length update matrix
-  stkG <- llply(gm@stocks,
+  stkG <- plyr::llply(gm@stocks,
                 function(x){
                   getGrowth(x,params)
                 })
   
   ## migration matrix
-  stkMig <- llply(gm@stocks,
+  stkMig <- plyr::llply(gm@stocks,
                   function(x){
                     if(x@doesmigrate == 1){
                       getMigrationMatrix(x,params)

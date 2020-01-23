@@ -767,7 +767,7 @@ read.gadget.printfile <- function(file='printfile'){
   diff.comp <- diff(c(comp.loc,length(printfile)+1))-1
 #  type.loc <- grep('type',printfile)
 #  types <- unique(sapply(printfile[type.loc],function(x) x[2]))
-#  print.types <- llply(types,function(x) grep(x,printfile))
+#  print.types <- plyr::llply(types,function(x) grep(x,printfile))
 #  names(print.types) <- types
 
   tmp.func <- function(restr){
