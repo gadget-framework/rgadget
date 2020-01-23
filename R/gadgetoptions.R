@@ -14,7 +14,7 @@
 ##' @return a list of swithes
 ##' @author Bjarki Thor Elvarsson
 ##' @examples
-##' opt <- gadget.options
+##' opt <- gadget.options()
 ##' ## change the length of the simulation to 13 years
 ##' opt$numobs <- 13
 ##' @export

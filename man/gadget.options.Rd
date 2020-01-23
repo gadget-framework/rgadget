@@ -26,7 +26,7 @@ the default values he will need to make the changes on the
 resulting list.
 }
 \examples{
-opt <- gadget.options
+opt <- gadget.options()
 ## change the length of the simulation to 13 years
 opt$numobs <- 13
 }
