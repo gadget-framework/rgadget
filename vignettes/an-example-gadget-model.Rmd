@@ -19,11 +19,8 @@ knitr::opts_chunk$set(
 ## Short description of the model
 
 
-
 ## How to access the model 
-```{r}
+```{r eval=FALSE}
 system.file('extdata', 'cod_model.tgz', package = 'Rgadget') %>% 
   untar(exdir = path.expand('~/gadget_example/'))
 ```
-
-
