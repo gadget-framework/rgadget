@@ -12,6 +12,12 @@ Depends:
     R (>= 3.3.0),
     tidyverse
 Imports:
+    dplyr,
+    fs,
+    infuser,
+    readr,
+    tibble,
+    tidyr,
     plyr,
     reshape2,
     parallel,
@@ -19,12 +25,13 @@ Imports:
     magrittr,
     stringi,
     stringr,
-    grid,
     purrr,
     broom
 Suggests:
     unittest (>= 1.4),
     knitr,
+    mfdb,
+    logging,
     rmarkdown
 License: GPL
 LazyLoad: yes
