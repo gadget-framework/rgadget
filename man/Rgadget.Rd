@@ -87,6 +87,8 @@ The order of calculations is the same as in Gadget and is as follows:
 8. Replace the stock, here to the mature, that has moved and increase the age.
 }
 \examples{
+\dontrun{
 opt <- gadget.options()
 sim <- Rgadget(sim)
+}
 }

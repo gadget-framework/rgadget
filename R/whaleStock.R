@@ -73,8 +73,10 @@
 ##' \item{opt}{Gadget options list used in the simulation}
 ##'  @author Bjarki Thor Elvarsson, Asta Jenny Sigurdardottir and Elinborg Ingunn Olafsdottir
 ##' @examples
+##' \dontrun{
 ##' opt <- gadget.options()
 ##' sim <- Rgadget(sim)
+##' }
 Rgadget <- function(opt=gadget.options()){
   ## initialize the necessary variables  
 #  opt <- derivedOptions(opt)
