@@ -3,6 +3,9 @@
 \name{plot.Rgadget}
 \alias{plot.Rgadget}
 \title{Plot Rgadget}
+\usage{
+\method{plot}{Rgadget}(dat, compare.alk = TRUE)
+}
 \arguments{
 \item{dat}{A Rgadget object}
 }

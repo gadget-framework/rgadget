@@ -3,6 +3,9 @@
 \name{gadget.skeleton}
 \alias{gadget.skeleton}
 \title{Gadget skeleton}
+\usage{
+gadget.skeleton(time, area, stocks, fleets = NULL)
+}
 \arguments{
 \item{time}{list describing the time step of the model}
 

@@ -3,6 +3,9 @@
 \name{plot.gadget.options}
 \alias{plot.gadget.options}
 \title{Plot gadget options}
+\usage{
+\method{plot}{gadget.options}(opt)
+}
 \arguments{
 \item{opt}{Gadget options object}
 }

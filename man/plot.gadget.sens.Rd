@@ -2,7 +2,11 @@
 % Please edit documentation in R/gadgetfunctions.R
 \name{plot.gadget.sens}
 \alias{plot.gadget.sens}
+\alias{plot.gadgetSens}
 \title{Plot likelihood sensitivity}
+\usage{
+\method{plot}{gadgetSens}(sens, comp = "score")
+}
 \arguments{
 \item{sens}{resulsts from gadget sensitivity}
 

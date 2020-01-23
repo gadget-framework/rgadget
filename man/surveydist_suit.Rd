@@ -3,6 +3,10 @@
 \name{surveydist_suit}
 \alias{surveydist_suit}
 \title{Write suitability line for the surveydistribution likelihood component}
+\usage{
+surveydist_suit(survey.name = "survey", stock = NULL,
+  fun = "newexponentiall50", params = NULL)
+}
 \arguments{
 \item{survey.name}{Character. The name of the survey}
 

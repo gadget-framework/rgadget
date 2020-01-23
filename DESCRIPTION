@@ -7,6 +7,7 @@ Authors@R: c(person("Bjarki Thor", "Elvarsson", email="bjarki.elvarsson@hafogvat
             person("Jamie", "Lentin", email="lentinj@shuttlethread.com",role = c("aut")))
 Maintainer: Bjarki Thor Elvarsson <bjarki.elvarsson@hafogvatn.is>
 Description: Companion R package for Gadget (Globally applicable area disagregated ecosystem toolbox).
+Encoding: UTF-8
 Depends:
     R (>= 3.3.0),
     tidyverse

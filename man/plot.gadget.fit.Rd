@@ -3,12 +3,15 @@
 \name{plot.gadget.fit}
 \alias{plot.gadget.fit}
 \title{plot gadget fit}
+\usage{
+\method{plot}{gadget.fit}(fit, data = "sidat", type = "direct")
+}
 \arguments{
 \item{fit}{results from gadget fit}
 
-\item{type}{The type of plot that is returned, depends on the input data (see details)}
-
 \item{data}{what results should be plotted}
+
+\item{type}{The type of plot that is returned, depends on the input data (see details)}
 }
 \value{
 ggplot object

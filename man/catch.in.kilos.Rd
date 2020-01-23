@@ -3,6 +3,9 @@
 \name{catch.in.kilos}
 \alias{catch.in.kilos}
 \title{Catch in Kilos}
+\usage{
+catch.in.kilos(sim)
+}
 \arguments{
 \item{sim}{Results from a Rgadget simulation}
 }

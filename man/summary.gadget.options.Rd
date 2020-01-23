@@ -3,6 +3,9 @@
 \name{summary.gadget.options}
 \alias{summary.gadget.options}
 \title{Summary of gadget.options}
+\usage{
+\method{summary}{gadget.options}(opt)
+}
 \arguments{
 \item{opt}{gadget.options list}
 }

@@ -3,6 +3,9 @@
 \name{recruits}
 \alias{recruits}
 \title{Recruitment}
+\usage{
+recruits(n, mu, sigma, l, numofareas, probarea, numobs, numoftimesteps)
+}
 \arguments{
 \item{n}{Number of recruited individuals}
 
