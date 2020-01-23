@@ -71,8 +71,8 @@
 ##' \item{immMort}{Natural mortality for the immature stock}
 ##' \item{matMort}{Natural mortality for the mature stock}
 ##' \item{opt}{Gadget options list used in the simulation}
-##'  @author Bjarki Thor Elvarsson, Asta Jenny Sigurdardottir and Elinborg Ingunn Olafsdottir
-##'  @export
+##' @author Bjarki Thor Elvarsson, Asta Jenny Sigurdardottir and Elinborg Ingunn Olafsdottir
+##' @export
 ##' @examples
 ##' opt <- gadget.options('simple2stock')
 ##' gm <- gadget.skeleton(time=opt$time,area=opt$area,stock=opt$stocks,opt$fleets)

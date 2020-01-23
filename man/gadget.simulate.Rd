@@ -25,8 +25,6 @@ a list of arrays:
 \item{immMort}{Natural mortality for the immature stock}
 \item{matMort}{Natural mortality for the mature stock}
 \item{opt}{Gadget options list used in the simulation}
- @author Bjarki Thor Elvarsson, Asta Jenny Sigurdardottir and Elinborg Ingunn Olafsdottir
- @export
 }
 \description{
 Rgadget is the driver function for the ecosystem simulation. It takes a
@@ -91,4 +89,7 @@ The order of calculations is the same as in Gadget and is as follows:
 opt <- gadget.options('simple2stock')
 gm <- gadget.skeleton(time=opt$time,area=opt$area,stock=opt$stocks,opt$fleets)
 sim <- gadget.simulate(gm)
+}
+\author{
+Bjarki Thor Elvarsson, Asta Jenny Sigurdardottir and Elinborg Ingunn Olafsdottir
 }
