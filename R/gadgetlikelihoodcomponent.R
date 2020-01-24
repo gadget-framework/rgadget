@@ -1,5 +1,7 @@
 #' Wrapper to choose a component by name
 #'
+#' @param component	Call the corresponding gadget_(component)_component function
+#' @param ...		Arguments to pass to it
 #' @export
 gadgetlikelihoodcomponent <- function (component, ...) {
     # Build a call to the relevant function, call it.

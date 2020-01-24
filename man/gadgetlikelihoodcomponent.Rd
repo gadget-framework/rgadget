@@ -6,6 +6,11 @@
 \usage{
 gadgetlikelihoodcomponent(component, ...)
 }
+\arguments{
+\item{component}{Call the corresponding gadget_(component)_component function}
+
+\item{...}{Arguments to pass to it}
+}
 \description{
 Wrapper to choose a component by name
 }
