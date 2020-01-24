@@ -56,7 +56,7 @@ gadget_update.gadgetfleet <- function(gf, component, ...) {
 #' @param gf		The gadgetfile object to update
 #' @param comp_name named components to remove
 #' @export gadget_discard.gadgetfleet
-gadget_discard.gadgetfleet <- function(gf,comp_name,...){
+gadget_discard.gadgetfleet <- function(gf,comp_name) {
   ## TODO: this function should also clean up asociated data files 
   file_config <- attr(gf,'file_config')
   file_name <- attr(gf,'file_name')

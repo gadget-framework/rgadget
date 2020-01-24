@@ -4,7 +4,7 @@
 \alias{gadget_discard.gadgetlikelihood}
 \title{this function removes named likelihood components}
 \usage{
-\method{gadget_discard}{gadgetlikelihood}(gf, comp_name, ...)
+\method{gadget_discard}{gadgetlikelihood}(gf, comp_name)
 }
 \arguments{
 \item{gf}{The gadgetfile object to update}

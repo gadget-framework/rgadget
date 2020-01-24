@@ -4,7 +4,7 @@
 \alias{gadget_discard}
 \title{Discard named component}
 \usage{
-gadget_discard(gf, comp_name, ...)
+gadget_discard(gf, comp_name)
 }
 \arguments{
 \item{gf}{The gadgetfile object to update}

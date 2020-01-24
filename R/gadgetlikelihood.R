@@ -69,7 +69,7 @@ gadget_component_replace <- function(gfile, newcomponent, namefn, component_name
 #' @param gf		The gadgetfile object to update
 #' @param comp_name named components to remove
 #' @export gadget_discard.gadgetlikelihood
-gadget_discard.gadgetlikelihood <- function(gf,comp_name,...){
+gadget_discard.gadgetlikelihood <- function(gf,comp_name) {
   ## TODO: this function should also clean up asociated data files 
   file_config <- attr(gf,'file_config')
   file_name <- attr(gf,'file_name')

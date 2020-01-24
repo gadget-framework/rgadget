@@ -118,7 +118,7 @@ gadget_update <- function(gf, component, ...) UseMethod("gadget_update", gf)
 #' @param gf		The gadgetfile object to update
 #' @param comp_name named components to remove
 #' @export 
-gadget_discard <- function(gf,comp_name, ...) UseMethod("gadget_discard",gf)
+gadget_discard <- function(gf,comp_name) UseMethod("gadget_discard",gf)
 
 #' Recognised GADGET file types and their quirks
 #'

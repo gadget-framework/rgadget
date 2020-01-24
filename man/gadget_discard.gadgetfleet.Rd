@@ -4,7 +4,7 @@
 \alias{gadget_discard.gadgetfleet}
 \title{this function removes named fleet components}
 \usage{
-\method{gadget_discard}{gadgetfleet}(gf, comp_name, ...)
+\method{gadget_discard}{gadgetfleet}(gf, comp_name)
 }
 \arguments{
 \item{gf}{The gadgetfile object to update}
