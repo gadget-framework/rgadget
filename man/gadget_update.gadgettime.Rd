@@ -9,7 +9,7 @@
 \arguments{
 \item{gf}{The gadgetfile object to update}
 
-\item{...}{Valid optiosn for a time file; firstyear, firststep, lastyear, laststep, notimesteps. See gadget user guide}
+\item{...}{Valid options for a time file; firstyear, firststep, lastyear, laststep, notimesteps. See gadget user guide}
 }
 \description{
 Replace and/or append new time comonents to an existing file
