@@ -12,6 +12,7 @@
 #' @export
 gadgettime <- function(file_name, path, missingOkay = FALSE) {
   gf <- read.gadget.file(path, file_name, file_type = "time", missingOkay = missingOkay)
+  if (length(gf) == 0) gf[[1]] <- list()
   class(gf) <- c("gadgettime", class(gf))
   
   return(gf)
@@ -25,8 +26,7 @@ gadgettime <- function(file_name, path, missingOkay = FALSE) {
 #' Replace and/or append new time comonents to an existing file
 #'
 #' @param gf		The gadgetfile object to update
-#' @param component	Either a replacement \code{gadget_time_component} (from MFDB or rgadget), or a component type name
-#' @param ...		If a component type was provided above, the extra options to supply to \code{gadget_time_component}
+#' @param ...		Valid options for a time file; firstyear, firststep, lastyear, laststep, notimesteps. See gadget user guide
 #'
 #' @examples
 #' path <- './model'
@@ -46,7 +46,7 @@ gadget_update.gadgettime <- function(gf, ...) {
     stop('Unknown values',paste(names(args),collapse=' - '),
          'Valid options are: c("firstyear",   "firststep",   "lastyear",    "laststep",    "notimesteps")')
   }
-  gf[[1]][[names(args)]] <- args
+  gf[[1]][names(args)] <- args
   return(gf)
 }
 

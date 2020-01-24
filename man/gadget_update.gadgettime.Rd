@@ -9,9 +9,7 @@
 \arguments{
 \item{gf}{The gadgetfile object to update}
 
-\item{...}{If a component type was provided above, the extra options to supply to \code{gadget_time_component}}
-
-\item{component}{Either a replacement \code{gadget_time_component} (from MFDB or rgadget), or a component type name}
+\item{...}{Valid optiosn for a time file; firstyear, firststep, lastyear, laststep, notimesteps. See gadget user guide}
 }
 \description{
 Replace and/or append new time comonents to an existing file
