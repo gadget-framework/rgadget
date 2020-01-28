@@ -4,10 +4,16 @@
 \alias{gadgetfleetcomponent}
 \title{Create/update a fleet component with name}
 \usage{
-gadgetfleetcomponent(type, name = type,
-  livesonareas = unique(data$area), multiplicative = 1,
-  suitability = list(), fleetfile = "fleet",
-  data = stop("data not provided"), ...)
+gadgetfleetcomponent(
+  type,
+  name = type,
+  livesonareas = unique(data$area),
+  multiplicative = 1,
+  suitability = list(),
+  fleetfile = "fleet",
+  data = stop("data not provided"),
+  ...
+)
 }
 \description{
 Create/update a fleet component with name

@@ -4,12 +4,22 @@
 \alias{gadget_surveydistribution_component}
 \title{http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:surveydistribution}
 \usage{
-gadget_surveydistribution_component(weight = 0,
-  name = "surveydistribution", data = NULL, area = NULL,
-  length = NULL, age = NULL, stocknames = c(),
-  fittype = "linearfit", parameters = NULL, suitability = list(),
-  slope = NULL, intercept = NULL, epsilon = 10,
-  likelihoodtype = "multinomial")
+gadget_surveydistribution_component(
+  weight = 0,
+  name = "surveydistribution",
+  data = NULL,
+  area = NULL,
+  length = NULL,
+  age = NULL,
+  stocknames = c(),
+  fittype = "linearfit",
+  parameters = NULL,
+  suitability = list(),
+  slope = NULL,
+  intercept = NULL,
+  epsilon = 10,
+  likelihoodtype = "multinomial"
+)
 }
 \arguments{
 \item{weight}{A numeric weighting}

@@ -4,10 +4,19 @@
 \alias{gadget_stockdistribution_component}
 \title{http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:stockdist}
 \usage{
-gadget_stockdistribution_component(weight = 0,
-  name = "stockdistribution", data_function = "sumofsquares",
-  overconsumption = FALSE, epsilon = 10, data = NULL, area = NULL,
-  age = NULL, length = NULL, fleetnames = c(), stocknames = c())
+gadget_stockdistribution_component(
+  weight = 0,
+  name = "stockdistribution",
+  data_function = "sumofsquares",
+  overconsumption = FALSE,
+  epsilon = 10,
+  data = NULL,
+  area = NULL,
+  age = NULL,
+  length = NULL,
+  fleetnames = c(),
+  stocknames = c()
+)
 }
 \arguments{
 \item{weight}{A numeric weighting}

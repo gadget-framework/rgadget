@@ -4,33 +4,31 @@
 \alias{read.gadget.wgts}
 \alias{merge.formula}
 \alias{eval.gadget.formula}
-\alias{get.gadget.growth}
 \alias{get.gadget.recruitment}
-\alias{get.gadget.catches}
 \alias{read.gadget.grouping}
 \title{gadget.fit helper functions}
 \usage{
-read.gadget.wgts(params.file = "params.in", wgts = "WGTS",
-  likelihood = "likelihood", lik.pre = "lik.",
-  params.pre = "params.", parallel = FALSE)
+read.gadget.wgts(
+  params.file = "params.in",
+  wgts = "WGTS",
+  likelihood = "likelihood",
+  lik.pre = "lik.",
+  params.pre = "params.",
+  parallel = FALSE
+)
 
 \method{merge}{formula}(txt)
 
 eval.gadget.formula(gad.for, par = data.frame())
 
-get.gadget.growth(stocks, params, dt = 0.25, age.based = FALSE,
-  recl = FALSE)
-
 get.gadget.recruitment(stocks, params, collapse = TRUE)
-
-get.gadget.catches(fleets, params)
 
 read.gadget.grouping(lik = read.gadget.likelihood(), wgts = "WGTS")
 }
 \arguments{
 \item{params.file}{base parameter file}
 
-\item{wgts}{location of the reweighting folder}
+\item{wgts}{logcation of the WGTS folder}
 
 \item{likelihood}{likelihood file}
 
@@ -48,25 +46,9 @@ read.gadget.grouping(lik = read.gadget.likelihood(), wgts = "WGTS")
 
 \item{stocks}{gadget.stock}
 
-\item{params}{gadget.parms}
-
-\item{dt}{delta t}
-
-\item{age.based}{logical}
-
-\item{recl}{recruitment length}
-
-\item{fleets}{gadget.fleet}
+\item{params}{gadget.params}
 
 \item{lik}{old style gadget likelihood object}
-
-\item{stocks}{gadget.stock}
-
-\item{params}{gadget.params}
-
-\item{params}{gadget.params}
-
-\item{wgts}{logcation of the WGTS folder}
 }
 \value{
 data.frame with parameter estimates and likelihood output from the iterative reweighting folder.
@@ -75,11 +57,7 @@ txt where the formula has been properly compiled
 
 a vector of evaluated gadget formulas
 
-growth matrix
-
 recruitment by year
-
-catches by year + step
 
 list of wgts groupings
 }

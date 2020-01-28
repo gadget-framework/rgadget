@@ -14,7 +14,7 @@
 \item{type}{The type of plot that is returned, depends on the input data (see details)}
 }
 \value{
-ggplot object
+ggplot2::ggplot object
 }
 \description{
 Plot Gadget fit

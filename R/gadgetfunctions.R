@@ -303,8 +303,7 @@ callParamin <- function(i='params.in',
 ##' used in the model (if NULL use all)
 ##' @param inverse should inverse selection be used for likelihood
 ##' components
-##' @param cl cluster references, used to parallelize this function on
-##' Windows or on a actual cluster. Make sure that Rgadget is loaded on all nodes.
+##' @param gd the gadget model directory
 ##' @param ... pass to callGadget
 ##' @return a matrix containing the weights of the likelihood
 ##' components at each iteration (defaults to FALSE).
@@ -333,7 +332,6 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
                              cv.floor=NULL,
                              comp=NULL,
                              inverse=FALSE,
-                             cl=NULL,
                              gd=NULL,
                              ...) {
   
@@ -483,13 +481,6 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
                             file=paste(wgts,
                                        paste('likelihood',comp,sep='.'),sep='/'))
     main <- main.base
-    if(!is.null(printfile)){
-      write.gadget.printfile(printfile,
-                             sprintf('%s/%s.%s',wgts,'printfile',comp),
-                             sprintf('%s/out.%s',wgts,comp))
-      main$printfiles <- sprintf('%s/%s.%s',wgts,'printfile',comp)
-      dir.create(sprintf('%s/out.%s',wgts,comp),showWarnings=FALSE)
-    }
     main$likelihoodfiles <- paste(wgts,paste('likelihood',comp,sep='.'),sep='/')
     write.gadget.main(main,file=paste(wgts,paste('main',comp,sep='.'),sep='/'))
     
@@ -518,40 +509,7 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
     ## run the bloody thing
     if(run.serial){
       res <- lapply(run.string,run.iterative)
-    } else if(!is.null(cl)){
-      ## nasty hack, I know (stolen from http://www.r-bloggers.com/implementing-mclapply-on-windows-a-primer-on-embarrassingly-parallel-computation-on-multicore-systems-with-r/ )
-      
-      loaded.package.names <- c(
-        ## Base packages
-        utils::sessionInfo()$basePkgs,
-        ## Additional packages
-        names( utils::sessionInfo()$otherPkgs ))
-      
-      this.env <- environment()
-      while( identical( this.env, globalenv() ) == FALSE ) {
-        clusterExport(cl,
-                      ls(all.names=TRUE, env=this.env),
-                      envir=this.env)
-        this.env <- parent.env(environment())
-      }
-      ## repeat for the global environment
-      clusterExport(cl,
-                    ls(all.names=TRUE, env=globalenv()),
-                    envir=globalenv())
-      
-      ## Load the libraries on all the clusters
-      ## N.B. length(cl) returns the number of clusters
-      parLapply( cl, 1:length(cl), function(xx){
-        lapply(loaded.package.names, function(yy) {
-          ## N.B. the character.only option of 
-          ##      require() allows you to give the 
-          ##      name of a package as a string. 
-          require(yy , character.only=TRUE)})
-      })
-      
-      
-      res <- parLapply(cl,run.string,run.iterative)
-    } else {
+    }  else {
       
       res <- parallel::mclapply(run.string,run.iterative,
                                 mc.cores = parallel::detectCores(logical = TRUE))
@@ -620,13 +578,6 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
       }
       
       main <- main.base
-      if(!is.null(printfile)){
-        write.gadget.printfile(printfile,
-                               sprintf('%s/%s.%s',wgts,'printfile',comp),
-                               sprintf('%s/out.%s',wgts,comp))
-        main$printfiles <- sprintf('%s/%s.%s',wgts,'printfile',comp)
-        dir.create(sprintf('%s/out.%s',wgts,comp),showWarnings=FALSE)
-      }
       main$likelihoodfiles <- sprintf('%s/likelihood.%s',wgts,comp)
       write.gadget.main(main,sprintf('%s/main.%s',wgts,comp))
       
@@ -634,9 +585,9 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
       if(sum(is.infinite(1/weights$sigmahat))>0){
         txt <- 
           weights %>% 
-          filter(is.infinite(1/weights$sigmahat)) %>% 
+          dplyr::filter(is.infinite(1/weights$sigmahat)) %>% 
           .$comp 
-          
+        
         stop(sprintf('Model error, likelihood component %s returns a value of exactly 0',txt))
       }
       likelihood$weights[weights$comp,'weight'] <- 1/weights$sigmahat
@@ -822,11 +773,11 @@ plot.gadgetSens <- function(sens,comp='score'){
     stop(sprintf('Component %s not found in lik.comps',comp))
   params <- attr(sens,'Parameters')
   tmp <- plyr::ddply(sens,'parameter',
-               function(x){
-                 tmp <- cbind(x[x$parameter[1]],x[comp])
-                 names(tmp) <- c('Value','score')
-                 tmp
-               })
+                     function(x){
+                       tmp <- cbind(x[x$parameter[1]],x[comp])
+                       names(tmp) <- c('Value','score')
+                       tmp
+                     })
   plo <- ggplot(tmp, aes(Value,score)) +
     geom_line() +
     facet_wrap(~parameter,scale='free') +
@@ -1082,7 +1033,7 @@ gadget.ypr <- function(params.file = 'params.in',
       x@renewal.data <- 
         time.grid %>% 
         dplyr::filter(step == 1) %>% 
-        dplyr::bind_cols(slice(x@renewal.data %>% select(-c(year,step,area)),rep(1,nrow(.)))) %>% 
+        dplyr::bind_cols(dplyr::slice(x@renewal.data %>% dplyr::select(-c(year,step,area)),rep(1,nrow(.)))) %>% 
         dplyr::mutate(number = ifelse(year==begin,1,0))
       x@doesspawn <- 0
     }
@@ -1107,11 +1058,11 @@ gadget.ypr <- function(params.file = 'params.in',
   
   
   params.aug <- plyr::ldply(effort,
-                      function(x){
-                        tmp <- params
-                        tmp$effort <- x
-                        return(tmp)
-                      })
+                            function(x){
+                              tmp <- params
+                              tmp$effort <- x
+                              return(tmp)
+                            })
   
   write.gadget.parameters(params.aug,file=sprintf('%s/params.ypr',ypr),
                           columns = FALSE)
@@ -1121,39 +1072,39 @@ gadget.ypr <- function(params.file = 'params.in',
   ## read output
   
   out <- plyr::ddply(data.frame(stock = unique(fleet$prey$stock),tmp=1),
-               'stock',
-               function(x){
-                 stock.prey <- utils::read.table(file = sprintf("%1$s/out/%2$s.prey",
-                                                         ypr,x$stock),
-                                          comment.char = ';')
-                 
-                 names(stock.prey) <-
-                   c('year', 'step','area','age','length','number.consumed',
-                     'biomass.consumed','fishing.mortality')
-                 
-                 stock.prey$trial <-
-                   rep(1:c(nrow(stock.prey)/(
-                     length(unique(stock.prey$area))*
-                       length(unique(stock.prey$step))*
-                       length(unique(stock.prey$year)))),
-                     each=length(unique(stock.prey$area))*
-                       length(unique(stock.prey$year))*
-                       length(unique(stock.prey$step)))
-                 stock.prey <- merge(stock.prey,
-                                     data.frame(trial=1:length(effort),
-                                                effort=effort),
-                                     all.x=TRUE)
-                 stock.prey$age <- stock.prey$year - begin +
-                   getMinage(stocks[[x$stock]])
-                 ## clean up
-                 file.remove(sprintf('%s/out/%s.prey',ypr,x$stock))
-                 
-                 return(stock.prey)
-               })
+                     'stock',
+                     function(x){
+                       stock.prey <- utils::read.table(file = sprintf("%1$s/out/%2$s.prey",
+                                                                      ypr,x$stock),
+                                                       comment.char = ';')
+                       
+                       names(stock.prey) <-
+                         c('year', 'step','area','age','length','number.consumed',
+                           'biomass.consumed','fishing.mortality')
+                       
+                       stock.prey$trial <-
+                         rep(1:c(nrow(stock.prey)/(
+                           length(unique(stock.prey$area))*
+                             length(unique(stock.prey$step))*
+                             length(unique(stock.prey$year)))),
+                           each=length(unique(stock.prey$area))*
+                             length(unique(stock.prey$year))*
+                             length(unique(stock.prey$step)))
+                       stock.prey <- merge(stock.prey,
+                                           data.frame(trial=1:length(effort),
+                                                      effort=effort),
+                                           all.x=TRUE)
+                       stock.prey$age <- stock.prey$year - begin +
+                         getMinage(stocks[[x$stock]])
+                       ## clean up
+                       file.remove(sprintf('%s/out/%s.prey',ypr,x$stock))
+                       
+                       return(stock.prey)
+                     })
   if(!is.null(ssb.stock)){
     ssb.out <- plyr::ldply(ssb.stock,function(x){
       ssb.out <- utils::read.table(file = sprintf("%1$s/out/%2$s.ssb",
-                                           ypr,x), comment.char = ';')
+                                                  ypr,x), comment.char = ';')
       file.remove(sprintf('%s/out/%s.ssb',ypr,x))
       names(ssb.out) <-
         c('year', 'step','area','age','length','number',
@@ -1171,7 +1122,7 @@ gadget.ypr <- function(params.file = 'params.in',
                                   effort=effort),
                        all.x=TRUE)
       plyr::mutate(plyr::ddply(ssb.out,~effort,summarise,ssb=max(number*biomass)),
-             ssb.ratio=ssb/max(ssb))
+                   ssb.ratio=ssb/max(ssb))
       
     })
     
@@ -1183,20 +1134,20 @@ gadget.ypr <- function(params.file = 'params.in',
     mat.out <- plyr::ldply(unique(fleet$prey$stock),function(x){
       mat.out <- 
         utils::read.table(file = sprintf("%1$s/out/%2$s.mat",
-                                  ypr,x), comment.char = ';')
+                                         ypr,x), comment.char = ';')
       file.remove(sprintf('%s/out/%s.mat',ypr,x))
       names(mat.out) <-
         c('year', 'step','area','age','length','number',
           'biomass')
       mat.out %>% 
-        mutate(length = as.numeric(gsub('len','',length)),
+        dplyr::mutate(length = as.numeric(gsub('len','',length)),
                trial = cut(1:length(year),c(0,which(diff(year)<0),1e9),labels = FALSE)) %>% 
-        left_join(data.frame(trial=1:length(effort),
+        dplyr::left_join(data.frame(trial=1:length(effort),
                              effort=effort)) %>% 
-        group_by(effort,year) %>% 
-        summarise(ssb=sum(number*biomass*logit(mat.par[1],mat.par[2],length))) %>% 
-        group_by(effort) %>% 
-        mutate(ssb.ratio = ssb/max(ssb))
+        dplyr::group_by(effort,year) %>% 
+        dplyr::summarise(ssb=sum(number*biomass*logit(mat.par[1],mat.par[2],length))) %>% 
+        dplyr::group_by(effort) %>% 
+        dplyr::mutate(ssb.ratio = ssb/max(ssb))
       
     })
     
@@ -1210,8 +1161,8 @@ gadget.ypr <- function(params.file = 'params.in',
     out <- subset(out,age >= min(age.range) & age <= max(age.range))
   }
   res <- plyr::ddply(out,'effort',
-               function(x) c(num=sum(x$number.consumed)/1e6,
-                             bio=sum(x$biomass.consumed)/1e6))
+                     function(x) c(num=sum(x$number.consumed)/1e6,
+                                   bio=sum(x$biomass.consumed)/1e6))
   secant <- diff(res$bio)/diff(res$effort)
   f0.1 <- res$effort[min(which(secant<0.1*secant[1]))]
   fmax <- min(res$effort[which(res$bio==max(res$bio,na.rm=TRUE))])
@@ -1232,27 +1183,28 @@ gadget.ypr <- function(params.file = 'params.in',
 ##' @export
 plot.gadget.ypr <- function(ypr){
   if(!is.null(ypr$ssb)){
-    tmp <- merge(mutate(ypr$ypr,bio=bio/max(bio)),
+    tmp <- merge(dplyr::mutate(ypr$ypr,bio=bio/max(bio)),
                  ypr$ssb)
   } else {
-    tmp <- mutate(ypr$ypr,bio=bio/max(bio))
+    tmp <- dplyr::mutate(ypr$ypr,bio=bio/max(bio))
   }
-  plo <- ggplot(tmp,aes(effort,bio)) +
-    geom_line() +
-    geom_segment(aes(x = effort,xend=effort,y=-Inf,yend=bio),
+  plo <- 
+    ggplot2::ggplot(tmp,ggplot2::aes(effort,bio)) +
+    ggplot2::geom_line() +
+    ggplot2::geom_segment(ggplot2::aes(x = effort,xend=effort,y=-Inf,yend=bio),
                  data=subset(tmp, effort == ypr$fmax)) +
-    geom_segment(aes(x = effort,xend=effort,y=-Inf,yend=bio),
+    ggplot2::geom_segment(ggplot2::aes(x = effort,xend=effort,y=-Inf,yend=bio),
                  data=subset(tmp, effort == ypr$f0.1)) +
-    geom_text(data=subset(tmp,effort == ypr$fmax),
-              aes(label = sprintf('Fmax = %s',effort),
+    ggplot2::geom_text(data=subset(tmp,effort == ypr$fmax),
+                       ggplot2::aes(label = sprintf('Fmax = %s',effort),
                   x = effort+0.04,y=0.2,angle=90)) +
-    geom_text(data=subset(tmp,effort == ypr$f0.1),
-              aes(label = sprintf('F0.1 = %s',effort),
+    ggplot2::geom_text(data=subset(tmp,effort == ypr$f0.1),
+                       ggplot2::aes(label = sprintf('F0.1 = %s',effort),
                   x = effort+0.04,y=0.2,angle=90)) +
-    theme_bw() +  xlab('Fishing mortality') + ylab('Yield per recruit') +
-    theme(legend.position='none',plot.margin = unit(c(0,0,0,0),'cm'))
+    ggplot2::labs(x='Fishing mortality', y='Yield per recruit') +
+    ggplot2::theme(legend.position='none',plot.margin = ggplot2::unit(c(0,0,0,0),'cm'))
   if(!is.null(ypr$ssb)){
-    plo <- plo + geom_line(aes(effort,ssb.ratio),
+    plo <- plo + ggplot2::geom_line(aes(effort,ssb.ratio),
                            lty=2,col='gray')
   }
   return(plo)
@@ -1311,9 +1263,9 @@ gadget.retro <- function(path='.',
       write.gadget.file(Rdir)
     
     
-  #  lik <- gadgetlikelihood(main[['likelihood']]$likelihoodfiles,Rdir) 
-  #  attr(lik,'file_config')$mainfile_overwrite <- TRUE
-  #  write.gadget.file(lik,Rdir)
+    #  lik <- gadgetlikelihood(main[['likelihood']]$likelihoodfiles,Rdir) 
+    #  attr(lik,'file_config')$mainfile_overwrite <- TRUE
+    #  write.gadget.file(lik,Rdir)
   }
   
   Sys.setenv(GADGET_WORKING_DIR=normalizePath(path))

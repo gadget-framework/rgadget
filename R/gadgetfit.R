@@ -28,7 +28,7 @@
 ##' @param params.file parameter file used in the fit (defaults to "WGTS/params.final")
 ##' @param fit.folder location of the output
 ##' @param printatstart should the stock standard output be printed at the beginning or the end of the timestep
-##' @param psteps what steps should be printed
+##' @param steps what steps should be printed
 ##' @param f.age.range data.frame describing the desired age range where the F's are calculated, if null this defaults to the apical F fro all stocks. 
 ##' Input columns should include stock, age.min and age.max 
 ##' @param recruitment_step_age data frame defining the recruitment age by stock and time step. Default is the minimum age at step 1. Expects columns stock, age and step 
@@ -92,7 +92,7 @@ gadget.fit <- function(wgts = 'WGTS',
   stocks <- 
     main$stockfiles %>% 
     purrr::map(~read.gadget.file(path='.',file_name = .,file_type = 'stock',recursive = FALSE)) 
-  names(stocks) <- stocks %>% map(1) %>% map('stockname') %>% unlist()
+  names(stocks) <- stocks %>% purrr::map(1) %>% purrr::map('stockname') %>% unlist()
   
   ## model output, i.e printfiles
   make.gadget.printfile(main.file = main.file,
@@ -145,8 +145,8 @@ gadget.fit <- function(wgts = 'WGTS',
       dplyr::bind_rows(.id='stock') 
   } else {
     stock.prey <- 
-      tibble(year=NA_real_, step=NA_real_, area=NA_character_, stock = NA_character_,
-             age=NA_real_,biomass_consumed=NA_real_,number_consumed=NA_real_, mortality = NA_real_)
+      tibble::tibble(year=NA_real_, step=NA_real_, area=NA_character_, stock = NA_character_,
+                     age=NA_real_,biomass_consumed=NA_real_,number_consumed=NA_real_, mortality = NA_real_)
     
   } 
   if(sum(grepl('prey',names(out)))>0){
@@ -162,12 +162,13 @@ gadget.fit <- function(wgts = 'WGTS',
                     length = gsub('len', '', length) %>% 
                       as.numeric())
   } else {
-    predator.prey <- tibble(year=NA_real_, step=NA_real_, area=NA_character_,
-                            predator = NA_character_, 
-                            prey = NA_character_, 
-                            length = NA_real_, 
-                            suit = NA_real_,
-                            biomass_consumed = NA_real_, mortality = NA_real_)
+    predator.prey <- 
+      tibble::tibble(year=NA_real_, step=NA_real_, area=NA_character_,
+                     predator = NA_character_, 
+                     prey = NA_character_, 
+                     length = NA_real_, 
+                     suit = NA_real_,
+                     biomass_consumed = NA_real_, mortality = NA_real_)
     
   }
   
@@ -239,10 +240,10 @@ gadget.fit <- function(wgts = 'WGTS',
                          dplyr::bind_rows(.id='name') %>% 
                          dplyr::as_tibble() %>% 
                          dplyr::rename(observed=number) %>% 
-                         dplyr::bind_rows(tibble(name = NA, year = NA, step = NA, 
-                                                 area = NA,length = NA,age = NA,
-                                                 fleet = NA,survey = NA,
-                                                 upper = NA, lower = NA)) %>% 
+                         dplyr::bind_rows(tibble::tibble(name = NA, year = NA, step = NA, 
+                                                         area = NA,length = NA,age = NA,
+                                                         fleet = NA,survey = NA,
+                                                         upper = NA, lower = NA)) %>% 
                          dplyr::filter(!is.na(year)),
                        by = c("name", "year", "step", "area", "age", "length","fleet","survey")) %>% 
       dplyr::mutate(length = ifelse(sitype %in% c('lengths','fleets'),
@@ -295,7 +296,7 @@ gadget.fit <- function(wgts = 'WGTS',
                     avg.length = as.numeric((lower+upper)/2),
                     residuals = as.numeric(observed - predicted)) %>% 
       dplyr::inner_join(lik$catchdistribution %>% 
-                          select(name,fleetnames,stocknames),
+                          dplyr::select(name,fleetnames,stocknames),
                         by = 'name')
   } else {
     catchdist.fleets <- NULL
@@ -368,7 +369,7 @@ gadget.fit <- function(wgts = 'WGTS',
       dplyr::right_join(out[dat.names] %>%
                           purrr::set_names(.,dat.names) %>% 
                           dplyr::bind_rows(.id='name') %>% 
-                          left_join(aggs,by=c('name','length')),
+                          dplyr::left_join(aggs,by=c('name','length')),
                         by=c('name','length', 'year',
                              'step', 'area','age',
                              'stock','upper','lower'),
@@ -410,8 +411,8 @@ gadget.fit <- function(wgts = 'WGTS',
         out[lik.dat$dat$stomachcontent %>% 
               names()] %>%
           dplyr::bind_rows(.id = 'component') %>% 
-          left_join(prey.agg) %>% 
-          left_join(pred.agg),
+          dplyr::left_join(prey.agg) %>% 
+          dplyr::left_join(pred.agg),
         by = c('component','predator','prey','year','step','area')) %>% 
       dplyr::group_by(component,year,step,predator) %>%
       dplyr::mutate(observed=ratio/sum(ratio,na.rm=TRUE),
@@ -448,7 +449,7 @@ gadget.fit <- function(wgts = 'WGTS',
   out <- 
     list(sidat = sidat, resTable = resTable, nesTable = nesTable,
          suitability = predator.prey %>% 
-           select(year,step,stock=prey,fleet=predator,length,suit),# gss.suit, 
+           dplyr::select(year,step,stock=prey,fleet=predator,length,suit),# gss.suit, 
          #stock.growth = stock.growth,
          stock.recruitment = stock.recruitment,
          res.by.year = res.by.year, 

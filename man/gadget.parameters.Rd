@@ -10,14 +10,12 @@ read.gadget.parameters(file = "params.in")
 write.gadget.parameters(params, file = "params.out", columns = TRUE)
 }
 \arguments{
-\item{file}{parameter file}
+\item{file}{a string naming the file to write to}
 
 \item{params}{params dataframe}
 
 \item{columns}{should a conventional column based parameter file be written out or
 should a line based parameter (used when evaluating gadget on a matrix) be used.}
-
-\item{file}{a string naming the file to write to}
 }
 \value{
 dataframe
@@ -30,5 +28,5 @@ a string containing the text of the params file (if desired)
 \author{
 Bjarki  Thor Elvarsson
 
-Bjarki ??r Elvarsson
+Bjarki Þór Elvarsson
 }

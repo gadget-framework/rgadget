@@ -4,8 +4,7 @@
 \alias{pred_suit}
 \title{Write suitability line for a predator}
 \usage{
-pred_suit(pred = NA, prey = NA, fun = "newexponentiall50",
-  params = NULL)
+pred_suit(pred = NA, prey = NA, fun = "newexponentiall50", params = NULL)
 }
 \arguments{
 \item{pred}{Character. The name of the predator}

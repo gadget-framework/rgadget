@@ -4,9 +4,16 @@
 \alias{gadget_catchstatistics_component}
 \title{http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:catchstat}
 \usage{
-gadget_catchstatistics_component(weight = 0, name = "catchstatistics",
-  data_function = NULL, data = NULL, area = NULL, age = NULL,
-  fleetnames = c(), stocknames = c())
+gadget_catchstatistics_component(
+  weight = 0,
+  name = "catchstatistics",
+  data_function = NULL,
+  data = NULL,
+  area = NULL,
+  age = NULL,
+  fleetnames = c(),
+  stocknames = c()
+)
 }
 \arguments{
 \item{weight}{A numeric weighting}

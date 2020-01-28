@@ -4,3 +4,5 @@
 ^[^/]+\.tar\.gz
 ^\.bash_history\.*
 ^.zenodo.json$
+^.*\.Rproj$
+^\.Rproj\.user$

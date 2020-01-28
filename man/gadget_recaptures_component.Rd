@@ -4,8 +4,7 @@
 \alias{gadget_recaptures_component}
 \title{http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:recaptures}
 \usage{
-gadget_recaptures_component(weight = 0, name = "recaptures",
-  data = NULL)
+gadget_recaptures_component(weight = 0, name = "recaptures", data = NULL)
 }
 \arguments{
 \item{weight}{A numeric weighting}

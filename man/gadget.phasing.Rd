@@ -4,8 +4,13 @@
 \alias{gadget.phasing}
 \title{Gadget Phasing}
 \usage{
-gadget.phasing(phase, params.in = "params.in", main = "main",
-  phase.dir = "PHASING", optinfofile = "optinfofile")
+gadget.phasing(
+  phase,
+  params.in = "params.in",
+  main = "main",
+  phase.dir = "PHASING",
+  optinfofile = "optinfofile"
+)
 }
 \arguments{
 \item{phase}{a dataframe where the columns indicate the parameters

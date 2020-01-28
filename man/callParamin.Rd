@@ -4,9 +4,16 @@
 \alias{callParamin}
 \title{Call paramin}
 \usage{
-callParamin(i = "params.in", func = "gadget -s -n", opt = "optinfo",
-  network = "network", o = "params.out", scale = NULL,
-  condor = NULL, paramin.exe = "paramin")
+callParamin(
+  i = "params.in",
+  func = "gadget -s -n",
+  opt = "optinfo",
+  network = "network",
+  o = "params.out",
+  scale = NULL,
+  condor = NULL,
+  paramin.exe = "paramin"
+)
 }
 \arguments{
 \item{i}{input file}

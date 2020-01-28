@@ -4,8 +4,7 @@
 \alias{init_guess}
 \title{Initial parameter guess}
 \usage{
-init_guess(dat, pattern, value = 0, lower = -999, upper = 999,
-  optimise = 0)
+init_guess(dat, pattern, value = 0, lower = -999, upper = 999, optimise = 0)
 }
 \arguments{
 \item{dat}{Input data frame, read in from read.gadget.parameters}

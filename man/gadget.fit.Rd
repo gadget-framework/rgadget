@@ -5,10 +5,19 @@
 \alias{bind.gadget.fit}
 \title{Gadget fit}
 \usage{
-gadget.fit(wgts = "WGTS", main.file = NULL, fleet.predict = NULL,
-  mat.par = NULL, params.file = NULL, f.age.range = NULL,
-  fit.folder = "FIT", printatstart = 1, steps = 1,
-  recruitment_step_age = NULL, gd = NULL)
+gadget.fit(
+  wgts = "WGTS",
+  main.file = NULL,
+  fleet.predict = NULL,
+  mat.par = NULL,
+  params.file = NULL,
+  f.age.range = NULL,
+  fit.folder = "FIT",
+  printatstart = 1,
+  steps = 1,
+  recruitment_step_age = NULL,
+  gd = NULL
+)
 
 bind.gadget.fit(...)
 }
@@ -30,13 +39,13 @@ Input columns should include stock, age.min and age.max}
 
 \item{printatstart}{should the stock standard output be printed at the beginning or the end of the timestep}
 
+\item{steps}{what steps should be printed}
+
 \item{recruitment_step_age}{data frame defining the recruitment age by stock and time step. Default is the minimum age at step 1. Expects columns stock, age and step}
 
 \item{gd}{gadget_directory object to optionally set the location of the gadget directory}
 
 \item{...}{any number of gadget.fit objects}
-
-\item{psteps}{what steps should be printed}
 }
 \value{
 list containing the output from Gadget.

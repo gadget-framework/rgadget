@@ -4,8 +4,14 @@
 \alias{read.gadget.file}
 \title{Read gadget input file, return gadgetfile S3 class representing file}
 \usage{
-read.gadget.file(path, file_name, file_type = "generic",
-  fileEncoding = "UTF-8", missingOkay = FALSE, recursive = TRUE)
+read.gadget.file(
+  path,
+  file_name,
+  file_type = "generic",
+  fileEncoding = "UTF-8",
+  missingOkay = FALSE,
+  recursive = TRUE
+)
 }
 \arguments{
 \item{path}{Base directory to read file from}

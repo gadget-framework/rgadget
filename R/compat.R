@@ -26,11 +26,11 @@ fix_headers <- function(main.file = 'main',path='.'){
   
   st <-
     main$stock$stockfiles %>% 
-    map(~read.gadget.file(file_name = ., file_type = 'stock', path = path,recursive = TRUE)) %>% 
-    map(function(x){
+    purrr::map(~read.gadget.file(file_name = ., file_type = 'stock', path = path,recursive = TRUE)) %>% 
+    purrr::map(function(x){
       x$initialconditions <- c(x$initialconditions,x$numbers)
       x$numbers <- NULL
-      tmp <- x$initialconditions %>% keep(~'gadgetfile' %in% class(.)) %>% names()
+      tmp <- x$initialconditions %>% purrr::keep(~'gadgetfile' %in% class(.)) %>% names()
       if(tmp == 'normalparamfile'){
         attributes(x$initialconditions[[tmp]][[1]])$preamble <- 
           c('-- data --',paste(c('age', 'area','age.factor','area.factor', 'mean', 'stddev', 'alpha','beta'),collapse = '\t'))
@@ -44,7 +44,7 @@ fix_headers <- function(main.file = 'main',path='.'){
           c('-- data --',paste(c('age', 'area', 'length', 'number', 'weight'),collapse = '\t'))
       }
       if(x$doesrenew$doesrenew == 1){
-        tmp <- x$doesrenew %>% keep(~'gadgetfile' %in% class(.)) %>% names()
+        tmp <- x$doesrenew %>% purrr::keep(~'gadgetfile' %in% class(.)) %>% names()
         
         if(tmp == 'normalparamfile'){
           attributes(x$doesrenew[[tmp]][[1]])$preamble <- 
@@ -58,16 +58,16 @@ fix_headers <- function(main.file = 'main',path='.'){
       attributes(x[[1]]$refweightfile[[1]])$preamble <- 
         c('-- data --',paste(c('length', 'weight'), collapse = '\t'))
       x
-      }
-      ) %>% 
-    map(~write.gadget.file(.,path))
-#  profvis({
+    }
+    ) %>% 
+    purrr::map(~write.gadget.file(.,path))
+  #  profvis({
   lik <- 
     main$likelihood %>% 
-    map(~read.gadget.file(file_name = ., file_type = 'likelihood', path = path,recursive = TRUE)) 
- # })
-    lik %>% 
-    map(~map(.,function(x){
+    purrr::map(~read.gadget.file(file_name = ., file_type = 'likelihood', path = path,recursive = TRUE)) 
+  # })
+  lik %>% 
+    purrr::map(~map(.,function(x){
       if(x$type=='catchdistribution'){
         attributes(x$datafile[[1]])$preamble  <- 
           c('-- data --',paste(c('year','step','area','age','length','number'),collapse = '\t'))

@@ -4,21 +4,25 @@
 \alias{suitability}
 \title{Prey suitability}
 \usage{
-suitability(params, l, L = c(0), type = "exponential",
-  to.data.frame = FALSE, normalize = FALSE)
+suitability(
+  params,
+  l,
+  L = c(0),
+  type = "exponential",
+  to.data.frame = FALSE,
+  normalize = FALSE
+)
 }
 \arguments{
+\item{params}{suitability paramters}
+
 \item{l}{prey length group(s)}
 
 \item{L}{predator length group(s)}
 
-\item{salpha}{\eqn{\alpha}{alpha} for the suitability function.}
+\item{type}{suitability function}
 
-\item{sbeta}{\eqn{\beta}{beta} for the suitability function.}
-
-\item{sgamma}{\eqn{\gamma}{gamma} for the suitability function.}
-
-\item{sdelta}{\eqn{\delta}{delta} for the suitability function.}
+\item{normalize}{Logical, should the output be normalized}
 }
 \value{
 matrix of suitabilities, columns prey length, lines predator length

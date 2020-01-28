@@ -4,9 +4,14 @@
 \alias{make.gadget.printfile}
 \title{Make gadget printfile}
 \usage{
-make.gadget.printfile(main.file = "main", file = "printfile",
-  printatstart = 1, steps = 1, recruitment_step_age = NULL,
-  gd = list(dir = ".", output = "out", aggfiles = "print.aggfiles"))
+make.gadget.printfile(
+  main.file = "main",
+  file = "printfile",
+  printatstart = 1,
+  steps = 1,
+  recruitment_step_age = NULL,
+  gd = list(dir = ".", output = "out", aggfiles = "print.aggfiles")
+)
 }
 \arguments{
 \item{file}{name of resulting printfile}

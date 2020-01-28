@@ -7,9 +7,13 @@
 survey.index(stock.dat, split, sigma = 0, alpha = 0, beta = 1)
 }
 \arguments{
+\item{stock.dat}{Results from a Rgadget simulation}
+
 \item{sigma}{sigma for a log-normal noise for the indicies}
 
-\item{sim}{Results from a Rgadget simulation}
+\item{alpha}{log(q), i.e. the constant term}
+
+\item{beta}{power for the N, i.e. the slope term}
 }
 \value{
 Dataframe with the survey indices

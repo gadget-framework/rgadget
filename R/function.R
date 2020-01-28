@@ -9,11 +9,11 @@
 ##' If \eqn{R_{prey}(l)>R_M}{R_prey(l)>R_M} consumption is adjusted as follows
 ##' \deqn{C_{pred,prey}(L,l)=R_MN_{prey}(l)W_{prey}(l)\frac{C_{pred,prey}(L,l)}{\sum_{pred}C_{pred,prey}(L,l)}}
 ##' @title Adjust for overconsumption 
-##' @param C is the commercial catch of prey
-##' @param S is the survey catch of prey
-##' @param E is the consumption of prey by predator
-##' @param N is the total number of prey
-##' @param opt gadget options list
+##' @param catches is the commercial catch of prey
+##' @param predation is the consumption of prey by predator
+##' @param stocks is the total number of prey
+##' @param i is the stock index
+##' @param maxratioconsumed is maximum depletion
 ##' @return a list with adjusted catches/consumption for C, S and E.
 adjustconsumption <- function(catches,
                               predation,
@@ -29,14 +29,14 @@ adjustconsumption <- function(catches,
       agg.ind <- 2:4
     }
   
-    fleetCon <- aaply(catches[[stock]][,,,,i],agg.ind,sum)
+    fleetCon <- plyr::aaply(catches[[stock]][,,,,i],agg.ind,sum)
     if(!is.null(predation)){
       totalCon[[stock]] <- fleetCon + 
-        aaply(predation[[stock]][,,,,i],agg.ind,sum)
+        plyr::aaply(predation[[stock]][,,,,i],agg.ind,sum)
     } else {
       totalCon[[stock]] <- fleetCon
     }
-    ratio <- totalCon[[stock]]/aaply(stocks[[stock]][,,,i],agg.ind-1,sum)
+    ratio <- totalCon[[stock]]/plyr::aaply(stocks[[stock]][,,,i],agg.ind-1,sum)
     ratio <- ifelse(is.infinite(ratio)|is.nan(ratio),0,ratio)
     index <- ratio > maxratioconsumed
     if(sum(index)>0){
@@ -78,10 +78,10 @@ whaleCatch <- function(N,NTagged,quota,salpha,sbeta){
 #    Fly <- rep(Fly,each=dim(N)[1])
 #  else
 #    Fly <- rep(Fly,each=2)
-  C <- aaply(N,1,function(x) x*t(Fly))[dimnames(N)$stock,
+  C <- plyr::aaply(N,1,function(x) x*t(Fly))[dimnames(N)$stock,
                                        dimnames(N)$gender,
                                        dimnames(N)$age]
-  CT <- aaply(NTagged,1,function(x) x*t(Fly))[dimnames(N)$stock,
+  CT <- plyr::aaply(NTagged,1,function(x) x*t(Fly))[dimnames(N)$stock,
                                        dimnames(N)$gender,
                                        dimnames(N)$age]
   
@@ -423,12 +423,11 @@ recruits <- function(n,mu,sigma,
 ##' where $O$ is the density of otherfood.
 ##' @title Prey suitability
 ##' @name suitability 
-##' @param salpha \eqn{\alpha}{alpha} for the suitability function.
-##' @param sbeta \eqn{\beta}{beta} for the suitability function.
-##' @param sgamma \eqn{\gamma}{gamma} for the suitability function.
-##' @param sdelta \eqn{\delta}{delta} for the suitability function.
+##' @param params suitability paramters
 ##' @param l prey length group(s)
 ##' @param L predator length group(s)
+##' @param type suitability function
+##' @param normalize Logical, should the output be normalized 
 ##' @return matrix of suitabilities, columns prey length, lines predator length
 ##' @export
 suitability <- function(params,
@@ -586,7 +585,7 @@ surveydist_suit <- function(survey.name='survey',
 }
 
 overlap <- function(Abundance,mixing){
-  stock.num <- aaply(Abundance,c(1,3),
+  stock.num <- plyr::aaply(Abundance,c(1,3),
                      function(x) sum(x))[dimnames(Abundance)$stock,
                                          dimnames(Abundance)$age]
   for(stock in dimnames(Abundance)$stock)

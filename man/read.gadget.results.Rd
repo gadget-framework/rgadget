@@ -4,8 +4,12 @@
 \alias{read.gadget.results}
 \title{Gadget results}
 \usage{
-read.gadget.results(grouping = list(), final = list(final = "final"),
-  wgts = "WGTS", normalize = FALSE)
+read.gadget.results(
+  grouping = list(),
+  final = list(final = "final"),
+  wgts = "WGTS",
+  normalize = FALSE
+)
 }
 \arguments{
 \item{grouping}{--defunct--}

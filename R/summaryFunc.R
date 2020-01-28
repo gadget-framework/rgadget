@@ -1,8 +1,10 @@
 ##' Calculates the survey indices for the simulated stocks. 
 ##' @name survey.index
 ##' @title Survey indices
-##' @param sim Results from a Rgadget simulation
+##' @param stock.dat Results from a Rgadget simulation
 ##' @param sigma sigma for a log-normal noise for the indicies
+##' @param alpha log(q), i.e. the constant term 
+##' @param beta power for the N, i.e. the slope term
 ##' @return Dataframe with the survey indices 
 ##' @author Bjarki Þór Elvarsson
 survey.index <- function(stock.dat,split,sigma=0,alpha=0,beta=1){
@@ -10,8 +12,8 @@ survey.index <- function(stock.dat,split,sigma=0,alpha=0,beta=1){
   
   stock.dat$SIgroup <- cut(stock.dat$length,split)
   sidat <- stock.dat %>%
-    group_by(SIgroup,year,step) %>%
-    summarise(SI=exp(alpha)*sum(num)^beta)
+    dplyr::group_by(SIgroup,year,step) %>%
+    dplyr::summarise(SI=exp(alpha)*sum(num)^beta)
   if(sum(abs(sigma))!=0){
       if(length(sigma) == (length(split)-1)){
           sigma <- rep(sigma,each=length(unique(sidat$year)))
@@ -34,15 +36,15 @@ ldist <- function(stock.dat,sigma=0,dl=1){
                               max(stock.dat$length),
                               by=dl))
   ldist <- stock.dat %>%
-    group_by(lgroup,year,step) %>%
-      summarise(num=sum(num))
+    dplyr::group_by(lgroup,year,step) %>%
+      dplyr::summarise(num=sum(num))
   if(sigma!=0){
       
     ldist$num <- ldist$num*exp(stats::rnorm(nrow(ldist),0,sigma^2)-sigma^2/2)
   }
   ldist <- ldist %>%
-    group_by(year,step,add=FALSE) %>%
-    mutate(p=num/sum(num))
+    dplyr::group_by(year,step,add=FALSE) %>%
+    dplyr::mutate(p=num/sum(num))
   return(ldist)
 }
 
@@ -59,14 +61,14 @@ aldist <- function(stock.dat,sigma=0,dl=1){
                               max(stock.dat$length)+1,
                               by=dl))
   aldist <- stock.dat %>%
-    group_by(age,lgroup,year,step) %>%
-      summarise(num=sum(num))
+    dplyr::group_by(age,lgroup,year,step) %>%
+      dplyr::summarise(num=sum(num))
   if(sigma!=0){
     aldist$num <- aldist$num*exp(stats::rnorm(nrow(aldist),0,sigma^2)-sigma^2/2)
   }
   aldist <- aldist %>%
-    group_by(year,step,add=FALSE) %>%
-    mutate(p=num/sum(num))
+    dplyr::group_by(year,step,add=FALSE) %>%
+    dplyr::mutate(p=num/sum(num))
   return(aldist)
 }
 
@@ -88,8 +90,8 @@ toDataFrame <- function(sim){
 
     return(tmp)
   }
-  stocks <- ldply(sim$stkArr,worker.fun)
-  fleets <- ldply(sim$fleetArr,worker.fun)
+  stocks <- plyr::ldply(sim$stkArr,worker.fun)
+  fleets <- plyr::ldply(sim$fleetArr,worker.fun)
   return(list(stocks=data.table(stocks),fleets=data.table(fleets)))
 }
   
@@ -309,50 +311,6 @@ catch.in.kilos <- function(sim){
   attr(commAmount,'layout') <- ''
   return(commAmount)
 }
-##' Plot the results from the summary functions of the Rgadget simulation.
-##' @title Plot Rgadget
-##' @name plot.Rgadget
-##' @param dat A Rgadget object
-##' @author Bjarki Þór Elvarsson
-plot.Rgadget <- function(dat,compare.alk=TRUE){
-  if(attr(dat,'plotFun')=='contour'){
-    plot <- contourplot(attr(dat,'formula'),
-                        labels=FALSE,
-                        data=dat,
-                        ylab=attr(dat,'yaxis'),
-                        xlab=attr(dat,'xaxis'),
-                        cuts=15,
-                        scales=list(x=list(rot=45),y=list(rot=45)),
-                        layout=attr(dat,'layout'),
-                        strip=FALSE)
-  } else {
-    if(attr(dat,'plotGroups')!=''){
-      dat$plotGroups <- dat[[attr(dat,'plotGroups')]]
-      key <- list(points=FALSE,lines=TRUE,
-                     title=attr(dat,'plotGroups'),space='right')
-    } else {
-      dat$plotGroups <- ''
-      key <- FALSE
-    }
-    plot <- xyplot(attr(dat,'formula'),
-                   data=dat,
-                   groups=plotGroups,
-                   type=attr(dat,'plotType'),
-                   plot.points=FALSE,
-                   auto.key = key,
-                   ylab=attr(dat,'yaxis'),
-                   xlab=attr(dat,'xaxis'),
-                   scales=list(x=list(rot=45),y=list(rot=45)),
-                   ref=TRUE,
-                   strip=FALSE) 
-  }
-  if(length(dim(plot))==2){
-    print(useOuterStrips(plot))
-  } else {
-    print(plot)
-  }
-    
-}
 
 ##' summary of the simulation defined by gadget.options
 ##' @title Summary of gadget.options
@@ -425,23 +383,23 @@ summary.gadget.options <- function(opt){
 ##' @param sim the results from RGadget
 ##' @return A dataframe 
 as.data.frame.gadget.sim <- function(sim){
-  weights <- ldply(sim$gm@stocks,function(x) {
+  weights <- plyr::ldply(sim$gm@stocks,function(x) {
     l <- getLengthGroups(x)
     data.frame(length=l,mean.weight=getWeight(x,l,sim$params))
   })
-  stocks <- mutate(ldply(sim$stkArr,as.data.frame.table,responseName = "number", stringsAsFactors = FALSE),
+  stocks <- dplyr::mutate(plyr::ldply(sim$stkArr,as.data.frame.table,responseName = "number", stringsAsFactors = FALSE),
                    length = as.numeric(length),
                    age = as.numeric(age),
                    year = gsub('_Step_[0-9]','',gsub('Year_','',time)),
                    step = gsub('Year_[0-9]+_Step_','',time))
-  stocks <- arrange(merge(stocks,weights,all.x=TRUE),time,age,length)
+  stocks <- dplyr::arrange(merge(stocks,weights,all.x=TRUE),time,age,length)
   
-  catches <- mutate(ldply(sim$fleetArr,as.data.frame.table,responseName = "number", stringsAsFactors = FALSE),
+  catches <- dplyr::mutate(plyr::ldply(sim$fleetArr,as.data.frame.table,responseName = "number", stringsAsFactors = FALSE),
                     length = as.numeric(length),
                     age = as.numeric(age),                  
                     year = gsub('_Step_[0-9]','',gsub('Year_','',time)),
                     step = gsub('Year_[0-9]+_Step_','',time))
-  catches <- arrange(merge(catches,weights,all.x=TRUE),time,age,length)
+  catches <- dplyr::arrange(merge(catches,weights,all.x=TRUE),time,age,length)
   
   
   imm <- as.data.frame.table(sim$immNumRec,stringsAsFactors=FALSE)
@@ -458,7 +416,7 @@ as.data.frame.gadget.sim <- function(sim){
                          function(x) as.numeric(x[4]))
   tmp.imm$length <- as.numeric(tmp.imm$length)
   tmp.imm$age <- as.numeric(tmp.imm$age)
-  tmp.imm$weight <- opt$a*tmp.imm$length^opt$b
+  tmp.imm$weight <- sim$opt$a*tmp.imm$length^sim$opt$b
   tmp.imm$stock <- 'imm'
   
   mat <- as.data.frame.table(sim$matNumRec,stringsAsFactors=FALSE)
@@ -475,63 +433,14 @@ as.data.frame.gadget.sim <- function(sim){
                          function(x) as.numeric(x[4]))
   tmp.mat$length <- as.numeric(tmp.mat$length)
   tmp.mat$age <- as.numeric(tmp.mat$age)
-  tmp.mat$weight <- opt$a*tmp.mat$length^opt$b
+  tmp.mat$weight <- sim$opt$a*tmp.mat$length^sim$opt$b
   tmp.mat$stock <- 'mat'
 
   tmp <- rbind(tmp.imm,tmp.mat)
   tmp$time <- NULL
   return(tmp)
 }
-##' Plots the suitability functions, the length weight relationship and the Von Bertalanffy growth curve.
-##' @title Plot gadget options
-##' @name plot.gadget.options
-##' @param opt Gadget options object
-##' @author Bjarki Þór Elvarsson
-plot.gadget.options <- function(opt){
-  ## suitability plot for the simulation
-  l <- opt$minlen:opt$maxlen
-  tmp <- data.frame(fleet=rep(c('Survey fleet','Commercial fleet'),
-                      each=(opt$maxlen - opt$minlen+1)),
-                    length=rep(l,2),
-                    weight=opt$a*l^opt$b,
-                    suitability=c(suitability(opt$salphasurv,
-                      opt$sbetasurv,0,1,l),
-                      suitability(opt$salphacomm,opt$sbetacomm,0,1,l)))
-#  suit <- xyplot(suitability~length,groups=fleet,tmp,type='l',
-#                 auto.key=list(lines=TRUE,points=FALSE),
-#                 main='Suitability')
-  suit <- qplot(length,suitability,data=tmp,colour=fleet,
-                geom='line',main='Suitability') +
-                  opts(legend.position=c(.85,0.15))
-  ## length weight relationship
-#  weight <- xyplot(weight~length,tmp[1:length(l),],main='Length-Weight',
-#                   type='l')
-  weight <- qplot(length,weight,data=tmp[1:length(l),],
-                  main='Length-Weight',geom='line')
 
-  tmp.imm <- data.frame(age=opt$immminage:opt$immmaxage,
-                        stock='immature',
-                        growth=vonB(opt$lsup,opt$k,
-                          opt$immminage:opt$immmaxage))
-  tmp.mat <- data.frame(age=opt$matminage:opt$matmaxage,
-                        stock='mat',
-                        growth=vonB(opt$lsup,opt$k,
-                          opt$matminage:opt$matmaxage))
-  tmp.age <- rbind(tmp.imm,tmp.mat)
-  vonB.plot <- qplot(age,growth,data=tmp.age,colour=stock,
-                     geom='line',main='Growth curve') +
-                       opts(legend.position=c(.85,0.15))
-  
-#  vonB.plot <- xyplot(growth~age,tmp.age,groups=stock,type='l',
-#                      auto.key=list(lines=TRUE,points=FALSE),
-#                      main='Growth curve')
-  
-  print(suit,position = c(0,0,.33,1),
-        more=TRUE)
-  print(weight,position = c(.33,0,.66,1),
-        more=TRUE)
-  print(vonB.plot,position = c(.66,0,1,1))
-}
 ##' Calculate the Von Bertanlaffy curve according to the formula
 ##' \deqn{L(a) = L_\infty (1-e^{-\kappa a})}{L(a) = L_infty (1-e^{-kappa a})}
 ##' @title Von Bertalanffy 
@@ -544,6 +453,7 @@ plot.gadget.options <- function(opt){
 vonB <- function(lsup,k,a){
   lsup <- lsup*(1-exp(-k*a))
 }
+
 ##' Simulated length at age
 ##' @title Length at age
 ##' @name length.at.age

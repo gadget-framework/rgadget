@@ -294,7 +294,7 @@ gadget.skeleton <- function(time,area,stocks,fleets=NULL){
                       x$minage:x$maxage,t0)
 #                      x$growth['linf'] * (1 - exp(-x$growth['k'] * 1:x$maxage))
         
-        refweight <- mutate(data.frame(length = seq(x$minlength,
+        refweight <- plyr::mutate(data.frame(length = seq(x$minlength,
                                            x$maxlength,by=x$dl)),
                             weight = x$weight['a']*length^x$weight['b'])
         lengths <- refweight$length
@@ -459,7 +459,7 @@ gadget.skeleton <- function(time,area,stocks,fleets=NULL){
                       function(x){
                           if(x$type %in% c('linearfleet','effortfleet')){
                               fleetdat <- 
-                                  mutate(area.temp[c('year','step','area')],
+                                plyr::mutate(area.temp[c('year','step','area')],
                                          fleet=x$name,
                                          Fy=x$Fy)
                               fleetdat <- subset(fleetdat,step==x$catchstep)

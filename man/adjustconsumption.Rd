@@ -7,15 +7,15 @@
 adjustconsumption(catches, predation, stocks, i, maxratioconsumed)
 }
 \arguments{
-\item{C}{is the commercial catch of prey}
+\item{catches}{is the commercial catch of prey}
 
-\item{S}{is the survey catch of prey}
+\item{predation}{is the consumption of prey by predator}
 
-\item{E}{is the consumption of prey by predator}
+\item{stocks}{is the total number of prey}
 
-\item{N}{is the total number of prey}
+\item{i}{is the stock index}
 
-\item{opt}{gadget options list}
+\item{maxratioconsumed}{is maximum depletion}
 }
 \value{
 a list with adjusted catches/consumption for C, S and E.

@@ -87,7 +87,7 @@ read.printfiles <- function(path='.',suppress=FALSE){
 ##' @rdname gadgetFileIO 
 ##' @param files a vector of character strings containing the names of the likelihood files
 ##' @return object of class gadget.likelihood, i.e. a list containing the various likelihood components
-##' @author Bjarki ??r Elvarsson
+##' @author Bjarki Þór Elvarsson
 ##' @export
 read.gadget.likelihood <- function(files='likelihood'){
   lik <- NULL
@@ -178,7 +178,7 @@ read.gadget.likelihood <- function(files='likelihood'){
 ##' @param data.folder location of data folder (if changed)
 ##' @param bs.sample (for bootstrap), appends the appropriate replicate number to data file
 ##' @return character string corresponding to the likelihood file (if desired)
-##' @author Bjarki ??r Elvarsson
+##' @author Bjarki Þór Elvarsson
 write.gadget.likelihood <- function(lik,file='likelihood',
                                     data.folder=NULL, bs.sample=NULL){
   lik.text <- sprintf('; Likelihood file - created in Rgadget\n; %s - %s',
@@ -288,7 +288,7 @@ get.gadget.likelihood <- function(likelihood,comp,inverse=FALSE){
 ##' @rdname gadgetFileIO
 ##' @param file main file location
 ##' @return object of class gadget.main
-##' @author Bjarki ??r Elvarsson
+##' @author Bjarki Þór Elvarsson
 read.gadget.main <- function(file='main'){
   if(!file.exists(file)) {
     stop('Main file not found')
@@ -313,7 +313,7 @@ read.gadget.main <- function(file='main'){
 ##' @param main gadget.main object
 ##' @param file name of main file
 ##' @return text of the main file (if desired)
-##' @author Bjarki ??r Elvarsson
+##' @author Bjarki Þór Elvarsson
 write.gadget.main <- function(main,file='main'){
   main.text <- sprintf('; main file for gadget - created in Rgadget\n; %s - %s',
                        file,date())
@@ -351,7 +351,7 @@ write.gadget.main <- function(main,file='main'){
 ##' @rdname gadgetFileIO
 ##' @param text string
 ##' @return list or matrix containing the (non-empty) values from the string
-##' @author Bjarki ??r Elvarsson
+##' @author Bjarki Þór Elvarsson
 clear.spaces <- function(text){
   sapply(strsplit(sapply(strsplit(text,'[ \t]'),
                          function(x) {
@@ -425,8 +425,8 @@ read.gadget.parameters <- function(file='params.in'){
   }
 
   safe_dates <- 
-    quietly(~gsub('; Gadget version .+ running on [A-Za-z].+','',.) %>% 
-             lubridate::parse_date_time('%a %b! %d! %H!:%M!:%S! %Y!'))
+    purrr::quietly(~gsub('; Gadget version .+ running on [A-Za-z].+','',.) %>% 
+                     lubridate::parse_date_time('%a %b! %d! %H!:%M!:%S! %Y!'))
   
   date <- safe_dates(header[1]) %>% .$result
     
@@ -456,7 +456,7 @@ read.gadget.parameters <- function(file='params.in'){
 ##' @param columns should a conventional column based parameter file be written out or
 ##' should a line based parameter (used when evaluating gadget on a matrix) be used.
 ##' @return a string containing the text of the params file (if desired)
-##' @author Bjarki ??r Elvarsson
+##' @author Bjarki Þór Elvarsson
 ##' @export
 write.gadget.parameters <- function(params,file='params.out',columns=TRUE){
   input.text <-
@@ -753,59 +753,7 @@ make.gadget.printfile <- function(main.file='main',
                f=file)
 }
 
-##' Read gadget printfile
-##' @title Read gadget printfile
-##' @param file string containing the path to the printfile
-##' @return list of the prinfile components.
-##' @author Bjarki Thor Elvarsson
-read.gadget.printfile <- function(file='printfile'){
-  printfile <- strip.comments(file)
-  comp.loc <- grep('component',printfile)
-  name.loc <- grep('printfile',printfile)
-  name.print <- sapply(printfile[grep('printfile',printfile)],function(x) x[2])
-  name.print <- sapply(strsplit(name.print,'/'),function(x) utils::tail(x,1))
-  diff.comp <- diff(c(comp.loc,length(printfile)+1))-1
-#  type.loc <- grep('type',printfile)
-#  types <- unique(sapply(printfile[type.loc],function(x) x[2]))
-#  print.types <- plyr::llply(types,function(x) grep(x,printfile))
-#  names(print.types) <- types
 
-  tmp.func <- function(restr){
-    names.tmp <- sapply(printfile[restr],
-                        function(x) x[1])
-    tmp <- lapply(sapply(printfile[restr],
-                         function(x) x[-1]),unlist)
-    names(tmp) <- names.tmp
-    return(tmp)
-  }
-
-  print <- plyr::llply(1:length(comp.loc),
-                 function(x) tmp.func(comp.loc[x]+1:diff.comp[x]))
-  names(print) <- name.print
-  return(print)
-}
-##' Write the gadget prinfile to file, optionally changing the output directory
-##' of the printfile components.
-##' @title Write Gadget printfile
-##' @param print printfile object
-##' @param file string containing the desired location of the printfile
-##' @param output.dir where should the output from the prinfile components be written, defaults to 'out'.
-##' @return (invisible) text of the printfile if desired.
-##' @author Bjarki Thor Elvarsson
-write.gadget.printfile <- function(print,file='prinfile',output.dir='out'){
-  print.text <- sprintf('; Printfile for gadget, created by Rgadget\n; %s',file)
-  for(name in names(print)){
-    tmp <- print[name][[name]]
-    tmp[['printfile']] <- paste(output.dir,name,sep='/')
-    print.text <- paste(print.text,
-                        ';\n[component]',
-                        paste(names(tmp),sapply(tmp,function(x) paste(x,collapse='\t')),
-                              sep='\t',collapse='\n'),
-                        sep='\n')
-  }
-  write.unix(print.text,file)
-  invisible(print.text)
-}
 
 ##' Produce diagnostics
 ##' @title Gadget results
@@ -870,8 +818,9 @@ read.gadget.results <- function(grouping=list(),
 ##' @description \code{read.gadget.data} reads data used by the various components
 ##' @param likelihood object of class gadget.likelihood
 ##' @param debug should debug information be printed
+##' @param year_range limit the years read in
 ##' @return list of dataframes and degress of freedom
-##' @author Bjarki ??r Elvarsson
+##' @author Bjarki Þór Elvarsson
 ##' @export
 read.gadget.data <- function(likelihood,debug=FALSE,year_range=NULL){
   read.agg <- function(x, first = FALSE){      
@@ -1029,69 +978,15 @@ read.gadget.data <- function(likelihood,debug=FALSE,year_range=NULL){
   return(gadDat)
 }
 
-##' @description \code{read.gadget.optinfor} reads optinfo parameters from file
-##' @rdname gadget.optinfo
-##' @title Gadget optimiser settings
-##' @param file location of the optinfofile
-##' @return optinfo object
-##' @author Bjarki ??r Elvarsson
-##' @export
-read.gadget.optinfo <- function(file='optinfofile'){
-  optinfo <- readLines(file)
-  optinfo <- stats::na.omit(sapply(strsplit(optinfo,';'),function(x) x[1]))
-  simann <- (1:length(optinfo))[(optinfo == '[simann]')]
-  hooke <- (1:length(optinfo))[(optinfo == '[hooke]')]
-  bfgs <- (1:length(optinfo))[(optinfo == '[bfgs]')]
 
-  vars <- c(simann-1,hooke-1,bfgs-1,length(optinfo))
-  simann.end <- min(vars[vars>simann])
-  hooke.end <-  min(vars[vars>hooke])
-  bfgs.end <- min(vars[vars>bfgs])
-  tmp.func <- function(start,end){
-    x <-  as.data.frame(clear.spaces(optinfo[start:end]),
-                        stringsAsFactors=FALSE)
-    names(x) <- x[1,]
-    x <- x[2,]
-    return(x)
-  }
-  optinfo <- list(simann = tmp.func(simann+1,simann.end),
-                  hooke = tmp.func(hooke+1,hooke.end),
-                  bfgs = tmp.func(bfgs+1,bfgs.end))
-  class(optinfo) <- c('gadget.optinfo',class(optinfo))
-  return(optinfo)
-}
 
-##' @description \code{write.gadget.optinfo} write optinfo to file
-##' @rdname gadget.optinfo
-##' @param optinfo optinfo object
-##' @param file file
-##' @param location location
-##' @return text of the optinfofile (if desired)
-##' @author Bjarki ??r Elvarsson
-write.gadget.optinfo<-function(optinfo,file='optinfofile'){
-  opt.text <-
-    paste("; optimisation file for gadget",
-          "; created in R-gadget",
-          sprint('; %s - %s',file,date()),
-          sep='\n')
-  for(comp in names(optinfo)){
-    opt.text <-
-      paste(opt.text,
-            sprintf('[%s]',comp),
-            paste(names(optinfo[[comp]]),
-                  optinfo[[comp]],
-                  sep='\t\t',collapse='\n'),
-            sep='\n')
-  }
-  write.unix(opt.text,f=file)
-  invisible(opt.text)
-}
 
 
 
 ##' Read in the gadget likelihood output.
 ##' @title Read gadget lik.out
 ##' @param file string containing the name of the file
+##' @param suppress logical, should file errors be suppressed
 ##' @return a list containing the swicthes (names of variable), weigths
 ##' (l?kelihood components) and data (dataframe with the parameter values,
 ##' likelihood component values and the final score.
@@ -1168,66 +1063,6 @@ strip.comments <- function(file='main'){
 }
 
 
-##' Read in a Gadget model to a gadget-main object DEPRECATED
-##' @title read gadget main
-##' @param main.file location of the main file
-##' @return mainfile object
-##' @author Bjarki Thor Elvarsson
-read.gadget.model <- function(main.file='main',model.name='Gadget-model'){
-  main <- read.gadget.main(main.file)
-  time <- read.gadget.time(main$timefile)
-  time <- new('gadget-time',
-              firstyear = time$firstyear,
-              firststep = time$firststep,
-              lastyear = time$lastyear,
-              laststep = time$laststep,
-              notimesteps = time$notimesteps)
-
-  area <- read.gadget.area(main$areafile)
-  area <- new('gadget-area',
-              areas = as.numeric(area$areas),
-              size = as.numeric(area$size),
-              temperature = area$temperature)
-  fleets <- read.gadget.fleet(main$fleetfiles)
-  fleets <- plyr::dlply(fleets$fleet,~fleet,
-                  function(x){
-                    fleetdat <-
-                      subset(read.gadget.table(x$amount[1]),
-                             V4 == x$fleet)
-                    if(x$type[1]!='linearfleet'){
-                      names(fleetdat) <-
-                        c('year','step','area','fleetname','amount')
-                    } else{
-                      names(fleetdat) <-
-                        c('year','step','area','fleetname','Fy')
-
-                    }
-                    suitability <- merge(x['fleet'],fleets$prey)
-                    new('gadget-fleet',
-                    name = x$fleet[1],
-                    type = x$type[1],
-                    multiplicative = x$multiplicative[1],
-                    amount = fleetdat,
-                    suitability=suitability)
-                  })
-
-
-  gadget.model <-
-    new('gadget-main',
-        model.name = model.name,
-        time = time,
-        area = area,
-        print = ifelse(is.null(main$printfile),list(),
-          read.gadget.printfile(main$printfile)),
-        stocks = read.gadget.stockfiles(main$stockfiles),
-        tags = new('gadget-tagging'),
-        otherfood = ifelse(is.null(main$otherfoodfiles),list(),
-                           read.gadget.otherfood(main$otherfoodfiles)),
-        fleets = fleets,
-        likelihood = as.list(read.gadget.likelihood(main$likelihoodfiles))
-        )
-  return(gadget.model)
-}
 
 
 ##' @rdname gadgetFileIO
@@ -1857,51 +1692,7 @@ write.gadget.fleet <- function(fleet,file='fleet'){
 
 
 
-##' \code{get.gadget.growth} get gadget growth
-##' @rdname gadgetFitHelpers
-##' @param stocks gadget.stock
-##' @param params gadget.parms
-##' @param dt delta t
-##' @param age.based logical
-##' @param recl recruitment length
-##' @return growth matrix
-get.gadget.growth <- function(stocks,params,dt=0.25,age.based=FALSE,recl=FALSE){
-  plyr::ldply(stocks,function(x){
-    txt.split <- merge.formula(unlist(strsplit(x@growth@growthparameters,' ')))
-    txt.split <- c(txt.split,x@growth@beta,x@growth@maxlengthgroupgrowth)
-    suit.par <- eval.gadget.formula(txt.split,params)$V1
-    lt <- getLengthGroups(x)
-    if(age.based){
-      age <- x@minage:x@maxage
-      if (recl) {
-          gadget_growth_eqn <- strsplit(x@initialdata$mean, ' ')
-          age_var <- lapply(1:(length(gadget_growth_eqn)-1), function(x) {
-              setdiff(gadget_growth_eqn[[x]], gadget_growth_eqn[[x + 1]])
-          })
-          age_var <- c(age_var, list(NULL))
-          find_age_param <- lapply(seq_along(gadget_growth_eqn), function(x) {
-              which(gadget_growth_eqn[[x]] == age_var[[x]])
-          })[[1]]
-          gadget_growth_eqn <- gadget_growth_eqn[[1]]
-          growth_switches <- grep("#", gadget_growth_eqn)
-          growth_switch_vals <- eval.gadget.formula(gadget_growth_eqn[growth_switches],
-                                                    params)$V1
-          gadget_growth_eqn[growth_switches] <- growth_switch_vals
-          gadget_growth_eqn[find_age_param] <- "#age"
-          gadget_growth_eqn <- paste(gadget_growth_eqn, collapse = " ")
-          growth <- parse.gadget.formulae(gadget_growth_eqn)
-          data.frame(stock = x@stockname, age = age, length = eval(growth))
-      } else{
-            data.frame(stock=x@stockname,age=age,
-                    length=suit.par[1]*(1-exp(-suit.par[2]*age)))
-      }
-    } else {
-      reshape2::melt(growthprob(lt,suit.par[5],suit.par[1],suit.par[2],dt,
-                      suit.par[6],max(diff(lt))),
-           varnames = c('lfrom','lto','lgrowth'))
-    }
-  })
-}
+
 
 ##' @rdname gadgetFitHelpers
 ##' @description \code{get.gadget.recruitment} gets gadget recruitment
@@ -1932,24 +1723,7 @@ get.gadget.recruitment <- function(stocks,params,collapse=TRUE){
   })
 }
 
-##' \code{get.gadget.catches} gets gadget catches
-##' @rdname gadgetFitHelpers
-##' @param fleets gadget.fleet
-##' @param params gadget.params
-##' @return catches by year + step
-get.gadget.catches <- function(fleets,params){
-  tmp <- plyr::ddply(fleets$fleet,~fleet,
-               function(x){
-                 subset(read.gadget.table(x$amount),
-                        V4 == x$fleet)
-               })
-  tmp$fleet <- NULL
-  names(tmp) <- c('year','step','area','fleet','catch')
-  tmp <- merge(merge(fleets$prey[c('fleet','stock')],tmp),
-               fleets$fleet[c('fleet','type')])
-  tmp$catch <- unlist(eval.gadget.formula(tmp$catch,params))
-  return(tmp)
-}
+
 
 ##' @rdname gadgetFitHelpers
 ##' @description \code{read.gadget.grouping} reads the the likelihood grouping from the WGTS folder
@@ -1980,7 +1754,7 @@ read.gadget.grouping <- function(lik = read.gadget.likelihood(),
             }),
     error=function(e) stop('Error when reading likelihood grouping from WGTS, some components are missing. 
                            Has iterative reweighting been completed?'))
-  tmp <- arrange(tmp,pos,ord)
+  tmp <- dplyr::arrange(tmp,pos,ord)
   grouping <- plyr::dlply(tmp,~pos,function(x) as.character(x$name))
   names(grouping) <- unlist(plyr::llply(grouping,function(x) paste(x,collapse='.')))
   attributes(grouping)$split_labels <- NULL

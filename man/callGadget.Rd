@@ -4,12 +4,31 @@
 \alias{callGadget}
 \title{Call GADGET}
 \usage{
-callGadget(l = NULL, s = NULL, n = NULL, v = NULL, h = NULL,
-  i = NULL, opt = NULL, main = NULL, m = NULL, p = NULL,
-  o = NULL, print = NULL, precision = NULL, log = NULL,
-  printinitial = NULL, printfinal = NULL, gadget.exe = "gadget",
-  PBS = FALSE, qsub.script = NULL, PBS.name = "run",
-  qsub.output = "output", ignore.stderr = TRUE, parallel = NULL)
+callGadget(
+  l = NULL,
+  s = NULL,
+  n = NULL,
+  v = NULL,
+  h = NULL,
+  i = NULL,
+  opt = NULL,
+  main = NULL,
+  m = NULL,
+  p = NULL,
+  o = NULL,
+  print = NULL,
+  precision = NULL,
+  log = NULL,
+  printinitial = NULL,
+  printfinal = NULL,
+  gadget.exe = "gadget",
+  PBS = FALSE,
+  qsub.script = NULL,
+  PBS.name = "run",
+  qsub.output = "output",
+  ignore.stderr = TRUE,
+  parallel = NULL
+)
 }
 \arguments{
 \item{l}{performs a likelihood (optimising) model run}

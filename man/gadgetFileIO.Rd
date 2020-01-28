@@ -22,8 +22,12 @@
 \usage{
 read.gadget.likelihood(files = "likelihood")
 
-write.gadget.likelihood(lik, file = "likelihood", data.folder = NULL,
-  bs.sample = NULL)
+write.gadget.likelihood(
+  lik,
+  file = "likelihood",
+  data.folder = NULL,
+  bs.sample = NULL
+)
 
 \method{merge}{gadget.likelihood}(lik1, lik2)
 
@@ -60,7 +64,7 @@ write.gadget.fleet(fleet, file = "fleet")
 
 \item{lik}{object of class gadget.likelihood}
 
-\item{file}{name of the likelihood file}
+\item{file}{location of the file}
 
 \item{data.folder}{location of data folder (if changed)}
 
@@ -70,7 +74,7 @@ write.gadget.fleet(fleet, file = "fleet")
 
 \item{lik2}{likelihood object}
 
-\item{likelihood}{likelihood object}
+\item{likelihood}{object of class gadget.likelihood}
 
 \item{comp}{selected likelihood components}
 
@@ -81,6 +85,8 @@ write.gadget.fleet(fleet, file = "fleet")
 \item{text}{string}
 
 \item{debug}{should debug information be printed}
+
+\item{year_range}{limit the years read in}
 
 \item{stock.files}{location of stock file}
 
@@ -97,22 +103,6 @@ write.gadget.fleet(fleet, file = "fleet")
 \item{fleet.file}{location of the fleet file}
 
 \item{fleet}{a gadget.fleet}
-
-\item{file}{main file location}
-
-\item{file}{name of main file}
-
-\item{likelihood}{object of class gadget.likelihood}
-
-\item{file}{location of the gadget input file}
-
-\item{file}{location of the area file}
-
-\item{file}{location of the time file}
-
-\item{file}{path to file}
-
-\item{file}{location of the file}
 }
 \value{
 object of class gadget.likelihood, i.e. a list containing the various likelihood components
@@ -164,21 +154,21 @@ the likelihood file is described in gadget's user manual.
 \code{read.gadget.fleet} read gadget fleet
 }
 \author{
-Bjarki ??r Elvarsson
+Bjarki Þór Elvarsson
 
-Bjarki ??r Elvarsson
-
-Bjarki Thor Elvarsson
+Bjarki Þór Elvarsson
 
 Bjarki Thor Elvarsson
 
-Bjarki ??r Elvarsson
+Bjarki Thor Elvarsson
 
-Bjarki ??r Elvarsson
+Bjarki Þór Elvarsson
 
-Bjarki ??r Elvarsson
+Bjarki Þór Elvarsson
 
-Bjarki ??r Elvarsson
+Bjarki Þór Elvarsson
+
+Bjarki Þór Elvarsson
 
 Bjarki Thor Elvarsson
 

@@ -172,7 +172,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
       dplyr::anti_join(time.grid %>% 
                          dplyr::mutate(area = as.numeric(area)), 
                        area$temperature) %>% 
-      summarise(n=n())
+      dplyr::summarise(n=dplyr::n())
     if(num.missing$n>0){
       stop('Error temperature data mismatch')
     }
@@ -297,7 +297,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
                                rec = pmax(arima.sim(years*num.trials,model=list(ar=.$b),sd=.$sigma) + .$a,0))) %>% 
         dplyr::bind_rows(.id='stock')  %>% 
         dplyr::mutate(rec = ifelse(is.na(rec),x,rec)) %>% 
-        select(stock,year,trial,recruitment = rec) %>% 
+        dplyr::select(stock,year,trial,recruitment = rec) %>% 
         dplyr::mutate(step = (rec$step[rec$year == min(ref.years)])[1])
       
       ## project next n years
@@ -452,7 +452,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
         dplyr::filter(year < sim.begin) %>% 
         dplyr::bind_rows(x@renewal.data %>% 
                            dplyr::filter(year == min(ref.years)) %>%
-                           dplyr::mutate(n = n()) %>% 
+                           dplyr::mutate(n = dplyr::n()) %>% 
                            dplyr::slice(rep(1:n[1],length(unique(tmp$year)))) %>% 
                            dplyr::mutate(year=rep(as.character(tmp$year),each = n[1]),
                                          number = sprintf('(* (* 0.0001 #%s.rec.%s.%s ) %s)',
@@ -493,12 +493,12 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
     
   catch <- 
     out[catch.files] %>% 
-    bind_rows(.id='stock') %>% 
-    mutate(stock = gsub('catch.(.+).lw','\\1',stock))
+    dplyr::bind_rows(.id='stock') %>% 
+    dplyr::mutate(stock = gsub('catch.(.+).lw','\\1',stock))
   lw <- 
     out[print.files] %>% 
-    bind_rows(.id='stock') %>% 
-    mutate(stock = gsub('(^.+).lw','\\1',stock))
+    dplyr::bind_rows(.id='stock') %>% 
+    dplyr::mutate(stock = gsub('(^.+).lw','\\1',stock))
   out <- out[!(names(out) %in% c(catch.files,print.files))]
   out <- 
     list(custom = out,
@@ -520,24 +520,24 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
 
 plot.gadget.forward <- function(gadfor,type='catch',quotayear=FALSE){
   if(type=='catch'){
-    ggplot(ddply(gadfor$catch,~year+effort+trial,summarise,
+    ggplot2::ggplot(plyr::ddply(gadfor$catch,~year+effort+trial,plyr::summarise,
                  catch=sum(biomass.consumed)/1e6),
-           aes(year,catch,col=effort,lty=trial)) +
-      geom_rect(aes(ymin=-Inf,ymax=Inf,
+                 ggplot2::aes(year,catch,col=effort,lty=trial)) +
+      ggplot2::geom_rect(aes(ymin=-Inf,ymax=Inf,
                     xmin=gadfor$sim.begin,xmax=Inf),
                 fill='gray',col='white')+
-      geom_line()+ theme_bw() +
-      ylab("Catch (in '000 tons)") + xlab('Year')     
+      ggplot2::geom_line()+ 
+      ggplot2::labs(y="Catch (in '000 tons)", x='Year')     
   } else if(type=='ssb'){
-    ggplot(ddply(gadfor$lw,~year,summarise,ssb=sum(ssb)/1e6),
-           aes(year,catch,col=effort,lty=trial)) +
-      geom_bar(stat=='identity') + theme_bw() +
-      ylab("SSB (in '000 tons)") + xlab('Year')     
+    ggplot2::ggplot(plyr::ddply(gadfor$lw,~year,plyr::summarise,ssb=sum(ssb)/1e6),
+                    ggplot2::aes(year,catch,col=effort,lty=trial)) +
+      ggplot2::geom_bar(stat=='identity') + 
+      ggplot2::labs(y="SSB (in '000 tons)", x='Year')     
   } else if(type=='rec'){
-    ggplot(ddply(gadfor$recruitment,~year,summarise,catch=sum(catch)),
-           aes(year,catch,col=effort,lty=trial)) +
-      geom_bar(stat='identity') + theme_bw() +
-      ylab("Recruitment (in millions)") + xlab('Year')     
+    ggplot2::ggplot(plyr::ddply(gadfor$recruitment,~year,plyr::summarise,catch=sum(catch)),
+                    ggplot2::aes(year,catch,col=effort,lty=trial)) +
+      ggplot2::geom_bar(stat='identity') + 
+      ggplot2::labs(y="Recruitment (in millions)", x='Year')     
   }
 }
 

@@ -4,11 +4,21 @@
 \alias{gadget_catchdistribution_component}
 \title{http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:catchdist}
 \usage{
-gadget_catchdistribution_component(weight = 0,
-  name = "catchdistribution", data_function = "sumofsquares",
-  data_function_params = list(), aggregationlevel = FALSE,
-  overconsumption = FALSE, epsilon = 10, data = NULL, area = NULL,
-  age = NULL, length = NULL, fleetnames = c(), stocknames = c())
+gadget_catchdistribution_component(
+  weight = 0,
+  name = "catchdistribution",
+  data_function = "sumofsquares",
+  data_function_params = list(),
+  aggregationlevel = FALSE,
+  overconsumption = FALSE,
+  epsilon = 10,
+  data = NULL,
+  area = NULL,
+  age = NULL,
+  length = NULL,
+  fleetnames = c(),
+  stocknames = c()
+)
 }
 \arguments{
 \item{weight}{A numeric weighting}

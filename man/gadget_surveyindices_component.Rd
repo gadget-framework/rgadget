@@ -4,11 +4,22 @@
 \alias{gadget_surveyindices_component}
 \title{http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:surveyindices}
 \usage{
-gadget_surveyindices_component(weight = 0, name = "surveyindices",
-  sitype = "lengths", biomass = 0, data = NULL, area = NULL,
-  fittype = NULL, length = NULL, age = NULL, fleetnames = NULL,
-  surveynames = NULL, stocknames = NULL, slope = NULL,
-  intercept = NULL)
+gadget_surveyindices_component(
+  weight = 0,
+  name = "surveyindices",
+  sitype = "lengths",
+  biomass = 0,
+  data = NULL,
+  area = NULL,
+  fittype = NULL,
+  length = NULL,
+  age = NULL,
+  fleetnames = NULL,
+  surveynames = NULL,
+  stocknames = NULL,
+  slope = NULL,
+  intercept = NULL
+)
 }
 \arguments{
 \item{weight}{A numeric weighting}

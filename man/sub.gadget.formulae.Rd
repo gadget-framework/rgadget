@@ -4,9 +4,12 @@
 \alias{sub.gadget.formulae}
 \title{Replace variables in formulae}
 \usage{
-sub.gadget.formulae(ex, replacements,
+sub.gadget.formulae(
+  ex,
+  replacements,
   year = stop("Specify year to use timevariable"),
-  step = stop("Specify step to use timevariable"))
+  step = stop("Specify step to use timevariable")
+)
 }
 \arguments{
 \item{ex}{An unevaluated R expression or the result of parse.gadget.formulae, e.g. quote(2 + log(moo - 1))}

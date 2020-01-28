@@ -4,8 +4,7 @@
 \alias{gadget_recstatistics_component}
 \title{http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:recstat}
 \usage{
-gadget_recstatistics_component(weight = 0, name = "recstatistics",
-  data = NULL)
+gadget_recstatistics_component(weight = 0, name = "recstatistics", data = NULL)
 }
 \arguments{
 \item{weight}{A numeric weighting}

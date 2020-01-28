@@ -4,11 +4,19 @@
 \alias{gadget_stomachcontent_component}
 \title{http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:stomach}
 \usage{
-gadget_stomachcontent_component(weight = 0, name = "stomachcontent",
-  data_function = "scsimple", epsilon = 10, area = NULL,
-  predator_length = NULL, prey_length = NULL, prey_labels = list(),
-  prey_digestion_coefficients = list(), predator_names = c(),
-  data = NULL)
+gadget_stomachcontent_component(
+  weight = 0,
+  name = "stomachcontent",
+  data_function = "scsimple",
+  epsilon = 10,
+  area = NULL,
+  predator_length = NULL,
+  prey_length = NULL,
+  prey_labels = list(),
+  prey_digestion_coefficients = list(),
+  predator_names = c(),
+  data = NULL
+)
 }
 \arguments{
 \item{weight}{A numeric weighting}

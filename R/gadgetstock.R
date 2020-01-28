@@ -509,9 +509,9 @@ gadget_datatable <- function(type = 'renewal',format = 'normalparam',stockname =
   ## mean length at age
   t0 <- sprintf('(+ %s (/ (log (- 1 (/ %s %s))) %s))',
                 rec.age,
-                sprinft(growth['recl'], stockname),
-                sprinft(growth['linf'], stockname),
-                sprinft(growth['k'], stockname))
+                sprintf(growth['recl'], stockname),
+                sprintf(growth['linf'], stockname),
+                sprintf(growth['k'], stockname))
   
   mu.string <- '( * %s (-  1 (exp (* (* -1 %s ) (- %s %s)))))'
   mu <- sprintf(mu.string,

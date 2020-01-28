@@ -4,9 +4,16 @@
 \alias{gadget.retro}
 \title{Analytical retrospective}
 \usage{
-gadget.retro(path = ".", main.file = "main",
-  params.file = "params.in", optinfofile = "optinfofile",
-  num.years = 5, pre = "RETRO", iterative = FALSE, ...)
+gadget.retro(
+  path = ".",
+  main.file = "main",
+  params.file = "params.in",
+  optinfofile = "optinfofile",
+  num.years = 5,
+  pre = "RETRO",
+  iterative = FALSE,
+  ...
+)
 }
 \arguments{
 \item{path}{location of the Gadget model, all filenames are relative to the path}

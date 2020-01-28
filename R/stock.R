@@ -106,7 +106,7 @@ gadget.simulate <- function(gm, params=data.frame(),
     lg <- c(min(lg)-x@dl,lg)
     #    print(x@stockname)
     stk[getAreas(gm),,(getMinage(x)+tmp):getMaxage(x),1] <- 
-      acast(ddply(initData,~age+area,function(y){
+      reshape2::acast(plyr::ddply(initData,~age+area,function(y){
         data.frame(length = lg[-1],
                    num=y$age.factor*y$area.factor*
                      distr(y$mean,y$stddev,lg,params))
@@ -120,7 +120,7 @@ gadget.simulate <- function(gm, params=data.frame(),
                       step <= utils::tail(tm$step,1))
       stk[getAreas(gm),,getMinage(x),
           sprintf('Year_%s_Step_%s',rec$year,rec$step)] <- 
-        acast(ddply(rec,~year+step+area+age,function(y){
+        reshape2::acast(plyr::ddply(rec,~year+step+area+age,function(y){
           data.frame(length = lg[-1],
                      num=y$number*distr(y$mean,y$stddev,lg,params))
         }),
@@ -237,12 +237,12 @@ gadget.simulate <- function(gm, params=data.frame(),
                       for(stkInd in 1:nrow(tmp)){
                           lg <- getLengthGroups(gm@stocks[[tmp[stkInd,1]]])
                           total.num <- tmp[stkInd,2]*
-                              stockSpawn[[stock]](aaply(stkArr[[stock]],
+                              stockSpawn[[stock]](plyr::aaply(stkArr[[stock]],
                                                         c(2,4),sum)[,i],curr.year)
                           y <- gm@stocks[[stock]]@spawning@stockparameters
                           
                           stkArr[[tmp[stkInd,1]]][1,-1,getMinage(gm@stocks[[tmp[stkInd,1]]]),i] <-
-                              acast(data.frame(area=1,
+                            reshape2::acast(data.frame(area=1,
                                                length = lg[-1],
                                                num=total.num*
                                                distr(y$mean,y$stddev,lg,

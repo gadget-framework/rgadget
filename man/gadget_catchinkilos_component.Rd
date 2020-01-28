@@ -4,9 +4,16 @@
 \alias{gadget_catchinkilos_component}
 \title{http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:catchinkilos}
 \usage{
-gadget_catchinkilos_component(weight = 0, name = "catchinkilos",
-  data = NULL, data_function = "sumofsquares", epsilon = 10,
-  area = NULL, fleetnames = c(), stocknames = c())
+gadget_catchinkilos_component(
+  weight = 0,
+  name = "catchinkilos",
+  data = NULL,
+  data_function = "sumofsquares",
+  epsilon = 10,
+  area = NULL,
+  fleetnames = c(),
+  stocknames = c()
+)
 }
 \arguments{
 \item{weight}{A numeric weighting}

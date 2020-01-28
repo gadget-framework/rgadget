@@ -4,8 +4,12 @@
 \alias{gadget_migrationpenalty_component}
 \title{http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:migpenalty}
 \usage{
-gadget_migrationpenalty_component(weight = 0,
-  name = "migrationpenalty", stockname = c(), powercoeffs = c())
+gadget_migrationpenalty_component(
+  weight = 0,
+  name = "migrationpenalty",
+  stockname = c(),
+  powercoeffs = c()
+)
 }
 \arguments{
 \item{weight}{A numeric weighting}

@@ -8,6 +8,8 @@ read.gadget.lik.out(file = "lik.out", suppress = FALSE)
 }
 \arguments{
 \item{file}{string containing the name of the file}
+
+\item{suppress}{logical, should file errors be suppressed}
 }
 \value{
 a list containing the swicthes (names of variable), weigths
