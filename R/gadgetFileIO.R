@@ -487,10 +487,10 @@ write.gadget.parameters <- function(params,file='params.out',columns=TRUE){
 ##' @author Bjarki Thor Elvarsson
 make.gadget.printfile <- function(main.file='main',
                                   file='printfile',
-								  printatstart = 1,
-								  steps = 1,
-								  recruitment_step_age = NULL,
-								  gd = list(dir='.',output = 'out',aggfiles = 'print.aggfiles')){
+                                  printatstart = 1,
+                                  steps = 1,
+                                  recruitment_step_age = NULL,
+                                  gd = list(dir='.',output = 'out',aggfiles = 'print.aggfiles')){
     
     main <- read.gadget.file(gd$dir,main.file,file_type = 'main')
     
@@ -517,7 +517,7 @@ make.gadget.printfile <- function(main.file='main',
         purrr::map(~purrr::set_names(.,tolower(names(.)))) %>% 
         ## end hack
         purrr::map('minage') %>% 
-        dplyr::bind_rows() %>% 
+        dplyr::bind_rows(.id='stock') %>% 
         dplyr::mutate(step=1) %>% 
         tidyr::gather(stock,age,-step) 
       
@@ -525,9 +525,14 @@ make.gadget.printfile <- function(main.file='main',
     
     fleets <- 
       main$fleet$fleetfiles %>% 
-      purrr::map(~read.gadget.file(gd$dir,.,recursive = FALSE)) %>% purrr::flatten()
+      purrr::map(~read.gadget.file(gd$dir,.,recursive = FALSE)) %>% 
+      purrr::flatten()
+    
     names(fleets) <- 
-      fleets %>% purrr::map(1) %>% unlist() %>% as.character()
+      fleets %>% 
+      purrr::map(1) %>% 
+      unlist() %>% 
+      as.character()
     
     header <- sprintf('; gadget printfile, created in %s',Sys.Date())
     lik.summary <- 

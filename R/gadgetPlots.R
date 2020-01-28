@@ -251,7 +251,7 @@ plot.gadget.fit <- function(fit,data = 'sidat',type='direct'){
           if(length(unique(x$age))>1)
             x %>% 
             dplyr::group_by(year,step,age) %>% 
-            dplyr::mutate(o=observed/sum(observed,na.rm=TRUE),p=predicted/max(sum(predicted),1e-6)) %>% 
+            dplyr::mutate(o=observed/sum(observed,na.rm=TRUE),p=predicted/max(sum(predicted),1e-14)) %>% 
             dplyr::select(year,step,age,length = avg.length,observed,o,predicted,p) %>% 
             dplyr::ungroup() %>% 
             dplyr::mutate(age=as.numeric(gsub('age','',age))) %>% 
