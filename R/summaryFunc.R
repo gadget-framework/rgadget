@@ -92,7 +92,7 @@ toDataFrame <- function(sim){
   }
   stocks <- plyr::ldply(sim$stkArr,worker.fun)
   fleets <- plyr::ldply(sim$fleetArr,worker.fun)
-  return(list(stocks=data.table(stocks),fleets=data.table(fleets)))
+  return(list(stocks=stocks,fleets=fleets))
 }
   
 
@@ -493,7 +493,7 @@ tagging.recaptures <- function(sim,lambda,N){
   U <- apply(sim$Tagged.C,7,sum)
 #  p <- lambda/(1+lambda)
   
-  rec <- adply(U[-1],1,function(x) stats::rnbinom(N,mu=x,size=x/lambda))
+  rec <- plyr::adply(U[-1],1,function(x) stats::rnbinom(N,mu=x,size=x/lambda))
 
   if(!is.null(sim$opt$dispersion)){
     Cstock <- c('C1','C2','C3')
@@ -511,6 +511,6 @@ tagging.recaptures <- function(sim,lambda,N){
   }
   
 
-  rec <- melt(rec,id='X1')  
+  rec <- reshape2::melt(rec,id='X1')  
   return(list(rec=rec,rho=rho,ci=ci,Ri=Ri))
 }

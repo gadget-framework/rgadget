@@ -109,7 +109,7 @@ setMethod('getNumLengthGroups', 'gadget-stock',
             ceiling((object@maxlength - object@minlength)/object@dl)
           })
 setMethod('getNumLengthGroups', 'gadget-main',
-          function(object) max(ladply(object@stocks,getNumLengthGroups)))
+          function(object) max(plyr::ldply(object@stocks,getNumLengthGroups)))
 
 setGeneric('getLengthGroups',def=function(object){standardGeneric("getLengthGroups")})
 setMethod('getLengthGroups', 'gadget-stock',

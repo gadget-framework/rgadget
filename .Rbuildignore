@@ -6,3 +6,6 @@
 ^.zenodo.json$
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^gadget_example
+^\.Rd2pdf*
+^Readme*

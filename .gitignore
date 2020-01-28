@@ -3,3 +3,8 @@
 /*.Rprofile
 /*_*.tar.gz
 .Rproj.user
+vignettes/*.R
+vignettes/*.html
+/*.html
+/*.Rproj
+gadget_example

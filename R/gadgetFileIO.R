@@ -31,7 +31,7 @@ read.printfiles <- function(path='.',suppress=FALSE){
       header <- 
         preamble[grepl('year-step-area',preamble)] %>% 
         gsub('; (*)','\\1',.) %>% 
-        str_split('-') %>% 
+        stringr::str_split('-') %>% 
         unlist() %>% 
         gsub(' ','_',.)
     }
@@ -677,7 +677,7 @@ make.gadget.printfile <- function(main.file='main',
           recruitment_step_age %>% 
           dplyr::filter(stock == x[[1]]$stockname) %>% 
           dplyr::mutate(label = age) %>% 
-          select(label,age)
+          dplyr::select(label,age)
           
         if(nrow(rec.ageAgg)>0){  
           write.unix(agg.head,f = sprintf('%s/%s.rec.age.agg',gd$aggfiles,x[[1]]$stockname))
@@ -1549,7 +1549,7 @@ merge.formula <- function(txt){
     braces$begin[i] <- openP[max(which(openP < closeP[i]))]
     openP[max(which(openP < closeP[i]))] <- length(txt)
   }
-  braces <- arrange(braces, begin)
+  braces <- dplyr::arrange(braces, begin)
   for(i in 1:length(openP)){
     braces$group[braces$end<braces$end[i] & braces$end>braces$begin[i]] <-
       braces$group[i]

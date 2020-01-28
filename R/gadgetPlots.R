@@ -162,7 +162,7 @@ plot.gadget.fit <- function(fit,data = 'sidat',type='direct'){
       ggplot2::labs(y='Predicted value', x='Observed') + 
       ggplot2::geom_hline(data=filter(fit$sidat,year==max(year)),
                           ggplot2::aes(yintercept=predict),col='green') + 
-      ggplot2::geom_vline(data=filter(fit$sidat,year==max(year)),
+      ggplot2::geom_vline(data=dplyr::filter(fit$sidat,year==max(year)),
                           ggplot2::aes(xintercept=predict),col='green') + 
       ggplot2::geom_text(data = fit$sidat %>% 
                            dplyr::select(name) %>% 
@@ -304,7 +304,7 @@ plot.gadget.fit <- function(fit,data = 'sidat',type='direct'){
         list(ldist = 
                fit$catchdist.fleets %>% 
                dplyr::group_by(name) %>% 
-               dplyr::mutate(n=n_distinct(age)) %>% 
+               dplyr::mutate(n=dplyr::n_distinct(age)) %>% 
                dplyr::filter(n==1,
                              abs(observed-predicted)!=0) %>% 
                dplyr::left_join(fit$SS$weights %>% rename(name=Component)) %>% 
@@ -319,7 +319,7 @@ plot.gadget.fit <- function(fit,data = 'sidat',type='direct'){
              aldist = 
                fit$catchdist.fleets %>% 
                dplyr::group_by(name) %>% 
-               dplyr::mutate(n=n_distinct(age)) %>% 
+               dplyr::mutate(n=dplyr::n_distinct(age)) %>% 
                dplyr::filter(n!=1) %>% 
                dplyr::mutate(age=as.numeric(gsub('age','',age))) %>% 
                dplyr::group_by(name,year,age,step,total.catch) %>% 
@@ -355,7 +355,7 @@ plot.gadget.fit <- function(fit,data = 'sidat',type='direct'){
     pl <-
       ggplot2::ggplot(fit$res.by.year,ggplot2::aes(year,total.biomass/1e6,col=stock)) + 
       ggplot2::geom_line() +
-      labs(y="Biomass (in '000 tons)", x='Year')
+      ggplot2::labs(y="Biomass (in '000 tons)", x='Year')
     
   } 
   
@@ -481,8 +481,8 @@ plot.gadget.fit <- function(fit,data = 'sidat',type='direct'){
                            strip.text = ggplot2::element_blank())
         } else {
           x %>% 
-            mutate(pred.ratio= ifelse(is.nan(pred.ratio),0,pred.ratio),
-                   age = gsub('age','',age) %>% as.numeric()) %>% 
+            dplyr::mutate(pred.ratio= ifelse(is.nan(pred.ratio),0,pred.ratio),
+                          age = gsub('age','',age) %>% as.numeric()) %>% 
             ggplot2::ggplot(ggplot2::aes(age,obs.ratio,col=stock)) +
             ggplot2::geom_point() + 
             ggplot2::geom_line(ggplot2::aes(y=pred.ratio,lty = stock))+
@@ -501,7 +501,7 @@ plot.gadget.fit <- function(fit,data = 'sidat',type='direct'){
                            strip.text = ggplot2::element_blank())
         }
       })) %>% 
-      dplyr::filter(map(plots,~!is.null(.)) %>% unlist()) %>% 
+      dplyr::filter(purrr::map(plots,~!is.null(.)) %>% unlist()) %>% 
       dplyr::select(name,plots) -> tmp
     
     pl <-

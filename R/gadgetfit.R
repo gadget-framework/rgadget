@@ -521,7 +521,7 @@ get_gadget_recruitment <- function(stocks,params){
       }
     }) %>% 
     dplyr::bind_rows(.id = 'stock') %>% 
-    dplyr::mutate_at(.vars=vars(-stock),
+    dplyr::mutate_at(.vars=dplyr::vars(-stock),
                      ~purrr::map(.,function(x) 
                        tryCatch(parse.gadget.formulae(x) %>% 
                                   eval(params %>% 
@@ -535,7 +535,7 @@ get_gadget_recruitment <- function(stocks,params){
 
 gadget.retro.fit <- function(pre='RETRO'){
   
-  tmp_func <- lift(bind.gadget.fit,.unnamed = TRUE)
+  tmp_func <- purrr::lift(bind.gadget.fit,.unnamed = TRUE)
   list.files(pre,pattern = 'R[0-9]+') %>% 
     purrr::set_names(.,.) %>% 
     purrr::map(function(x){
