@@ -27,7 +27,8 @@ Imports:
     stringr,
     purrr,
     broom,
-    ggplot2
+    ggplot2,
+    rlang
 Suggests:
     unittest (>= 1.4),
     knitr,

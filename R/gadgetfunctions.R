@@ -427,7 +427,8 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
     return(weights)
   }
   
-  restr.SI <- subset(likelihood$weights,type == 'surveyindices')$name
+  restr.SI <- subset(likelihood$weights,
+                     likelihood$weightstype == 'surveyindices')$name
   if(!rew.sI){
     if(is.null(grouping)){
       grouping <- list(SI=intersect(likelihood$weights$name,restr.SI))
@@ -1111,11 +1112,11 @@ gadget.retro <- function(path='.',
   Sys.setenv(GADGET_WORKING_DIR=normalizePath(path))
   
   if(iterative){
-    run.func <- function(year){
-      gadget.iterative(main.file=sprintf('%s/R%s/main',pre,year),
+    run.func <- function(x){
+      gadget.iterative(main.file=sprintf('%s/R%s/main',pre,x),
                        params.file = params.file,
                        optinfofile=optinfofile,
-                       wgts = sprintf('%s/WGTS.%s',pre,year),
+                       wgts = sprintf('%s/WGTS.%s',pre,x),
                        ...)
     }
     

@@ -25,7 +25,7 @@
 #' @param ref.years what years should be used as the basis for the projections
 #' @param prj.func if method is "custom" then the user can supply a function that generates the recruitment
 #' @param ... passed to prj.func
-#'
+#' @importFrom rlang .data
 #' @return list of simulation results
 #' @export
 gadget.forward <- function(years = 20,params.file = 'params.out',
@@ -63,8 +63,8 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
       utils::read.table(text=.,
                  col.names = header,fill=TRUE,
                  stringsAsFactors = FALSE) %>% 
-      dplyr::mutate(trial=cut(1:length(year),
-                              c(0,which(diff(year)<0),1e9),
+      dplyr::mutate(trial=cut(1:length(.data$year),
+                              c(0,which(diff(.data$year)<0),1e9),
                               labels = FALSE)-1) %>% 
       tibble::as_tibble() 
   }
@@ -129,7 +129,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
     rec %>% 
 #    dplyr::group_by(stock,year) %>% 
 #    dplyr::summarise(recruitment = sum(recruitment)) %>% 
-    dplyr::arrange(stock,year,step)
+    dplyr::arrange(.data$stock,.data$year,.data$step)
   
   
   ## Write agg files
@@ -143,7 +143,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
     time$lastyear + 1
   rec <- 
     rec %>% 
-    dplyr::filter(year < sim.begin)
+    dplyr::filter(.data$year < sim.begin)
   
   if(nrow(rec) == 0)
     stop('No recruitment info found')
@@ -166,11 +166,11 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
     area$temperature <- 
       area$temperature %>% 
       dplyr::bind_rows(temperature) %>% 
-      dplyr::mutate(area = as.numeric(area))
+      dplyr::mutate(area = as.numeric(.data$area))
     
     num.missing <- 
       dplyr::anti_join(time.grid %>% 
-                         dplyr::mutate(area = as.numeric(area)), 
+                         dplyr::mutate(area = as.numeric(.data$area)), 
                        area$temperature) %>% 
       dplyr::summarise(n=dplyr::n())
     if(num.missing$n>0){
@@ -183,24 +183,24 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
   ## fleet setup 
   fleet <-
     fleet %>%
-    purrr::map(~dplyr::filter(.,fleet %in% fleets$fleet))
+    purrr::map(~dplyr::filter(.,.data$fleet %in% fleets$fleet))
     
   fleet$fleet <- 
     dplyr::mutate(fleet$fleet,
-                  fleet = sprintf('%s.pre',fleet),
+                  fleet = sprintf('%s.pre',.data$fleet),
                   multiplicative = '#rgadget.effort',   #effort,
                   amount = sprintf('%s/fleet.pre', pre),
                   type = 'linearfleet')
   
   fleet$prey <- 
     dplyr::mutate(fleet$prey,
-                  fleet = sprintf('%s.pre',fleet))
+                  fleet = sprintf('%s.pre',.data$fleet))
   
   fleet.predict <- 
     time.grid %>% 
-    dplyr::filter((year >= sim.begin | 
-                     (year==(sim.begin-1) & step > time$laststep)) &
-                    area %in% fleet$fleet$livesonareas) 
+    dplyr::filter((.data$year >= sim.begin | 
+                     (.data$year==(sim.begin-1) & .data$step > time$laststep)) &
+                    .data$area %in% fleet$fleet$livesonareas) 
   
   if('year' %in% names(fleets) | 'step' %in% names(fleets)){
     fleet.predict <- 
@@ -216,10 +216,10 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
   
   fleet.predict <- 
     fleet.predict %>% 
-    dplyr::mutate(fleet = paste(fleet,'pre',sep='.'))
+    dplyr::mutate(fleet = paste(.data$fleet,'pre',sep='.'))
   
   write.gadget.table(dplyr::arrange(fleet.predict[c('year','step','area','fleet','ratio')],
-                                   year,step,area),
+                                    .data$year,.data$step,.data$area),
                      file=sprintf('%s/fleet.pre',pre),
                      col.names=FALSE,row.names=FALSE,
                      quote = FALSE)
@@ -236,20 +236,20 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
       tmp <- 
         rec %>%
         dplyr::ungroup() %>% 
-        dplyr::filter(as.numeric(year) < rec.window)
+        dplyr::filter(as.numeric(.data$year) < rec.window)
     } else if( 'data.frame' %in% class(rec.window)){
       tmp <- 
         rec %>%
         dplyr::ungroup() %>% 
         dplyr::left_join(rec.window,by = 'stock') %>% 
-        dplyr::filter(as.numeric(year) < upper,
-                      as.numeric(year) > lower)
+        dplyr::filter(as.numeric(.data$year) < .data$upper,
+                      as.numeric(.data$year) > .data$lower)
     } else {
       tmp <- 
         rec %>% 
         dplyr::ungroup() %>% 
-        dplyr::filter(as.numeric(year) <= max(rec.window) & 
-                        as.numeric(year) >= min(rec.window))
+        dplyr::filter(as.numeric(.data$year) <= max(rec.window) & 
+                        as.numeric(.data$year) >= min(rec.window))
     }
   } else {
     tmp <- 
@@ -263,10 +263,10 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
     if(tolower(method) == 'bootstrap'){
       prj.rec <-
         tmp %>% 
-        dplyr::group_by(stock,year) %>% 
-        dplyr::summarise(recruitment = sum(recruitment)) %>% 
+        dplyr::group_by(.data$stock,.data$year) %>% 
+        dplyr::summarise(recruitment = sum(.data$recruitment)) %>% 
         split(.$stock) %>% 
-        purrr::map(~dplyr::select(.,recruitment) %>% 
+        purrr::map(~dplyr::select(.,.data$recruitment) %>% 
                      dplyr::slice(plyr::rlply(ceiling(num.trials*years/nrow(tmp)),
                                               c(sample(rec.window[2]:rec.window[3]-rec.window[1]+1,
                                                        replace = TRUE),
@@ -274,30 +274,30 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
                                                        replace = TRUE))) %>%                                           
                                     unlist())) %>%
         purrr::map(~dplyr::slice(.,1:(num.trials*years))) %>% 
-        purrr::map(~tibble::data_frame(year = rep((sim.begin):(sim.begin+years-1),num.trials),
-                                       trial = rep(1:num.trials,each=years),
-                                       recruitment = .$recruitment)) %>% 
+        purrr::map(~tibble::tibble(year = rep((sim.begin):(sim.begin+years-1),num.trials),
+                                   trial = rep(1:num.trials,each=years),
+                                   recruitment = .$recruitment)) %>% 
         dplyr::bind_rows(.id='stock') %>% 
-        dplyr::select(stock,year,trial,recruitment) %>% 
+        dplyr::select(.data$stock,.data$year,.data$trial,.data$recruitment) %>% 
         dplyr::mutate(step = (rec$step[rec$year == min(ref.years)])[1])
       
     } else if(tolower(method) == 'ar1'){
       ## fit an AR model to the fitted recruiment
       prj.rec <- 
         tmp %>% 
-        dplyr::group_by(stock,year) %>% 
-        dplyr::summarise(recruitment = sum(recruitment)) %>% 
+        dplyr::group_by(.data$stock,.data$year) %>% 
+        dplyr::summarise(recruitment = sum(.data$recruitment)) %>% 
         split(.$stock) %>% 
         purrr::map(~stats::lm(utils::head(.$recruitment,-1)~utils::tail(.$recruitment,-1))) %>%
         purrr::map(~dplyr::bind_cols(broom::glance(.),
                                      as.data.frame(t(broom::tidy(.)$estimate)))) %>% 
-        purrr::map(~dplyr::rename(.,a=V1,b=V2)) %>% 
+        purrr::map(~dplyr::rename(.,a=.data$V1,b=.data$V2)) %>% 
         purrr::map(~data.frame(year = rep((sim.begin):(sim.begin+years-1),num.trials),
                                trial = rep(1:num.trials,each=years),
                                rec = pmax(arima.sim(years*num.trials,model=list(ar=.$b),sd=.$sigma) + .$a,0))) %>% 
         dplyr::bind_rows(.id='stock')  %>% 
-        dplyr::mutate(rec = ifelse(is.na(rec),x,rec)) %>% 
-        dplyr::select(stock,year,trial,recruitment = rec) %>% 
+        dplyr::mutate(rec = ifelse(is.na(.data$rec),x,.data$rec)) %>% 
+        dplyr::select(.data$stock,.data$year,.data$trial,recruitment = .data$rec) %>% 
         dplyr::mutate(step = (rec$step[rec$year == min(ref.years)])[1])
       
       ## project next n years
@@ -320,24 +320,24 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
     prj.rec <- 
       tmp %>% 
       dplyr::group_by(stock) %>% 
-      dplyr::summarise(recruitment = mean(recruitment)) %>% 
+      dplyr::summarise(recruitment = mean(.data$recruitment)) %>% 
       dplyr::left_join(expand.grid(stock = stocks %>% 
                                      purrr::map(getStockNames) %>% 
                                      unlist,
                                    year = (sim.begin):(sim.begin+years-1),
                                    trial = 1:num.trials) %>% 
-                         dplyr::arrange(stock,year,trial),
+                         dplyr::arrange(.data$stock,.data$year,.data$trial),
                        by = 'stock') %>% 
       dplyr::mutate(step = min(rec$step[rec$year == min(ref.years)]))
   }
   
   if(num.trials == 1 & length(effort)==1){
     prj.rec %>% 
-      dplyr::mutate(switch = paste(stock,'rec',year,step,sep='.'),
+      dplyr::mutate(switch = paste(stock,'rec',.data$year,.data$step,sep='.'),
                     lower = 0,
                     upper = recruitment + 1,
                     optimise = 0) %>% 
-      dplyr::select(switch,value=recruitment,lower,upper,optimise) %>% 
+      dplyr::select(.data$switch,value=.data$recruitment,.data$lower,.data$upper,.data$optimise) %>% 
       dplyr::bind_rows(params,
                        data.frame(switch = 'rgadget.effort',
                                   value = effort,
@@ -348,14 +348,14 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
       write.gadget.parameters(file=sprintf('%s/params.forward', pre))
   } else {
     params %>% 
-      dplyr::select(switch,value) %>% 
-      tidyr::spread(switch,value) %>% 
+      dplyr::select(.data$switch,.data$value) %>% 
+      tidyr::spread(.data$switch,.data$value) %>% 
       dplyr::slice(rep(1,num.trials*length(effort))) %>% 
       dplyr::bind_cols(prj.rec %>% 
-                         dplyr::mutate(switch = paste(stock,'rec',year,step,sep='.')) %>% 
-                         dplyr::select(trial,switch,recruitment) %>% 
-                         tidyr::spread(switch,recruitment) %>% 
-                         dplyr::select(-trial) %>% 
+                         dplyr::mutate(switch = paste(.data$stock,'rec',.data$year,.data$step,sep='.')) %>% 
+                         dplyr::select(.data$trial,.data$switch,.data$recruitment) %>% 
+                         tidyr::spread(.data$switch,.data$recruitment) %>% 
+                         dplyr::select(-.data$trial) %>% 
                          dplyr::slice(rep(1:num.trials,each=length(effort))) %>% 
                          dplyr::mutate(rgadget.effort=rep(effort,num.trials))) %>% 
       write.gadget.parameters(file=sprintf('%s/params.forward', pre),
@@ -374,8 +374,8 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
     prj.rec <- 
       prj.rec %>% 
       dplyr::left_join(rec.scalar %>% 
-                         dplyr::select(stock, year, rec.scalar)) %>% 
-      dplyr::mutate(rec.scalar = ifelse(is.na(rec.scalar),1,rec.scalar))
+                         dplyr::select(.data$stock, .data$year, .data$rec.scalar)) %>% 
+      dplyr::mutate(rec.scalar = ifelse(is.na(.data$rec.scalar),1,.data$rec.scalar))
   }
   ## end fix
   
@@ -448,15 +448,15 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
     if(x@doesrenew==1){
       x@renewal.data <-
         x@renewal.data %>% 
-        dplyr::arrange(year,step) %>% 
-        dplyr::filter(year < sim.begin) %>% 
+        dplyr::arrange(.data$year,.data$step) %>% 
+        dplyr::filter(.data$year < sim.begin) %>% 
         dplyr::bind_rows(x@renewal.data %>% 
-                           dplyr::filter(year == min(ref.years)) %>%
+                           dplyr::filter(.data$year == min(ref.years)) %>%
                            dplyr::mutate(n = dplyr::n()) %>% 
-                           dplyr::slice(rep(1:n[1],length(unique(tmp$year)))) %>% 
-                           dplyr::mutate(year=rep(as.character(tmp$year),each = n[1]),
+                           dplyr::slice(rep(1:.data$n[1],length(unique(tmp$year)))) %>% 
+                           dplyr::mutate(year=rep(as.character(tmp$year),each = .data$n[1]),
                                          number = sprintf('(* (* 0.0001 #%s.rec.%s.%s ) %s)',
-                                                          x@stockname,year,step, 
+                                                          x@stockname,.data$year,.data$step, 
                                                           tmp$rec.scalar)) %>% #*tmp$rec.ratio)) %>% 
                            dplyr::select_(.dots = names(x@renewal.data))) %>% 
         as.data.frame()
@@ -487,18 +487,18 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
     purrr::set_names(paste(paste(pre,'out',sep='/'),.,sep='/'),.) %>% 
     purrr::map(readoutput) %>% 
     purrr::map(~.x %>% 
-                 dplyr::left_join(dplyr::data_frame(trial = 0:(num.trials*length(effort)-1),
-                                                    effort = rep(effort,num.trials)),
+                 dplyr::left_join(tibble::tibble(trial = 0:(num.trials*length(effort)-1),
+                                                 effort = rep(effort,num.trials)),
                                   by = 'trial'))
     
   catch <- 
     out[catch.files] %>% 
     dplyr::bind_rows(.id='stock') %>% 
-    dplyr::mutate(stock = gsub('catch.(.+).lw','\\1',stock))
+    dplyr::mutate(stock = gsub('catch.(.+).lw','\\1',.data$stock))
   lw <- 
     out[print.files] %>% 
     dplyr::bind_rows(.id='stock') %>% 
-    dplyr::mutate(stock = gsub('(^.+).lw','\\1',stock))
+    dplyr::mutate(stock = gsub('(^.+).lw','\\1',.data$stock))
   out <- out[!(names(out) %in% c(catch.files,print.files))]
   out <- 
     list(custom = out,

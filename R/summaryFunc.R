@@ -54,6 +54,7 @@ ldist <- function(stock.dat,sigma=0,dl=1){
 ##' @param sigma 
 ##' @param dl 
 ##' @return data.frame
+##' @importFrom rlang .data
 ##' @author Bjarki Thor Elvarsson
 aldist <- function(stock.dat,sigma=0,dl=1){
   stock.dat$lgroup <- cut(stock.dat$length,
@@ -61,14 +62,14 @@ aldist <- function(stock.dat,sigma=0,dl=1){
                               max(stock.dat$length)+1,
                               by=dl))
   aldist <- stock.dat %>%
-    dplyr::group_by(age,lgroup,year,step) %>%
-      dplyr::summarise(num=sum(num))
+    dplyr::group_by(.data$age,.data$lgroup,.data$year,.data$step) %>%
+      dplyr::summarise(num=sum(.data$num))
   if(sigma!=0){
     aldist$num <- aldist$num*exp(stats::rnorm(nrow(aldist),0,sigma^2)-sigma^2/2)
   }
   aldist <- aldist %>%
-    dplyr::group_by(year,step,add=FALSE) %>%
-    dplyr::mutate(p=num/sum(num))
+    dplyr::group_by(.data$year,.data$step,add=FALSE) %>%
+    dplyr::mutate(p=.data$num/sum(.data$num))
   return(aldist)
 }
 
@@ -381,6 +382,7 @@ summary.gadget.options <- function(opt){
 ##' @name as.data.frame.gadget.sim
 ##' @title as.data.frame.gadget.sim
 ##' @param sim the results from RGadget
+##' @importFrom rlang .data
 ##' @return A dataframe 
 as.data.frame.gadget.sim <- function(sim){
   weights <- plyr::ldply(sim$gm@stocks,function(x) {
@@ -388,18 +390,19 @@ as.data.frame.gadget.sim <- function(sim){
     data.frame(length=l,mean.weight=getWeight(x,l,sim$params))
   })
   stocks <- dplyr::mutate(plyr::ldply(sim$stkArr,as.data.frame.table,responseName = "number", stringsAsFactors = FALSE),
-                   length = as.numeric(length),
-                   age = as.numeric(age),
-                   year = gsub('_Step_[0-9]','',gsub('Year_','',time)),
-                   step = gsub('Year_[0-9]+_Step_','',time))
-  stocks <- dplyr::arrange(merge(stocks,weights,all.x=TRUE),time,age,length)
+                          length = as.numeric(.data$length),
+                          age = as.numeric(.data$age),
+                          year = gsub('_Step_[0-9]','',gsub('Year_','',.data$time)),
+                          step = gsub('Year_[0-9]+_Step_','',.data$time))
+  stocks <- dplyr::arrange(merge(stocks,weights,all.x=TRUE),.data$time,.data$age,.data$length)
   
   catches <- dplyr::mutate(plyr::ldply(sim$fleetArr,as.data.frame.table,responseName = "number", stringsAsFactors = FALSE),
-                    length = as.numeric(length),
-                    age = as.numeric(age),                  
-                    year = gsub('_Step_[0-9]','',gsub('Year_','',time)),
-                    step = gsub('Year_[0-9]+_Step_','',time))
-  catches <- dplyr::arrange(merge(catches,weights,all.x=TRUE),time,age,length)
+                           length = as.numeric(.data$length),
+                           age = as.numeric(.data$age),                  
+                           year = gsub('_Step_[0-9]','',gsub('Year_','',.data$time)),
+                           step = gsub('Year_[0-9]+_Step_','',.data$time))
+  catches <- dplyr::arrange(merge(catches,weights,all.x=TRUE),
+                            .data$time,.data$age,.data$length)
   
   
   imm <- as.data.frame.table(sim$immNumRec,stringsAsFactors=FALSE)

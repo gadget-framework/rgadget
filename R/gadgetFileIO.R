@@ -517,7 +517,7 @@ make.gadget.printfile <- function(main.file='main',
         purrr::map(~purrr::set_names(.,tolower(names(.)))) %>% 
         ## end hack
         purrr::map('minage') %>% 
-        dplyr::bind_rows(.id='stock') %>% 
+        dplyr::bind_rows() %>% 
         dplyr::mutate(step=1) %>% 
         tidyr::gather(stock,age,-step) 
       
