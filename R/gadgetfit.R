@@ -338,7 +338,9 @@ gadget.fit <- function(wgts = 'WGTS',
       dplyr::left_join(f.by.year %>%
                          dplyr::mutate(area = .data$area),
                        by = c("stock","year","area")) %>% 
-      dplyr::left_join(stock.recruitment,
+      dplyr::left_join(stock.recruitment %>% 
+                         dplyr::group_by(.data$stock,.data$year,.data$area) %>% 
+                         dplyr::summarise(recruitment = sum(.data$recruitment)),
                        by = c('stock','year','area')) %>% 
       dplyr::ungroup()
   } else {
