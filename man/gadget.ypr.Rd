@@ -47,6 +47,8 @@ future catches}
 \item{save.results}{should the results be saved?}
 
 \item{gd}{gadget directory object}
+
+\item{ypr}{Output from \code{gadget.ypr}}
 }
 \value{
 a list containing the yield per recruit by F, estimate of

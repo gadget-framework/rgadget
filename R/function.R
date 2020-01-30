@@ -428,6 +428,7 @@ recruits <- function(n,mu,sigma,
 ##' @param L predator length group(s)
 ##' @param type suitability function
 ##' @param normalize Logical, should the output be normalized 
+##' @param to.data.frame Logical, return a data.frame instead of an array
 ##' @return matrix of suitabilities, columns prey length, lines predator length
 ##' @export
 suitability <- function(params,

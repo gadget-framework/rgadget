@@ -22,6 +22,8 @@ suitability(
 
 \item{type}{suitability function}
 
+\item{to.data.frame}{Logical, return a data.frame instead of an array}
+
 \item{normalize}{Logical, should the output be normalized}
 }
 \value{

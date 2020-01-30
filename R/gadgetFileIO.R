@@ -1710,6 +1710,7 @@ write.gadget.fleet <- function(fleet,file='fleet'){
 ##' @description \code{get.gadget.recruitment} gets gadget recruitment
 ##' @param stocks gadget.stock
 ##' @param params gadget.params
+##' @param collapse Logical, group output by stock/year/area
 ##' @return recruitment by year
 get.gadget.recruitment <- function(stocks,params,collapse=TRUE){
   plyr::ldply(stocks, function(x){

@@ -48,6 +48,8 @@ read.gadget.grouping(lik = read.gadget.likelihood(), wgts = "WGTS")
 
 \item{params}{gadget.params}
 
+\item{collapse}{Logical, group output by stock/year/area}
+
 \item{lik}{old style gadget likelihood object}
 }
 \value{

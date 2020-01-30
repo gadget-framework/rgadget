@@ -1036,6 +1036,7 @@ gadget.ypr <- function(params.file = 'params.in',
 
 ##' @rdname gadget.ypr
 ##' @name plot.gadget.ypr
+##' @param ypr Output from \code{gadget.ypr}
 ##' @export
 plot.gadget.ypr <- function(ypr){
   if(!is.null(ypr$ssb)){
