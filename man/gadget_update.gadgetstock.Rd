@@ -51,7 +51,6 @@ path <- './model'
 gadgetstock('codimm', path, missingOkay = TRUE) \%>\%  # Create a skeleton if missing
    gadget_update('stock', minage = 2, maxage = 4) \%>\%
    gadget_update('stock', stockname = 'codmat') \%>\%  # Will change the name of the file we write
-   gadget_update('initialconditions', data = agg_file) \%>\%
    gadget_update('doesmigrate', yearstepfile = gadgetfile('data/yearstepfile', components = list(
                                   data.frame(year = 1998, step = 1:4, matrix = 'codmat-migration')))) \%>\%
    gadget_update('doesrenew', 0) \%>\%
