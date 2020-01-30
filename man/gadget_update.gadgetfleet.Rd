@@ -19,7 +19,9 @@ Replace and/or append new fleet comonents to an existing file
 \examples{
 path <- './model'
 gadgetfleet('fleet', path, missingOkay = TRUE) \%>\%
-   gadget_update(gadget_fleet_component('understocking', name = 'understocking')) \%>\% # Add an understocking component
-   gadget_update('understocking', name = 'understocking') \%>\% # Identical to above
+   gadget_update( # Add a fleet component
+       'totalfleet',
+       name = 'comm',
+       data = data.frame(year = 1990, step = 1, area = 1, weight = 1)) \%>\%
    write.gadget.file(path)
 }
