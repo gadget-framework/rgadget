@@ -28,8 +28,9 @@ gadget.iterative(
 \arguments{
 \item{main.file}{a string containing the location of the main file}
 
-\item{gadget.exe}{a string containing the location of the gadget
-executable}
+\item{gadget.exe}{path to the gadget executable, if not set, first looks
+to see if the gadget R package is installed, if that fails uses the system
+path. .Options$gadget.path will override any given parameter.}
 
 \item{params.file}{a string containing the location of the input
 parameters}

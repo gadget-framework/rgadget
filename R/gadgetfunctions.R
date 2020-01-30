@@ -59,8 +59,9 @@
 ##' information should be saved.
 ##' @param printfinal Name of the file to which the final model
 ##' information should be saved.
-##' @param gadget.exe path to the gadget executable, if it is not in
-##' the path or defined by .Options$gadget.path
+##' @param gadget.exe path to the gadget executable, if not set, first looks
+##' to see if the gadget R package is installed, if that fails uses the system
+##' path. .Options$gadget.path will override any given parameter.
 ##' @param PBS Logical, should, instead of running gadget directly,
 ##' a pbs script be
 ##' generated that can be submitted to a cluster queue (defaults to FALSE).
@@ -100,7 +101,12 @@ callGadget <- function(l=NULL,
   if(!is.null(.Options$gadget.path)){
     gadget.exe=.Options$gadget.path
   }
-  
+
+  if (gadget.exe == 'gadget' && 'gadget' %in% utils::installed.packages()[,1]) {
+    # gadget package available, use that over searching system path
+    gadget.exe=gadget::gadget_binary()
+  }
+
   switches <- paste(ifelse(is.null(l),'','-l'),
                     ifelse(is.null(s),'','-s'),
                     ifelse(is.null(n),'','-n'),
@@ -276,8 +282,9 @@ callParamin <- function(i='params.in',
 ##' @name gadget.iterative
 ##' @title Iterative reweighting for Gadget models
 ##' @param main.file a string containing the location of the main file
-##' @param gadget.exe a string containing the location of the gadget
-##' executable
+##' @param gadget.exe path to the gadget executable, if not set, first looks
+##' to see if the gadget R package is installed, if that fails uses the system
+##' path. .Options$gadget.path will override any given parameter.
 ##' @param params.file a string containing the location of the input
 ##' parameters
 ##' @param rew.sI logical, should survey indices be iteratively

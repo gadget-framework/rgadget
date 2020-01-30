@@ -70,8 +70,9 @@ information should be saved.}
 \item{printfinal}{Name of the file to which the final model
 information should be saved.}
 
-\item{gadget.exe}{path to the gadget executable, if it is not in
-the path or defined by .Options$gadget.path}
+\item{gadget.exe}{path to the gadget executable, if not set, first looks
+to see if the gadget R package is installed, if that fails uses the system
+path. .Options$gadget.path will override any given parameter.}
 
 \item{PBS}{Logical, should, instead of running gadget directly,
 a pbs script be
