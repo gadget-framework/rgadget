@@ -25,14 +25,14 @@ A character vector of the form
 Write suitability line for a predator
 }
 \examples{
-gadgetstock('garfish', '~', missingOkay=T) \%>\%
+path <- tempfile()
+gadgetstock('garfish', path, missingOkay=TRUE) \%>\%
     gadget_update('doeseat',
                    name = 'comm',
                    suitability = pred_suit(pred='garfish',
                                             prey='zebrafish', 
                                             fun='newexponentiall50',
-                                            params=list('alpha', 'l50')),
-                   data = garfish.consumption[[1]])
+                                            params=list('alpha', 'l50')))
 }
 \author{
 Paul Frater

@@ -30,11 +30,12 @@ A character vector of the form
 Write suitability line for the surveydistribution likelihood component
 }
 \examples{
-gadgetlikelihood('likelihood', '~', missingOkay=T) \%>\%
+path <- tempfile()
+gadgetlikelihood('likelihood', path, missingOkay=TRUE) \%>\%
    gadget_update('surveydistribution',
                  name = 'ldist.spr',
                  weight = 1,
-                 data = ldist.igfs[[1]],
+                 data = data.frame(year = 1, step = 1, area = 1, age = 1, length = 1, number = 1),
                  parameters = quote(exp(spr.si.beta)) \%>\%
                                to.gadget.formulae(),
                  suitability = surveydist_suit(stock = 'zebrafish',
