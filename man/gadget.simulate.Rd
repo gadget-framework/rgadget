@@ -10,6 +10,8 @@ gadget.simulate(gm, params = data.frame(), maxratioconsumed = 0.95)
 \item{gm}{gadget model object, as defined by 'gadget.skeleton'}
 
 \item{params}{input parameters}
+
+\item{maxratioconsumed}{maximum depletion rate}
 }
 \value{
 a list of arrays:

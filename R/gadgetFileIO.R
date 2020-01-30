@@ -523,7 +523,7 @@ make.gadget.printfile <- function(main.file='main',
       purrr::map('minage') %>% 
       dplyr::bind_rows() %>% 
       dplyr::mutate(step=1) %>% 
-      tidyr::gather(.data$stock,.data$age,-.data$step) 
+      tidyr::gather("stock","age",-"step") 
     
   }
   

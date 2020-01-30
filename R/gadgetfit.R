@@ -125,7 +125,7 @@ gadget.fit <- function(wgts = 'WGTS',
     out[sprintf('%s.recruitment',names(stocks))] %>% 
     purrr::set_names(.,names(stocks)) %>% 
     dplyr::bind_rows(.id='stock') %>% 
-    dplyr::select(.data$stock,.data$year,.data$area,recruitment=.data$number)
+    dplyr::select(.data$stock,.data$year,.data$area,.data$step, recruitment=.data$number)
   
   stock.full <-
     out[sprintf('%s.full',names(stocks))] %>% 

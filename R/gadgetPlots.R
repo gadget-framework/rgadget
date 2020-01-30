@@ -50,8 +50,6 @@
 ##' plot(fit,data='summary')
 ##' }
 plot.gadget.fit <- function(fit,data = 'sidat',type='direct'){
-  utils::globalVariables("age")
-  utils::globalVariables("n")
   
   pl <- NULL
   
