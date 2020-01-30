@@ -33,9 +33,11 @@
 ##' }
 ##' @title plot gadget fit
 ##' @name plot.gadget.fit
-##' @param fit results from gadget fit
-##' @param type The type of plot that is returned, depends on the input data (see details)
-##' @param data what results should be plotted
+##' @param x results from gadget fit
+##' @param ... Can include \describe{
+##'     \item{type}{The type of plot that is returned, depends on the input data (see details)}
+##'     \item{data}{What results should be plotted, default sidat}
+##' }
 ##' @return ggplot2::ggplot object
 ##' @author Bjarki Þór Elvarsson
 ##' @importFrom rlang .data
@@ -49,7 +51,11 @@
 ##' ## plot likelihood
 ##' plot(fit,data='summary')
 ##' }
-plot.gadget.fit <- function(fit,data = 'sidat',type='direct'){
+plot.gadget.fit <- function(x, ...){
+  args <- list(...)
+  fit <- x
+  data <- if (is.null(args$data)) 'sidat' else args$data
+  type <- if (is.null(args$type)) 'direct' else args$type
   
   pl <- NULL
   
