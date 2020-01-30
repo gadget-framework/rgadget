@@ -20,7 +20,7 @@ gadget.ypr(
   gd = list(dir = ".", rel.dir = "YPR")
 )
 
-\method{plot}{gadget.ypr}(ypr)
+\method{plot}{gadget.ypr}(x, ...)
 }
 \arguments{
 \item{params.file}{Parameter file for the gagdet model}
@@ -48,7 +48,9 @@ future catches}
 
 \item{gd}{gadget directory object}
 
-\item{ypr}{Output from \code{gadget.ypr}}
+\item{x}{Output from \code{gadget.ypr}}
+
+\item{...}{Unused}
 }
 \value{
 a list containing the yield per recruit by F, estimate of

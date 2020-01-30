@@ -1036,9 +1036,11 @@ gadget.ypr <- function(params.file = 'params.in',
 
 ##' @rdname gadget.ypr
 ##' @name plot.gadget.ypr
-##' @param ypr Output from \code{gadget.ypr}
+##' @param x Output from \code{gadget.ypr}
+##' @param ... Unused
 ##' @export
-plot.gadget.ypr <- function(ypr){
+plot.gadget.ypr <- function(x, ...) {
+  ypr <- x
   if(!is.null(ypr$ssb)){
     tmp <- merge(dplyr::mutate(ypr$ypr,bio=.data$bio/max(.data$bio)),
                  ypr$ssb)
