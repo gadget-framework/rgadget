@@ -38,6 +38,10 @@ gadget.ypr(
 \item{fleets}{Data frame comtaining the fleet names and ratio in
 future catches}
 
+\item{ssb.stock}{name of the spawning stock}
+
+\item{mat.par}{logistic curve parameters for the maturation}
+
 \item{check.previous}{check if the analysis have been done before}
 
 \item{save.results}{should the results be saved?}

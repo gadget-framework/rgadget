@@ -28,7 +28,8 @@ Imports:
     purrr,
     broom,
     ggplot2,
-    rlang
+    rlang,
+    methods
 Suggests:
     unittest (>= 1.4),
     knitr,

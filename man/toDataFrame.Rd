@@ -7,7 +7,7 @@
 toDataFrame(sim)
 }
 \arguments{
-\item{sim}{}
+\item{sim}{gadget simulation object (from gadget.simulate)}
 }
 \value{
 data.frame

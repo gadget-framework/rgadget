@@ -8,9 +8,9 @@ setMethod('getTimeSteps','gadget-time',
                                      each = length(x@notimesteps)),
                                    step = rep(seq(along = x@notimesteps),
                                      length(year)))
-            subset(schedule,(year> x@firstyear & year < x@lastyear) |
-                   (year == x@firstyear & step >= x@firststep) |
-                   (year == x@lastyear & step <= x@laststep) )
+            dplyr::filter(schedule,(.data$year> x@firstyear & .data$year < x@lastyear) |
+                   (.data$year == x@firstyear & .data$step >= x@firststep) |
+                   (.data$year == x@lastyear & .data$step <= x@laststep) )
 
 
           })

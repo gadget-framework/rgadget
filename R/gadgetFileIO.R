@@ -10,8 +10,8 @@
 ##' @return a list containing the data that has been read in named after the files found in path.
 ##' @export
 read.printfiles <- function(path='.',suppress=FALSE){
-
- 
+  
+  
   
   read.printfile <- function(file){
     #    file <- paste(path,file,sep='/')
@@ -23,7 +23,7 @@ read.printfiles <- function(path='.',suppress=FALSE){
       preamble[grepl('year step area',preamble)] %>% 
       gsub('; (*)','\\1',.) %>% 
       gsub('\\[|\\]','',.) %>% 
-      str_split(' ') %>% 
+      stringr::str_split(' ') %>% 
       unlist() 
     
     if(is.null(header)){
@@ -98,8 +98,8 @@ read.gadget.likelihood <- function(files='likelihood'){
   lik <- lik[lik!='']
   lik <- lik[!grepl(';',substring(lik,1,1))]
   lik <- sapply(strsplit(lik,';'),function(x) sub(' +$','',x[1]))
-
-
+  
+  
   comp.loc <- grep('component',lik)
   name.loc <- comp.loc+3
   weights <- NULL
@@ -110,14 +110,14 @@ read.gadget.likelihood <- function(files='likelihood'){
     if(sum(loc)==0){
       return(NULL)
     } else {
-
+      
       dat <- plyr::ldply(loc, function(dd){
         if(dd < length(comp.loc)) {
           restr <- (comp.loc[dd] + 1):(comp.loc[dd+1]-1)
         } else {
           restr <- 1:length(lik) > comp.loc[dd]
         }
-
+        
         tmp <- sapply(strsplit(sapply(strsplit(lik[restr],'[ \t]'),
                                       function(x) {
                                         paste(x[!(x==''|x=='\t')],
@@ -144,13 +144,13 @@ read.gadget.likelihood <- function(files='likelihood'){
       } else {
         weights <<-
           dplyr::bind_rows(dat, weights)[intersect(common, unique(c(names(weights),
-                                                              names(dat))))]
+                                                                    names(dat))))]
       }
       dat$weight <- NULL
       return(dat)
     }
   }
-
+  
   likelihood <- list(penalty = tmp.func('penalty'),
                      understocking = tmp.func('understocking'),
                      migrationpenalty = tmp.func('migrationpenalty'),
@@ -163,7 +163,7 @@ read.gadget.likelihood <- function(files='likelihood'){
                      recaptures = tmp.func('recaptures'),
                      recstatistics = tmp.func('recstatistics'),
                      catchinkilos = tmp.func('catchinkilos')
-                     )
+  )
   likelihood$weights <- weights
   row.names(likelihood$weights) <- weights$name
   likelihood$weights$weight <- as.numeric(weights$weight)
@@ -200,7 +200,7 @@ write.gadget.likelihood <- function(lik,file='likelihood',
     }
     ## same with catchdistribution
     if('catchdistribution' %in% comp$type){
-        comp <-
+      comp <-
         comp[intersect(c('name','type','datafile','function','aggregationlevel',
                          'overconsumption','epsilon','areaaggfile','ageaggfile',
                          'lenaggfile','fleetnames','stocknames'),
@@ -213,10 +213,10 @@ write.gadget.likelihood <- function(lik,file='likelihood',
                          'lenaggfile','ageaggfile','fleetnames','stocknames'),
                        names(comp))]
     }
-        
+    
     
     comp <- stats::na.omit(reshape2::melt(merge(weights,comp,by='name',sort=FALSE),
-                         id.vars = 'name'))
+                                          id.vars = 'name'))
     comp.text <- plyr::ddply(comp,'name',function(x){
       paste('[component]',
             sprintf('name\t\t%s',x$name[1]),
@@ -224,7 +224,7 @@ write.gadget.likelihood <- function(lik,file='likelihood',
                   collapse = '\n'),
             ';', sep = '\n')
     })
-
+    
     lik.text <- paste(lik.text,
                       paste(comp.text$V1,
                             collapse='\n'),
@@ -263,9 +263,9 @@ merge.gadget.likelihood <- function(lik1,lik2){
 ##' @author Bjarki Thor Elvarsson
 get.gadget.likelihood <- function(likelihood,comp,inverse=FALSE){
   if(inverse)
-    weights <- subset(likelihood$weights,!(name %in% comp))
+    weights <- dplyr::filter(likelihood$weights,!(.data$name %in% comp))
   else
-    weights <- subset(likelihood$weights,name %in% comp)
+    weights <- dplyr::filter(likelihood$weights,.data$name %in% comp)
   tmp <-
     within(list(),
            for(type in weights$type){
@@ -275,7 +275,7 @@ get.gadget.likelihood <- function(likelihood,comp,inverse=FALSE){
              assign(type,
                     likelihood[[type]][restr,])
            }
-           )
+    )
   tmp$restr <- NULL
   tmp$type <- NULL
   tmp$weights <- weights
@@ -370,10 +370,10 @@ clear.spaces <- function(text){
 ##' @author Bjarki  Thor Elvarsson
 ##' @export
 read.gadget.parameters <- function(file='params.in'){
-
+  
   params <- tryCatch(utils::read.table(file,header=TRUE,
-                       comment.char=';',
-                       stringsAsFactors=FALSE),
+                                       comment.char=';',
+                                       stringsAsFactors=FALSE),
                      error = function(e){
                        print(sprintf('Error in read.gadget.parameters -- %s cannot be read', file))
                        return(NULL)
@@ -384,24 +384,24 @@ read.gadget.parameters <- function(file='params.in'){
   ## digg through the data written in the header
   header <- readLines(file)
   header <- header[grepl(';',substring(header,1,1))]
-
+  
   num.func <- function(pre){
     post <- ' function evaluations'
     num <- as.numeric(gsub(post,'',gsub(pre,'',header[grepl(pre,header)])))
     num <- ifelse(length(num) == 0,NA,num)
     return(num)
   }
-
+  
   ## Number of function evaluations
   sim.func.str <- '; Simulated Annealing algorithm ran for '
   sim.pos <- grep(sim.func.str,header)
-
+  
   hook.func.str <- '; Hooke & Jeeves algorithm ran for '
   hook.pos <- grep(hook.func.str,header)
-
+  
   bfgs.func.str <- '; BFGS algorithm ran for '
   bfgs.pos <- grep(bfgs.func.str,header)
-
+  
   ## final likelihood values from each component
   lik.func <- function(i){
     lik <- as.numeric(gsub('; and stopped when the likelihood value was ','',
@@ -409,7 +409,7 @@ read.gadget.parameters <- function(file='params.in'){
     lik <- ifelse(length(lik) == 0,NA,lik)
     return(lik)
   }
-
+  
   ## convergence
   conv.func <- function(i){
     error <- '; because an error occured during the optimisation'
@@ -423,26 +423,26 @@ read.gadget.parameters <- function(file='params.in'){
                                 'No information')))
     ifelse(length(msg)==0,NA,msg)
   }
-
+  
   safe_dates <- 
     purrr::quietly(~gsub('; Gadget version .+ running on [A-Za-z].+','',.) %>% 
                      lubridate::parse_date_time('%a %b! %d! %H!:%M!:%S! %Y!'))
   
   date <- safe_dates(header[1]) %>% .$result
-    
-
+  
+  
   tmp <- list(simann=data.frame(numFunc=num.func(sim.func.str),
-                lik.val=lik.func(sim.pos+1),
-                convergence=conv.func(sim.pos+2),
-                stringsAsFactors=FALSE),
+                                lik.val=lik.func(sim.pos+1),
+                                convergence=conv.func(sim.pos+2),
+                                stringsAsFactors=FALSE),
               hooke=data.frame(numFunc=num.func(hook.func.str),
-                lik.val=lik.func(hook.pos+1),
-                convergence=conv.func(hook.pos+2),
-                stringsAsFactors=FALSE),
+                               lik.val=lik.func(hook.pos+1),
+                               convergence=conv.func(hook.pos+2),
+                               stringsAsFactors=FALSE),
               bfgs=data.frame(numFunc=num.func(bfgs.func.str),
-                lik.val=lik.func(bfgs.pos+1),
-                convergence=conv.func(bfgs.pos+2),
-                stringsAsFactors=FALSE))
+                              lik.val=lik.func(bfgs.pos+1),
+                              convergence=conv.func(bfgs.pos+2),
+                              stringsAsFactors=FALSE))
   class(params) <- c('gadget.parameters',class(params))
   attr(params,'optim.info') <- tmp
   attr(params,'data') <- date 
@@ -465,24 +465,28 @@ write.gadget.parameters <- function(params,file='params.out',columns=TRUE){
           sprintf('; %s - %s',file,date()),
           paste(names(params),collapse='\t'),
           sep='\n')
-
+  
   if(!columns)
     write.unix(paste(c('switches',names(params)),collapse='\t'),f=file)
   else
     write.unix(input.text,file)
   write.gadget.table(params,file=file,
-              quote=FALSE, row.names=FALSE, col.names=FALSE,
-              append=TRUE, sep="\t")
-             
-
+                     quote=FALSE, row.names=FALSE, col.names=FALSE,
+                     append=TRUE, sep="\t")
+  
+  
 }
 
 
 ##' @title Make gadget printfile
-##' @param main location of main file
-##' @param output location of output folder
-##' @param aggfiles location of aggfiles
+##'
+##' @param main.file location of the main file
+##' @param printatstart print at the end or start of a step
+##' @param steps print steps
+##' @param recruitment_step_age data frame with stock and recruitment age
+##' @param gd location of the gadget model
 ##' @param file name of resulting printfile
+##'
 ##' @return gadget.mainfile object
 ##' @author Bjarki Thor Elvarsson
 make.gadget.printfile <- function(main.file='main',
@@ -491,271 +495,271 @@ make.gadget.printfile <- function(main.file='main',
                                   steps = 1,
                                   recruitment_step_age = NULL,
                                   gd = list(dir='.',output = 'out',aggfiles = 'print.aggfiles')){
-    
-    main <- read.gadget.file(gd$dir,main.file,file_type = 'main')
-    
-    if(length(main$likelihood$likelihoodfiles)>0){
-      lik <- 
-        main$likelihood$likelihoodfiles %>% 
-        purrr::map(~read.gadget.file(gd$dir,.,
-                                     file_type = 'likelihood',
-                                     recursive = FALSE))
-    } else {
-      lik <- NULL
-    }
-    stocks <- 
-      main$stock$stockfiles %>% 
-      purrr::map(~read.gadget.file(path=gd$dir,file_name = .,file_type = 'stock',recursive = FALSE)) 
-      
-    names(stocks) <- stocks %>% purrr::map(1) %>% purrr::map('stockname') %>% unlist()
-      
-    if(is.null(recruitment_step_age)){
-      recruitment_step_age <- 
-        stocks %>% 
-        purrr::map(1) %>% 
-        ## begin hack
-        purrr::map(~purrr::set_names(.,tolower(names(.)))) %>% 
-        ## end hack
-        purrr::map('minage') %>% 
-        dplyr::bind_rows() %>% 
-        dplyr::mutate(step=1) %>% 
-        tidyr::gather(stock,age,-step) 
-      
-    }
-    
-    fleets <- 
-      main$fleet$fleetfiles %>% 
-      purrr::map(~read.gadget.file(gd$dir,.,recursive = FALSE)) %>% 
-      purrr::flatten()
-    
-    names(fleets) <- 
-      fleets %>% 
+  
+  main <- read.gadget.file(gd$dir,main.file,file_type = 'main')
+  
+  if(length(main$likelihood$likelihoodfiles)>0){
+    lik <- 
+      main$likelihood$likelihoodfiles %>% 
+      purrr::map(~read.gadget.file(gd$dir,.,
+                                   file_type = 'likelihood',
+                                   recursive = FALSE))
+  } else {
+    lik <- NULL
+  }
+  stocks <- 
+    main$stock$stockfiles %>% 
+    purrr::map(~read.gadget.file(path=gd$dir,file_name = .,file_type = 'stock',recursive = FALSE)) 
+  
+  names(stocks) <- stocks %>% purrr::map(1) %>% purrr::map('stockname') %>% unlist()
+  
+  if(is.null(recruitment_step_age)){
+    recruitment_step_age <- 
+      stocks %>% 
       purrr::map(1) %>% 
-      unlist() %>% 
-      as.character()
+      ## begin hack
+      purrr::map(~purrr::set_names(.,tolower(names(.)))) %>% 
+      ## end hack
+      purrr::map('minage') %>% 
+      dplyr::bind_rows() %>% 
+      dplyr::mutate(step=1) %>% 
+      tidyr::gather(.data$stock,.data$age,-.data$step) 
     
-    header <- sprintf('; gadget printfile, created in %s',Sys.Date())
-    lik.summary <- 
-      paste('[component]',
-            'type\tlikelihoodsummaryprinter',
-            sprintf('printfile\t%s/likelihoodsummary', gd$output),
-            ';',sep='\n')
-    
-    
-    lik.template <-
-        paste('[component]',
-              'type\tlikelihoodprinter',
-              'likelihood\t%1$s',
-              sprintf('printfile\t%s/%%1$s',gd$output),
-              ';', sep='\n')
-    
-    
-    stock.std <-
-        paste('[component]',
-              'type\tstockstdprinter',
-              'stockname\t%1$s',
-              sprintf('printfile\t%s/%%1$s.std',gd$output),
-              sprintf('printatstart %s', printatstart),
-              sprintf('yearsandsteps\tall\t%s', steps),
-              ';',
-              sep='\n')
-    
-    stock.full <-
-        paste('[component]',
-              'type\tstockprinter',
-              'stocknames\t%1$s',
-              sprintf('areaaggfile\t%s/%%1$s.area.agg',gd$aggfiles),
-              sprintf('ageaggfile\t%s/%%1$s.allages.agg',gd$aggfiles),
-              sprintf('lenaggfile\t%s/%%1$s.len.agg',gd$aggfiles),
-              sprintf('printfile\t%s/%%1$s.full',gd$output),
-              sprintf('printatstart\t%s', printatstart),
-              sprintf('yearsandsteps\tall\t%s', steps),
-              ';',
-              sep='\n')
-    
-    predator <-
-        paste('[component]',
-              'type\tpredatorpreyprinter',
-              'predatornames\t%2$s',
-              'preynames\t%1$s',
-              sprintf('areaaggfile\t%s/%%1$s.area.agg',gd$aggfiles),
-              sprintf('ageaggfile\t%s/%%1$s.age.agg',gd$aggfiles),
-              sprintf('lenaggfile\t%s/%%1$s.alllen.agg',gd$aggfiles),
-              sprintf('printfile\t%s/%%1$s.prey',gd$output),
-              'yearsandsteps\tall all',
-              ';',
-              sep = '\n')
-    
-    predator.prey <-
-        paste('[component]',
-              'type\tpredatorpreyprinter',
-              'predatornames\t%2$s',
-              'preynames\t%1$s',
-              sprintf('areaaggfile\t%s/%%1$s.area.agg',gd$aggfiles),
-              sprintf('ageaggfile\t%s/%%1$s.allages.agg',gd$aggfiles),
-              sprintf('lenaggfile\t%s/%%1$s.len.agg',gd$aggfiles),
-              sprintf('printfile\t%s/%%1$s.prey.%%2$s',gd$output),
-              'yearsandsteps\tall all',
-              ';',
-              sep = '\n')
-    
-    recruitment.print <- 
-      paste('[component]',
-            'type\tstockprinter',
-            'stocknames\t%s',
-            sprintf('areaaggfile\t%s/%%1$s.area.agg',gd$aggfiles),
-            sprintf('ageaggfile\t%s/%%1$s.rec.age.agg',gd$aggfiles),
-            sprintf('lenaggfile\t%s/%%1$s.alllen.agg',gd$aggfiles),
-            sprintf('printfile\t%s/%%1$s.recruitment',gd$output),
-            'printatstart\t0',
-            'yearsandsteps\tall %s',
-            ';',
-            sep = '\n')
-    
-    prey.subset <- 
-      stocks %>%  purrr::keep(~.$iseaten$iseaten == 1) %>% names()
-    
-    pred_prey_table <- expand.grid(preys = prey.subset,
-                                   predators = c(names(fleets),
-                                                 stocks %>% 
-                                                   purrr::keep(~.$doeseat$doeseat == 1) %>% 
-                                                   names()), 
-                                   stringsAsFactors = FALSE)
-    
-    
-    dir.create(gd$output, showWarnings = FALSE)
-    dir.create(gd$aggfiles, showWarnings = FALSE)
-    
-    
-    stocks %>% 
-      purrr::map(function(x){
-        ## hack begins
-        names(x[[1]]) <- tolower(names(x[[1]]))
-        ## hack ends
-        lengths <- seq(x[[1]]$minlength,x[[1]]$maxlength,by = x[[1]]$dl)
-        lenAgg <- data.frame(length = paste('len',utils::tail(lengths,-1),
-                                            sep = ''),
-                             min = utils::head(lengths,-1),
-                             max = utils::tail(lengths,-1))
-        
-        agg.head <-
-          paste(sprintf('; aggregation file for %s created using rgadget at %s',
-                        x[[1]]$stockname,Sys.Date()),
-                paste(c('; ',names(lenAgg)),collapse = '\t'),
-                sep = '\n')
-        write.unix(agg.head,f = sprintf('%s/%s.len.agg',gd$aggfiles,
-                                        x[[1]]$stockname))
-        
-        write.gadget.table(lenAgg,
-                           file = sprintf('%s/%s.len.agg',gd$aggfiles,
-                                          x[[1]]$stockname),
-                           col.names=FALSE,append=TRUE,
-                           quote=FALSE,sep='\t',row.names=FALSE)
-        
-        ## all length agg file
-        alllenAgg <- data.frame(length = 'alllen',
-                                min = min(lengths),
-                                max = max(lengths))
-        write.unix(agg.head,f = sprintf('%s/%s.alllen.agg',gd$aggfiles,
-                                        x[[1]]$stockname))
-        write.gadget.table(alllenAgg,
-                           file = sprintf('%s/%s.alllen.agg',gd$aggfiles,x[[1]]$stockname),
-                           col.names=FALSE,append=TRUE,
-                           quote=FALSE,sep='\t',row.names=FALSE)
-        
-        ## age agg file
-        ageAgg <- data.frame(label = x[[1]]$minage:x[[1]]$maxage,
-                             age = x[[1]]$minage:x[[1]]$maxage)
-        write.unix(agg.head,f = sprintf('%s/%s.age.agg',gd$aggfiles,x[[1]]$stockname))
-        write.gadget.table(ageAgg,
-                           file = sprintf('%s/%s.age.agg',gd$aggfiles,x[[1]]$stockname),
-                           col.names=FALSE,append=TRUE,
-                           quote=FALSE,sep='\t',row.names=FALSE)
-      
-        ## recruitment age agg file
-        rec.ageAgg <- 
-          recruitment_step_age %>% 
-          dplyr::filter(stock == x[[1]]$stockname) %>% 
-          dplyr::mutate(label = age) %>% 
-          dplyr::select(label,age)
-          
-        if(nrow(rec.ageAgg)>0){  
-          write.unix(agg.head,f = sprintf('%s/%s.rec.age.agg',gd$aggfiles,x[[1]]$stockname))
-          write.gadget.table(rec.ageAgg,
-                             file = sprintf('%s/%s.rec.age.agg',gd$aggfiles,x[[1]]$stockname),
-                             col.names=FALSE,append=TRUE,
-                             quote=FALSE,sep='\t',row.names=FALSE)
-        }
-          
-        ## allages.agg
-        allagesAgg <- data.frame(label = 'allages',
-                                 age = paste(x[[1]]$minage:x[[1]]$maxage,
-                                             collapse = '\t'))
-        write.unix(agg.head,f = sprintf('%s/%s.allages.agg',gd$aggfiles,
-                                        x[[1]]$stockname))
-        write.gadget.table(allagesAgg,
-                           file = sprintf('%s/%s.allages.agg',gd$aggfiles,x[[1]]$stockname),
-                           col.names=FALSE,append=TRUE,
-                           quote=FALSE,sep='\t',row.names=FALSE)
-        ## Area agg file
-        areaAgg <- data.frame(label=paste('area',
-                                          x[[1]]$livesonareas,
+  }
+  
+  fleets <- 
+    main$fleet$fleetfiles %>% 
+    purrr::map(~read.gadget.file(gd$dir,.,recursive = FALSE)) %>% 
+    purrr::flatten()
+  
+  names(fleets) <- 
+    fleets %>% 
+    purrr::map(1) %>% 
+    unlist() %>% 
+    as.character()
+  
+  header <- sprintf('; gadget printfile, created in %s',Sys.Date())
+  lik.summary <- 
+    paste('[component]',
+          'type\tlikelihoodsummaryprinter',
+          sprintf('printfile\t%s/likelihoodsummary', gd$output),
+          ';',sep='\n')
+  
+  
+  lik.template <-
+    paste('[component]',
+          'type\tlikelihoodprinter',
+          'likelihood\t%1$s',
+          sprintf('printfile\t%s/%%1$s',gd$output),
+          ';', sep='\n')
+  
+  
+  stock.std <-
+    paste('[component]',
+          'type\tstockstdprinter',
+          'stockname\t%1$s',
+          sprintf('printfile\t%s/%%1$s.std',gd$output),
+          sprintf('printatstart %s', printatstart),
+          sprintf('yearsandsteps\tall\t%s', steps),
+          ';',
+          sep='\n')
+  
+  stock.full <-
+    paste('[component]',
+          'type\tstockprinter',
+          'stocknames\t%1$s',
+          sprintf('areaaggfile\t%s/%%1$s.area.agg',gd$aggfiles),
+          sprintf('ageaggfile\t%s/%%1$s.allages.agg',gd$aggfiles),
+          sprintf('lenaggfile\t%s/%%1$s.len.agg',gd$aggfiles),
+          sprintf('printfile\t%s/%%1$s.full',gd$output),
+          sprintf('printatstart\t%s', printatstart),
+          sprintf('yearsandsteps\tall\t%s', steps),
+          ';',
+          sep='\n')
+  
+  predator <-
+    paste('[component]',
+          'type\tpredatorpreyprinter',
+          'predatornames\t%2$s',
+          'preynames\t%1$s',
+          sprintf('areaaggfile\t%s/%%1$s.area.agg',gd$aggfiles),
+          sprintf('ageaggfile\t%s/%%1$s.age.agg',gd$aggfiles),
+          sprintf('lenaggfile\t%s/%%1$s.alllen.agg',gd$aggfiles),
+          sprintf('printfile\t%s/%%1$s.prey',gd$output),
+          'yearsandsteps\tall all',
+          ';',
+          sep = '\n')
+  
+  predator.prey <-
+    paste('[component]',
+          'type\tpredatorpreyprinter',
+          'predatornames\t%2$s',
+          'preynames\t%1$s',
+          sprintf('areaaggfile\t%s/%%1$s.area.agg',gd$aggfiles),
+          sprintf('ageaggfile\t%s/%%1$s.allages.agg',gd$aggfiles),
+          sprintf('lenaggfile\t%s/%%1$s.len.agg',gd$aggfiles),
+          sprintf('printfile\t%s/%%1$s.prey.%%2$s',gd$output),
+          'yearsandsteps\tall all',
+          ';',
+          sep = '\n')
+  
+  recruitment.print <- 
+    paste('[component]',
+          'type\tstockprinter',
+          'stocknames\t%s',
+          sprintf('areaaggfile\t%s/%%1$s.area.agg',gd$aggfiles),
+          sprintf('ageaggfile\t%s/%%1$s.rec.age.agg',gd$aggfiles),
+          sprintf('lenaggfile\t%s/%%1$s.alllen.agg',gd$aggfiles),
+          sprintf('printfile\t%s/%%1$s.recruitment',gd$output),
+          'printatstart\t0',
+          'yearsandsteps\tall %s',
+          ';',
+          sep = '\n')
+  
+  prey.subset <- 
+    stocks %>%  purrr::keep(~.$iseaten$iseaten == 1) %>% names()
+  
+  pred_prey_table <- expand.grid(preys = prey.subset,
+                                 predators = c(names(fleets),
+                                               stocks %>% 
+                                                 purrr::keep(~.$doeseat$doeseat == 1) %>% 
+                                                 names()), 
+                                 stringsAsFactors = FALSE)
+  
+  
+  dir.create(gd$output, showWarnings = FALSE)
+  dir.create(gd$aggfiles, showWarnings = FALSE)
+  
+  
+  stocks %>% 
+    purrr::map(function(x){
+      ## hack begins
+      names(x[[1]]) <- tolower(names(x[[1]]))
+      ## hack ends
+      lengths <- seq(x[[1]]$minlength,x[[1]]$maxlength,by = x[[1]]$dl)
+      lenAgg <- data.frame(length = paste('len',utils::tail(lengths,-1),
                                           sep = ''),
-                              area = x[[1]]$livesonareas)
-        write.unix(agg.head,f = sprintf('%s/%s.area.agg',gd$aggfiles,
-                                        x[[1]]$stockname))
-        write.gadget.table(areaAgg,
-                           file = sprintf('%s/%s.area.agg',gd$aggfiles,x[[1]]$stockname),
+                           min = utils::head(lengths,-1),
+                           max = utils::tail(lengths,-1))
+      
+      agg.head <-
+        paste(sprintf('; aggregation file for %s created using rgadget at %s',
+                      x[[1]]$stockname,Sys.Date()),
+              paste(c('; ',names(lenAgg)),collapse = '\t'),
+              sep = '\n')
+      write.unix(agg.head,f = sprintf('%s/%s.len.agg',gd$aggfiles,
+                                      x[[1]]$stockname))
+      
+      write.gadget.table(lenAgg,
+                         file = sprintf('%s/%s.len.agg',gd$aggfiles,
+                                        x[[1]]$stockname),
+                         col.names=FALSE,append=TRUE,
+                         quote=FALSE,sep='\t',row.names=FALSE)
+      
+      ## all length agg file
+      alllenAgg <- data.frame(length = 'alllen',
+                              min = min(lengths),
+                              max = max(lengths))
+      write.unix(agg.head,f = sprintf('%s/%s.alllen.agg',gd$aggfiles,
+                                      x[[1]]$stockname))
+      write.gadget.table(alllenAgg,
+                         file = sprintf('%s/%s.alllen.agg',gd$aggfiles,x[[1]]$stockname),
+                         col.names=FALSE,append=TRUE,
+                         quote=FALSE,sep='\t',row.names=FALSE)
+      
+      ## age agg file
+      ageAgg <- data.frame(label = x[[1]]$minage:x[[1]]$maxage,
+                           age = x[[1]]$minage:x[[1]]$maxage)
+      write.unix(agg.head,f = sprintf('%s/%s.age.agg',gd$aggfiles,x[[1]]$stockname))
+      write.gadget.table(ageAgg,
+                         file = sprintf('%s/%s.age.agg',gd$aggfiles,x[[1]]$stockname),
+                         col.names=FALSE,append=TRUE,
+                         quote=FALSE,sep='\t',row.names=FALSE)
+      
+      ## recruitment age agg file
+      rec.ageAgg <- 
+        recruitment_step_age %>% 
+        dplyr::filter(.data$stock == x[[1]]$stockname) %>% 
+        dplyr::mutate(label = .data$age) %>% 
+        dplyr::select(.data$label,.data$age)
+      
+      if(nrow(rec.ageAgg)>0){  
+        write.unix(agg.head,f = sprintf('%s/%s.rec.age.agg',gd$aggfiles,x[[1]]$stockname))
+        write.gadget.table(rec.ageAgg,
+                           file = sprintf('%s/%s.rec.age.agg',gd$aggfiles,x[[1]]$stockname),
                            col.names=FALSE,append=TRUE,
                            quote=FALSE,sep='\t',row.names=FALSE)
-        
+      }
       
-        
-        
-      })-> foo
+      ## allages.agg
+      allagesAgg <- data.frame(label = 'allages',
+                               age = paste(x[[1]]$minage:x[[1]]$maxage,
+                                           collapse = '\t'))
+      write.unix(agg.head,f = sprintf('%s/%s.allages.agg',gd$aggfiles,
+                                      x[[1]]$stockname))
+      write.gadget.table(allagesAgg,
+                         file = sprintf('%s/%s.allages.agg',gd$aggfiles,x[[1]]$stockname),
+                         col.names=FALSE,append=TRUE,
+                         quote=FALSE,sep='\t',row.names=FALSE)
+      ## Area agg file
+      areaAgg <- data.frame(label=paste('area',
+                                        x[[1]]$livesonareas,
+                                        sep = ''),
+                            area = x[[1]]$livesonareas)
+      write.unix(agg.head,f = sprintf('%s/%s.area.agg',gd$aggfiles,
+                                      x[[1]]$stockname))
+      write.gadget.table(areaAgg,
+                         file = sprintf('%s/%s.area.agg',gd$aggfiles,x[[1]]$stockname),
+                         col.names=FALSE,append=TRUE,
+                         quote=FALSE,sep='\t',row.names=FALSE)
       
+      
+      
+      
+    })-> foo
+  
+  
+  if(length(lik)>0){
+    txt <- 
+      lik %>%
+      purrr::flatten() %>% 
+      purrr::discard(~.$type %in% c('understocking','penalty',
+                                    'migrationpenalty')) %>% 
+      purrr::map('name') %>% 
+      unlist() %>%
+      purrr::map(~sprintf(lik.template,.)) %>% 
+      unlist()
     
-    if(length(lik)>0){
-      txt <- 
-        lik %>%
-        purrr::flatten() %>% 
-        purrr::discard(~.$type %in% c('understocking','penalty',
-                                      'migrationpenalty')) %>% 
-        purrr::map('name') %>% 
-        unlist() %>%
-        purrr::map(~sprintf(lik.template,.)) %>% 
-        unlist()
-      
-      
-    } else {
-      txt <- ';'
-      lik.summary <- ';'
-    }
     
-    write.unix(paste(header,
-                     lik.summary,
-                     paste(txt,collapse='\n'),
-                     paste(sprintf(stock.std,plyr::laply(stocks,
-                                                   function(x) x[[1]]$stockname)),
-                           collapse='\n'),
-                     paste(sprintf(stock.full,plyr::laply(stocks,
-                                                    function(x) x[[1]]$stockname)),
-                           collapse='\n'),
-                     ifelse(length(fleets)>0,
-                            paste(sprintf(predator,prey.subset,
-                                          paste(names(fleets),collapse = ' ')),
-                                  collapse='\n'),
-                            ';\n'),
-                     paste(sprintf(predator.prey,
-                                   pred_prey_table$preys,
-                                   pred_prey_table$predators),
-                           collapse='\n'),
-                     paste(sprintf(recruitment.print,recruitment_step_age$stock,
-                                   recruitment_step_age$step),
-                           collapse = '\n'),
-                     ';',
-                     sep='\n'),
-               f=file)
+  } else {
+    txt <- ';'
+    lik.summary <- ';'
+  }
+  
+  write.unix(paste(header,
+                   lik.summary,
+                   paste(txt,collapse='\n'),
+                   paste(sprintf(stock.std,plyr::laply(stocks,
+                                                       function(x) x[[1]]$stockname)),
+                         collapse='\n'),
+                   paste(sprintf(stock.full,plyr::laply(stocks,
+                                                        function(x) x[[1]]$stockname)),
+                         collapse='\n'),
+                   ifelse(length(fleets)>0,
+                          paste(sprintf(predator,prey.subset,
+                                        paste(names(fleets),collapse = ' ')),
+                                collapse='\n'),
+                          ';\n'),
+                   paste(sprintf(predator.prey,
+                                 pred_prey_table$preys,
+                                 pred_prey_table$predators),
+                         collapse='\n'),
+                   paste(sprintf(recruitment.print,recruitment_step_age$stock,
+                                 recruitment_step_age$step),
+                         collapse = '\n'),
+                   ';',
+                   sep='\n'),
+             f=file)
 }
 
 
@@ -773,8 +777,8 @@ read.gadget.results <- function(grouping=list(),
                                 final=list(final='final'),
                                 wgts='WGTS',
                                 normalize = FALSE
-                                ){
-
+){
+  
   read.gadget.SS <- function(file='lik.out'){
     lik.out <- readLines(file)
     SS <- as.numeric(clear.spaces(strsplit(lik.out[length(lik.out)],
@@ -783,10 +787,10 @@ read.gadget.results <- function(grouping=list(),
   }
   likelihood <- read.gadget.likelihood(sprintf('%s/likelihood.final',wgts))
   grouping <- read.gadget.grouping(lik=likelihood,wgts=wgts)
-  comp.tmp <- subset(likelihood$weights,
-                     !(type %in% c('penalty','understocking',
-                                   'migrationpenalty','catchinkilos'))&
-                     !(name %in% unlist(grouping)))$name
+  comp.tmp <- dplyr::filter(likelihood$weights,
+                            !(.data$type %in% c('penalty','understocking',
+                                                'migrationpenalty','catchinkilos'))&
+                              !(.data$name %in% unlist(grouping)))$name
   comp <- within(grouping,
                  for(item in comp.tmp){
                    assign(item, item)
@@ -794,17 +798,17 @@ read.gadget.results <- function(grouping=list(),
   comp$item <- NULL
   res <-
     dplyr::bind_rows(plyr::ldply(comp,
-                     function(x)
-                     read.gadget.SS(paste(wgts,
-                                          paste('lik',
-                                                paste(x,collapse='.'),
-                                                sep='.'),sep='/'))),
-               plyr::ldply(final,
-                     function(x)
-                     read.gadget.SS(paste(wgts,
-                                          paste('lik',
-                                                paste(x,collapse='.'),
-                                                sep='.'),sep='/'))))
+                                 function(x)
+                                   read.gadget.SS(paste(wgts,
+                                                        paste('lik',
+                                                              paste(x,collapse='.'),
+                                                              sep='.'),sep='/'))),
+                     plyr::ldply(final,
+                                 function(x)
+                                   read.gadget.SS(paste(wgts,
+                                                        paste('lik',
+                                                              paste(x,collapse='.'),
+                                                              sep='.'),sep='/'))))
   names(res)[-1] <- likelihood$weights$name
   rownames(res) <- res$.id
   if(normalize){
@@ -814,7 +818,7 @@ read.gadget.results <- function(grouping=list(),
       }
     }
   }
-
+  
   return(res)
 }
 
@@ -829,13 +833,13 @@ read.gadget.results <- function(grouping=list(),
 ##' @export
 read.gadget.data <- function(likelihood,debug=FALSE,year_range=NULL){
   read.agg <- function(x, first = FALSE){      
-      if(first){
-          return(sapply(strsplit(readLines(x),'[\t ]'),function(x) x[1]))
-      }  else {
-          return(utils::read.table(x,stringsAsFactors=FALSE,comment.char=';'))
-      }
+    if(first){
+      return(sapply(strsplit(readLines(x),'[\t ]'),function(x) x[1]))
+    }  else {
+      return(utils::read.table(x,stringsAsFactors=FALSE,comment.char=';'))
+    }
   }
-
+  
   read.preyagg <- function(x){
     tmp <- readLines(x)
     loc <- grep('lengths',tmp)
@@ -843,30 +847,30 @@ read.gadget.data <- function(likelihood,debug=FALSE,year_range=NULL){
     tmp2$V1 <- clear.spaces(tmp[loc-2])
     return(tmp2)
   }
-
+  
   read.func <- function(x){
-      if(debug){
-          print(sprintf('reading datafile %s',x$datafile))
-      }
-      dat <- tryCatch(utils::read.table(x$datafile,comment.char=';',stringsAsFactors = FALSE),
-                      error = function(x) NULL)
-      
-      
-      area.agg <- tryCatch(read.agg(x$areaaggfile, first = TRUE),
-                           warning = function(x) NULL,
-                           error = function(x) NULL)
-      age.agg <- tryCatch(read.agg(x$ageaggfile, first = TRUE),
-                          warning = function(x) NULL,
-                          error = function(x) NULL)
-      len.agg <- tryCatch(read.agg(x$lenaggfile),
-                          warning = function(x) NULL,
-                          error = function(x) NULL)
-      
-      prey.agg <- tryCatch(read.preyagg(x$preyaggfile),
-                           warning = function(x) NULL,
-                           error = function(x) NULL)
-
-
+    if(debug){
+      print(sprintf('reading datafile %s',x$datafile))
+    }
+    dat <- tryCatch(utils::read.table(x$datafile,comment.char=';',stringsAsFactors = FALSE),
+                    error = function(x) NULL)
+    
+    
+    area.agg <- tryCatch(read.agg(x$areaaggfile, first = TRUE),
+                         warning = function(x) NULL,
+                         error = function(x) NULL)
+    age.agg <- tryCatch(read.agg(x$ageaggfile, first = TRUE),
+                        warning = function(x) NULL,
+                        error = function(x) NULL)
+    len.agg <- tryCatch(read.agg(x$lenaggfile),
+                        warning = function(x) NULL,
+                        error = function(x) NULL)
+    
+    prey.agg <- tryCatch(read.preyagg(x$preyaggfile),
+                         warning = function(x) NULL,
+                         error = function(x) NULL)
+    
+    
     if(x$type=='catchdistribution'){
       names(dat) <- c('year','step','area','age','length','number')
     }
@@ -875,11 +879,11 @@ read.gadget.data <- function(likelihood,debug=FALSE,year_range=NULL){
          c('lengthcalcstddev','weightnostddev','lengthnostddev'))
         names(dat) <- c('year','step','area','age','number','mean')
       if(x[['function']] %in% c('lengthgivenstddev','weightgivenstddev',
-                           'lengthgivenvar'))
+                                'lengthgivenvar'))
         names(dat) <- c('year','step','area','age','number','mean','stddev')
       if(x[['function']] %in% c('weightgivenstddevlen'))
         names(dat) <- c('year','step','area','age','number','mean','stddev') ## tempfix: gadget output is wrong
-        #names(dat) <- c('year','step','area','length','number','mean','stddev')
+      #names(dat) <- c('year','step','area','length','number','mean','stddev')
       
     }
     if(x$type=='stockdistribution'){
@@ -922,7 +926,7 @@ read.gadget.data <- function(likelihood,debug=FALSE,year_range=NULL){
       else
         names(dat) <- c('year','step','area','fleet','biomass')
     }
-
+    
     restr.area <- (dat$area %in% area.agg)
     if(length(restr.area)==0)
       restr.area <- TRUE
@@ -949,7 +953,7 @@ read.gadget.data <- function(likelihood,debug=FALSE,year_range=NULL){
     if(!is.null(year_range)){
       dat <- 
         dat %>% 
-        dplyr::filter(year %in% year_range)
+        dplyr::filter(.data$year %in% year_range)
     }
     
     attr(dat,'len.agg') <- len.agg
@@ -964,20 +968,20 @@ read.gadget.data <- function(likelihood,debug=FALSE,year_range=NULL){
     return(list(dat=list(),df=list()))
   
   lik.dat <- plyr::dlply(subset(likelihood$weights,
-                          !(type %in% c('penalty', 'understocking',
-                                        'migrationpenalty','proglikelihood'))),
-                   'type',
-                   function(x) plyr::dlply(x,'name',read.func))
-
+                                !(likelihood$weights$type %in% c('penalty', 'understocking',
+                                                                 'migrationpenalty','proglikelihood'))),
+                         'type',
+                         function(x) plyr::dlply(x,'name',read.func))
+  
   df <- lapply(lik.dat,function(x)
-              sapply(x,function(x){
-                x <- stats::na.omit(x)
-                tmp <- 0
-                if(length(intersect(c('lower','upper'),names(x)))>0){
-                  tmp <- 2
-                }
-                nrow(x[x[,ncol(x)-tmp]>0,])
-              }))
+    sapply(x,function(x){
+      x <- stats::na.omit(x)
+      tmp <- 0
+      if(length(intersect(c('lower','upper'),names(x)))>0){
+        tmp <- 2
+      }
+      nrow(x[x[,ncol(x)-tmp]>0,])
+    }))
   gadDat <- list(dat=lik.dat,df=df)
   class(gadDat) <- c('gadgetData','list')
   return(gadDat)
@@ -1007,16 +1011,16 @@ read.gadget.lik.out <- function(file='lik.out',suppress=FALSE){
                        print(sprintf('file corrupted -- %s', file))
                      return(NULL)
                    })
-
+  
   i <- grep("Listing of the switches",lik)
   i1 <- grep("Listing of the likelihood components",lik)
   i2 <- grep("Listing of the output from the likelihood",lik)
-
+  
   if(is.null(i)|is.null(i1)|is.null(i2)){
     warning(sprintf('file %s is corrupt',file))
     return(NULL)
   }
-
+  
   switches <- tryCatch(lapply(strsplit(lik[(i+1):(i1-2)],'\t'),unique),
                        error = function(e){
                          if(!suppress)
@@ -1028,13 +1032,13 @@ read.gadget.lik.out <- function(file='lik.out',suppress=FALSE){
   }
   names(switches) <- sapply(switches,function(x) x[1])
   switches <- lapply(switches,function(x) x[-1])
-
+  
   weights <- t(sapply(strsplit(lik[(i1+3):(i2-2)],'\t'),function(x) x))
   weights <- as.data.frame(weights,stringsAsFactors=FALSE)
   weights$V2 <- as.numeric(weights$V2)
   weights$V3 <- as.numeric(weights$V3)
   names(weights) <- c('Component','Type','Weight')
-
+  
   data <- utils::read.table(file,skip=(i2+1))
   names(data) <- c('iteration',names(switches),weights$Component,'score')
   attr(data,'Likelihood components') <- weights$Component
@@ -1063,7 +1067,7 @@ strip.comments <- function(file='main'){
   main <- main[main!='']
   main <- sapply(strsplit(main,';'),function(x) x[1])
   main <- clear.spaces(main)
-#  attr(main,'comments') <- comments
+  #  attr(main,'comments') <- comments
   return(main)
 }
 
@@ -1077,7 +1081,7 @@ strip.comments <- function(file='main'){
 read.gadget.stockfiles <- function(stock.files){
   tmp.func <- function(sf){
     stock <- strip.comments(sf)
-
+    
     growth.loc <- grep('doesgrow', stock, ignore.case = TRUE)
     mort.loc <- grep('naturalmortality', stock, ignore.case = TRUE)
     init.loc <- grep('initialconditions', stock, ignore.case = TRUE)
@@ -1085,10 +1089,10 @@ read.gadget.stockfiles <- function(stock.files){
     if(tolower(stock[init.loc+1])=='numbers'){
       init.loc <- init.loc + 1
     }
-#    initfile.loc <- #grep('normalcondfile',stock, ignore.case =TRUE)
-#      c(grep('normalcondfile',stock, ignore.case =TRUE),
-#        grep('normalparamfile',stock, ignore.case =TRUE),
-#        grep('numberfile',stock, ignore.case =TRUE))
+    #    initfile.loc <- #grep('normalcondfile',stock, ignore.case =TRUE)
+    #      c(grep('normalcondfile',stock, ignore.case =TRUE),
+    #        grep('normalparamfile',stock, ignore.case =TRUE),
+    #        grep('numberfile',stock, ignore.case =TRUE))
     eat.loc <- grep('doeseat', stock, ignore.case = TRUE)
     migrate.loc <- grep('doesmigrate', stock, ignore.case = TRUE)
     initfile.loc <- migrate.loc -1
@@ -1097,15 +1101,15 @@ read.gadget.stockfiles <- function(stock.files){
     renew.loc <- grep('doesrenew', stock, ignore.case = TRUE)
     spawn.loc <- grep('doesspawn', stock, ignore.case = TRUE)
     stray.loc <- grep('doesstray', stock, ignore.case = TRUE)
-
+    
     growth.info <- function(tmp){
       if(length(tmp)==1)
-        tmp <- new('gadget-growth')
+        tmp <- methods::new('gadget-growth')
       else {
         names.tmp <- sapply(tmp,function(x) x[1])
         tmp <- plyr::llply(tmp,function(x) paste(x[-1],collapse=' '))
         names(tmp) <- names.tmp
-
+        
         if(is.null(tmp$growthparameters))
           tmp$growthparameters <- vector()
         if(is.null(tmp$growthfunction))
@@ -1121,89 +1125,89 @@ read.gadget.stockfiles <- function(stock.files){
         if(is.null(tmp$areaeffect))
           tmp$areaeffect <- vector()
         if(tolower(tmp$growthfunction) == 'lengthvbsimple'){
-          tmp <- new('gadget-growth',
-                     growthfunction = tmp$growthfunction,
-                     ## growthfunction parameters
-                     growthparameters = tmp$growthparameters,
-#                   wgrowthparameters = tmp$wgrowthparameters,
-#                   lgrowthparameters = tmp$lgrowthparameters,
-#                   yeareffect = tmp$yeareffect,
-#                   stepeffect = tmp$stepeffect,
-#                   areaeffect = tmp$areaeffect,
-                   ## growth implementation
-                   beta = tmp$beta,
-                   maxlengthgroupgrowth = tmp$maxlengthgroupgrowth)
+          tmp <- methods::new('gadget-growth',
+                              growthfunction = tmp$growthfunction,
+                              ## growthfunction parameters
+                              growthparameters = tmp$growthparameters,
+                              #                   wgrowthparameters = tmp$wgrowthparameters,
+                              #                   lgrowthparameters = tmp$lgrowthparameters,
+                              #                   yeareffect = tmp$yeareffect,
+                              #                   stepeffect = tmp$stepeffect,
+                              #                   areaeffect = tmp$areaeffect,
+                              ## growth implementation
+                              beta = tmp$beta,
+                              maxlengthgroupgrowth = tmp$maxlengthgroupgrowth)
         } else if(tolower(tmp$growthfunction) == 'lengthpower'){
-          tmp <- new('gadget-growth',
-                     growthfunction = tmp$growthfunction,
-                     ## growthfunction parameters
-                     growthparameters = tmp$growthparameters,
-                     weightgrowthfile = tmp$weightgrowthfile,
-                     #                   lgrowthparameters = tmp$lgrowthparameters,
-                     #                   yeareffect = tmp$yeareffect,
-                     #                   stepeffect = tmp$stepeffect,
-                     #                   areaeffect = tmp$areaeffect,
-                     ## growth implementation
-                     beta = tmp$beta,
-                     maxlengthgroupgrowth = tmp$maxlengthgroupgrowth)
+          tmp <- methods::new('gadget-growth',
+                              growthfunction = tmp$growthfunction,
+                              ## growthfunction parameters
+                              growthparameters = tmp$growthparameters,
+                              weightgrowthfile = tmp$weightgrowthfile,
+                              #                   lgrowthparameters = tmp$lgrowthparameters,
+                              #                   yeareffect = tmp$yeareffect,
+                              #                   stepeffect = tmp$stepeffect,
+                              #                   areaeffect = tmp$areaeffect,
+                              ## growth implementation
+                              beta = tmp$beta,
+                              maxlengthgroupgrowth = tmp$maxlengthgroupgrowth)
         } else {
-          tmp <- new('gadget-growth',
-                     growthfunction = tmp$growthfunction,
-                     ## growthfunction parameters
-                     growthparameters = tmp$growthparameters,
-                     wgrowthparameters = tmp$wgrowthparameters,
-                     lgrowthparameters = tmp$lgrowthparameters,
-                     ##                   yeareffect = tmp$yeareffect,
-                     ##                   stepeffect = tmp$stepeffect,
-                     ##                   areaeffect = tmp$areaeffect,
-                     ## growth implementation
-                     beta = tmp$beta,
-                     maxlengthgroupgrowth = tmp$maxlengthgroupgrowth)
+          tmp <- methods::new('gadget-growth',
+                              growthfunction = tmp$growthfunction,
+                              ## growthfunction parameters
+                              growthparameters = tmp$growthparameters,
+                              wgrowthparameters = tmp$wgrowthparameters,
+                              lgrowthparameters = tmp$lgrowthparameters,
+                              ##                   yeareffect = tmp$yeareffect,
+                              ##                   stepeffect = tmp$stepeffect,
+                              ##                   areaeffect = tmp$areaeffect,
+                              ## growth implementation
+                              beta = tmp$beta,
+                              maxlengthgroupgrowth = tmp$maxlengthgroupgrowth)
         }
       }
       return(tmp)
     }
-
+    
     prey.info <- function(tmp){
       if(length(tmp)==1){
-        tmp <- new('gadget-prey')
+        tmp <- methods::new('gadget-prey')
       } else {
-        tmp <- new('gadget-prey',
-                   name = stock[[1]][2],
-                   preylengths = utils::read.table(tmp[[2]][2],comment.char=';'),
-                   energycontent = ifelse(length(tmp)==3,as.numeric(tmp[[3]][2]),
-                     1))
+        tmp <- methods::new('gadget-prey',
+                            name = stock[[1]][2],
+                            preylengths = utils::read.table(tmp[[2]][2],comment.char=';'),
+                            energycontent = ifelse(length(tmp)==3,as.numeric(tmp[[3]][2]),
+                                                   1))
       }
       return(tmp)
     }
-
+    
     pred.info <- function(tmp){
       if(length(tmp)==1){
-        tmp <- new('gadget-predator')
+        tmp <- methods::new('gadget-predator')
       } else {
         suit.loc <- grep('suitability',tmp)
         pref.loc <- grep('preference',tmp)
         maxcon.loc <- grep('maxconsumption',tmp)
         half.loc <- grep('halffeedingvalue',tmp)
         suit <- plyr::ldply((suit.loc+1):(pref.loc-1),
-                      function(x){
-                        c(stock = tmp[[x]][1],
-                          suitability = paste(tmp[[x]][-1],collapse=' '))
-                      })
+                            function(x){
+                              c(stock = tmp[[x]][1],
+                                suitability = paste(tmp[[x]][-1],collapse=' '))
+                            })
         pref <- plyr::ldply((pref.loc+1):(maxcon.loc-1),
-                      function(x){
-                        c(stock = tmp[[x]][1],
-                          preference = paste(tmp[[x]][-1],collapse=' '))
-                      })
-        tmp <- new('gadget-predator',
-                   suitability = suit,
-                   preference = pref,
-                   maxconsumption = paste(tmp[[maxcon.loc]][-1], collapse = ' '),
-                   halffeedingvalue = paste(tmp[[half.loc]][2], collapse = ' '))
+                            function(x){
+                              c(stock = tmp[[x]][1],
+                                preference = paste(tmp[[x]][-1],collapse=' '))
+                            })
+        tmp <- methods::new('gadget-predator',
+                            suitability = suit,
+                            preference = pref,
+                            maxconsumption = paste(tmp[[maxcon.loc]][-1], collapse = ' '),
+                            halffeedingvalue = paste(tmp[[half.loc]][2], collapse = ' '))
       }
       return(tmp)
     }
-
+    
     initialdata <- read.gadget.table(stock[[initfile.loc]][2])
     if(length(names(initialdata)) == 7){
       names(initialdata) <- c('age','area','age.factor','area.factor',
@@ -1238,51 +1242,51 @@ read.gadget.stockfiles <- function(stock.files){
       maturitylengths <- ''
       maturitysteps <- ''
       if(tolower(maturity.function) == 'fixedlength'){
-          maturitylengths <- (maturity.file[[3]][-1])
+        maturitylengths <- (maturity.file[[3]][-1])
       } else if(tolower(maturity.function) != 'continuous'){
-          maturitysteps <- (maturity.file[[3]][-1])
+        maturitysteps <- (maturity.file[[3]][-1])
       } 
-  
+      
     } else {
       maturity.function <- ''
       maturestocksandratios <- ''
       coefficients <- ''
       maturitylengths <- ''
       maturitysteps <- ''
-  }
+    }
     doesmove <- as.numeric(stock[[move.loc]][2])
     if(doesmove == 1){
-        transitionstocksandratios <- (stock[[move.loc+1]][-1])
-        transitionstep <- as.numeric(stock[[move.loc+2]][-1])
+      transitionstocksandratios <- (stock[[move.loc+1]][-1])
+      transitionstep <- as.numeric(stock[[move.loc+2]][-1])
     } else {
       transitionstocksandratios <- ''
       transitionstep <- 0
     }
-
+    
     doesmigrate <- as.numeric(stock[[migrate.loc]][2])
     if(doesmigrate == 1){
-        yearstep <- utils::read.table(stock[[migrate.loc+1]][-1],
-                               comment.char = ';',
-                               stringsAsFactors=FALSE)
-        tmp <- strip.comments(stock[[migrate.loc+2]][-1])
-        mat.loc <- grep('[migrationmatrix]',tmp,fixed=TRUE)
-        tyler <- diff(mat.loc)[1]
-	if(length(tyler) == 0){
- 	   tyler <- length(tmp)-1
-	}
-        migrationratio <-
-          plyr::llply(mat.loc,  ## all puns intended;)
-                function(x){
-                  plyr::laply((x+2):(x+tyler-1),
-                        function(y){merge.formula(tmp[[y]])})
-                })
-        names(migrationratio) <- plyr::laply(mat.loc,function(x){ tmp[[x+1]][2]})
+      yearstep <- utils::read.table(stock[[migrate.loc+1]][-1],
+                                    comment.char = ';',
+                                    stringsAsFactors=FALSE)
+      tmp <- strip.comments(stock[[migrate.loc+2]][-1])
+      mat.loc <- grep('[migrationmatrix]',tmp,fixed=TRUE)
+      tyler <- diff(mat.loc)[1]
+      if(length(tyler) == 0){
+        tyler <- length(tmp)-1
+      }
+      migrationratio <-
+        plyr::llply(mat.loc,  ## all puns intended;)
+                    function(x){
+                      plyr::laply((x+2):(x+tyler-1),
+                                  function(y){merge.formula(tmp[[y]])})
+                    })
+      names(migrationratio) <- plyr::laply(mat.loc,function(x){ tmp[[x+1]][2]})
     } else {
       migrationratio <- list()
-#      transitionstocksandratios <- ''
+      #      transitionstocksandratios <- ''
       yearstep <- data.frame()
     }
-
+    
     doesspawn <- as.numeric(stock[[spawn.loc]][2])
     if(doesspawn == 1){
       tmp <- strip.comments(stock[[spawn.loc+1]][2])
@@ -1292,80 +1296,80 @@ read.gadget.stockfiles <- function(stock.files){
       stockparameters <- as.data.frame(t(merge.formula(tmp[[10]][-1])))
       names(stockparameters) <- c('mean','std.dev','alpha','beta')
       spawning <-
-        new('gadget-spawning',
-            spawnsteps = as.numeric(tmp[[1]][-1]),
-            spawnareas = as.numeric(tmp[[2]][-1]),
-            firstspawnyear = as.numeric(tmp[[3]][-1]),
-            lastspawnyear = as.numeric(tmp[[4]][-1]),
-            spawnstocksandratio = ssar,
-            proportionfunction = merge.formula(tmp[[6]][-1]),
-            mortalityfunction = merge.formula(tmp[[7]][-1]),
-            weightlossfunction = merge.formula(tmp[[8]][-1]),
-            recruitment = merge.formula(tmp[[9]][-1]),
-            stockparameters = stockparameters)
-
-
+        methods::new('gadget-spawning',
+                     spawnsteps = as.numeric(tmp[[1]][-1]),
+                     spawnareas = as.numeric(tmp[[2]][-1]),
+                     firstspawnyear = as.numeric(tmp[[3]][-1]),
+                     lastspawnyear = as.numeric(tmp[[4]][-1]),
+                     spawnstocksandratio = ssar,
+                     proportionfunction = merge.formula(tmp[[6]][-1]),
+                     mortalityfunction = merge.formula(tmp[[7]][-1]),
+                     weightlossfunction = merge.formula(tmp[[8]][-1]),
+                     recruitment = merge.formula(tmp[[9]][-1]),
+                     stockparameters = stockparameters)
+      
+      
     } else {
-      spawning <- new('gadget-spawning')
+      spawning <- methods::new('gadget-spawning')
     }
-
-
-
-
+    
+    
+    
+    
     st <-
-      new('gadget-stock',
-          stockname = stock[[1]][2],
-          livesonareas = as.numeric(stock[[2]][-1]),
-          minage = as.numeric(stock[[3]][2]),
-          maxage = as.numeric(stock[[4]][2]),
-          minlength = as.numeric(stock[[5]][2]),
-          maxlength = as.numeric(stock[[6]][2]),
-          dl = as.numeric(stock[[7]][2]),
-          refweight = utils::read.table(stock[[8]][2],comment.char=';'),
-          growthandeatlengths = utils::read.table(stock[[9]][2],comment.char=';'),
-          doesgrow = as.numeric(stock[[growth.loc]][2]),
-          growth = growth.info(stock[growth.loc:(mort.loc-1)]),
-          naturalmortality = merge.formula(stock[[mort.loc]][-1]),
-          iseaten = as.numeric(stock[[mort.loc+1]][2]),
-          preyinfo = prey.info(stock[(mort.loc+1):(eat.loc-1)]),
-          doeseat = as.numeric(stock[[eat.loc]][2]),
-          predator = pred.info(stock[eat.loc:(pred.loc)]),
-          initialconditions = list(minage = stock[[init.loc + 1]][2],
-            maxage = stock[[init.loc + 2]][2],
-            minlength = stock[[init.loc + 3]][2],
-            maxlength = stock[[init.loc + 4]][2],
-            dl = ifelse(tolower(stock[[init.loc + 5]][1])=='dl',
-              stock[[init.loc + 5]][2],as.numeric(stock[[7]][2])),
-            sdev = ifelse(tolower(stock[[init.loc + 6]][1])=='sdev',
-              stock[[init.loc + 6]][2], 1)),
-          initialdata = initialdata,
-          doesmigrate = as.numeric(stock[[migrate.loc]][2]),
-          yearstep = yearstep,
-          migrationratio = migrationratio,
-          doesmature =  as.numeric(stock[[mature.loc]][2]),
-          maturityfunction = maturity.function,
-          maturestocksandratios = maturestocksandratios,
-          coefficients = coefficients,
-          maturitysteps = maturitysteps,
-          maturitylengths = maturitylengths,
-          doesmove = as.numeric(stock[[move.loc]][2]),
-          transitionstocksandratios = transitionstocksandratios,
-          transitionstep = transitionstep,
-          doesrenew =  as.numeric(stock[[renew.loc]][2]),
-          renewal = list(
-            minlength = ifelse(as.numeric(stock[[renew.loc]][2]) == 0,
-              '',
-              as.numeric(stock[[renew.loc + 1]][2])),
-            maxlength = ifelse(as.numeric(stock[[renew.loc]][2]) == 0,
-              '',
-              as.numeric(stock[[renew.loc + 2]][2]))),
-          renewal.data = renewal.data,
-          doesspawn = as.numeric(stock[[spawn.loc]][2]),
-          spawning = spawning,
-          doesstray = ifelse(length(stray.loc)==0,
-            0,as.numeric(stock[[stray.loc]][2]))
-          )
-
+      methods::new('gadget-stock',
+                   stockname = stock[[1]][2],
+                   livesonareas = as.numeric(stock[[2]][-1]),
+                   minage = as.numeric(stock[[3]][2]),
+                   maxage = as.numeric(stock[[4]][2]),
+                   minlength = as.numeric(stock[[5]][2]),
+                   maxlength = as.numeric(stock[[6]][2]),
+                   dl = as.numeric(stock[[7]][2]),
+                   refweight = utils::read.table(stock[[8]][2],comment.char=';'),
+                   growthandeatlengths = utils::read.table(stock[[9]][2],comment.char=';'),
+                   doesgrow = as.numeric(stock[[growth.loc]][2]),
+                   growth = growth.info(stock[growth.loc:(mort.loc-1)]),
+                   naturalmortality = merge.formula(stock[[mort.loc]][-1]),
+                   iseaten = as.numeric(stock[[mort.loc+1]][2]),
+                   preyinfo = prey.info(stock[(mort.loc+1):(eat.loc-1)]),
+                   doeseat = as.numeric(stock[[eat.loc]][2]),
+                   predator = pred.info(stock[eat.loc:(pred.loc)]),
+                   initialconditions = list(minage = stock[[init.loc + 1]][2],
+                                            maxage = stock[[init.loc + 2]][2],
+                                            minlength = stock[[init.loc + 3]][2],
+                                            maxlength = stock[[init.loc + 4]][2],
+                                            dl = ifelse(tolower(stock[[init.loc + 5]][1])=='dl',
+                                                        stock[[init.loc + 5]][2],as.numeric(stock[[7]][2])),
+                                            sdev = ifelse(tolower(stock[[init.loc + 6]][1])=='sdev',
+                                                          stock[[init.loc + 6]][2], 1)),
+                   initialdata = initialdata,
+                   doesmigrate = as.numeric(stock[[migrate.loc]][2]),
+                   yearstep = yearstep,
+                   migrationratio = migrationratio,
+                   doesmature =  as.numeric(stock[[mature.loc]][2]),
+                   maturityfunction = maturity.function,
+                   maturestocksandratios = maturestocksandratios,
+                   coefficients = coefficients,
+                   maturitysteps = maturitysteps,
+                   maturitylengths = maturitylengths,
+                   doesmove = as.numeric(stock[[move.loc]][2]),
+                   transitionstocksandratios = transitionstocksandratios,
+                   transitionstep = transitionstep,
+                   doesrenew =  as.numeric(stock[[renew.loc]][2]),
+                   renewal = list(
+                     minlength = ifelse(as.numeric(stock[[renew.loc]][2]) == 0,
+                                        '',
+                                        as.numeric(stock[[renew.loc + 1]][2])),
+                     maxlength = ifelse(as.numeric(stock[[renew.loc]][2]) == 0,
+                                        '',
+                                        as.numeric(stock[[renew.loc + 2]][2]))),
+                   renewal.data = renewal.data,
+                   doesspawn = as.numeric(stock[[spawn.loc]][2]),
+                   spawning = spawning,
+                   doesstray = ifelse(length(stray.loc)==0,
+                                      0,as.numeric(stock[[stray.loc]][2]))
+      )
+    
     return(st)
   }
   stocks <- plyr::llply(stock.files,tmp.func)
@@ -1455,12 +1459,14 @@ write.gadget.time <- function(time,file='time'){
 
 ##' @rdname gadgetFitHelpers
 ##' @description \code{read.gadget.wgts} reads the output from iterative weighting likelihood output
+##'
 ##' @param params.file base parameter file
 ##' @param wgts location of the reweighting folder
 ##' @param likelihood likelihood file
 ##' @param lik.pre strings matching the likelihood output
 ##' @param params.pre strings matching the parameter estimates
 ##' @param parallel should the files be read in parallel
+##'
 ##' @return data.frame with parameter estimates and likelihood output from the iterative reweighting folder.
 read.gadget.wgts <- function(params.file = 'params.in',
                              wgts = 'WGTS',
@@ -1468,21 +1474,22 @@ read.gadget.wgts <- function(params.file = 'params.in',
                              lik.pre = 'lik.',
                              params.pre = 'params.',
                              parallel=FALSE){
-
+  
+  
   params.in <- read.gadget.parameters(params.file)
   bs.lik <- read.gadget.likelihood(likelihood)
   files <- unique(list.files(wgts))
-
+  
   lik.pre.g <- paste('^',gsub('.','[^a-zA-Z]',lik.pre,fixed=TRUE),sep='')
   params.pre.g <- paste('^',gsub('.','[^a-zA-Z]',params.pre,fixed=TRUE),sep='')
-
+  
   liks <- unique(files[grep(lik.pre.g,files)])
   comps <- gsub(lik.pre.g,'',liks)
-
+  
   tmp.func <- function(path){
     read.gadget.SS <- function(file='lik.out'){
       lik.out <- read.gadget.lik.out(file)
-
+      
       if(is.null(lik.out)){
         SS <- as.data.frame(t(rep(NA,length(bs.lik$weights$weight))))
         names(SS) <- bs.lik$weights$name
@@ -1495,35 +1502,35 @@ read.gadget.wgts <- function(params.file = 'params.in',
     liks <- path.f[grep(lik.pre,path.f)]
     params <- path.f[grep(params.pre.g,path.f)]
     plyr::ldply(intersect(comps,unique(c(gsub(params.pre.g,'',params),
-                                   'init'))),
-          function(x){
-            if(x=='init')
-              tmp <- params.in
-            else
-              tmp <- read.gadget.parameters(sprintf('%s/%s%s',
-                                                    path,params.pre,x))
-            if(is.null(tmp)){
-              tmp <- params.in
-              tmp$value <- NA*tmp$value
-              ss <- as.data.frame(t(rep(NA,length(bs.lik$weights$weight))))
-              names(ss) <- bs.lik$weights$name
-            } else {
-              ss <- read.gadget.SS(sprintf('%s/%s%s',path,lik.pre,x))
-            }
-            optim  <- plyr::ldply(attributes(tmp)$optim.info,
-                            function(x) cbind(fake.id=1,x))
-            optim <- stats::reshape(optim,idvar='fake.id',
-                             timevar='.id',direction='wide')
-            optim$fake.id <- NULL
-            dtmp <- cbind(bs.data=utils::tail(unlist(strsplit(path,'/')),1),
-                          comp=x,
-                          t(tmp['value']),
-                          ss,
-                          optim)
-
-            return(dtmp)
-          }
-          )
+                                         'init'))),
+                function(x){
+                  if(x=='init')
+                    tmp <- params.in
+                  else
+                    tmp <- read.gadget.parameters(sprintf('%s/%s%s',
+                                                          path,params.pre,x))
+                  if(is.null(tmp)){
+                    tmp <- params.in
+                    tmp$value <- NA*tmp$value
+                    ss <- as.data.frame(t(rep(NA,length(bs.lik$weights$weight))))
+                    names(ss) <- bs.lik$weights$name
+                  } else {
+                    ss <- read.gadget.SS(sprintf('%s/%s%s',path,lik.pre,x))
+                  }
+                  optim  <- plyr::ldply(attributes(tmp)$optim.info,
+                                        function(x) cbind(fake.id=1,x))
+                  optim <- stats::reshape(optim,idvar='fake.id',
+                                          timevar='.id',direction='wide')
+                  optim$fake.id <- NULL
+                  dtmp <- cbind(bs.data=utils::tail(unlist(strsplit(path,'/')),1),
+                                comp=x,
+                                t(tmp['value']),
+                                ss,
+                                optim)
+                  
+                  return(dtmp)
+                }
+    )
   }
   dparam <- plyr::ldply(wgts,tmp.func,.parallel=parallel)
   attr(dparam,'init.param') <- params.in
@@ -1539,22 +1546,22 @@ merge.formula <- function(txt){
   closeP <- grep(')',txt,fixed=TRUE)
   if(length(openP) + length(closeP) == 0)
     return(txt)
-
+  
   if(length(openP) != length(closeP))
     stop('numbers of paranthesis dont match in gadget formula')
-
+  
   braces <- data.frame(begin=openP,end=closeP,group=openP)
   for(i in 1:length(openP)){
     braces$end[i] <- closeP[i]
     braces$begin[i] <- openP[max(which(openP < closeP[i]))]
     openP[max(which(openP < closeP[i]))] <- length(txt)
   }
-  braces <- dplyr::arrange(braces, begin)
+  braces <- dplyr::arrange(braces, .data$begin)
   for(i in 1:length(openP)){
     braces$group[braces$end<braces$end[i] & braces$end>braces$begin[i]] <-
       braces$group[i]
   }
-
+  
   braces <- plyr::ddply(braces,'group',function(x) utils::head(x,1))
   for(i in length(braces$group):1){
     txt[braces$begin[i]] <- paste(txt[braces$begin[i]:braces$end[i]],
@@ -1578,25 +1585,25 @@ merge.formula <- function(txt){
 eval.gadget.formula <- function(gad.for,par=data.frame()){
   tmp <- strsplit(gsub(')',' )',gsub('(','',gad.for,fixed=TRUE)),' ')
   plyr::ldply(tmp,
-        function(x){
-          x <- x[!x=='']
-          x[x=='-'] <- "'-'("
-          x[x=='+'] <- "'+'("
-          par.ind <- grep('#',x,fixed=TRUE)
-          x <- gsub("*","prod(",x,fixed=TRUE)
-          x <- gsub("/","'/'(",x,fixed=TRUE)
-          x <- gsub("+ ","sum(",x,fixed=TRUE)
-          x <- gsub("- ","'-'(",x,fixed=TRUE)
-          x <- gsub('exp','exp(',x,fixed = TRUE)
-          x <- gsub('log','log(',x,fixed = TRUE)
-          x <- gsub('sqrt','sqrt(',x,fixed = TRUE)
-          ## remove initial values
-          x <- gsub('[0-9]+.[0-9]+#|[0-9]+#','#',x)
-          x[par.ind] <- par[gsub('#','',x[par.ind],fixed=TRUE),'value']
-          x <- gsub(',)',')',gsub('(,','(',paste(x,collapse=','),fixed=TRUE),
-                    fixed=TRUE)
-          return(eval(parse(text=x)))
-        })
+              function(x){
+                x <- x[!x=='']
+                x[x=='-'] <- "'-'("
+                x[x=='+'] <- "'+'("
+                par.ind <- grep('#',x,fixed=TRUE)
+                x <- gsub("*","prod(",x,fixed=TRUE)
+                x <- gsub("/","'/'(",x,fixed=TRUE)
+                x <- gsub("+ ","sum(",x,fixed=TRUE)
+                x <- gsub("- ","'-'(",x,fixed=TRUE)
+                x <- gsub('exp','exp(',x,fixed = TRUE)
+                x <- gsub('log','log(',x,fixed = TRUE)
+                x <- gsub('sqrt','sqrt(',x,fixed = TRUE)
+                ## remove initial values
+                x <- gsub('[0-9]+.[0-9]+#|[0-9]+#','#',x)
+                x[par.ind] <- par[gsub('#','',x[par.ind],fixed=TRUE),'value']
+                x <- gsub(',)',')',gsub('(,','(',paste(x,collapse=','),fixed=TRUE),
+                          fixed=TRUE)
+                return(eval(parse(text=x)))
+              })
 }
 
 ##' \code{read.gadget.table} reads gadget tables
@@ -1617,7 +1624,7 @@ read.gadget.table <- function(file,header=FALSE){
     header <- utils::tail(comments,1)
     ## unfinised business
   }
-
+  
   return(gad.tab)
 }
 
@@ -1635,25 +1642,25 @@ read.gadget.fleet <- function(fleet.file='fleet'){
     data.frame(fleet = plyr::laply(fleet[comp.loc+1],function(x) x[2]),
                type = plyr::laply(fleet[comp.loc+1],function(x) x[1]),
                livesonareas = plyr::laply(fleet[comp.loc+2],
-                 function(x) paste(x[-1],collapse=' ')),
+                                          function(x) paste(x[-1],collapse=' ')),
                multiplicative = plyr::laply(fleet[comp.loc+3],
-                 function(x) as.numeric(x[2])),
+                                            function(x) as.numeric(x[2])),
                amount =  plyr::laply(fleet[c(comp.loc[-1]-1,
-                 length(fleet))],
-                 function(x) x[2]),
+                                             length(fleet))],
+                                     function(x) x[2]),
                stringsAsFactors=FALSE
-               )
+    )
   diff.suit <- data.frame(fleet=plyr::laply(fleet[comp.loc+1],function(x) x[2]),
                           begin=suit.loc+1,
                           end=c(comp.loc[-1]-2,length(fleet)-1))
   prey <- plyr::ddply(diff.suit,'fleet',
-                function(x){
-                  plyr::ldply(fleet[x$begin:x$end],
-                        function(x)
-                        c(stock=x[1],suitability=x[3],
-                          params=paste(utils::tail(x,-3),collapse=' ')))
-
-                })
+                      function(x){
+                        plyr::ldply(fleet[x$begin:x$end],
+                                    function(x)
+                                      c(stock=x[1],suitability=x[3],
+                                        params=paste(utils::tail(x,-3),collapse=' ')))
+                        
+                      })
   return(list(fleet=fleet.dat,prey=prey))
 }
 
@@ -1672,13 +1679,13 @@ write.gadget.fleet <- function(fleet,file='fleet'){
           '%s',
           'amount\t%s',
           sep='\n')
-
+  
   suit.text <- plyr::ddply(fleet$prey,'fleet',
-                     function(x){
-                       c(suitability=paste(x$stock,'function',
-                           x$suitability,x$params,
-                           sep='\t', collapse='\n'))
-                     })
+                           function(x){
+                             c(suitability=paste(x$stock,'function',
+                                                 x$suitability,x$params,
+                                                 sep='\t', collapse='\n'))
+                           })
   tmp <- merge(fleet$fleet,suit.text,by='fleet')
   tmp$suitability <- ifelse(tmp$type=='quotafleet',
                             paste(tmp$suitability,
@@ -1688,11 +1695,11 @@ write.gadget.fleet <- function(fleet,file='fleet'){
                                           tmp$selectstocks),
                                   sep='\n'),
                             tmp$suitability)
-
+  
   write.unix(sprintf(base.text,tmp$type,tmp$fleet,tmp$livesonareas,
                      tmp$multiplicative,tmp$suitability, tmp$amount),
              f=file)
-
+  
 }
 
 
@@ -1710,14 +1717,14 @@ get.gadget.recruitment <- function(stocks,params,collapse=TRUE){
       tmp <- 
         x@renewal.data %>% 
         dplyr::mutate(stock = x@stockname,
-                      recruitment = 1e4*unlist(eval.gadget.formula(number,params))) %>% 
-        dplyr::select(stock,year,step,area,recruitment) %>% 
+                      recruitment = 1e4*unlist(eval.gadget.formula(.data$number,params))) %>% 
+        dplyr::select(.data$stock,.data$year,.data$step,.data$area,.data$recruitment) %>% 
         stats::na.omit() 
       if(collapse){
         tmp %>% 
-		  # area added to accomodate merge with res.by.year in gadget.fit() - pfrater
-          dplyr::group_by(stock,year, area) %>% 
-          dplyr::summarise(recruitment=sum(recruitment)) %>% 
+          # area added to accomodate merge with res.by.year in gadget.fit() - pfrater
+          dplyr::group_by(.data$stock,.data$year, .data$area) %>% 
+          dplyr::summarise(recruitment=sum(.data$recruitment)) %>% 
           as.data.frame()
       } else{
         tmp
@@ -1738,28 +1745,28 @@ get.gadget.recruitment <- function(stocks,params,collapse=TRUE){
 read.gadget.grouping <- function(lik = read.gadget.likelihood(),
                                  wgts = 'WGTS'){
   lik.tmp <- subset(lik$weights,
-                    !(type %in% c('penalty','understocking',
-                                  'migrationpenalty','catchinkilos')))
-
+                    !(lik$weights$type %in% c('penalty','understocking',
+                                              'migrationpenalty','catchinkilos')))
+  
   tmp <- 
     tryCatch(
       plyr::ldply(lik.tmp$name,
-            function(x){
-              text <- gsub('params.','',
-                           grep('params',list.files(wgts),
-                                value = TRUE))
-              x1 <- gsub('.','\\.',x,fixed=TRUE)
-              x1 <- paste('([[:punct:]]|^)',x1,'([[:punct:]]|$)',
-                          sep='')
-              pos <- grep(x1,text)
-              data.frame(name = x,
-                         pos = pos,
-                         ord = regexpr(x,text[pos])[1],
-                         stringsAsFactors=FALSE)
-            }),
-    error=function(e) stop('Error when reading likelihood grouping from WGTS, some components are missing. 
+                  function(x){
+                    text <- gsub('params.','',
+                                 grep('params',list.files(wgts),
+                                      value = TRUE))
+                    x1 <- gsub('.','\\.',x,fixed=TRUE)
+                    x1 <- paste('([[:punct:]]|^)',x1,'([[:punct:]]|$)',
+                                sep='')
+                    pos <- grep(x1,text)
+                    data.frame(name = x,
+                               pos = pos,
+                               ord = regexpr(x,text[pos])[1],
+                               stringsAsFactors=FALSE)
+                  }),
+      error=function(e) stop('Error when reading likelihood grouping from WGTS, some components are missing. 
                            Has iterative reweighting been completed?'))
-  tmp <- dplyr::arrange(tmp,pos,ord)
+  tmp <- dplyr::arrange(tmp,.data$pos,.data$ord)
   grouping <- plyr::dlply(tmp,~pos,function(x) as.character(x$name))
   names(grouping) <- unlist(plyr::llply(grouping,function(x) paste(x,collapse='.')))
   attributes(grouping)$split_labels <- NULL
@@ -1770,13 +1777,13 @@ read.gadget.grouping <- function(lik = read.gadget.likelihood(),
 
 
 write.unix <- function(x,f,append=FALSE,...){
-    f <- file(f,open=ifelse(append,'ab','wb'))
-    write(x,file=f,...)
-    close(f)
+  f <- file(f,open=ifelse(append,'ab','wb'))
+  write(x,file=f,...)
+  close(f)
 }
 
 write.gadget.table <- function(x,file='',append=FALSE,...){
-    f <- file(file,open=ifelse(append,'ab','wb'))
-    utils::write.table(x,file=f,eol='\n',...)
-    close(f)
+  f <- file(file,open=ifelse(append,'ab','wb'))
+  utils::write.table(x,file=f,eol='\n',...)
+  close(f)
 }

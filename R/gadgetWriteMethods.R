@@ -433,9 +433,7 @@ setMethod("gadget_dir_write",
 ) 
 
 
-##' @title Write gadget main
-##' @return NULL
-##' @author Bjarki Thor Elvarsson
+
 setMethod("gadget_dir_write",
     signature(gd = 'list', x = "gadget-main"),
     function (gd,x) {

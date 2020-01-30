@@ -12,8 +12,8 @@ survey.index <- function(stock.dat,split,sigma=0,alpha=0,beta=1){
   
   stock.dat$SIgroup <- cut(stock.dat$length,split)
   sidat <- stock.dat %>%
-    dplyr::group_by(SIgroup,year,step) %>%
-    dplyr::summarise(SI=exp(alpha)*sum(num)^beta)
+    dplyr::group_by(.data$SIgroup,.data$year,.data$step) %>%
+    dplyr::summarise(SI=exp(.data$alpha)*sum(.data$num)^.data$beta)
   if(sum(abs(sigma))!=0){
       if(length(sigma) == (length(split)-1)){
           sigma <- rep(sigma,each=length(unique(sidat$year)))
@@ -25,9 +25,9 @@ survey.index <- function(stock.dat,split,sigma=0,alpha=0,beta=1){
 
 ##' @title Length distributions
 ##' @name ldist
-##' @param stock.dat 
-##' @param sigma 
-##' @param dl 
+##' @param stock.dat input data
+##' @param sigma std. deviation
+##' @param dl length group size
 ##' @return data.frame
 ##' @author Bjarki Thor Elvarsson
 ldist <- function(stock.dat,sigma=0,dl=1){
@@ -36,23 +36,23 @@ ldist <- function(stock.dat,sigma=0,dl=1){
                               max(stock.dat$length),
                               by=dl))
   ldist <- stock.dat %>%
-    dplyr::group_by(lgroup,year,step) %>%
-      dplyr::summarise(num=sum(num))
+    dplyr::group_by(.data$lgroup,.data$year,.data$step) %>%
+      dplyr::summarise(num=sum(.data$num))
   if(sigma!=0){
       
     ldist$num <- ldist$num*exp(stats::rnorm(nrow(ldist),0,sigma^2)-sigma^2/2)
   }
   ldist <- ldist %>%
-    dplyr::group_by(year,step,add=FALSE) %>%
-    dplyr::mutate(p=num/sum(num))
+    dplyr::group_by(.data$year,.data$step,add=FALSE) %>%
+    dplyr::mutate(p=.data$num/sum(.data$num))
   return(ldist)
 }
 
 ##' @title Age length dist
-##' @name aldist
-##' @param stock.dat 
-##' @param sigma 
-##' @param dl 
+##' @name aldist 
+##' @param stock.dat input data
+##' @param sigma std. deviations
+##' @param dl length group size
 ##' @return data.frame
 ##' @importFrom rlang .data
 ##' @author Bjarki Thor Elvarsson
@@ -75,7 +75,7 @@ aldist <- function(stock.dat,sigma=0,dl=1){
 
 ##' @title toDataFrame
 ##' @name toDataFrame
-##' @param sim 
+##' @param sim gadget simulation object (from gadget.simulate)
 ##' @return data.frame
 ##' @author Bjarki Thor Elvarsson
 toDataFrame <- function(sim){

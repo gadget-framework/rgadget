@@ -7,24 +7,12 @@
 gadget.simulate(gm, params = data.frame(), maxratioconsumed = 0.95)
 }
 \arguments{
-\item{opt}{gadget options list, as defined by 'gadget.options'}
+\item{gm}{gadget model object, as defined by 'gadget.skeleton'}
+
+\item{params}{input parameters}
 }
 \value{
 a list of arrays:
-\item{Rec}{Recruits for all years}
-\item{immStart}{Initial starting population for the immature stock age 2 and older}
-\item{matStart}{Initial starting population for the mature stock age 2 and older}
-\item{immNumRec}{Immature stock population for all timesteps, areas, ages and lengths}
-\item{matNumRec}{Mature stock population for all timesteps, areas, ages and lengths}
-\item{immCsurv}{Survey catches of the immature stock}
-\item{matCsurv}{Survey catches of the mature stock}
-\item{immCcomm}{Commercial catches of the immature stock}
-\item{matCcomm}{Commercial catches of the mature stock}
-\item{Eat}{Amount consumed of immatures by matures}
-\item{GrowthProb}{Growthprobability matrix}
-\item{immMort}{Natural mortality for the immature stock}
-\item{matMort}{Natural mortality for the mature stock}
-\item{opt}{Gadget options list used in the simulation}
 }
 \description{
 Rgadget is the driver function for the ecosystem simulation. It takes a
@@ -91,5 +79,5 @@ gm <- gadget.skeleton(time=opt$time,area=opt$area,stock=opt$stocks,opt$fleets)
 sim <- gadget.simulate(gm)
 }
 \author{
-Bjarki Thor Elvarsson, Asta Jenny Sigurdardottir and Elinborg Ingunn Olafsdottir
+Bjarki Thor Elvarsson
 }

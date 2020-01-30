@@ -12,9 +12,9 @@
 #' @export
 von_b_formula <- function(a,linf='Linf',k='k',recl='recl'){
   a %>% 
-    map(~infuser::infuse("{{linf}} * (1 - exp(-1 * (0.001 * {{k}}) * ({{a}} - (1 + log(1 - {{recl}}/{{linf}})/(0.001 * {{k}})))))",
+    purrr::map(~infuser::infuse("{{linf}} * (1 - exp(-1 * (0.001 * {{k}}) * ({{a}} - (1 + log(1 - {{recl}}/{{linf}})/(0.001 * {{k}})))))",
                          a=.,linf=linf,k=k,recl=recl)) %>% 
-    map(~parse(text=.) %>% 
+    purrr::map(~parse(text=.) %>% 
           map(to.gadget.formulae)) %>% 
     unlist()
 }

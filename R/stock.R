@@ -55,23 +55,11 @@
 ##' 
 ##' 8. Replace the stock, here to the mature, that has moved and increase the age. 
 ##' @title Rgadget
-##' @param opt gadget options list, as defined by 'gadget.options'
+##' @param gm gadget model object, as defined by 'gadget.skeleton'
+##' @param params input parameters
+##' @param maxratioconsumed maximum depletion rate
 ##' @return a list of arrays:
-##' \item{Rec}{Recruits for all years}
-##' \item{immStart}{Initial starting population for the immature stock age 2 and older}
-##' \item{matStart}{Initial starting population for the mature stock age 2 and older}
-##' \item{immNumRec}{Immature stock population for all timesteps, areas, ages and lengths}
-##' \item{matNumRec}{Mature stock population for all timesteps, areas, ages and lengths}
-##' \item{immCsurv}{Survey catches of the immature stock}
-##' \item{matCsurv}{Survey catches of the mature stock}
-##' \item{immCcomm}{Commercial catches of the immature stock}
-##' \item{matCcomm}{Commercial catches of the mature stock}
-##' \item{Eat}{Amount consumed of immatures by matures}
-##' \item{GrowthProb}{Growthprobability matrix}
-##' \item{immMort}{Natural mortality for the immature stock}
-##' \item{matMort}{Natural mortality for the mature stock}
-##' \item{opt}{Gadget options list used in the simulation}
-##' @author Bjarki Thor Elvarsson, Asta Jenny Sigurdardottir and Elinborg Ingunn Olafsdottir
+##' @author Bjarki Thor Elvarsson
 ##' @export
 ##' @examples
 ##' opt <- gadget.options('simple2stock')
@@ -115,9 +103,9 @@ gadget.simulate <- function(gm, params=data.frame(),
     
     ## recruitment
     if(x@doesrenew == 1){
-      rec <- subset(getRecruitment(x,params),
-                    year <= utils::tail(tm$year,1) &
-                      step <= utils::tail(tm$step,1))
+      rec <- dplyr::filter(getRecruitment(x,params),
+                           .data$year <= utils::tail(tm$year,1),
+                           .data$step <= utils::tail(tm$step,1))
       stk[getAreas(gm),,getMinage(x),
           sprintf('Year_%s_Step_%s',rec$year,rec$step)] <- 
         reshape2::acast(plyr::ddply(rec,~year+step+area+age,function(y){
@@ -302,8 +290,8 @@ gadget.simulate <- function(gm, params=data.frame(),
 
       
       for(fleet in getFleetNames(gm)){
-          tmp <- subset(gm@fleets[[fleet]]@amount,
-                        year==curr.year & step == curr.step)   
+        tmp <- dplyr::filter(gm@fleets[[fleet]]@amount,
+                             .data$year==curr.year, .data$step == curr.step)   
           if(nrow(tmp)>0){
               for(stock in getStockNames(gm)){
                   if(stock %in% gm@fleets[[fleet]]@suitability$stock){

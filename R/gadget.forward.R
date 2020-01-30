@@ -55,7 +55,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
       preamble[grepl('year step area',preamble)] %>% 
       gsub('; (*)','\\1',.) %>% 
       gsub('\\[|\\]','',.) %>% 
-      str_split(' ') %>% 
+      stringr::str_split(' ') %>% 
       unlist() 
     
     body %>% 
@@ -296,7 +296,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
                                trial = rep(1:num.trials,each=years),
                                rec = pmax(arima.sim(years*num.trials,model=list(ar=.$b),sd=.$sigma) + .$a,0))) %>% 
         dplyr::bind_rows(.id='stock')  %>% 
-        dplyr::mutate(rec = ifelse(is.na(.data$rec),x,.data$rec)) %>% 
+        dplyr::mutate(rec = ifelse(is.na(.data$rec),.data$x,.data$rec)) %>% 
         dplyr::select(.data$stock,.data$year,.data$trial,recruitment = .data$rec) %>% 
         dplyr::mutate(step = (rec$step[rec$year == min(ref.years)])[1])
       
@@ -319,7 +319,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
   } else {
     prj.rec <- 
       tmp %>% 
-      dplyr::group_by(stock) %>% 
+      dplyr::group_by(.data$stock) %>% 
       dplyr::summarise(recruitment = mean(.data$recruitment)) %>% 
       dplyr::left_join(expand.grid(stock = stocks %>% 
                                      purrr::map(getStockNames) %>% 
@@ -333,9 +333,9 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
   
   if(num.trials == 1 & length(effort)==1){
     prj.rec %>% 
-      dplyr::mutate(switch = paste(stock,'rec',.data$year,.data$step,sep='.'),
+      dplyr::mutate(switch = paste(.data$stock,'rec',.data$year,.data$step,sep='.'),
                     lower = 0,
-                    upper = recruitment + 1,
+                    upper = .data$recruitment + 1,
                     optimise = 0) %>% 
       dplyr::select(.data$switch,value=.data$recruitment,.data$lower,.data$upper,.data$optimise) %>% 
       dplyr::bind_rows(params,
@@ -442,7 +442,7 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
   plyr::llply(stocks,function(x){
     tmp <- 
       prj.rec %>% 
-      dplyr::filter(stock == x@stockname,trial == 1) #%>% 
+      dplyr::filter(.data$stock == x@stockname,.data$trial == 1) #%>% 
       #dplyr::left_join(rec.step.ratio,by=c('stock'))
     
     if(x@doesrenew==1){
@@ -475,12 +475,12 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
   callGadget(s = 1, i = sprintf('%s/params.forward',pre),
              main = sprintf('%s/main.pre',pre))
   
-  time <- new('gadget-time',
-              firstyear = time$firstyear,
-              firststep = time$firststep,
-              lastyear = time$lastyear,
-              laststep = time$laststep,
-              notimesteps = time$notimesteps)
+  time <- methods::new('gadget-time',
+                       firstyear = time$firstyear,
+                       firststep = time$firststep,
+                       lastyear = time$lastyear,
+                       laststep = time$laststep,
+                       notimesteps = time$notimesteps)
 
   out <- 
     list.files(paste(pre,'out',sep='/')) %>%
@@ -520,22 +520,27 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
 
 plot.gadget.forward <- function(gadfor,type='catch',quotayear=FALSE){
   if(type=='catch'){
-    ggplot2::ggplot(plyr::ddply(gadfor$catch,~year+effort+trial,plyr::summarise,
-                 catch=sum(biomass.consumed)/1e6),
-                 ggplot2::aes(year,catch,col=effort,lty=trial)) +
-      ggplot2::geom_rect(aes(ymin=-Inf,ymax=Inf,
-                    xmin=gadfor$sim.begin,xmax=Inf),
-                fill='gray',col='white')+
+    ggplot2::ggplot(gadfor$catch %>% 
+                      dplyr::group_by(.data$year,.data$effort,.data$trial) %>% 
+                      dplyr::summarise(catch=sum(.data$biomass.consumed)/1e6),
+                 ggplot2::aes(.data$year,.data$catch,col=.data$effort,lty=.data$trial)) +
+      ggplot2::geom_rect(ggplot2::aes(ymin=-Inf,ymax=Inf,
+                                      xmin=gadfor$sim.begin,xmax=Inf),
+                         fill='gray',col='white')+
       ggplot2::geom_line()+ 
       ggplot2::labs(y="Catch (in '000 tons)", x='Year')     
   } else if(type=='ssb'){
-    ggplot2::ggplot(plyr::ddply(gadfor$lw,~year,plyr::summarise,ssb=sum(ssb)/1e6),
-                    ggplot2::aes(year,catch,col=effort,lty=trial)) +
-      ggplot2::geom_bar(stat=='identity') + 
+    ggplot2::ggplot(gadfor$lw %>% 
+                      dplyr::group_by(.data$year) %>% 
+                      dplyr::summarise(ssb = sum(.data$ssb)/1e6),
+                    ggplot2::aes(.data$year,.data$catch,col=.data$effort,lty=.data$trial)) +
+      ggplot2::geom_bar(stat='identity') + 
       ggplot2::labs(y="SSB (in '000 tons)", x='Year')     
   } else if(type=='rec'){
-    ggplot2::ggplot(plyr::ddply(gadfor$recruitment,~year,plyr::summarise,catch=sum(catch)),
-                    ggplot2::aes(year,catch,col=effort,lty=trial)) +
+    ggplot2::ggplot(gadfor$recruitment %>% 
+                      dplyr::group_by(.data$year) %>% 
+                      dplyr::summarise(catch=sum(.data$catch)),
+                    ggplot2::aes(.data$year,.data$catch,col=.data$effort,lty=.data$trial)) +
       ggplot2::geom_bar(stat='identity') + 
       ggplot2::labs(y="Recruitment (in millions)", x='Year')     
   }

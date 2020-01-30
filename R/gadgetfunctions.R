@@ -693,6 +693,8 @@ gadget.phasing <- function(phase,params.in='params.in',main='main',
 ##' @param age.range at what age range should the YPR be calculated
 ##' @param fleets Data frame comtaining the fleet names and ratio in
 ##' future catches
+##' @param ssb.stock name of the spawning stock
+##' @param mat.par logistic curve parameters for the maturation
 ##' @param check.previous check if the analysis have been done before
 ##' @param save.results should the results be saved?
 ##' @param gd gadget directory object
@@ -716,6 +718,7 @@ gadget.ypr <- function(params.file = 'params.in',
                        check.previous = FALSE,
                        save.results = TRUE,
                        gd=list(dir='.',rel.dir='YPR')){
+  
   ypr <- paste(gd$dir,gd$rel.dir,sep='/')
   
   ## ensure that files exist
@@ -756,8 +759,8 @@ gadget.ypr <- function(params.file = 'params.in',
                            step = 1:length(time$notimesteps),
                            area = area$areas)
   
-  area$temperature <- mutate(time.grid,
-                             temperature = 5)
+  area$temperature <- dplyr::mutate(time.grid,
+                                    temperature = 5)
   
   main$areafile <- sprintf('%s/area',ypr)
   write.gadget.area(area,file=sprintf('%s/area',ypr))
@@ -768,13 +771,13 @@ gadget.ypr <- function(params.file = 'params.in',
                        function(x){
                          tmp <- subset(x,fleet %in% fleets$fleet)
                        })
-  fleet$fleet <- plyr::mutate(fleet$fleet,
+  fleet$fleet <- dplyr::mutate(fleet$fleet,
                               multiplicative = '1#effort',
                               amount = sprintf('%s/fleet.ypr', ypr),
                               type = 'linearfleet')
   
   fleet.predict <- plyr::ddply(fleets,'fleet',function(x){
-    tmp <- plyr::mutate(time.grid,
+    tmp <- dplyr::mutate(time.grid,
                         ratio = x$ratio)
     return(tmp)
   })
@@ -873,9 +876,10 @@ gadget.ypr <- function(params.file = 'params.in',
     if(x@doesrenew==1){
       x@renewal.data <- 
         time.grid %>% 
-        dplyr::filter(step == 1) %>% 
-        dplyr::bind_cols(dplyr::slice(x@renewal.data %>% dplyr::select(-c(year,step,area)),rep(1,nrow(.)))) %>% 
-        dplyr::mutate(number = ifelse(year==begin,1,0))
+        dplyr::filter(.data$step == 1) %>% 
+        dplyr::bind_cols(dplyr::slice(x@renewal.data %>% 
+                                        dplyr::select(-c(.data$year,.data$step,.data$area)),rep(1,nrow(.)))) %>% 
+        dplyr::mutate(number = ifelse(.data$year==begin,1,0))
       x@doesspawn <- 0
     }
     gadget_dir_write(gd,x)
@@ -962,8 +966,12 @@ gadget.ypr <- function(params.file = 'params.in',
                        data.frame(trial=1:length(effort),
                                   effort=effort),
                        all.x=TRUE)
-      plyr::mutate(plyr::ddply(ssb.out,~effort,summarise,ssb=max(number*biomass)),
-                   ssb.ratio=ssb/max(ssb))
+      ssb.out %>% 
+        dplyr::group_by(.data$effort) %>% 
+        dplyr::summarise(ssb = max(.data$number*.data$biomass)) %>% 
+        dplyr::ungroup() %>% 
+        dplyr::mutate(ssb.ratio=.data$ssb/max(.data$ssb))
+      
       
     })
     
@@ -981,14 +989,14 @@ gadget.ypr <- function(params.file = 'params.in',
         c('year', 'step','area','age','length','number',
           'biomass')
       mat.out %>% 
-        dplyr::mutate(length = as.numeric(gsub('len','',length)),
-               trial = cut(1:length(year),c(0,which(diff(year)<0),1e9),labels = FALSE)) %>% 
+        dplyr::mutate(length = as.numeric(gsub('len','',.data$length)),
+               trial = cut(1:length(.data$year),c(0,which(diff(.data$year)<0),1e9),labels = FALSE)) %>% 
         dplyr::left_join(data.frame(trial=1:length(effort),
                              effort=effort)) %>% 
-        dplyr::group_by(effort,year) %>% 
-        dplyr::summarise(ssb=sum(number*biomass*logit(mat.par[1],mat.par[2],length))) %>% 
-        dplyr::group_by(effort) %>% 
-        dplyr::mutate(ssb.ratio = ssb/max(ssb))
+        dplyr::group_by(.data$effort,.data$year) %>% 
+        dplyr::summarise(ssb=sum(.data$number*.data$biomass*logit(mat.par[1],mat.par[2],.data$length))) %>% 
+        dplyr::group_by(.data$effort) %>% 
+        dplyr::mutate(ssb.ratio = .data$ssb/max(.data$ssb))
       
     })
     
@@ -999,7 +1007,7 @@ gadget.ypr <- function(params.file = 'params.in',
   
   
   if(!is.null(age.range)){
-    out <- subset(out,age >= min(age.range) & age <= max(age.range))
+    out <- subset(out,out$age >= min(age.range) & out$age <= max(age.range))
   }
   res <- plyr::ddply(out,'effort',
                      function(x) c(num=sum(x$number.consumed)/1e6,
@@ -1024,28 +1032,28 @@ gadget.ypr <- function(params.file = 'params.in',
 ##' @export
 plot.gadget.ypr <- function(ypr){
   if(!is.null(ypr$ssb)){
-    tmp <- merge(dplyr::mutate(ypr$ypr,bio=bio/max(bio)),
+    tmp <- merge(dplyr::mutate(ypr$ypr,bio=.data$bio/max(.data$bio)),
                  ypr$ssb)
   } else {
-    tmp <- dplyr::mutate(ypr$ypr,bio=bio/max(bio))
+    tmp <- dplyr::mutate(ypr$ypr,bio=.data$bio/max(.data$bio))
   }
   plo <- 
-    ggplot2::ggplot(tmp,ggplot2::aes(effort,bio)) +
+    ggplot2::ggplot(tmp,ggplot2::aes(.data$effort,.data$bio)) +
     ggplot2::geom_line() +
-    ggplot2::geom_segment(ggplot2::aes(x = effort,xend=effort,y=-Inf,yend=bio),
-                 data=subset(tmp, effort == ypr$fmax)) +
-    ggplot2::geom_segment(ggplot2::aes(x = effort,xend=effort,y=-Inf,yend=bio),
-                 data=subset(tmp, effort == ypr$f0.1)) +
-    ggplot2::geom_text(data=subset(tmp,effort == ypr$fmax),
-                       ggplot2::aes(label = sprintf('Fmax = %s',effort),
-                  x = effort+0.04,y=0.2,angle=90)) +
-    ggplot2::geom_text(data=subset(tmp,effort == ypr$f0.1),
-                       ggplot2::aes(label = sprintf('F0.1 = %s',effort),
-                  x = effort+0.04,y=0.2,angle=90)) +
+    ggplot2::geom_segment(ggplot2::aes(x = .data$effort,xend=.data$effort,y=-Inf,yend=.data$bio),
+                 data=subset(tmp, tmp$effort == ypr$fmax)) +
+    ggplot2::geom_segment(ggplot2::aes(x = .data$effort,xend=.data$effort,y=-Inf,yend=.data$bio),
+                 data=subset(tmp, tmp$effort == ypr$f0.1)) +
+    ggplot2::geom_text(data=subset(tmp,tmp$effort == ypr$fmax),
+                       ggplot2::aes(label = sprintf('Fmax = %s',.data$effort),
+                  x = .data$effort+0.04,y=0.2,angle=90)) +
+    ggplot2::geom_text(data=subset(tmp,tmp$effort == ypr$f0.1),
+                       ggplot2::aes(label = sprintf('F0.1 = %s',.data$effort),
+                  x = .data$effort+0.04,y=0.2,angle=90)) +
     ggplot2::labs(x='Fishing mortality', y='Yield per recruit') +
     ggplot2::theme(legend.position='none',plot.margin = ggplot2::unit(c(0,0,0,0),'cm'))
   if(!is.null(ypr$ssb)){
-    plo <- plo + ggplot2::geom_line(aes(effort,ssb.ratio),
+    plo <- plo + ggplot2::geom_line(ggplot2::aes(.data$effort,.data$ssb.ratio),
                            lty=2,col='gray')
   }
   return(plo)
@@ -1064,6 +1072,7 @@ plot.gadget.ypr <- function(ypr){
 #' @param num.years number of years (models) should be used, defaults to 5 yeaes
 #' @param pre location of the model runs, defaults to 'RETRO'
 #' @param iterative logical should the iterative reweighting be used, defaults FALSE
+#' @param ... additional parameter passed gadget.iterative
 #' @return null
 #' @export
 #'

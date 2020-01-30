@@ -29,6 +29,8 @@ gadget.retro(
 \item{pre}{location of the model runs, defaults to 'RETRO'}
 
 \item{iterative}{logical should the iterative reweighting be used, defaults FALSE}
+
+\item{...}{additional parameter passed gadget.iterative}
 }
 \value{
 null

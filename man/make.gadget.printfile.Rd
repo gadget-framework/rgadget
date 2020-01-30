@@ -14,13 +14,17 @@ make.gadget.printfile(
 )
 }
 \arguments{
+\item{main.file}{location of the main file}
+
 \item{file}{name of resulting printfile}
 
-\item{main}{location of main file}
+\item{printatstart}{print at the end or start of a step}
 
-\item{output}{location of output folder}
+\item{steps}{print steps}
 
-\item{aggfiles}{location of aggfiles}
+\item{recruitment_step_age}{data frame with stock and recruitment age}
+
+\item{gd}{location of the gadget model}
 }
 \value{
 gadget.mainfile object

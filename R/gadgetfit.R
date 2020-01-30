@@ -247,7 +247,7 @@ gadget.fit <- function(wgts = 'WGTS',
                                                          upper = NA, lower = NA)) %>% 
                          dplyr::filter(!is.na(.data$year)),
                        by = c("name", "year", "step", "area", "age", "length","fleet","survey")) %>% 
-      dplyr::mutate(length = ifelse(sitype %in% c('lengths','fleets'),
+      dplyr::mutate(length = ifelse(.data$sitype %in% c('lengths','fleets'),
                                     paste(.data$lower,.data$upper,sep=' - '),
                                     .data$length)) %>% 
       dplyr::mutate(predict = ifelse(grepl('loglinearfit',tolower(.data$fittype)),
@@ -320,7 +320,7 @@ gadget.fit <- function(wgts = 'WGTS',
       dplyr::group_by(.data$stock,.data$year,.data$area) %>%
       dplyr::summarise(catch=sum(.data$biomass_consumed),
                        num.catch=sum(.data$number_consumed),
-                       F=mean(mortality[.data$age>=.data$age.min&.data$age<=.data$age.max]))
+                       F=mean(.data$mortality[.data$age>=.data$age.min&.data$age<=.data$age.max]))
     
     res.by.year <- 
       stock.full %>% 
@@ -519,7 +519,7 @@ get_gadget_recruitment <- function(stocks,params){
         utils::capture.output(x$doesrenew[[key]] %>% print()) %>% 
           utils::read.table(text = ., comment.char = ';',sep = '\t',fill = TRUE,stringsAsFactors = FALSE) %>% 
           stats::na.omit() %>% 
-          set_names(.,col.names)
+          purrr::set_names(.,col.names)
       } else{
         NULL
       }

@@ -7,11 +7,11 @@
 aldist(stock.dat, sigma = 0, dl = 1)
 }
 \arguments{
-\item{stock.dat}{}
+\item{stock.dat}{input data}
 
-\item{sigma}{}
+\item{sigma}{std. deviations}
 
-\item{dl}{}
+\item{dl}{length group size}
 }
 \value{
 data.frame

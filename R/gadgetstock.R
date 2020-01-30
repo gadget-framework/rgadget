@@ -484,7 +484,7 @@ gadget_datatable <- function(type = 'renewal',format = 'normalparam',stockname =
                              growth = c(Linf='#%s.linf', k='(* 0.01 #%s.k )',
                                         alpha = '#%s.walpha', beta='#%s.wbeta',
                                         recl = '#%s.recl'),
-                             sigma = '#%s.recsd',
+                             sigma = '#%s.recsd',rec.age = 1,
                              ...){
   if(!(type %in% c('renewal','initial'))){
     stop('Type not supported. Allowed types are:\n- renewal\n- inital')
