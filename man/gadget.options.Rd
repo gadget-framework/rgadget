@@ -7,7 +7,7 @@
 gadget.options(type = c("simple2stock", "spawning"))
 }
 \arguments{
-\item{type}{}
+\item{type}{type of model (either 'simple2stock' or 'spawning')}
 }
 \value{
 a list of swithes

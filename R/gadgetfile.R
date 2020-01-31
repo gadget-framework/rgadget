@@ -71,7 +71,7 @@ split_gadgetfile_line <- function (line) {
 #' @examples
 #' gadgetfile("cod.likelihood", "likelihood",
 #'    components = list(
-#'        component = list(type = "penalty", aggfile = gadgetfile("aggfile", "areaagg", components = list()))
+#'        component = list(type = "penalty", aggfile = gadgetfile("aggfile", components = list()))
 #'    ))
 #' @export
 gadgetfile <- function (file_name, file_type = "generic", components = list()) {

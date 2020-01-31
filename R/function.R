@@ -428,6 +428,7 @@ recruits <- function(n,mu,sigma,
 ##' @param L predator length group(s)
 ##' @param type suitability function
 ##' @param normalize Logical, should the output be normalized 
+##' @param to.data.frame Logical, return a data.frame instead of an array
 ##' @return matrix of suitabilities, columns prey length, lines predator length
 ##' @export
 suitability <- function(params,
@@ -513,14 +514,14 @@ suitability <- function(params,
 #' @return A character vector of the form 
 #'   <preyname> function <functionname> <vector of parameters>
 #' @examples
-#' gadgetstock('garfish', '~', missingOkay=T) %>%
+#' path <- tempfile()
+#' gadgetstock('garfish', path, missingOkay=TRUE) %>%
 #'     gadget_update('doeseat',
 #'                    name = 'comm',
 #'                    suitability = pred_suit(pred='garfish',
 #'                                             prey='zebrafish', 
 #'                                             fun='newexponentiall50',
-#'                                             params=list('alpha', 'l50')),
-#'                    data = garfish.consumption[[1]])
+#'                                             params=list('alpha', 'l50')))
 #' @author Paul Frater
 #' @export
 pred_suit <- function(pred=NA,
@@ -553,11 +554,12 @@ pred_suit <- function(pred=NA,
 #' @return A character vector of the form 
 #'   function <functionname> <vector of parameters>
 #' @examples
-#' gadgetlikelihood('likelihood', '~', missingOkay=T) %>%
+#' path <- tempfile()
+#' gadgetlikelihood('likelihood', path, missingOkay=TRUE) %>%
 #'    gadget_update('surveydistribution',
 #'                  name = 'ldist.spr',
 #'                  weight = 1,
-#'                  data = ldist.igfs[[1]],
+#'                  data = data.frame(year = 1, step = 1, area = 1, age = 1, length = 1, number = 1),
 #'                  parameters = quote(exp(spr.si.beta)) %>%
 #'                                to.gadget.formulae(),
 #'                  suitability = surveydist_suit(stock = 'zebrafish',

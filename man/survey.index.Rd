@@ -9,6 +9,8 @@ survey.index(stock.dat, split, sigma = 0, alpha = 0, beta = 1)
 \arguments{
 \item{stock.dat}{Results from a Rgadget simulation}
 
+\item{split}{Number of length groups to divide data into}
+
 \item{sigma}{sigma for a log-normal noise for the indicies}
 
 \item{alpha}{log(q), i.e. the constant term}

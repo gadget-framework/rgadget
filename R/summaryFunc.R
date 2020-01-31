@@ -2,6 +2,7 @@
 ##' @name survey.index
 ##' @title Survey indices
 ##' @param stock.dat Results from a Rgadget simulation
+##' @param split Number of length groups to divide data into
 ##' @param sigma sigma for a log-normal noise for the indicies
 ##' @param alpha log(q), i.e. the constant term 
 ##' @param beta power for the N, i.e. the slope term

@@ -19,7 +19,6 @@
 ##' ## change the length of the simulation to 13 years
 ##' opt$numobs <- 13
 ##' @export
-##' @param type 
 gadget.options <- function(type=c('simple2stock','spawning')){
   warning('The gadget-skeleton functions are deprecated, please adapt your scripts to the new gadget-update functions')
   opt <- list(

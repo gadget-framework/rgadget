@@ -4,14 +4,15 @@
 \alias{plot.gadget.fit}
 \title{plot gadget fit}
 \usage{
-\method{plot}{gadget.fit}(fit, data = "sidat", type = "direct")
+\method{plot}{gadget.fit}(x, ...)
 }
 \arguments{
-\item{fit}{results from gadget fit}
+\item{x}{results from gadget fit}
 
-\item{data}{what results should be plotted}
-
-\item{type}{The type of plot that is returned, depends on the input data (see details)}
+\item{...}{Can include \describe{
+    \item{type}{The type of plot that is returned, depends on the input data (see details)}
+    \item{data}{What results should be plotted, default sidat}
+}}
 }
 \value{
 ggplot2::ggplot object

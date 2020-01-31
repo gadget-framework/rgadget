@@ -31,7 +31,7 @@ gadgettime <- function(file_name, path, missingOkay = FALSE) {
 #' @examples
 #' path <- './model'
 #' gadgettime('time', path, missingOkay = TRUE) %>%
-#'    gadget_update() %>% 
+#'    gadget_update(firstyear = 1990, lastyear = 2000) %>% 
 #'    write.gadget.file(path)
 #' @export
 gadget_update.gadgettime <- function(gf, ...) {

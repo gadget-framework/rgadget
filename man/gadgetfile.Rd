@@ -48,6 +48,6 @@ the filename of the sub-file.
 \examples{
 gadgetfile("cod.likelihood", "likelihood",
    components = list(
-       component = list(type = "penalty", aggfile = gadgetfile("aggfile", "areaagg", components = list()))
+       component = list(type = "penalty", aggfile = gadgetfile("aggfile", components = list()))
    ))
 }
