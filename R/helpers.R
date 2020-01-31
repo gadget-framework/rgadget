@@ -19,24 +19,3 @@ von_b_formula <- function(a,linf='Linf',k='k',recl='recl'){
     unlist()
 }
 
-#' Initial parameter guess
-#'
-#' This is a convenience function that allows the editing of parameter files by variable (switch) names. 
-#'
-#' @name init_guess
-#' @param dat Input data frame, read in from read.gadget.parameters
-#' @param pattern name of parameter, can include grep-able wildcards
-#' @param value new parameter value 
-#' @param lower new lower bound
-#' @param upper new upper bound
-#' @param optimise should the parameter be optimised
-#'
-#' @return updated data frame with the new parameter values
-#' @export
-init_guess <- function(dat,pattern, value = 0,  lower = -999, upper = 999, optimise=0){
-  dat[grepl(pattern,dat$switch),'value'] <- value
-  dat[grepl(pattern,dat$switch),'upper'] <- upper
-  dat[grepl(pattern,dat$switch),'lower'] <- lower
-  dat[grepl(pattern,dat$switch),'optimise'] <- optimise
-  return(dat)
-}

@@ -153,7 +153,7 @@ gadget_project_stocks <- function(path, imm.file, mat.file, spawn_func = 'hockey
 }
 
 
-gadget_project_fleets <- function(path, pre_fleet = 'comm',fleet_type='linearfleet') {
+gadget_project_fleets <- function(path, pre_fleet = 'comm',post_fix='pre',fleet_type='linearfleet') {
   
   #pre_fleets$base_fleet <- pre_fleets$base_fleet%||%pre_fleets$fleet_name
   #pre_fleets$fleet_type <- pre_fleets$fleet_type%||%'totalfleet'
@@ -195,7 +195,7 @@ gadget_project_fleets <- function(path, pre_fleet = 'comm',fleet_type='linearfle
   ## define fleet amounts that are parametrised by year, step, area 
   fleet.amounts <- 
     schedule %>% 
-    dplyr::mutate(number= paste('#fleet',pre_fleet,'pre',.data$year,.data$step,.data$area,sep='.')) %>% 
+    dplyr::mutate(number= paste('#fleet',pre_fleet,post_fix,.data$year,.data$step,.data$area,sep='.')) %>% 
     structure(area_group = main[[1]]$areafile[[1]]$areas %>% 
                 purrr::set_names(.,.))
   
@@ -238,7 +238,7 @@ gadget_project_recruitment <- function(path,
                                            dplyr::select(.,.data$term,.data$estimate) %>% 
                                            tidyr::spread(.,"term","estimate")),
                   glances = purrr::map(model,broom::glance)) %>% 
-    dplyr::select(-c(data,model)) %>% 
+    dplyr::select(-c(.data$data,.data$model)) %>% 
     tidyr::unnest(cols=dplyr::everything()) %>% 
     dplyr::select(a=1,b=2,.data$sigma) %>%
     dplyr::mutate(by=1) %>% 
@@ -248,36 +248,72 @@ gadget_project_recruitment <- function(path,
                      by = "by") %>% 
     dplyr::select(-.data$by) %>%
     dplyr::arrange(.data$year,.data$trial) %>% 
-    dplyr::mutate(recruitment = arima.sim(dplyr::n(),model=list(ar=unique(.data$b)),sd=unique(.data$sigma)) + unique(a),
+    dplyr::mutate(recruitment = stats::arima.sim(dplyr::n(),
+                                                 model=list(ar=unique(.data$b)),
+                                                 sd=unique(.data$sigma)) + unique(.data$a),
                   recruitment = exp(recruitment)) %>% 
     
-    dplyr::mutate(year = sprintf('%s.rec.%s.1',stock,year)) %>% 
+    dplyr::mutate(year = sprintf('%s.rec.%s.1',.data$stock,.data$year)) %>% 
     tidyr::spread("year","recruitment") %>%
     dplyr::select(-c('a','b','sigma','trial'))
     
   
-  read.gadget.parameters(file = params.file) %>% 
-    dplyr::select(.data$switch,.data$value) %>% 
-    tidyr::spread(.data$switch,.data$value) %>% 
-    dplyr::slice(rep(1,n_replicates)) %>% 
-    dplyr::bind_cols(prj.rec %>% 
-                       dplyr::mutate(switch = paste(.data$stock,'rec',.data$year,.data$step,sep='.')) %>% 
-                       dplyr::select(.data$trial,.data$switch,.data$recruitment) %>% 
-                       tidyr::spread(.data$switch,.data$recruitment) %>% 
-                       dplyr::select(-.data$trial) %>% 
-                       dplyr::slice(rep(1:num.trials,each=length(effort))) %>% 
-                       dplyr::mutate(rgadget.effort=rep(effort,num.trials))) %>% 
-    write.gadget.parameters(file=sprintf('%s/params.forward', pre),
-                            columns = FALSE)
+    read.gadget.parameters(file = params.file) %>% 
+    wide_parameters(value=rec) %>% 
+    write.gadget.parameters(file=params.file)
   
-   tmp <-
-     read.gadget.parameters(file = params.file) %>% 
-     select(value) %>% 
-     as.matrix() %>% 
-     t()
-   
-   tmp[,names(rec)] <- as.matrix(rec)
+    return(path)
 }
+
+gadget_project_advice <- function(path,
+                                  params.file = 'PRE/params.pre',
+                                  harvest_rate = 0.2, 
+                                  advice_cv = 0.2, 
+                                  advice_rho = 0.6,
+                                  pre_fleet='comm',
+                                  post_fix = 'pre', 
+                                  n_replicates = 100){
+  schedule <- 
+    readr::read_delim(sprintf('%s/.schedule',
+                              paste(path,attributes(path)$variant_dir,sep='/')),
+                      delim = ' ')
+  
+  fleet_parameters <- 
+    purrr::map(1:n_replicates,
+               function(x)
+                 schedule %>% 
+                 dplyr::mutate(name = paste('fleet',pre_fleet,post_fix,
+                                            .data$year,.data$step,.data$area,
+                                            sep = '.'),
+                               replicate = x)) %>% 
+    dplyr::bind_rows() %>% 
+    dplyr::left_join(tidyr::expand_grid(replicate=1:n_replicates,
+                                        value = harvest_rate),
+                     by = 'replicate')
+              
+  if(advice_cv > 0){
+    fleet_parameters <- 
+      fleet_parameters %>% 
+      dplyr::mutate(value = value * exp(stats::arima.sim(n = dplyr::n(),
+                                                         list(ar=advice_rho),
+                                                         sd = advice_cv))) ## bias correction?
+  } 
+  
+  
+  
+  params <- 
+    read.gadget.parameters(params.file) %>% 
+    wide_parameters(value=fleet_parameters %>%
+                      dplyr::select(-c('year','step','area')) %>% 
+                      tidyr::spread('name','value')) %>% 
+    write.gadget.parameters(params.file)
+  
+  return(path)
+  
+}
+
+
+
 
 if(FALSE){
   fit <- gadget.fit()
@@ -285,6 +321,7 @@ if(FALSE){
   gadget_project_time() %>% 
     gadget_project_stocks(imm.file = 'Modelfiles/cod.imm',mat.file = 'Modelfiles/cod.mat') %>% 
     gadget_project_fleets()
+  
   
   callGadget(s=1,main = 'PRE/main',i='WGTS/params.final',p='PRE/params.pre',log='tmp')
   
