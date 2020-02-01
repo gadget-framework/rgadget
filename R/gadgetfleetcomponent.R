@@ -1,5 +1,13 @@
 #' Create/update a fleet component with name
 #' 
+#' @param name			Name of component
+#' @param type			Component type, one of: 'TotalFleet ' / 'NumberFleet ' / 'LinearFleet ' / 'EffortFleet ' / 'QuotaFleet'
+#' @param livesonareas		List of areas fleet is active in
+#' @param multiplicative	Multiplicative constant used to scale the data if required
+#' @param suitability		Suitability function for fleet
+#' @param fleetfile		Name of fleet data file
+#' @param data			data.frame containing landings data for fleet
+#' @param ...			Other data required for component type
 #' @export
 gadgetfleetcomponent <- function (type,
                                     name = type,

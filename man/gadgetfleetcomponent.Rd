@@ -15,6 +15,23 @@ gadgetfleetcomponent(
   ...
 )
 }
+\arguments{
+\item{type}{Component type, one of: 'TotalFleet ' / 'NumberFleet ' / 'LinearFleet ' / 'EffortFleet ' / 'QuotaFleet'}
+
+\item{name}{Name of component}
+
+\item{livesonareas}{List of areas fleet is active in}
+
+\item{multiplicative}{Multiplicative constant used to scale the data if required}
+
+\item{suitability}{Suitability function for fleet}
+
+\item{fleetfile}{Name of fleet data file}
+
+\item{data}{data.frame containing landings data for fleet}
+
+\item{...}{Other data required for component type}
+}
 \description{
 Create/update a fleet component with name
 }
