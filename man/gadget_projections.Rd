@@ -6,7 +6,7 @@
 \alias{gadget_project_fleets}
 \alias{gadget_project_recruitment}
 \alias{gadget_project_advice}
-\alias{gadget_poject_ref_point}
+\alias{gadget_project_ref_point}
 \alias{gadget_project_output}
 \title{Gadget projection function}
 \usage{
@@ -45,7 +45,7 @@ gadget_project_advice(
   n_replicates = 100
 )
 
-gadget_poject_ref_point(path, ref_points, params.file = "PRE/params.pre")
+gadget_project_ref_point(path, ref_points, params.file = "PRE/params.pre")
 
 gadget_project_output(
   path,
@@ -115,7 +115,7 @@ res <-
                               filter(stock == 'codimm',
                                      year > 1980),
                             params.file = paste(attr(.,'variant_dir'),'params.pre',sep='/')) \%>\% 
- gadget_poject_ref_point(ref_points = tibble(codmat.blim = 207727665), 
+ gadget_project_ref_point(ref_points = tibble(codmat.blim = 207727665), 
                          params.file = paste(attr(.,'variant_dir'),'params.pre',sep='/')) \%>\% 
  gadget_project_advice(harvest_rate = 1:100/100, 
                        params.file = paste(attr(.,'variant_dir'),'params.pre',sep='/')) \%>\% 

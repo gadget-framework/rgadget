@@ -24,7 +24,7 @@
 #'                               filter(stock == 'codimm',
 #'                                      year > 1980),
 #'                             params.file = paste(attr(.,'variant_dir'),'params.pre',sep='/')) %>% 
-#'  gadget_poject_ref_point(ref_points = tibble(codmat.blim = 207727665), 
+#'  gadget_project_ref_point(ref_points = tibble(codmat.blim = 207727665), 
 #'                          params.file = paste(attr(.,'variant_dir'),'params.pre',sep='/')) %>% 
 #'  gadget_project_advice(harvest_rate = 1:100/100, 
 #'                        params.file = paste(attr(.,'variant_dir'),'params.pre',sep='/')) %>% 
@@ -470,7 +470,7 @@ gadget_project_advice <- function(path,
 #' @rdname gadget_projections
 #' @param ref_points tibble with reference points
 #' @export
-gadget_poject_ref_point <- function(path,ref_points,params.file='PRE/params.pre'){
+gadget_project_ref_point <- function(path,ref_points,params.file='PRE/params.pre'){
   params <- read.gadget.parameters(params.file) 
   
   params %>% 
