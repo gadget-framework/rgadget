@@ -117,6 +117,12 @@ gadget_update <- function(gf, component, ...) UseMethod("gadget_update", gf)
 #' Remove unwanted components from file
 #' @param gf		The gadgetfile object to update
 #' @param comp_name named components to remove
+#' @details
+#' For more information, see a specific implementation:
+#' \enumerate{
+#'   \item \link{gadget_discard.gadgetfleet}
+#'   \item \link{gadget_discard.gadgetlikelihood}
+#' }
 #' @export 
 gadget_discard <- function(gf,comp_name) UseMethod("gadget_discard",gf)
 

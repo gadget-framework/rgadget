@@ -358,8 +358,8 @@ gadget.forward <- function(years = 20,params.file = 'params.out',
                          dplyr::select(-.data$trial) %>% 
                          dplyr::slice(rep(1:num.trials,each=length(effort))) %>% 
                          dplyr::mutate(rgadget.effort=rep(effort,num.trials))) %>% 
-      write.gadget.parameters(file=sprintf('%s/params.forward', pre),
-                              columns = FALSE)
+      structure(file_format = 'wide') %>% 
+      write.gadget.parameters(file=sprintf('%s/params.forward', pre))
   }
   
   

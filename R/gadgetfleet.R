@@ -8,7 +8,8 @@
 #' @return A list of fleet components representing file
 #' @examples
 #' path <- './cod-model'
-#' gadgetfleet('fleet', path, missingOkay = TRUE)  # Read 'fleet' fleet file, creating it if it doesn't exist
+#' # Read 'fleet' fleet file, creating it if it doesn't exist
+#' gadgetfleet('fleet', path, missingOkay = TRUE)  
 #' @export
 gadgetfleet <- function(file_name, path, missingOkay = FALSE) {
   gf <- read.gadget.file(path, file_name, file_type = "fleet",
@@ -57,7 +58,7 @@ gadget_update.gadgetfleet <- function(gf, component, ...) {
 #' this function removes named fleet components
 #' @param gf		The gadgetfile object to update
 #' @param comp_name named components to remove
-#' @export gadget_discard.gadgetfleet
+#' @export 
 gadget_discard.gadgetfleet <- function(gf,comp_name) {
   ## TODO: this function should also clean up asociated data files 
   file_config <- attr(gf,'file_config')

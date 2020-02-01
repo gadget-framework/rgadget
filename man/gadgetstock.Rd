@@ -21,6 +21,8 @@ Create a gadgetstock object, from fresh or an existing file
 }
 \examples{
 path <- './cod-model'
-gadgetstock('codmat', path, missingOkay = TRUE)  # Read codmat from './cod-model', throw an error if it doesn't exist
-gadgetstock('codimm', path, missingOkay = TRUE)  # Read codimm stock / create a new one
+# Read codmat from './cod-model', throw an error if it doesn't exist
+gadgetstock('codmat', path, missingOkay = TRUE)  
+# Read codimm stock / create a new one
+gadgetstock('codimm', path, missingOkay = TRUE)  
 }

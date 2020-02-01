@@ -8,7 +8,8 @@
 #' @return A list of likelihood components representing file
 #' @examples
 #' path <- './cod-model'
-#' gadgetlikelihood('likelihood', path, missingOkay = TRUE)  # Read 'likelihood' likelihood file, creating it if it doesn't exist
+#' # Read 'likelihood' likelihood file, creating it if it doesn't exist
+#' gadgetlikelihood('likelihood', path, missingOkay = TRUE)  
 #' @export
 gadgetlikelihood <- function(file_name, path, missingOkay = FALSE) {
     gf <- read.gadget.file(path, file_name, file_type = "likelihood", missingOkay = missingOkay)
@@ -28,7 +29,8 @@ gadgetlikelihood <- function(file_name, path, missingOkay = FALSE) {
 #' @examples
 #' path <- './model'
 #' gadgetlikelihood('likelihood', path, missingOkay = TRUE) %>%
-#'    gadget_update(gadget_understocking_component(name = 'understocking')) %>% # Add an understocking component
+#'    # Add an understocking component
+#'    gadget_update(gadget_understocking_component(name = 'understocking')) %>% 
 #'    gadget_update('understocking', name = 'understocking') %>% # Identical to above
 #'    write.gadget.file(path)
 #' @export
@@ -68,7 +70,7 @@ gadget_component_replace <- function(gfile, newcomponent, namefn, component_name
 #' this function removes named likelihood components
 #' @param gf		The gadgetfile object to update
 #' @param comp_name named components to remove
-#' @export gadget_discard.gadgetlikelihood
+#' @export 
 gadget_discard.gadgetlikelihood <- function(gf,comp_name) {
   ## TODO: this function should also clean up asociated data files 
   file_config <- attr(gf,'file_config')

@@ -8,7 +8,8 @@
 #' @return A list of time components representing file
 #' @examples
 #' path <- './cod-model'
-#' gadgettime('Modelfiles/time', path, missingOkay = TRUE)  # Read 'Modelfiles/time' time file, creating it if it doesn't exist
+#' # Read 'Modelfiles/time' time file, creating it if it doesn't exist
+#' gadgettime('Modelfiles/time', path, missingOkay = TRUE)  
 #' @export
 gadgettime <- function(file_name, path, missingOkay = FALSE) {
   gf <- read.gadget.file(path, file_name, file_type = "time", missingOkay = missingOkay)

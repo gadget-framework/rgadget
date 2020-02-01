@@ -19,7 +19,8 @@ Replace and/or append new likelihood comonents to an existing file
 \examples{
 path <- './model'
 gadgetlikelihood('likelihood', path, missingOkay = TRUE) \%>\%
-   gadget_update(gadget_understocking_component(name = 'understocking')) \%>\% # Add an understocking component
+   # Add an understocking component
+   gadget_update(gadget_understocking_component(name = 'understocking')) \%>\% 
    gadget_update('understocking', name = 'understocking') \%>\% # Identical to above
    write.gadget.file(path)
 }

@@ -916,8 +916,7 @@ gadget.ypr <- function(params.file = 'params.in',
                               return(tmp)
                             })
   
-  write.gadget.parameters(params.aug,file=sprintf('%s/params.ypr',ypr),
-                          columns = FALSE)
+  write.gadget.parameters(structure(params.aug,file_format = 'wide'),file=sprintf('%s/params.ypr',ypr))
   
   callGadget(s=1,i=sprintf('%s/params.ypr',ypr),main=sprintf('%s/main.ypr',ypr))
   

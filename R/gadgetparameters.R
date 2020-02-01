@@ -181,7 +181,7 @@ wide_parameters <- function(dat,value){
     dat %>% 
     dplyr::select(-c(names(value))) %>% 
     dplyr::bind_cols(value) %>% 
-    structure(file_format=='wide')
+    structure(file_format='wide')
   
   return(dat)
 }

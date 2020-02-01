@@ -21,5 +21,6 @@ Create a likelihood file object, from fresh or an existing file.
 }
 \examples{
 path <- './cod-model'
-gadgetlikelihood('likelihood', path, missingOkay = TRUE)  # Read 'likelihood' likelihood file, creating it if it doesn't exist
+# Read 'likelihood' likelihood file, creating it if it doesn't exist
+gadgetlikelihood('likelihood', path, missingOkay = TRUE)  
 }

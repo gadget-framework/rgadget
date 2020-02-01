@@ -14,3 +14,10 @@ gadget_discard(gf, comp_name)
 \description{
 Remove unwanted components from file
 }
+\details{
+For more information, see a specific implementation:
+\enumerate{
+  \item \link{gadget_discard.gadgetfleet}
+  \item \link{gadget_discard.gadgetlikelihood}
+}
+}

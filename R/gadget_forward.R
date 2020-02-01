@@ -1,4 +1,133 @@
-gadget_project_time <- function(path='.', num_years = 100, variant_dir = 'PRE'){
+#' Gadget projection function
+#' 
+#' Setup model and parameter files for forward simulations and deterministic projections. 
+#' 
+#' @rdname gadget_projections
+#' @param path gadget model directory
+#' @param num_years number of years 
+#' @param variant_dir location of the 
+#'
+#' @return gadget variant directory 
+#' @export
+#'
+#' @examples
+#' \dontrun{fit <- gadget.fit()
+#'
+#'res <- 
+#'  gadget_project_time() %>% 
+#'  gadget_project_stocks(imm.file = 'Modelfiles/cod.imm',mat.file = 'Modelfiles/cod.mat') %>% 
+#'  gadget_project_fleets() %>% 
+#'  gadget_evaluate(params.out = paste(attr(.,'variant_dir'),'params.pre',sep='/'),
+#'                  params.in = 'WGTS/params.final') %>% 
+#'  gadget_project_recruitment(stock = 'codimm', 
+#'                             recruitment = fit$stock.recruitment %>% 
+#'                               filter(stock == 'codimm',
+#'                                      year > 1980),
+#'                             params.file = paste(attr(.,'variant_dir'),'params.pre',sep='/')) %>% 
+#'  gadget_poject_ref_point(ref_points = tibble(codmat.blim = 207727665), 
+#'                          params.file = paste(attr(.,'variant_dir'),'params.pre',sep='/')) %>% 
+#'  gadget_project_advice(harvest_rate = 1:100/100, 
+#'                        params.file = paste(attr(.,'variant_dir'),'params.pre',sep='/')) %>% 
+#'  gadget_project_output(imm.file = 'Modelfiles/cod.imm',mat.file = 'Modelfiles/cod.mat') %>% 
+#'  gadget_evaluate(params.in = paste(attr(.,'variant_dir'),'params.pre',sep='/'))  %>% 
+#'  read.printfiles(paste(attr(.,'variant_dir'),'out',sep='/')) %>% 
+#'  map(mutate, trial=cut(1:length(year),c(0,which(diff(year)<0),1e9),labels = FALSE)) %>% 
+#'  set_names(c("catch.F","catch.lw",'codimm.rec','codmat.ssb')) %>% 
+#'  map(left_join,tibble(trial=1:10000,harvest_rate = rep(1:100/100,each=100)))
+#'
+#'
+#' yield_curve <- 
+#'  res$catch.lw %>% 
+#'  filter(year>2050) %>% 
+#'  group_by(trial,harvest_rate,year) %>% 
+#'  summarise(c=sum(biomass_consumed)/1e6) %>% 
+#'  group_by(harvest_rate) %>% 
+#'  summarise(m=median(c),u=quantile(c,0.95),l=quantile(c,0.05)) 
+#'
+#'
+#'
+#' ssb_curve <- 
+#'  res$codmat.ssb %>% 
+#'  filter(year>2050) %>% 
+#'  group_by(trial,harvest_rate,year) %>% 
+#'  summarise(c=sum(number*mean_weight)/1e6) %>% 
+#'  group_by(harvest_rate) %>% 
+#'  summarise(m=median(c),u=quantile(c,0.95),l=quantile(c,0.05))
+#'
+#' f.curve <- 
+#'  res$catch.F %>% 
+#'  filter(year>2050) %>% 
+#'  group_by(trial,harvest_rate,year) %>% 
+#'  summarise(c=median(mortality)) %>% 
+#'  group_by(harvest_rate) %>% 
+#'  summarise(m=median(c),u=quantile(c,0.95),l=quantile(c,0.05)) 
+#'
+#'
+#' blim <- 
+#'  fit$res.by.year %>% 
+#'  filter(grepl('mat',stock)) %>% 
+#'  summarise(b=min(total.biomass)/1e6) %>% 
+#'  .$b
+#'
+#' bpa <- 1.4*blim
+#'
+#' hr_msy <- 
+#'  yield_curve %>% filter(m==max(m)) %>% .$harvest_rate
+#'
+#' hr_lim <- 
+#'  ssb_curve %>% 
+#'  filter(m>blim) %>% 
+#'  filter(harvest_rate == max(harvest_rate)) %>% 
+#'  .$harvest_rate
+#'
+#'
+#' f.msy <-
+#'  f.curve %>% 
+#'  filter(harvest_rate == hr_msy) %>% 
+#'  .$m
+#'
+#' f.lim <- 
+#'  f.curve %>% 
+#'  filter(harvest_rate == hr_lim) %>% 
+#'  .$m
+#'
+#' f.pa <- 
+#'  f.lim/1.4
+#'
+#' hr_pa <- 
+#'  f.curve %>% 
+#'  filter(m < f.pa) %>% 
+#'  summarise(hr = max(harvest_rate)) %>%
+#'  .$hr
+#'
+#'
+#' library(patchwork)
+#'
+#' yield_curve %>% 
+#'  left_join(f.curve %>% 
+#'              select(harvest_rate,F=m)) %>% 
+#'  ggplot(aes(F,m)) +
+#'  geom_ribbon(aes(ymin=l,ymax=u),fill = 'gold') +  
+#'  geom_line() + 
+#'  geom_vline(xintercept = min(c(f.msy,f.pa))) + 
+#'  geom_vline(xintercept = f.pa,lty=2,col='red') + 
+#'  geom_vline(xintercept = f.lim,lwd=1.1,col='red') +
+#'  ssb_curve %>% 
+#'  left_join(f.curve %>% 
+#'              select(harvest_rate,F=m)) %>% 
+#'  ggplot(aes(F,m)) + 
+#'  geom_ribbon(aes(ymin=l,ymax=u),fill = 'gold') + 
+#'  geom_line() + 
+#'  geom_vline(xintercept = min(c(f.msy,f.pa))) + 
+#'  geom_vline(xintercept = f.pa,lty=2,col='red') + 
+#'  geom_vline(xintercept = f.lim,lwd=1.1,col='red') + 
+#'  geom_hline(yintercept = blim, col = 'red', lwd = 1.1) + 
+#'  geom_hline(yintercept = bpa,col = 'red',lty = 2)
+#'
+#' }
+gadget_project_time <- function(path='.', num_years = 100, 
+                                variant_dir = getwd() %>% stringr::str_count('/') %>% 
+                                  rep('../',.) %>% paste(collapse = '') %>% paste(tempdir(),sep='')){
   
   if(is.null(attributes(path)$mainfile)){
     print('Location of mainfile not specified, assuming "main"')
@@ -45,6 +174,13 @@ gadget_project_time <- function(path='.', num_years = 100, variant_dir = 'PRE'){
   return(project_path)
 }
 
+
+
+#' @rdname gadget_projections
+#' @param imm.file location of the immature stock file
+#' @param mat.file location of the mature stock file
+#' @param spawn_func what spawn function to use (only hockeystick atm)
+#' @export
 gadget_project_stocks <- function(path, imm.file, mat.file, spawn_func = 'hockeystick'){
   
   main <- read.gadget.file(path,attributes(path)$mainfile,file_type = 'main')
@@ -153,10 +289,13 @@ gadget_project_stocks <- function(path, imm.file, mat.file, spawn_func = 'hockey
 }
 
 
+#' @rdname gadget_projections
+#' @param pre_fleet name of the fleet projections are based on
+#' @param post_fix label
+#' @param fleet_type type of gadget fleet for the projections
+#' @export
 gadget_project_fleets <- function(path, pre_fleet = 'comm',post_fix='pre',fleet_type='linearfleet') {
-  
-  #pre_fleets$base_fleet <- pre_fleets$base_fleet%||%pre_fleets$fleet_name
-  #pre_fleets$fleet_type <- pre_fleets$fleet_type%||%'totalfleet'
+
   schedule <- 
     readr::read_delim(sprintf('%s/.schedule',
                               paste(path,attributes(path)$variant_dir,sep='/')),
@@ -202,7 +341,7 @@ gadget_project_fleets <- function(path, pre_fleet = 'comm',post_fix='pre',fleet_
   ## define the projection fleets
   gadgetfleet('fleet.predict',path,missingOkay = TRUE) %>% 
     gadget_update(fleet_type,
-                  name = paste0('predict.',pre_fleet),
+                  name = paste(pre_fleet,post_fix,sep='.'),
                   suitability = 
                     suits %>% 
                     tidyr::unite(col,sep='\t') %>% 
@@ -215,6 +354,12 @@ gadget_project_fleets <- function(path, pre_fleet = 'comm',post_fix='pre',fleet_
   return(path)
 }
 
+#' @rdname gadget_projections
+#' @param stock name of immature stock
+#' @param recruitment recruitment time series
+#' @param n_replicates number of simulations
+#' @param params.file name of the parameter files
+#' @export
 gadget_project_recruitment <- function(path,
                                        stock,
                                        recruitment=NULL,
@@ -228,16 +373,16 @@ gadget_project_recruitment <- function(path,
   
   rec <- 
     recruitment %>% 
-    #dplyr::filter(.data$stock == 'stock') %>% 
+    dplyr::mutate(recruitment = .data$recruitment/1e4) %>% ## gadget assumes multiples of 1e4
     dplyr::arrange(.data$year,.data$step) %>% 
     dplyr::group_by(.data$year) %>% 
     dplyr::summarise(recruitment = log(sum(.data$recruitment))) %>%
     tidyr::nest(data = tidyr::everything()) %>% 
-    dplyr::mutate(model = purrr::map(data,~stats::lm(utils::head(recruitment,-1)~utils::tail(recruitment,-1),.)),
-                  variables = purrr::map(model,~broom::tidy(.) %>% 
+    dplyr::mutate(model = purrr::map(.data$data,~stats::lm(utils::head(recruitment,-1)~utils::tail(recruitment,-1),.)),
+                  variables = purrr::map(.data$model,~broom::tidy(.) %>% 
                                            dplyr::select(.,.data$term,.data$estimate) %>% 
                                            tidyr::spread(.,"term","estimate")),
-                  glances = purrr::map(model,broom::glance)) %>% 
+                  glances = purrr::map(.data$model,broom::glance)) %>% 
     dplyr::select(-c(.data$data,.data$model)) %>% 
     tidyr::unnest(cols=dplyr::everything()) %>% 
     dplyr::select(a=1,b=2,.data$sigma) %>%
@@ -253,7 +398,7 @@ gadget_project_recruitment <- function(path,
                                                  sd=unique(.data$sigma)) + unique(.data$a),
                   recruitment = exp(recruitment)) %>% 
     
-    dplyr::mutate(year = sprintf('%s.rec.%s.1',.data$stock,.data$year)) %>% 
+    dplyr::mutate(year = sprintf('%s.rec.pre.%s.1',stock,.data$year)) %>% 
     tidyr::spread("year","recruitment") %>%
     dplyr::select(-c('a','b','sigma','trial'))
     
@@ -265,6 +410,11 @@ gadget_project_recruitment <- function(path,
     return(path)
 }
 
+#' @rdname gadget_projections 
+#' @param harvest_rate median harvest rate
+#' @param advice_cv assessment error cv
+#' @param advice_rho assessment error correlation
+#' @export
 gadget_project_advice <- function(path,
                                   params.file = 'PRE/params.pre',
                                   harvest_rate = 0.2, 
@@ -288,24 +438,27 @@ gadget_project_advice <- function(path,
                                replicate = x)) %>% 
     dplyr::bind_rows() %>% 
     dplyr::left_join(tidyr::expand_grid(replicate=1:n_replicates,
-                                        value = harvest_rate),
+                                        value = harvest_rate) %>% 
+                       dplyr::mutate(iter = 1:dplyr::n()),
                      by = 'replicate')
               
   if(advice_cv > 0){
     fleet_parameters <- 
       fleet_parameters %>% 
-      dplyr::mutate(value = value * exp(stats::arima.sim(n = dplyr::n(),
-                                                         list(ar=advice_rho),
-                                                         sd = advice_cv))) ## bias correction?
+      dplyr::mutate(value = .data$value * exp(stats::arima.sim(n = dplyr::n(),
+                                                               list(ar=advice_rho),
+                                                               sd = advice_cv))) ## bias correction?
   } 
   
   
   
   params <- 
     read.gadget.parameters(params.file) %>% 
+    dplyr::slice(rep(1:dplyr::n(),each=length(harvest_rate)*n_replicates/dplyr::n())) %>% 
     wide_parameters(value=fleet_parameters %>%
                       dplyr::select(-c('year','step','area')) %>% 
-                      tidyr::spread('name','value')) %>% 
+                      tidyr::spread('name','value') %>% 
+                      dplyr::select(-c("replicate","iter"))) %>% 
     write.gadget.parameters(params.file)
   
   return(path)
@@ -314,19 +467,129 @@ gadget_project_advice <- function(path,
 
 
 
-
-if(FALSE){
-  fit <- gadget.fit()
+#' @rdname gadget_projections
+#' @param ref_points tibble with reference points
+#' @export
+gadget_poject_ref_point <- function(path,ref_points,params.file='PRE/params.pre'){
+  params <- read.gadget.parameters(params.file) 
   
-  gadget_project_time() %>% 
-    gadget_project_stocks(imm.file = 'Modelfiles/cod.imm',mat.file = 'Modelfiles/cod.mat') %>% 
-    gadget_project_fleets()
+  params %>% 
+    wide_parameters(ref_points %>% dplyr::slice(rep(1,nrow(params)))) %>% 
+    write.gadget.parameters(params.file)
   
-  
-  callGadget(s=1,main = 'PRE/main',i='WGTS/params.final',p='PRE/params.pre',log='tmp')
-  
-  read.gadget.parameters('PRE/params.pre') %>% 
-    init_guess('fleet.+',0.2) %>% 
-    init_guess('codimm.rec.+',)
-  
+  return(path)
 }
+
+
+#' Evaluate a gadget model 
+#'
+#' @param path locatoin of the gadget model
+#' @param params.in parameter input file
+#' @param params.out parameter output file
+#' @param lik.out likelihood output file
+#'
+#' @return path
+#' @export
+gadget_evaluate <- function(path='.',params.in = NULL, params.out = NULL, lik.out = NULL){
+  Sys.setenv(GADGET_WORKING_DIR = normalizePath(path))
+  callGadget(s=1,i=params.in,p=params.out,o=lik.out,main = attr(path,'mainfile'))
+  Sys.setenv(GADGET_WORKING_DIR = '.')
+  return(path)
+} 
+
+
+#' @rdname gadget_projections
+#' @param output_dir location of the model output
+#' @param pre_fleets vector of fleets on which the projections is based
+#' @export
+gadget_project_output <- function(path, imm.file, mat.file,
+                                  pre_fleets = 'comm', post_fix = 'pre',
+                                  output_dir = 'out'){
+  
+  pre.fleet.names <- paste(pre_fleets, post_fix, sep = '.')
+  
+  imm_stock <- 
+    gadgetstock(imm.file, path)
+  
+  mat_stock <- 
+    gadgetstock(mat.file, path)
+  
+  
+  print <- 
+    gadgetfile('pre.print',
+               components = list(list('[component]',
+                                      type = 'stockprinter',
+                                      stocknames = mat_stock[[1]]$stockname,
+                                      areaaggfile = gadgetdata(sprintf('Aggfiles/%s.area.agg',mat_stock[[1]]$stockname),
+                                                               data = data.frame(name = sprintf('area%s',mat_stock[[1]]$livesonareas),
+                                                                                 value = mat_stock[[1]]$livesonareas)),
+                                      ageaggfile = gadgetdata(sprintf('Aggfiles/%s.ssb.age.agg',mat_stock[[1]]$stockname),
+                                                              data = data.frame(name = 'allages',
+                                                                                value = paste(mat_stock[[1]]$minage:mat_stock[[1]]$maxage,
+                                                                                              collapse = ' '))),
+                                      lenaggfile =   gadgetdata(paste0('Aggfiles/', mat_stock[[1]]$stockname, '.stock.len.agg'),
+                                                                data = data.frame(name = 'alllen',
+                                                                                  value = paste(mat_stock[[1]]$minlength,mat_stock[[1]]$maxlength,
+                                                                                                sep = ' '))),
+                                      printfile = gadgetfile(sprintf('%s/%s.ssb',output_dir,mat_stock[[1]]$stockname)),
+                                      printatstart = 1,
+                                      yearsandsteps = 'all 1'),
+                                 list('[component]',
+                                      type = 'stockprinter',
+                                      stocknames = imm_stock[[1]]$stockname,
+                                      areaaggfile = gadgetdata(sprintf('Aggfiles/%s.area.agg',imm_stock[[1]]$stockname),
+                                                               data = data.frame(name = sprintf('area%s',imm_stock[[1]]$livesonareas),
+                                                                                 value = imm_stock[[1]]$livesonareas)),
+                                      ageaggfile = gadgetdata(sprintf('Aggfiles/%s.age.agg',imm_stock[[1]]$stockname),
+                                                              data = data.frame(name = imm_stock[[1]]$minage,
+                                                                                value = imm_stock[[1]]$minage)),
+                                      lenaggfile =   gadgetdata(paste0('Aggfiles/', imm_stock[[1]]$stockname, '.stock.len.agg'),
+                                                                data = data.frame(name = 'alllen',
+                                                                                  value = paste(imm_stock[[1]]$minlength,imm_stock[[1]]$maxlength,
+                                                                                                sep = ' '))),
+                                      printfile = gadgetfile(sprintf('%s/%s.rec',output_dir,imm_stock[[1]]$stockname)),
+                                      printatstart = 1,
+                                      yearsandsteps = 'all 2'),
+                                 list('[component]',
+                                      type = 'predatorpreyprinter',
+                                      predatornames = pre.fleet.names,
+                                      preynames = c(imm_stock[[1]]$stockname,mat_stock[[1]]$stockname),
+                                      areaaggfile = gadgetdata(sprintf('Aggfiles/%s.area.agg',mat_stock[[1]]$stockname),
+                                                               data = data.frame(name = sprintf('area%s',mat_stock[[1]]$livesonareas),
+                                                                                 value = mat_stock[[1]]$livesonareas)),
+                                      ageaggfile = gadgetdata(sprintf('Aggfiles/%s.stock.allage.agg',mat_stock[[1]]$stockname),
+                                                              data = tibble::data_frame(value = paste(imm_stock[[1]]$minage:mat_stock[[1]]$maxage,
+                                                                                                      collapse = ' '),
+                                                                                        name = 'allages') %>% 
+                                                                dplyr::select(.data$name,.data$value) %>% 
+                                                                as.data.frame()),
+                                      lenaggfile = gadgetdata(paste0('Aggfiles/', mat_stock[[1]]$stockname, '.stock.len.agg'),
+                                                              data = data.frame(name = 'alllen',
+                                                                                value = paste(imm_stock[[1]]$minlength,mat_stock[[1]]$maxlength,
+                                                                                              sep = ' '))),
+                                      printfile = gadgetfile(sprintf('%s/catch.lw',output_dir)),
+                                      yearsandsteps = 'all all'),
+                                 list('[component]',
+                                      type = 'predatorpreyprinter',
+                                      predatornames = pre.fleet.names,
+                                      preynames = c(imm_stock[[1]]$stockname,mat_stock[[1]]$stockname),
+                                      areaaggfile = gadgetdata(sprintf('Aggfiles/%s.area.agg',mat_stock[[1]]$stockname),
+                                                               data = data.frame(name = sprintf('area%s',mat_stock[[1]]$livesonareas),
+                                                                                 value = mat_stock[[1]]$livesonareas)),
+                                      ageaggfile = gadgetdata(sprintf('Aggfiles/%s.stock.Fage.agg',mat_stock[[1]]$stockname),
+                                                              data = tibble::data_frame(value = mat_stock[[1]]$maxage,
+                                                                                        name = 'allages') %>% 
+                                                                dplyr::select(.data$name,.data$value) %>% 
+                                                                as.data.frame()),
+                                      lenaggfile = gadgetdata(paste0('Aggfiles/', mat_stock[[1]]$stockname, '.stock.len.agg'),
+                                                              data = data.frame(name = 'alllen',
+                                                                                value = paste(imm_stock[[1]]$minlength,mat_stock[[1]]$maxlength,
+                                                                                              sep = ' '))),
+                                      printfile = gadgetfile(sprintf('%s/catch.F',output_dir)),
+                                      yearsandsteps = 'all all')))
+  
+  attr(print,'file_config')$mainfile_section <- 'printfiles'
+  write.gadget.file(print, path)
+  return(path)
+}
+

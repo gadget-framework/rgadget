@@ -8,8 +8,10 @@
 #' @return A list of lists representing the gadget stock file
 #' @examples
 #' path <- './cod-model'
-#' gadgetstock('codmat', path, missingOkay = TRUE)  # Read codmat from './cod-model', throw an error if it doesn't exist
-#' gadgetstock('codimm', path, missingOkay = TRUE)  # Read codimm stock / create a new one
+#' # Read codmat from './cod-model', throw an error if it doesn't exist
+#' gadgetstock('codmat', path, missingOkay = TRUE)  
+#' # Read codimm stock / create a new one
+#' gadgetstock('codimm', path, missingOkay = TRUE)  
 #' @export
 gadgetstock <- function(stock_name, path, missingOkay = FALSE) {
     # Fetch the name of all stockfiles
@@ -106,7 +108,8 @@ gadgetstock <- function(stock_name, path, missingOkay = FALSE) {
 #'    gadget_update('stock', minage = 2, maxage = 4) %>%
 #'    gadget_update('stock', stockname = 'codmat') %>%  # Will change the name of the file we write
 #'    gadget_update('doesmigrate', yearstepfile = gadgetfile('data/yearstepfile', components = list(
-#'                                   data.frame(year = 1998, step = 1:4, matrix = 'codmat-migration')))) %>%
+#'                                   data.frame(year = 1998, step = 1:4, 
+#'                                              matrix = 'codmat-migration')))) %>%
 #'    gadget_update('doesrenew', 0) %>%
 #'    write.gadget.file(path)
 #' @export

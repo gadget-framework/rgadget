@@ -21,5 +21,6 @@ Create a fleet file object, from fresh or an existing file.
 }
 \examples{
 path <- './cod-model'
-gadgetfleet('fleet', path, missingOkay = TRUE)  # Read 'fleet' fleet file, creating it if it doesn't exist
+# Read 'fleet' fleet file, creating it if it doesn't exist
+gadgetfleet('fleet', path, missingOkay = TRUE)  
 }
