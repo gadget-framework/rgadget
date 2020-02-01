@@ -19,6 +19,18 @@ gadget_catchinkilos_component(
 \item{weight}{A numeric weighting}
 
 \item{name}{A descriptive name for the component, default same as component type}
+
+\item{data}{data.frame of landings data that Gadget is to use to fit the likelihood function to for the catch calculated in the model.}
+
+\item{data_function}{Function to use. Only 'sumofsquares' supported.}
+
+\item{epsilon}{Used when probability is very unikely, default 10.}
+
+\item{area}{Area aggregation, if not attached to the data.frame by MFDB}
+
+\item{fleetnames}{A list of all the fleets to be aggregated into a single pseudo fleet for the purposes of the data comparison}
+
+\item{stocknames}{A list of all the stocks to be aggregated into a single pseudo stock}
 }
 \description{
 http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:catchinkilos

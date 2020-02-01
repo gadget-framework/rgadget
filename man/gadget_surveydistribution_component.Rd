@@ -25,6 +25,30 @@ gadget_surveydistribution_component(
 \item{weight}{A numeric weighting}
 
 \item{name}{A descriptive name for the component, default same as component type}
+
+\item{data}{data.frame of age-length survey indices that Gadget is to use to fit the likelihood function to}
+
+\item{area}{Area aggregation, if not attached to the data.frame by MFDB}
+
+\item{length}{Length aggregation, if not attached to the data.frame by MFDB}
+
+\item{age}{Age aggregation, if not attached to the data.frame by MFDB}
+
+\item{stocknames}{A list of all the stocks to be aggregated into a single pseudo stock}
+
+\item{fittype}{Type of linear regression to use. One of 'linearfit' / 'powerfit'}
+
+\item{parameters}{Vector of 2 parameters that are used to calculate the survey index values from the modelled population}
+
+\item{suitability}{Suitability function for survey fleet}
+
+\item{slope}{Parameter for linear regression}
+
+\item{intercept}{Parameter for linear regression}
+
+\item{epsilon}{Used when probability is very unikely, default 10.}
+
+\item{likelihoodtype}{What function is to be used to compare the modelled survey index distribution to the input survey index distribution. One of 'multinomial' / 'pearson' / 'gamma' / 'log'}
 }
 \description{
 http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:surveydistribution

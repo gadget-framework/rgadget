@@ -24,6 +24,28 @@ gadget_catchdistribution_component(
 \item{weight}{A numeric weighting}
 
 \item{name}{A descriptive name for the component, default same as component type}
+
+\item{data_function}{Function to be used to compare the modelled statistical data to the input statistical data}
+
+\item{data_function_params}{Parameters if using a multivariate function}
+
+\item{aggregationlevel}{Boolean. aggregate data over whole year? Default false.}
+
+\item{overconsumption}{Boolean, take overconsumption into account? Default false.}
+
+\item{epsilon}{Used when probability is very unikely, default 10.}
+
+\item{data}{data.frame required by the data_function}
+
+\item{area}{Area aggregation, if not attached to the data.frame by MFDB}
+
+\item{age}{Age aggregation, if not attached to the data.frame by MFDB}
+
+\item{length}{Length aggregation, if not attached to the data.frame by MFDB}
+
+\item{fleetnames}{A list of all the fleets to be aggregated into a single pseudo fleet for the purposes of the data comparison}
+
+\item{stocknames}{A list of all the stocks to be aggregated into a single pseudo stock}
 }
 \description{
 http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:catchdist

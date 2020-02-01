@@ -10,6 +10,8 @@ gadget_penalty_component(weight = 0, name = "penalty", data = NULL)
 \item{weight}{A numeric weighting}
 
 \item{name}{A descriptive name for the component, default same as component type}
+
+\item{data}{The datafile lists these weights and the power that is to be used for each parameter}
 }
 \description{
 http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:boundlike

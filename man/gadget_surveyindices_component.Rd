@@ -25,6 +25,30 @@ gadget_surveyindices_component(
 \item{weight}{A numeric weighting}
 
 \item{name}{A descriptive name for the component, default same as component type}
+
+\item{sitype}{Survey index type. One of 'lengths'/'ages'/'fleets'/'acoustic'/'effort'}
+
+\item{biomass}{Whether the index data should be based on the biomass of the stock or on the population numbers for the stock. 0 or 1}
+
+\item{data}{data.frame required by the data_function}
+
+\item{area}{Area aggregation, if not attached to the data.frame by MFDB}
+
+\item{fittype}{Type of linear regression to use. One of 'linearfit' / 'loglinearfit' / 'fixedslopelinearfit' / 'fixedslopeloglinearfit' / 'fixedinterceptlinearfit' / 'fixedinterceptloglinearfit' / 'fixedlinearfit' / 'fixedloglinearfit'.}
+
+\item{length}{Length aggregation, if not attached to the data.frame by MFDB}
+
+\item{age}{Age aggregation, if not attached to the data.frame by MFDB}
+
+\item{fleetnames}{A list of all the fleets to be aggregated into a single pseudo fleet for the purposes of the data comparison}
+
+\item{surveynames}{A list of all the stocks to be aggregated into a single pseudo stock}
+
+\item{stocknames}{A list of all the stocks to be aggregated into a single pseudo stock}
+
+\item{slope}{Parameter for linear regression}
+
+\item{intercept}{Parameter for linear regression}
 }
 \description{
 http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:surveyindices

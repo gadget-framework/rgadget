@@ -15,6 +15,10 @@ gadget_migrationpenalty_component(
 \item{weight}{A numeric weighting}
 
 \item{name}{A descriptive name for the component, default same as component type}
+
+\item{stockname}{Name of stock to check}
+
+\item{powercoeffs}{vector of coefficients p0 & p1}
 }
 \description{
 http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:migpenalty

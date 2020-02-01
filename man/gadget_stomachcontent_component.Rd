@@ -22,6 +22,24 @@ gadget_stomachcontent_component(
 \item{weight}{A numeric weighting}
 
 \item{name}{A descriptive name for the component, default same as component type}
+
+\item{data_function}{Comparison function to use}
+
+\item{epsilon}{Used when probability is very unikely, default 10.}
+
+\item{area}{Area aggregation, if not attached to the data.frame by MFDB}
+
+\item{predator_length}{Predator length aggregation, if not attached to the data.frame by MFDB}
+
+\item{prey_length}{Prey length aggregation, if not attached to the data.frame by MFDB}
+
+\item{prey_labels}{Named list of (prey name) -> (stock names)}
+
+\item{prey_digestion_coefficients}{Named list of (prey name) -> (digestion coefficients)}
+
+\item{predator_names}{A list of all the predators to be aggregated into a single pseudo predator}
+
+\item{data}{Stomach content data.frame}
 }
 \description{
 http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:stomach

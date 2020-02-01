@@ -13,6 +13,7 @@ gadgetlikelihoodcomponent <- function (component, ...) {
 #'
 #' @param name		A descriptive name for the component, default same as component type
 #' @param weight	A numeric weighting
+#' @param data		The datafile lists these weights and the power that is to be used for each parameter 
 #' @export
 gadget_penalty_component <- function (weight = 0, name = 'penalty', data = NULL) {
     data <- deparse_mfdb_data(data)
@@ -38,6 +39,12 @@ gadget_understocking_component <- function (weight = 0, name = 'understocking') 
 #'
 #' @param name		A descriptive name for the component, default same as component type
 #' @param weight	A numeric weighting
+#' @param data_function	Function to be used to compare the modelled statistical data to the input statistical data
+#' @param data		data.frame required by the data_function
+#' @param area		Area aggregation, if not attached to the data.frame by MFDB
+#' @param age		Age aggregation, if not attached to the data.frame by MFDB
+#' @param fleetnames	A list of all the fleets to be aggregated into a single pseudo fleet for the purposes of the data comparison
+#' @param stocknames	A list of all the stocks to be aggregated into a single pseudo stock
 #' @export
 gadget_catchstatistics_component <- function (
         weight = 0, name = 'catchstatistics',
@@ -89,6 +96,17 @@ gadget_catchstatistics_component <- function (
 #'
 #' @param name		A descriptive name for the component, default same as component type
 #' @param weight	A numeric weighting
+#' @param data_function	Function to be used to compare the modelled statistical data to the input statistical data
+#' @param data_function_params	Parameters if using a multivariate function
+#' @param aggregationlevel	Boolean. aggregate data over whole year? Default false.
+#' @param overconsumption	Boolean, take overconsumption into account? Default false.
+#' @param epsilon	Used when probability is very unikely, default 10.
+#' @param data		data.frame required by the data_function
+#' @param area		Area aggregation, if not attached to the data.frame by MFDB
+#' @param age		Age aggregation, if not attached to the data.frame by MFDB
+#' @param length	Length aggregation, if not attached to the data.frame by MFDB
+#' @param fleetnames	A list of all the fleets to be aggregated into a single pseudo fleet for the purposes of the data comparison
+#' @param stocknames	A list of all the stocks to be aggregated into a single pseudo stock
 #' @export
 gadget_catchdistribution_component <- function (
         weight = 0, name = 'catchdistribution',
@@ -125,6 +143,15 @@ gadget_catchdistribution_component <- function (
 #'
 #' @param name		A descriptive name for the component, default same as component type
 #' @param weight	A numeric weighting
+#' @param data_function	Function to be used to compare the modelled statistical data to the input statistical data
+#' @param overconsumption	Boolean, take overconsumption into account? Default false.
+#' @param epsilon	Used when probability is very unikely, default 10.
+#' @param data		data.frame required by the data_function
+#' @param area		Area aggregation, if not attached to the data.frame by MFDB
+#' @param age		Age aggregation, if not attached to the data.frame by MFDB
+#' @param length	Length aggregation, if not attached to the data.frame by MFDB
+#' @param fleetnames	A list of all the fleets to be aggregated into a single pseudo fleet for the purposes of the data comparison
+#' @param stocknames	A list of all the stocks to be aggregated into a single pseudo stock
 #' @export
 gadget_stockdistribution_component <- function (
         weight = 0, name = 'stockdistribution',
@@ -159,6 +186,18 @@ gadget_stockdistribution_component <- function (
 #'
 #' @param name		A descriptive name for the component, default same as component type
 #' @param weight	A numeric weighting
+#' @param sitype	Survey index type. One of 'lengths'/'ages'/'fleets'/'acoustic'/'effort'
+#' @param biomass	Whether the index data should be based on the biomass of the stock or on the population numbers for the stock. 0 or 1
+#' @param data		data.frame required by the data_function
+#' @param area		Area aggregation, if not attached to the data.frame by MFDB
+#' @param age		Age aggregation, if not attached to the data.frame by MFDB
+#' @param length	Length aggregation, if not attached to the data.frame by MFDB
+#' @param fittype	Type of linear regression to use. One of 'linearfit' / 'loglinearfit' / 'fixedslopelinearfit' / 'fixedslopeloglinearfit' / 'fixedinterceptlinearfit' / 'fixedinterceptloglinearfit' / 'fixedlinearfit' / 'fixedloglinearfit'.
+#' @param fleetnames	A list of all the fleets to be aggregated into a single pseudo fleet for the purposes of the data comparison
+#' @param stocknames	A list of all the stocks to be aggregated into a single pseudo stock
+#' @param surveynames	A list of all the stocks to be aggregated into a single pseudo stock
+#' @param slope		Parameter for linear regression
+#' @param intercept	Parameter for linear regression
 #' @export
 gadget_surveyindices_component <- function (
         weight = 0, name = 'surveyindices',
@@ -244,6 +283,18 @@ gadget_surveyindices_component <- function (
 #'
 #' @param name		A descriptive name for the component, default same as component type
 #' @param weight	A numeric weighting
+#' @param data		data.frame of age-length survey indices that Gadget is to use to fit the likelihood function to
+#' @param area		Area aggregation, if not attached to the data.frame by MFDB
+#' @param length	Length aggregation, if not attached to the data.frame by MFDB
+#' @param age		Age aggregation, if not attached to the data.frame by MFDB
+#' @param stocknames	A list of all the stocks to be aggregated into a single pseudo stock
+#' @param fittype	Type of linear regression to use. One of 'linearfit' / 'powerfit'
+#' @param parameters	Vector of 2 parameters that are used to calculate the survey index values from the modelled population
+#' @param suitability	Suitability function for survey fleet
+#' @param slope		Parameter for linear regression
+#' @param intercept	Parameter for linear regression
+#' @param epsilon	Used when probability is very unikely, default 10.
+#' @param likelihoodtype	What function is to be used to compare the modelled survey index distribution to the input survey index distribution. One of 'multinomial' / 'pearson' / 'gamma' / 'log'
 #' @export
 gadget_surveydistribution_component <- function (
         weight = 0, name = 'surveydistribution',
@@ -286,6 +337,15 @@ gadget_surveydistribution_component <- function (
 #'
 #' @param name		A descriptive name for the component, default same as component type
 #' @param weight	A numeric weighting
+#' @param data_function	Comparison function to use
+#' @param epsilon	Used when probability is very unikely, default 10.
+#' @param area		Area aggregation, if not attached to the data.frame by MFDB
+#' @param predator_length	Predator length aggregation, if not attached to the data.frame by MFDB
+#' @param prey_length		Prey length aggregation, if not attached to the data.frame by MFDB
+#' @param prey_labels		Named list of (prey name) -> (stock names)
+#' @param prey_digestion_coefficients	Named list of (prey name) -> (digestion coefficients)
+#' @param predator_names	A list of all the predators to be aggregated into a single pseudo predator
+#' @param data		Stomach content data.frame 
 #' @export
 gadget_stomachcontent_component <- function (
         weight = 0, name = 'stomachcontent',
@@ -353,6 +413,7 @@ gadget_stomachcontent_component <- function (
 #'
 #' @param name		A descriptive name for the component, default same as component type
 #' @param weight	A numeric weighting
+#' @param data		data.frame 
 #' @export
 gadget_recaptures_component <- function (
         weight = 0, name = 'recaptures',
@@ -364,6 +425,7 @@ gadget_recaptures_component <- function (
 #'
 #' @param name		A descriptive name for the component, default same as component type
 #' @param weight	A numeric weighting
+#' @param data		data.frame 
 #' @export
 gadget_recstatistics_component <- function (
         weight = 0, name = 'recstatistics',
@@ -375,6 +437,8 @@ gadget_recstatistics_component <- function (
 #'
 #' @param name		A descriptive name for the component, default same as component type
 #' @param weight	A numeric weighting
+#' @param stockname	Name of stock to check
+#' @param powercoeffs	vector of coefficients p0 & p1
 #' @export
 gadget_migrationpenalty_component <- function (
         weight = 0, name = 'migrationpenalty',
@@ -390,6 +454,12 @@ gadget_migrationpenalty_component <- function (
 #'
 #' @param name		A descriptive name for the component, default same as component type
 #' @param weight	A numeric weighting
+#' @param data		data.frame of landings data that Gadget is to use to fit the likelihood function to for the catch calculated in the model.
+#' @param data_function	Function to use. Only 'sumofsquares' supported.
+#' @param epsilon	Used when probability is very unikely, default 10.
+#' @param area		Area aggregation, if not attached to the data.frame by MFDB
+#' @param fleetnames	A list of all the fleets to be aggregated into a single pseudo fleet for the purposes of the data comparison
+#' @param stocknames	A list of all the stocks to be aggregated into a single pseudo stock
 #' @export
 gadget_catchinkilos_component <- function (
         weight = 0, name = 'catchinkilos',

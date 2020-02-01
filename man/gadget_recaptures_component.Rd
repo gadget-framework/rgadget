@@ -10,6 +10,8 @@ gadget_recaptures_component(weight = 0, name = "recaptures", data = NULL)
 \item{weight}{A numeric weighting}
 
 \item{name}{A descriptive name for the component, default same as component type}
+
+\item{data}{data.frame}
 }
 \description{
 http://hafro.github.io/gadget/docs/userguide/chap-like.html#sec:recaptures
