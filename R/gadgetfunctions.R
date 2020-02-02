@@ -102,9 +102,9 @@ callGadget <- function(l=NULL,
     gadget.exe=.Options$gadget.path
   }
 
-  if (gadget.exe == 'gadget' && 'gadget' %in% utils::installed.packages()[,1]) {
+  if (gadget.exe == 'gadget' && 'gadget2' %in% utils::installed.packages()[,1]) {
     # gadget package available, use that over searching system path
-    gadget.exe=gadget::gadget_binary()
+    gadget.exe=gadget2::gadget_binary()
   }
 
   switches <- paste(ifelse(is.null(l),'','-l'),

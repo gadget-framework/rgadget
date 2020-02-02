@@ -31,6 +31,7 @@ Imports:
     rlang,
     methods
 Suggests:
+    gadget2,
     unittest (>= 1.4),
     knitr,
     mfdb,
