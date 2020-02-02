@@ -9,8 +9,7 @@ Maintainer: Bjarki Thor Elvarsson <bjarki.elvarsson@hafogvatn.is>
 Description: Companion R package for Gadget (Globally applicable area disagregated ecosystem toolbox).
 Encoding: UTF-8
 Depends:
-    R (>= 3.3.0),
-    tidyverse
+    R (>= 3.3.0)
 Imports:
     dplyr,
     fs,

@@ -514,6 +514,7 @@ suitability <- function(params,
 #' @return A character vector of the form 
 #'   <preyname> function <functionname> <vector of parameters>
 #' @examples
+#' library(magrittr)  # import %>% function
 #' path <- tempfile()
 #' gadgetstock('garfish', path, missingOkay=TRUE) %>%
 #'     gadget_update('doeseat',
@@ -554,6 +555,7 @@ pred_suit <- function(pred=NA,
 #' @return A character vector of the form 
 #'   function <functionname> <vector of parameters>
 #' @examples
+#' library(magrittr)  # import %>% function
 #' path <- tempfile()
 #' gadgetlikelihood('likelihood', path, missingOkay=TRUE) %>%
 #'    gadget_update('surveydistribution',

@@ -27,6 +27,7 @@ gadgetlikelihood <- function(file_name, path, missingOkay = FALSE) {
 #' @param ...		If a component type was provided above, the extra options to supply to \code{gadget_likelihood_component}
 #'
 #' @examples
+#' library(magrittr)  # import %>% function
 #' path <- './model'
 #' gadgetlikelihood('likelihood', path, missingOkay = TRUE) %>%
 #'    # Add an understocking component

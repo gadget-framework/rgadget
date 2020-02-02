@@ -28,6 +28,7 @@ gadgetfleet <- function(file_name, path, missingOkay = FALSE) {
 #' @param ...		If a component type was provided above, the extra options to supply to \code{gadget_fleet_component}
 #'
 #' @examples
+#' library(magrittr)  # import %>% function
 #' path <- './model'
 #' gadgetfleet('fleet', path, missingOkay = TRUE) %>%
 #'    gadget_update( # Add a fleet component

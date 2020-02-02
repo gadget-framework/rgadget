@@ -25,6 +25,7 @@ A character vector of the form
 Write suitability line for a predator
 }
 \examples{
+library(magrittr)  # import \%>\% function
 path <- tempfile()
 gadgetstock('garfish', path, missingOkay=TRUE) \%>\%
     gadget_update('doeseat',

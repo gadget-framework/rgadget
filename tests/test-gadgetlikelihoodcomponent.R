@@ -1,3 +1,4 @@
+library(magrittr)
 library(Rgadget)
 library(unittest, quietly = TRUE)
 

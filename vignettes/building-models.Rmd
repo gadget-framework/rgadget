@@ -10,6 +10,8 @@ vignette: >
 
 
 ```{r}
+library(magrittr)
+library(tibble)
 library(Rgadget)
 library(mfdb)
 

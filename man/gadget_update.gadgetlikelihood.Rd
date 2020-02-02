@@ -17,6 +17,7 @@
 Replace and/or append new likelihood comonents to an existing file
 }
 \examples{
+library(magrittr)  # import \%>\% function
 path <- './model'
 gadgetlikelihood('likelihood', path, missingOkay = TRUE) \%>\%
    # Add an understocking component

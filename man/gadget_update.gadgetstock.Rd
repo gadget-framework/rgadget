@@ -47,6 +47,7 @@ Replace components of a gadgetstock with either new values or or content
 derived from an MFDB query.
 }
 \examples{
+library(magrittr)  # import \%>\% function
 path <- './model'
 gadgetstock('codimm', path, missingOkay = TRUE) \%>\%  # Create a skeleton if missing
    gadget_update('stock', minage = 2, maxage = 4) \%>\%

@@ -30,6 +30,7 @@ gadgettime <- function(file_name, path, missingOkay = FALSE) {
 #' @param ...		Valid options for a time file; firstyear, firststep, lastyear, laststep, notimesteps. See gadget user guide
 #'
 #' @examples
+#' library(magrittr)  # import %>% function
 #' path <- './model'
 #' gadgettime('time', path, missingOkay = TRUE) %>%
 #'    gadget_update(firstyear = 1990, lastyear = 2000) %>% 

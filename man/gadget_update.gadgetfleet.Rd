@@ -17,6 +17,7 @@
 Replace and/or append new fleet comonents to an existing file
 }
 \examples{
+library(magrittr)  # import \%>\% function
 path <- './model'
 gadgetfleet('fleet', path, missingOkay = TRUE) \%>\%
    gadget_update( # Add a fleet component

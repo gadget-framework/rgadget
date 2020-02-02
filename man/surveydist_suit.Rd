@@ -30,6 +30,7 @@ A character vector of the form
 Write suitability line for the surveydistribution likelihood component
 }
 \examples{
+library(magrittr)  # import \%>\% function
 path <- tempfile()
 gadgetlikelihood('likelihood', path, missingOkay=TRUE) \%>\%
    gadget_update('surveydistribution',

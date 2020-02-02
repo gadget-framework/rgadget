@@ -103,6 +103,7 @@ gadgetstock <- function(stock_name, path, missingOkay = FALSE) {
 #' \code{gadget_update('doesrenew', number = data)}
 #'
 #' @examples
+#' library(magrittr)  # import %>% function
 #' path <- './model'
 #' gadgetstock('codimm', path, missingOkay = TRUE) %>%  # Create a skeleton if missing
 #'    gadget_update('stock', minage = 2, maxage = 4) %>%
