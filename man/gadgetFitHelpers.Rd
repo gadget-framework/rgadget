@@ -4,7 +4,6 @@
 \alias{read.gadget.wgts}
 \alias{merge.formula}
 \alias{eval.gadget.formula}
-\alias{get.gadget.recruitment}
 \alias{read.gadget.grouping}
 \title{gadget.fit helper functions}
 \usage{
@@ -20,8 +19,6 @@ read.gadget.wgts(
 \method{merge}{formula}(txt)
 
 eval.gadget.formula(gad.for, par = data.frame())
-
-get.gadget.recruitment(stocks, params, collapse = TRUE)
 
 read.gadget.grouping(lik = read.gadget.likelihood(), wgts = "WGTS")
 }
@@ -44,12 +41,6 @@ read.gadget.grouping(lik = read.gadget.likelihood(), wgts = "WGTS")
 
 \item{par}{gadget parameters object}
 
-\item{stocks}{gadget.stock}
-
-\item{params}{gadget.params}
-
-\item{collapse}{Logical, group output by stock/year/area}
-
 \item{lik}{old style gadget likelihood object}
 }
 \value{
@@ -58,8 +49,6 @@ data.frame with parameter estimates and likelihood output from the iterative rew
 txt where the formula has been properly compiled
 
 a vector of evaluated gadget formulas
-
-recruitment by year
 
 list of wgts groupings
 }
@@ -72,8 +61,6 @@ list of wgts groupings
 '(* x y)' which is equivalent to 'x*y'. The evaluation supports the following
 symbols '*','/','+','-','exp','log','sqrt'. The evaluation uses a gadget
 parameter object for its evaluation.
-
-\code{get.gadget.recruitment} gets gadget recruitment
 
 \code{read.gadget.grouping} reads the the likelihood grouping from the WGTS folder
 }

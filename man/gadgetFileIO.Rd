@@ -10,7 +10,6 @@
 \alias{clear.spaces}
 \alias{read.gadget.data}
 \alias{strip.comments}
-\alias{read.gadget.stockfiles}
 \alias{read.gadget.area}
 \alias{write.gadget.area}
 \alias{read.gadget.time}
@@ -42,8 +41,6 @@ clear.spaces(text)
 read.gadget.data(likelihood, debug = FALSE, year_range = NULL)
 
 strip.comments(file = "main")
-
-read.gadget.stockfiles(stock.files)
 
 read.gadget.area(area.file = "area")
 
@@ -88,8 +85,6 @@ write.gadget.fleet(fleet, file = "fleet")
 
 \item{year_range}{limit the years read in}
 
-\item{stock.files}{location of stock file}
-
 \item{area.file}{location of the area file}
 
 \item{area}{data frame with area and temperature}
@@ -123,8 +118,6 @@ list of dataframes and degress of freedom
 
 list containing the lines from the file stripped of unwanted text.
 
-list of gadget-stock objects
-
 areafile object
 
 nothing
@@ -144,8 +137,6 @@ nothing
 the likelihood file is described in gadget's user manual.
 
 \code{read.gadget.data} reads data used by the various components
-
-\code{read.gadget.stockfiles} reads in Gadget stockfiles DEPRECATED
 
 \code{read.gadget.area} reads the gadget area file
 
