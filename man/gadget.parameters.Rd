@@ -3,24 +3,55 @@
 \name{read.gadget.parameters}
 \alias{read.gadget.parameters}
 \alias{write.gadget.parameters}
+\alias{init_guess}
+\alias{wide_parameters}
 \title{Gadget parameters}
 \usage{
 read.gadget.parameters(file = "params.in")
 
 write.gadget.parameters(params, file = "params.out")
+
+init_guess(
+  dat,
+  pattern = "",
+  value = 0,
+  lower = -999,
+  upper = 999,
+  optimise = 0
+)
+
+wide_parameters(dat, value)
 }
 \arguments{
 \item{file}{a string naming the file to write to}
 
 \item{params}{params dataframe}
+
+\item{dat}{gadget parameters object}
+
+\item{pattern}{name of parameter, can include grep-able wildcards}
+
+\item{value}{data.frame update to the parameter matrix (assumes same row count)}
+
+\item{lower}{new lower bound}
+
+\item{upper}{new upper bound}
+
+\item{optimise}{should the parameter be optimised}
 }
 \value{
 dataframe
 
 a string containing the text of the params file (if desired)
+
+updated data frame with the new parameter values
+
+gadget parameters object
 }
 \description{
 \code{read.gadget.parameters} reads a gadget parameter file
+
+This is a convenience function that allows the editing of parameter files by variable (switch) names.
 }
 \author{
 Bjarki  Thor Elvarsson

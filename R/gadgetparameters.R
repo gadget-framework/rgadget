@@ -140,7 +140,8 @@ write.gadget.parameters <- function(params,file='params.out'){
 #' Initial parameter guess
 #'
 #' This is a convenience function that allows the editing of parameter files by variable (switch) names. 
-#'
+#' 
+#' @rdname gadget.parameters
 #' @name init_guess
 #' @param dat Input data frame, read in from read.gadget.parameters
 #' @param pattern name of parameter, can include grep-able wildcards
@@ -163,6 +164,7 @@ init_guess <- function(dat,pattern='', value = 0,  lower = -999, upper = 999, op
 
 #' wide parameter files
 #'
+#' @rdname gadget.parameters
 #' @param dat gadget parameters object
 #' @param value data.frame update to the parameter matrix (assumes same row count)
 #'
