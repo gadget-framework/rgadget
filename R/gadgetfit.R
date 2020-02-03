@@ -51,6 +51,7 @@ gadget.fit <- function(wgts = 'WGTS',
   if(!is.null(gd)){
     old.dir <- getwd()
     setwd(gd)
+    on.exit(setwd(old.dir))
   } else {
     gd <-  gadget.variant.dir('.')
   }
@@ -103,6 +104,7 @@ gadget.fit <- function(wgts = 'WGTS',
                         recruitment_step_age = recruitment_step_age,
                         printatstart = printatstart,
                         steps = steps)
+  on.exit(unlink(sprintf('%s/out.fit',wgts),recursive = TRUE))
   
   main$printfiles <- sprintf('%s/printfile.fit',wgts)
   write.gadget.main(main,file = sprintf('%s/main.print',wgts))
@@ -474,11 +476,7 @@ gadget.fit <- function(wgts = 'WGTS',
          catchstatistics = catchstatistics)
   class(out) <- c('gadget.fit',class(out))
   save(out,file=sprintf('%s/WGTS.Rdata',wgts))
-  ## clean up
-  unlink(sprintf('%s/out.fit',wgts),recursive = TRUE)
-  if(gd != '.'){
-    setwd(old.dir)
-  }
+
   return(out)
 }
 
