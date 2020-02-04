@@ -3,20 +3,14 @@
 \name{read.gadget.likelihood}
 \alias{read.gadget.likelihood}
 \alias{write.gadget.likelihood}
-\alias{merge.gadget.likelihood}
 \alias{get.gadget.likelihood}
 \alias{read.gadget.main}
 \alias{write.gadget.main}
 \alias{clear.spaces}
 \alias{read.gadget.data}
 \alias{strip.comments}
-\alias{read.gadget.area}
-\alias{write.gadget.area}
-\alias{read.gadget.time}
-\alias{write.gadget.time}
-\alias{read.gadget.table}
-\alias{read.gadget.fleet}
-\alias{write.gadget.fleet}
+\alias{read.gadget.wgts}
+\alias{read.gadget.grouping}
 \title{Old style gadget file input and output (mostly deprecated)}
 \usage{
 read.gadget.likelihood(files = "likelihood")
@@ -27,8 +21,6 @@ write.gadget.likelihood(
   data.folder = NULL,
   bs.sample = NULL
 )
-
-\method{merge}{gadget.likelihood}(lik1, lik2)
 
 get.gadget.likelihood(likelihood, comp, inverse = FALSE)
 
@@ -42,36 +34,29 @@ read.gadget.data(likelihood, debug = FALSE, year_range = NULL)
 
 strip.comments(file = "main")
 
-read.gadget.area(area.file = "area")
+read.gadget.wgts(
+  params.file = "params.in",
+  wgts = "WGTS",
+  likelihood = "likelihood",
+  lik.pre = "lik.",
+  params.pre = "params.",
+  parallel = FALSE
+)
 
-write.gadget.area(area, file = "area")
-
-read.gadget.time(time.file = "time")
-
-write.gadget.time(time, file = "time")
-
-read.gadget.table(file, header = FALSE)
-
-read.gadget.fleet(fleet.file = "fleet")
-
-write.gadget.fleet(fleet, file = "fleet")
+read.gadget.grouping(lik = read.gadget.likelihood(), wgts = "WGTS")
 }
 \arguments{
 \item{files}{a vector of character strings containing the names of the likelihood files}
 
-\item{lik}{object of class gadget.likelihood}
+\item{lik}{old style gadget likelihood object}
 
-\item{file}{location of the file}
+\item{file}{location of the gadget input file}
 
 \item{data.folder}{location of data folder (if changed)}
 
 \item{bs.sample}{(for bootstrap), appends the appropriate replicate number to data file}
 
-\item{lik1}{likelihood object}
-
-\item{lik2}{likelihood object}
-
-\item{likelihood}{object of class gadget.likelihood}
+\item{likelihood}{likelihood file}
 
 \item{comp}{selected likelihood components}
 
@@ -85,26 +70,20 @@ write.gadget.fleet(fleet, file = "fleet")
 
 \item{year_range}{limit the years read in}
 
-\item{area.file}{location of the area file}
+\item{params.file}{base parameter file}
 
-\item{area}{data frame with area and temperature}
+\item{wgts}{logcation of the WGTS folder}
 
-\item{time.file}{location of the file}
+\item{lik.pre}{strings matching the likelihood output}
 
-\item{time}{data.frame with time}
+\item{params.pre}{strings matching the parameter estimates}
 
-\item{header}{logical, should the header be read from the file}
-
-\item{fleet.file}{location of the fleet file}
-
-\item{fleet}{a gadget.fleet}
+\item{parallel}{should the files be read in parallel}
 }
 \value{
 object of class gadget.likelihood, i.e. a list containing the various likelihood components
 
 character string corresponding to the likelihood file (if desired)
-
-merged gadget likelihood object
 
 likelihood object
 
@@ -118,19 +97,9 @@ list of dataframes and degress of freedom
 
 list containing the lines from the file stripped of unwanted text.
 
-areafile object
+data.frame with parameter estimates and likelihood output from the iterative reweighting folder.
 
-nothing
-
-timefile objects
-
-nothing
-
-data.frame
-
-fleet file object
-
-nothing
+list of wgts groupings
 }
 \description{
 \code{read.gadget.likelihood} reads the likelihood (input) file for gadget. The format of
@@ -138,11 +107,9 @@ the likelihood file is described in gadget's user manual.
 
 \code{read.gadget.data} reads data used by the various components
 
-\code{read.gadget.area} reads the gadget area file
+\code{read.gadget.wgts} reads the output from iterative weighting likelihood output
 
-\code{write.gadget.area} writes a gadget area file
-
-\code{read.gadget.fleet} read gadget fleet
+\code{read.gadget.grouping} reads the the likelihood grouping from the WGTS folder
 }
 \author{
 Bjarki Þór Elvarsson
@@ -151,8 +118,6 @@ Bjarki Þór Elvarsson
 
 Bjarki Thor Elvarsson
 
-Bjarki Thor Elvarsson
-
 Bjarki Þór Elvarsson
 
 Bjarki Þór Elvarsson
@@ -160,10 +125,6 @@ Bjarki Þór Elvarsson
 Bjarki Þór Elvarsson
 
 Bjarki Þór Elvarsson
-
-Bjarki Thor Elvarsson
-
-Bjarki Thor Elvarsson
 
 Bjarki Thor Elvarsson
 }

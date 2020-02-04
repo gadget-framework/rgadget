@@ -946,7 +946,7 @@ strip.comments <- function(file='main'){
 
 
 
-##' @rdname gadgetFitHelpers
+##' @rdname gadgetFileIO
 ##' @description \code{read.gadget.wgts} reads the output from iterative weighting likelihood output
 ##'
 ##' @param params.file base parameter file
@@ -1030,15 +1030,7 @@ read.gadget.wgts <- function(params.file = 'params.in',
 
 
 
-
-
-
-
-
-
-
-
-##' @rdname gadgetFitHelpers
+##' @rdname gadgetFileIO
 ##' @description \code{read.gadget.grouping} reads the the likelihood grouping from the WGTS folder
 ##' @param lik old style gadget likelihood object
 ##' @param wgts logcation of the WGTS folder
