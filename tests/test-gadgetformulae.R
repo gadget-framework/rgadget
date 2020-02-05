@@ -45,6 +45,13 @@ ok_group("to.gadget.formulae", {
     ok(ut_cmp_identical(
         to.gadget.formulae(quote(4 + (2 - 8))),
         "(+ 4 (- 2 8))"), "We ignore R's explicit bracket function")
+
+    ok(ut_cmp_identical(
+        to.gadget.formulae(~ 2 + (wibble * 2)),
+        "(+ 2 (* #wibble 2))"), "Can generate from formulae")
+    ok(ut_cmp_identical(
+        to.gadget.formulae(y ~ 4 + (wibble * 4)),
+        "(+ 4 (* #wibble 4))"), "Any LHS is ignored")
 })
 
 ok_group("sub.gadget.formulae", {

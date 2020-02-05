@@ -7,7 +7,7 @@
 to.gadget.formulae(ex)
 }
 \arguments{
-\item{ex}{An unevaluated R expression, e.g. quote(2 + log(moo - 1))}
+\item{ex}{An unevaluated R expression or formulae, e.g. quote(2 + log(moo - 1)) or ~2 + log(moo - 1)}
 }
 \value{
 A character vector representing the GADGET formulae, e.g. "(+ 2 (log (- #moo 1)))"

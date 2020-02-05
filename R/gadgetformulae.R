@@ -57,7 +57,7 @@ parse.gadget.formulae <- function(input_formulae) {
 }
 
 ##' @title Turn R expression into GADGET formulae string
-##' @param ex An unevaluated R expression, e.g. quote(2 + log(moo - 1))
+##' @param ex An unevaluated R expression or formulae, e.g. quote(2 + log(moo - 1)) or ~2 + log(moo - 1)
 ##' @return A character vector representing the GADGET formulae, e.g. "(+ 2 (log (- #moo 1)))"
 ##' @export
 to.gadget.formulae <- function(ex) {
@@ -69,6 +69,11 @@ to.gadget.formulae <- function(ex) {
     if (is.numeric(ex) || is.character(ex)) {
         # It's a constant, stringify it
         return(as.character(ex))
+    }
+
+    if ('formula' %in% class(ex)) {
+        # It's a formula, parse the right-hand-side
+        return(to.gadget.formulae(ex[[length(ex)]]))
     }
 
     if (is.call(ex)) {
