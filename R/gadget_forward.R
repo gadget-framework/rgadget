@@ -363,12 +363,16 @@ gadget_project_fleets <- function(path, pre_fleet = 'comm',post_fix='pre',fleet_
 #' @param recruitment recruitment time series
 #' @param n_replicates number of simulations
 #' @param params.file name of the parameter files
+#' @param method Either 'AR' or 'bootstrap'
+#' @param ... additional arguments for the 
 #' @export
 gadget_project_recruitment <- function(path,
                                        stock,
                                        recruitment=NULL,
                                        n_replicates=100,
-                                       params.file = 'PRE/params.pre'){
+                                       params.file = 'PRE/params.pre',
+                                       method = 'AR', 
+                                       ...){
   
   schedule <- 
     readr::read_delim(sprintf('%s/.schedule',
@@ -377,49 +381,75 @@ gadget_project_recruitment <- function(path,
   
   rec_step <- unique(recruitment$step)[1]
   
-  if('model' %in% names(recruitment)){
-    mrec <- 
+  if(!('model' %in% names(recruitment))){
+    recruitment$model <- 1
+  } 
+  
+  if(method == 'AR'){
+    rec <- 
       recruitment %>% 
-      dplyr::group_by(.data$model) %>% 
-      dplyr::summarise(recruitment = mean(recruitment))
+      split(.$model) %>% 
+      purrr::map(gadget_project_rec_arima,schedule=schedule,n_replicates=n_replicates,...) %>% 
+      dplyr::bind_rows(.id="model")
     
-    recruitment <- recruitment %>% 
-      dplyr::filter(.data$model == min(.data$model))
-  } else {
-    mrec <- 
+  } else if(method == 'bootstrap'){
+    rec <- 
       recruitment %>% 
-      dplyr::summarise(recruitment = mean(recruitment))
+      split(.$model) %>% 
+      purrr::map(gadget_project_rec_bootstrap,schedule=schedule,n_replicates=n_replicates,...) %>% 
+      dplyr::bind_rows(.id="model")
+    
+  } else {
+    stop('Method not valid, expected either AR or bootstrap')
   }
   
   rec <- 
-    recruitment %>% 
+    rec %>% 
+    dplyr::mutate(year = sprintf('%s.rec.pre.%s.%s', stock, .data$year, rec_step)) %>% 
+    tidyr::spread("year", "rec") %>% 
+    dplyr::select(-c('trial','model'))
+      
+  read.gadget.parameters(file = params.file) %>% 
+    wide_parameters(value = rec) %>% 
+    write.gadget.parameters(file = params.file)
+  
+  
+  return(path)
+}
+
+gadget_project_rec_arima <- function(recruitment,schedule,n_replicates){
+  
+  mrec <- mean(recruitment$recruitment/1e4)
+  
+  recruitment %>% 
     dplyr::mutate(recruitment = log(recruitment/1e4)) %>% 
     stats::lm(head(recruitment,-1)~utils::tail(recruitment,-1),data = .) %>% 
     {list(variables=broom::tidy(.) %>% 
             {tibble::tibble(a = .$estimate[1],
-                           b = .$estimate[2])},
+                            b = .$estimate[2])},
           sigma=broom::glance(.) %>% 
-            dplyr::select(sigma))} %>%
+            dplyr::select(.data$sigma))} %>%
     dplyr::bind_cols() %>% 
     dplyr::slice(rep(1,length(unique(schedule$year))*n_replicates)) %>% 
     dplyr::bind_cols(tidyr::expand_grid(year=unique(schedule$year),
-                                        trial=1:n_replicates,
-                                        recruitment = mrec$recruitment)) %>% 
+                                        trial=1:n_replicates)) %>% 
     dplyr::mutate(rec = stats::arima.sim(dplyr::n(),
-                                        model=list(ar=unique(.data$b)),
-                                        sd=unique(.data$sigma)),
-                  rec = mean(recruitment/1e4)*exp(rec)) %>% 
-    dplyr::mutate(year = sprintf('%s.rec.pre.%s.%s', stock, .data$year, rec_step)) %>% 
-    tidyr::spread("year", "rec") %>%
-    dplyr::select(-c('a', 'b', 'sigma', 'trial','recruitment'))
+                                         model=list(ar=unique(.data$b)),
+                                         sd=unique(.data$sigma)),
+                  rec = mrec*exp(.data$rec)) %>% 
+    dplyr::select(-c('a', 'b', 'sigma'))
     
-  
-    read.gadget.parameters(file = params.file) %>% 
-    wide_parameters(value = rec) %>% 
-    write.gadget.parameters(file = params.file)
-  
-    return(path)
 }
+
+gadget_project_rec_bootstrap <- function(recruitment,schedule,n_replicates,block_size = 7) {
+  schedule %>% 
+    dplyr::filter(.data$step %in% unique(recruitment$step)[1]) %>% 
+    dplyr::slice(rep(1:dplyr::n(),n_replicates)) %>% 
+    dplyr::mutate(trial = cut(1:length(year),c(0,which(diff(year)<0),1e9),labels = FALSE),
+                  rec = tseries::tsbootstrap(recruitment$recruitment,type='block',
+                                             nb=n(),b=block_size) %>% as.numeric() %>% .[1:n()])
+}
+
 
 #' @rdname gadget_projections 
 #' @param harvest_rate median harvest rate

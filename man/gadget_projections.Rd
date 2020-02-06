@@ -31,7 +31,9 @@ gadget_project_recruitment(
   stock,
   recruitment = NULL,
   n_replicates = 100,
-  params.file = "PRE/params.pre"
+  params.file = "PRE/params.pre",
+  method = "AR",
+  ...
 )
 
 gadget_project_advice(
@@ -82,6 +84,10 @@ gadget_project_output(
 \item{n_replicates}{number of simulations}
 
 \item{params.file}{name of the parameter files}
+
+\item{method}{Either 'AR' or 'bootstrap'}
+
+\item{...}{additional arguments for the}
 
 \item{harvest_rate}{median harvest rate}
 
