@@ -27,7 +27,8 @@ Imports:
     broom,
     ggplot2,
     rlang,
-    methods
+    methods,
+    tseries
 Suggests:
     gadget2,
     unittest (>= 1.4),

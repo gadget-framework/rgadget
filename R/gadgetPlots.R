@@ -533,8 +533,8 @@ plot.gadget.fit <- function(x, ...){
   if(data == 'params'){
     pl <- 
       fit$params %>% 
-      mutate(rho = (.data$value-.data$lower)/(.data$upper - .data$lower)) %>% 
-      ggplot2::ggplot(ggplot2::aes(switch,rho,label=switch)) + 
+      dplyr::mutate(rho = (.data$value-.data$lower)/(.data$upper - .data$lower)) %>% 
+      ggplot2::ggplot(ggplot2::aes(.data$switch,.data$rho,label=.data$switch)) + 
       ggplot2::geom_text() + 
       ggplot2::coord_flip() + 
       ggplot2::geom_hline(yintercept = c(0,1))
