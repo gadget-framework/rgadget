@@ -10,6 +10,7 @@
 ##'   \item{res.by.year}{Results by year}
 ##'   \item{stock.std}{Age composition from the model} 
 ##'   \item{suitability}{Suitability estimated from the model by year and step} 
+##'   \item{params}{Parameter values relative to their boundaries}
 ##' }
 ##' and valid plottypes are:
 ##' \describe{
@@ -526,6 +527,17 @@ plot.gadget.fit <- function(x, ...){
     pl <-
       tmp$plots %>% 
       purrr::set_names(.,tmp$name)
+    
+  } 
+  
+  if(data == 'params'){
+    pl <- 
+      fit$params %>% 
+      mutate(rho = (.data$value-.data$lower)/(.data$upper - .data$lower)) %>% 
+      ggplot2::ggplot(ggplot2::aes(switch,rho,label=switch)) + 
+      ggplot2::geom_text() + 
+      ggplot2::coord_flip() + 
+      ggplot2::geom_hline(yintercept = c(0,1))
     
   }
   
