@@ -102,12 +102,14 @@ gadget variant directory
 Setup model and parameter files for forward simulations and deterministic projections.
 }
 \examples{
-\dontrun{fit <- gadget.fit()
+\dontrun{
+
+fit <- gadget.fit()
 
 res <- 
  gadget_project_time() \%>\% 
  gadget_project_stocks(imm.file = 'Modelfiles/cod.imm',mat.file = 'Modelfiles/cod.mat') \%>\% 
- gadget_project_fleets() \%>\% 
+ gadget_project_fleets(pre_fleet = 'comm') \%>\% 
  gadget_evaluate(params.out = paste(attr(.,'variant_dir'),'params.pre',sep='/'),
                  params.in = 'WGTS/params.final') \%>\% 
  gadget_project_recruitment(stock = 'codimm', 
@@ -117,14 +119,16 @@ res <-
                             params.file = paste(attr(.,'variant_dir'),'params.pre',sep='/')) \%>\% 
  gadget_project_ref_point(ref_points = tibble(codmat.blim = 207727665), 
                          params.file = paste(attr(.,'variant_dir'),'params.pre',sep='/')) \%>\% 
- gadget_project_advice(harvest_rate = 1:100/100, 
+ gadget_project_advice(pre_fleet = 'comm',
+                       harvest_rate = 1:100/100, 
                        params.file = paste(attr(.,'variant_dir'),'params.pre',sep='/')) \%>\% 
- gadget_project_output(imm.file = 'Modelfiles/cod.imm',mat.file = 'Modelfiles/cod.mat') \%>\% 
+ gadget_project_output(imm.file = 'Modelfiles/cod.imm',mat.file = 'Modelfiles/cod.mat'
+                       pre_fleet = 'comm') \%>\% 
  gadget_evaluate(params.in = paste(attr(.,'variant_dir'),'params.pre',sep='/'))  \%>\% 
- read.printfiles(paste(attr(.,'variant_dir'),'out',sep='/')) \%>\% 
+ {read.printfiles(paste(attr(.,'variant_dir'),'out',sep='/'))} \%>\% 
  map(mutate, trial=cut(1:length(year),c(0,which(diff(year)<0),1e9),labels = FALSE)) \%>\% 
  set_names(c("catch.F","catch.lw",'codimm.rec','codmat.ssb')) \%>\% 
- map(left_join,tibble(trial=1:10000,harvest_rate = rep(1:100/100,each=100)))
+ map(left_join,tibble(trial=1:10000,harvest_rate = rep(1:100/100,100)))
 
 
 yield_curve <- 

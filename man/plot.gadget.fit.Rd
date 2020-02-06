@@ -31,6 +31,7 @@ Valid datatypes are:
   \item{res.by.year}{Results by year}
   \item{stock.std}{Age composition from the model} 
   \item{suitability}{Suitability estimated from the model by year and step} 
+  \item{params}{Parameter values relative to their boundaries}
 }
 and valid plottypes are:
 \describe{

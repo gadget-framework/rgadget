@@ -375,36 +375,43 @@ gadget_project_recruitment <- function(path,
                               paste(path,attributes(path)$variant_dir,sep='/')),
                       delim = ' ')
   
+  rec_step <- unique(recruitment$step)[1]
+  
+  if('model' %in% names(recruitment)){
+    mrec <- 
+      recruitment %>% 
+      dplyr::group_by(.data$model) %>% 
+      dplyr::summarise(recruitment = mean(recruitment))
+    
+    recruitment <- recruitment %>% 
+      dplyr::filter(.data$model == min(.data$model))
+  } else {
+    mrec <- 
+      recruitment %>% 
+      dplyr::summarise(recruitment = mean(recruitment))
+  }
+  
   rec <- 
     recruitment %>% 
-    dplyr::mutate(recruitment = .data$recruitment/1e4) %>% ## gadget assumes multiples of 1e4
-    dplyr::arrange(.data$year,.data$step) %>% 
-    dplyr::group_by(.data$year) %>% 
-    dplyr::summarise(recruitment = log(sum(.data$recruitment))) %>%
-    tidyr::nest(data = tidyr::everything()) %>% 
-    dplyr::mutate(model = purrr::map(.data$data,~stats::lm(utils::head(recruitment,-1)~utils::tail(recruitment,-1),.)),
-                  variables = purrr::map(.data$model,~broom::tidy(.) %>% 
-                                           dplyr::select(.,.data$term,.data$estimate) %>% 
-                                           tidyr::spread(.,"term","estimate")),
-                  glances = purrr::map(.data$model,broom::glance)) %>% 
-    dplyr::select(-c(.data$data,.data$model)) %>% 
-    tidyr::unnest(cols=dplyr::everything()) %>% 
-    dplyr::select(a=1,b=2,.data$sigma) %>%
-    dplyr::mutate(by=1) %>% 
-    dplyr::left_join(tidyr::expand_grid(year=unique(schedule$year),
-                                        by=1,
-                                        trial=1:n_replicates),
-                     by = "by") %>% 
-    dplyr::select(-.data$by) %>%
-    dplyr::arrange(.data$year,.data$trial) %>% 
-    dplyr::mutate(recruitment = stats::arima.sim(dplyr::n(),
-                                                 model=list(ar=unique(.data$b)),
-                                                 sd=unique(.data$sigma)) + unique(.data$a),
-                  recruitment = exp(recruitment)) %>% 
-    
-    dplyr::mutate(year = sprintf('%s.rec.pre.%s.%s', stock, .data$year, unique(recruitment$step)[1])) %>% 
-    tidyr::spread("year", "recruitment") %>%
-    dplyr::select(-c('a', 'b', 'sigma', 'trial'))
+    dplyr::mutate(recruitment = log(recruitment/1e4)) %>% 
+    stats::lm(head(recruitment,-1)~utils::tail(recruitment,-1),data = .) %>% 
+    {list(variables=broom::tidy(.) %>% 
+            {tibble::tibble(a = .$estimate[1],
+                           b = .$estimate[2])},
+          sigma=broom::glance(.) %>% 
+            dplyr::select(sigma))} %>%
+    dplyr::bind_cols() %>% 
+    dplyr::slice(rep(1,length(unique(schedule$year))*n_replicates)) %>% 
+    dplyr::bind_cols(tidyr::expand_grid(year=unique(schedule$year),
+                                        trial=1:n_replicates,
+                                        recruitment = mrec$recruitment)) %>% 
+    dplyr::mutate(rec = stats::arima.sim(dplyr::n(),
+                                        model=list(ar=unique(.data$b)),
+                                        sd=unique(.data$sigma)),
+                  rec = mean(recruitment/1e4)*exp(rec)) %>% 
+    dplyr::mutate(year = sprintf('%s.rec.pre.%s.%s', stock, .data$year, rec_step)) %>% 
+    tidyr::spread("year", "rec") %>%
+    dplyr::select(-c('a', 'b', 'sigma', 'trial','recruitment'))
     
   
     read.gadget.parameters(file = params.file) %>% 
