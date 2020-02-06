@@ -205,16 +205,16 @@ gadget_project_stocks <- function(path, imm.file, mat.file, spawn_func = 'hockey
   
   if(imm_stock[[1]]$minage > 0){
     hockey_stock <- 
-      gadgetstock(paste('hockeystock',imm_stock[[1]]$stockname,sep='_'),path,missingOkay = TRUE) %>% 
-      gadget_update('refweight',data=imm_stock[[1]]$refweightfile[[1]]) %>% 
+      gadgetstock(paste('hockeystock',imm_stock[[1]]$stockname,sep = '_'),path,missingOkay = TRUE) %>% 
+      gadget_update('refweight',data = imm_stock[[1]]$refweightfile[[1]]) %>% 
       gadget_update('stock',
-                    minage=0,
-                    maxage=imm_stock[[1]]$minage,
+                    minage = 0,
+                    maxage = imm_stock[[1]]$minage,
                     minlength = imm_stock[[1]]$minlength,
                     maxlength = imm_stock[[1]]$maxlength,
                     dl = imm_stock[[1]]$dl,
                     livesonareas = imm_stock[[1]]$livesonareas) %>%
-      gadget_update('naturalmortality',rep(0,.[[1]]$maxage+1)) %>% 
+      gadget_update('naturalmortality',rep(0,.[[1]]$maxage + 1)) %>% 
       gadget_update('doesgrow',0) %>% 
       ## to get multiannual recruitment you will need to define multiple hockeystocks or use straying (some other day)
       gadget_update('doesmove',
@@ -240,15 +240,15 @@ gadget_project_stocks <- function(path, imm.file, mat.file, spawn_func = 'hockey
   
   schedule <- 
     readr::read_delim(sprintf('%s/.schedule',
-                              paste(path,attributes(path)$variant_dir,sep='/')),
+                              paste(path,attributes(path)$variant_dir,sep = '/')),
                       delim = ' ')
   
   
   
   ## set up time variable recruitment deviations
-  gadgetfile(paste('hockeyrec',imm_stock[[1]]$stockname,sep='.'),
+  gadgetfile(paste('hockeyrec',imm_stock[[1]]$stockname,sep = '.'),
              file_type = 'timevariable',
-             components=list(list(paste('hockeyrec',imm_stock[[1]]$stockname,sep='.'),
+             components = list(list(paste('hockeyrec',imm_stock[[1]]$stockname,sep = '.'),
                                   data = 
                                     tibble::tibble(year = main[[1]]$timefile[[1]]$firstyear,
                                                    step = main[[1]]$timefile[[1]]$firststep,
@@ -268,7 +268,7 @@ gadget_project_stocks <- function(path, imm.file, mat.file, spawn_func = 'hockey
     gadget_update('doesspawn',
                   spawnsteps = imm_stock$doesrenew$normalparamfile[[1]]$step %>% unique(), 
                   spawnareas = .[[1]]$livesonareas,
-                  firstspawnyear = min(schedule$year)-imm_stock[[1]]$minage,
+                  firstspawnyear = min(schedule$year) - imm_stock[[1]]$minage,
                   lastspawnyear = max(schedule$year),
                   spawnstocksandratios = list(hockey_stock[[1]]$stockname,1),
                   proportionfunction = 'constant 1',
@@ -276,11 +276,11 @@ gadget_project_stocks <- function(path, imm.file, mat.file, spawn_func = 'hockey
                   weightlossfunction = 'constant 0',
                   recruitment = list(spawn_func = 'hockeystick',
                                      R = paste(attributes(path)$variant_dir,
-                                               paste('hockeyrec',imm_stock[[1]]$stockname,sep='.'),sep='/'),
-                                     Blim = sprintf('#%s.blim',mat_stock[[1]]$stockname)),
+                                               paste('hockeyrec', imm_stock[[1]]$stockname,sep = '.'), sep = '/'),
+                                     Blim = sprintf('#%s.blim', mat_stock[[1]]$stockname)),
                   stockparameters =  rec_table %>% ## what about other types of recruitment files?
                     utils::tail(1) %>% 
-                    dplyr::select(mean:beta)%>% ## this is very brittle
+                    dplyr::select(mean:beta) %>% ## this is very brittle
                     unlist() %>% 
                     purrr::map(to.gadget.formulae) %>% 
                     unlist()) %>% 
@@ -322,7 +322,7 @@ gadget_project_fleets <- function(path, pre_fleet = 'comm',post_fix='pre',fleet_
     purrr::map(~purrr::map_if(.,is.call,to.gadget.formulae)) %>% 
     purrr::map(t) %>% 
     purrr::map(paste, collapse = '\t') %>% 
-    dplyr::bind_rows(.id='fleet') %>% 
+    dplyr::bind_rows(.id = 'fleet') %>% 
     tidyr::gather("stock","val",-c(1)) %>% 
     dplyr::select(-.data$fleet)
   
@@ -402,14 +402,14 @@ gadget_project_recruitment <- function(path,
                                                  sd=unique(.data$sigma)) + unique(.data$a),
                   recruitment = exp(recruitment)) %>% 
     
-    dplyr::mutate(year = sprintf('%s.rec.pre.%s.1',stock,.data$year)) %>% 
-    tidyr::spread("year","recruitment") %>%
-    dplyr::select(-c('a','b','sigma','trial'))
+    dplyr::mutate(year = sprintf('%s.rec.pre.%s.%s', stock, .data$year, unique(recruitment$step)[1])) %>% 
+    tidyr::spread("year", "recruitment") %>%
+    dplyr::select(-c('a', 'b', 'sigma', 'trial'))
     
   
     read.gadget.parameters(file = params.file) %>% 
-    wide_parameters(value=rec) %>% 
-    write.gadget.parameters(file=params.file)
+    wide_parameters(value = rec) %>% 
+    write.gadget.parameters(file = params.file)
   
     return(path)
 }
