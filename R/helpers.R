@@ -20,6 +20,6 @@ von_b_formula <- function(a, linf='Linf', k='k', recl='recl') {
             Linf = as.symbol(linf),
             k = as.symbol(k),
             recl = as.symbol(recl),
-            age = as.symbol(age))))
+            age = age)))
     }, character(1)) %>% unname()
 }
