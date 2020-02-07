@@ -437,7 +437,7 @@ gadget_project_rec_arima <- function(recruitment,schedule,n_replicates){
                                          model=list(ar=unique(.data$b)),
                                          sd=unique(.data$sigma)),
                   rec = mrec*exp(.data$rec)) %>% 
-    dplyr::select(-c('a', 'b', 'sigma'))
+    dplyr::select('trial','year','rec')
     
 }
 
@@ -445,9 +445,10 @@ gadget_project_rec_bootstrap <- function(recruitment,schedule,n_replicates,block
   schedule %>% 
     dplyr::filter(.data$step %in% unique(recruitment$step)[1]) %>% 
     dplyr::slice(rep(1:dplyr::n(),n_replicates)) %>% 
-    dplyr::mutate(trial = cut(1:length(year),c(0,which(diff(year)<0),1e9),labels = FALSE),
-                  rec = tseries::tsbootstrap(recruitment$recruitment,type='block',
-                                             nb=n(),b=block_size) %>% as.numeric() %>% .[1:n()])
+    dplyr::mutate(trial = cut(1:length(.data$year),c(0,which(diff(.data$year)<0),1e9),labels = FALSE),
+                  rec = tseries::tsbootstrap(recruitment$recruitment/1e4,type='block',
+                                             nb=dplyr::n(),b=block_size) %>% as.numeric() %>% .[1:dplyr::n()]) %>% 
+    dplyr::select('trial','year','rec')
 }
 
 
