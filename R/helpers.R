@@ -12,6 +12,9 @@
 #' @export
 von_b_formula <- function(a, linf='Linf', k='k', recl='recl') {
     vapply(a, function (age) {
+      if(is.character(age)){
+        age <- as.symbol(age)
+      }
         to.gadget.formulae(substitute(Linf * (1 - exp(
             -1 *
             (0.001 * k) *

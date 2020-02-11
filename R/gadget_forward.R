@@ -127,8 +127,40 @@
 #'  geom_vline(xintercept = f.lim,lwd=1.1,col='red') + 
 #'  geom_hline(yintercept = blim, col = 'red', lwd = 1.1) + 
 #'  geom_hline(yintercept = bpa,col = 'red',lty = 2)
-#'
-#' }
+#'  
+#'  
+#'  ## run prognosis
+#'  
+#' res <- 
+#'  gadget_project_time(num_years = 5, variant_dir = 'PRG') %>% 
+#'  gadget_project_stocks(imm.file = 'Modelfiles/cod.imm',mat.file = 'Modelfiles/cod.mat') %>% 
+#'  gadget_project_fleets(pre_fleet = 'comm') %>% 
+#'  gadget_evaluate(params.out = paste(attr(.,'variant_dir'),'params.pre',sep='/'),
+#'                  params.in = 'WGTS/params.final') %>% 
+#'  gadget_project_recruitment(stock = 'codimm', 
+#'                             recruitment = fit$stock.recruitment %>% 
+#'                               filter(stock == 'codimm',
+#'                                      year > 1980),
+#'                             method = 'constant',
+#'                             n_replicates = 1,          
+#'                             params.file = paste(attr(.,'variant_dir'),'params.pre',sep='/')) %>% 
+#'  gadget_project_ref_point(ref_points = tibble(codmat.blim = 207727665), 
+#'                          params.file = paste(attr(.,'variant_dir'),'params.pre',sep='/')) %>% 
+#'  gadget_project_advice(pre_fleet = 'comm',
+#'                        harvest_rate = hr_msy, 
+#'                        params.file = paste(attr(.,'variant_dir'),'params.pre',sep='/'),
+#'                        n_replicates = 1, 
+#'                        advice_cv = 0) %>% 
+#'  gadget_project_output(imm.file = 'Modelfiles/cod.imm',mat.file = 'Modelfiles/cod.mat'
+#'                        pre_fleet = 'comm') %>% 
+#'  gadget_evaluate(params.in = paste(attr(.,'variant_dir'),'params.pre',sep='/'))  %>% 
+#'  {read.printfiles(paste(attr(.,'variant_dir'),'out',sep='/'))} %>% 
+#'  set_names(c("catch.F","catch",'rec','ssb')) 
+#'  
+#'  
+#'  }
+#'  
+#'  
 gadget_project_time <- function(path='.', num_years = 100, 
                                 variant_dir = getwd() %>% stringr::str_count('/') %>% 
                                   rep('../',.) %>% paste(collapse = '') %>% paste(tempdir(),sep='')){
@@ -198,7 +230,8 @@ gadget_project_stocks <- function(path, imm.file, mat.file, spawn_func = 'hockey
   
   rec_table <- 
     imm_stock$doesrenew %>% 
-    purrr::pluck(intersect(names(.), c('normalparamfile','numberfile','normalcondfile'))) %>% 
+    purrr::pluck(intersect(names(.), 
+                           c('normalparamfile','numberfile','normalcondfile'))) %>% 
     .[[1]] %>% 
     tibble::as_tibble()
   
@@ -297,8 +330,11 @@ gadget_project_stocks <- function(path, imm.file, mat.file, spawn_func = 'hockey
 #' @param pre_fleet name of the fleet projections are based on
 #' @param post_fix label
 #' @param fleet_type type of gadget fleet for the projections
+#' @param ... addition input to the fleet files
 #' @export
-gadget_project_fleets <- function(path, pre_fleet = 'comm',post_fix='pre',fleet_type='linearfleet') {
+gadget_project_fleets <- function(path, pre_fleet = 'comm',
+                                  post_fix='pre',fleet_type='linearfleet',
+                                  ...) {
 
   schedule <- 
     readr::read_delim(sprintf('%s/.schedule',
@@ -352,6 +388,7 @@ gadget_project_fleets <- function(path, pre_fleet = 'comm',post_fix='pre',fleet_
                     unlist() %>% 
                     paste(collapse="\n") %>% 
                     sprintf('\n%s',.),
+                  ...,
                   data = fleet.amounts) %>% 
     write.gadget.file(path)
   
@@ -363,7 +400,7 @@ gadget_project_fleets <- function(path, pre_fleet = 'comm',post_fix='pre',fleet_
 #' @param recruitment recruitment time series
 #' @param n_replicates number of simulations
 #' @param params.file name of the parameter files
-#' @param method Either 'AR' or 'bootstrap'
+#' @param method prediction method, built in options are 'AR', 'bootstrap' or constant
 #' @param ... additional arguments for the 
 #' @export
 gadget_project_recruitment <- function(path,
@@ -399,13 +436,21 @@ gadget_project_recruitment <- function(path,
       purrr::map(gadget_project_rec_bootstrap,schedule=schedule,n_replicates=n_replicates,...) %>% 
       dplyr::bind_rows(.id="model")
     
-  } else {
-    stop('Method not valid, expected either AR or bootstrap')
+  } else if(method == 'constant'){
+    rec <- 
+      recruitment %>% 
+      split(.$model) %>% 
+      purrr::map(gadget_project_rec_constant,schedule=schedule) %>% 
+      dplyr::bind_rows(.id="model")
+    
+  }else {
+    stop('Method not valid, expected constant, AR or bootstrap')
   }
   
   rec <- 
     rec %>% 
-    dplyr::mutate(year = sprintf('%s.rec.pre.%s.%s', stock, .data$year, rec_step)) %>% 
+    dplyr::mutate(year = sprintf('%s.rec.pre.%s.%s', stock, .data$year, rec_step),
+                  rec = .data$rec/1e4) %>% 
     tidyr::spread("year", "rec") %>% 
     dplyr::select(-c('trial','model'))
       
@@ -419,10 +464,10 @@ gadget_project_recruitment <- function(path,
 
 gadget_project_rec_arima <- function(recruitment,schedule,n_replicates){
   
-  mrec <- mean(recruitment$recruitment/1e4)
+  mrec <- mean(recruitment$recruitment)
   
   recruitment %>% 
-    dplyr::mutate(recruitment = log(recruitment/1e4)) %>% 
+    dplyr::mutate(recruitment = log(recruitment)) %>% 
     stats::lm(head(recruitment,-1)~utils::tail(recruitment,-1),data = .) %>% 
     {list(variables=broom::tidy(.) %>% 
             {tibble::tibble(a = .$estimate[1],
@@ -444,13 +489,20 @@ gadget_project_rec_arima <- function(recruitment,schedule,n_replicates){
 gadget_project_rec_bootstrap <- function(recruitment,schedule,n_replicates,block_size = 7) {
   schedule %>% 
     dplyr::filter(.data$step %in% unique(recruitment$step)[1]) %>% 
-    dplyr::slice(rep(1:dplyr::n(),n_replicates)) %>% 
+    dplyr::slice(rep(1:dplyr::n(),n_replicates)) %>%  
     dplyr::mutate(trial = cut(1:length(.data$year),c(0,which(diff(.data$year)<0),1e9),labels = FALSE),
-                  rec = tseries::tsbootstrap(recruitment$recruitment/1e4,type='block',
+                  rec = tseries::tsbootstrap(recruitment$recruitment,type='block',
                                              nb=dplyr::n(),b=block_size) %>% as.numeric() %>% .[1:dplyr::n()]) %>% 
     dplyr::select('trial','year','rec')
 }
 
+gadget_project_rec_constant <- function(recruitment,schedule){
+  schedule %>% 
+    dplyr::filter(.data$step %in% unique(recruitment$step)[1]) %>% 
+    dplyr::mutate(trial = 1,
+                  rec = exp(mean(log(recruitment$recruitment)))) %>% 
+    dplyr::select('trial','year','rec')
+}
 
 #' @rdname gadget_projections 
 #' @param harvest_rate median harvest rate

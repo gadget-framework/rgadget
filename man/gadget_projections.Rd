@@ -23,7 +23,8 @@ gadget_project_fleets(
   path,
   pre_fleet = "comm",
   post_fix = "pre",
-  fleet_type = "linearfleet"
+  fleet_type = "linearfleet",
+  ...
 )
 
 gadget_project_recruitment(
@@ -77,6 +78,8 @@ gadget_project_output(
 
 \item{fleet_type}{type of gadget fleet for the projections}
 
+\item{...}{additional arguments for the}
+
 \item{stock}{name of immature stock}
 
 \item{recruitment}{recruitment time series}
@@ -85,9 +88,7 @@ gadget_project_output(
 
 \item{params.file}{name of the parameter files}
 
-\item{method}{Either 'AR' or 'bootstrap'}
-
-\item{...}{additional arguments for the}
+\item{method}{prediction method, built in options are 'AR', 'bootstrap' or constant}
 
 \item{harvest_rate}{median harvest rate}
 
@@ -224,6 +225,38 @@ yield_curve \%>\%
  geom_vline(xintercept = f.lim,lwd=1.1,col='red') + 
  geom_hline(yintercept = blim, col = 'red', lwd = 1.1) + 
  geom_hline(yintercept = bpa,col = 'red',lty = 2)
-
-}
+ 
+ 
+ ## run prognosis
+ 
+res <- 
+ gadget_project_time(num_years = 5, variant_dir = 'PRG') \%>\% 
+ gadget_project_stocks(imm.file = 'Modelfiles/cod.imm',mat.file = 'Modelfiles/cod.mat') \%>\% 
+ gadget_project_fleets(pre_fleet = 'comm') \%>\% 
+ gadget_evaluate(params.out = paste(attr(.,'variant_dir'),'params.pre',sep='/'),
+                 params.in = 'WGTS/params.final') \%>\% 
+ gadget_project_recruitment(stock = 'codimm', 
+                            recruitment = fit$stock.recruitment \%>\% 
+                              filter(stock == 'codimm',
+                                     year > 1980),
+                            method = 'constant',
+                            n_replicates = 1,          
+                            params.file = paste(attr(.,'variant_dir'),'params.pre',sep='/')) \%>\% 
+ gadget_project_ref_point(ref_points = tibble(codmat.blim = 207727665), 
+                         params.file = paste(attr(.,'variant_dir'),'params.pre',sep='/')) \%>\% 
+ gadget_project_advice(pre_fleet = 'comm',
+                       harvest_rate = hr_msy, 
+                       params.file = paste(attr(.,'variant_dir'),'params.pre',sep='/'),
+                       n_replicates = 1, 
+                       advice_cv = 0) \%>\% 
+ gadget_project_output(imm.file = 'Modelfiles/cod.imm',mat.file = 'Modelfiles/cod.mat'
+                       pre_fleet = 'comm') \%>\% 
+ gadget_evaluate(params.in = paste(attr(.,'variant_dir'),'params.pre',sep='/'))  \%>\% 
+ {read.printfiles(paste(attr(.,'variant_dir'),'out',sep='/'))} \%>\% 
+ set_names(c("catch.F","catch",'rec','ssb')) 
+ 
+ 
+ }
+ 
+ 
 }

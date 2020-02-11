@@ -29,6 +29,7 @@ gadgetfleetcomponent <- function (type,
       'quotafunction',
       'biomasslevel',
       'quotalevel',
+      'selectstocks',
       NULL)]
   } else {
     extras <- list()
