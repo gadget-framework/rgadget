@@ -56,7 +56,7 @@ gadget.fit <- function(wgts = 'WGTS',
     gd <-  gadget.variant.dir('.')
   }
   
-  if(!is.null(f.age.range) & class(f.age.range) != 'data.frame'){
+  if(!is.null(f.age.range) & !('data.frame' %in% class(f.age.range))){
     stop('F age range should be specified as a data.frame with columns stock, age.min and age.max')
   }
   
