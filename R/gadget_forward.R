@@ -595,10 +595,13 @@ gadget_evaluate <- function(path='.',params.in = NULL, params.out = NULL, lik.ou
 #' @rdname gadget_projections
 #' @param output_dir location of the model output
 #' @param pre_fleets vector of fleets on which the projections is based
+#' @param f_age_range F age range, specified in the format a1:a2
 #' @export
 gadget_project_output <- function(path, imm.file, mat.file,
-                                  pre_fleets = 'comm', post_fix = 'pre',
-                                  output_dir = 'out'){
+                                  pre_fleets = 'comm', 
+                                  post_fix = 'pre',
+                                  output_dir = 'out',
+                                  f_age_range = NULL){
   
   pre.fleet.names <- paste(pre_fleets, post_fix, sep = '.')
   
@@ -671,7 +674,7 @@ gadget_project_output <- function(path, imm.file, mat.file,
                                                                data = data.frame(name = sprintf('area%s',mat_stock[[1]]$livesonareas),
                                                                                  value = mat_stock[[1]]$livesonareas)),
                                       ageaggfile = gadgetdata(sprintf('Aggfiles/%s.stock.Fage.agg',mat_stock[[1]]$stockname),
-                                                              data = tibble::data_frame(value = mat_stock[[1]]$maxage,
+                                                              data = tibble::data_frame(value = if(is.null(f_age_range)) mat_stock[[1]]$maxage else paste(f_age_range, collapse = ' '),
                                                                                         name = 'allages') %>% 
                                                                 dplyr::select(.data$name,.data$value) %>% 
                                                                 as.data.frame()),

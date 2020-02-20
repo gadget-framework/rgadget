@@ -56,7 +56,8 @@ gadget_project_output(
   mat.file,
   pre_fleets = "comm",
   post_fix = "pre",
-  output_dir = "out"
+  output_dir = "out",
+  f_age_range = NULL
 )
 }
 \arguments{
@@ -101,6 +102,8 @@ gadget_project_output(
 \item{pre_fleets}{vector of fleets on which the projections is based}
 
 \item{output_dir}{location of the model output}
+
+\item{f_age_range}{F age range, specified in the format a1:a2}
 }
 \value{
 gadget variant directory
