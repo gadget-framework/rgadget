@@ -14,6 +14,8 @@ This package aids in the developement of Gadget models in a number of
 ways. It can interact with Gadget, by manipulating input files, digest
 output and rudimentary plots.
 
+[![Travis build status](https://travis-ci.org/Hafro/rgadget.svg?branch=master)](https://travis-ci.org/Hafro/rgadget)
+
 Prerequisites
 -------------
 Gadget obviously, can be obtained from github.com/hafro/gadget
