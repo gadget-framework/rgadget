@@ -22,6 +22,7 @@ gadget.iterative(
   comp = NULL,
   inverse = FALSE,
   gd = NULL,
+  rew.cik = FALSE,
   ...
 )
 }
@@ -72,6 +73,8 @@ used in the model (if NULL use all)}
 components}
 
 \item{gd}{the gadget model directory}
+
+\item{rew.cik}{logical, should the catch in kilos components be reweighted (default to FALSE)}
 
 \item{...}{pass to callGadget}
 }

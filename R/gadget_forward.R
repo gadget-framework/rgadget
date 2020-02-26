@@ -674,7 +674,7 @@ gadget_project_output <- function(path, imm.file, mat.file,
                                                                data = data.frame(name = sprintf('area%s',mat_stock[[1]]$livesonareas),
                                                                                  value = mat_stock[[1]]$livesonareas)),
                                       ageaggfile = gadgetdata(sprintf('Aggfiles/%s.stock.Fage.agg',mat_stock[[1]]$stockname),
-                                                              data = tibble::data_frame(value = if(is.null(f_age_range)) mat_stock[[1]]$maxage else paste(f_age_range, collapse = ' '),
+                                                              data = tibble::tibble(value = if(is.null(f_age_range)) mat_stock[[1]]$maxage else paste(f_age_range, collapse = ' '),
                                                                                         name = 'allages') %>% 
                                                                 dplyr::select(.data$name,.data$value) %>% 
                                                                 as.data.frame()),
