@@ -311,6 +311,7 @@ callParamin <- function(i='params.in',
 ##' @param inverse should inverse selection be used for likelihood
 ##' components
 ##' @param gd the gadget model directory
+##' @param rew.cik logical, should the catch in kilos components be reweighted (default to FALSE)
 ##' @param ... pass to callGadget
 ##' @return a matrix containing the weights of the likelihood
 ##' components at each iteration (defaults to FALSE).
@@ -340,6 +341,7 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
                              comp=NULL,
                              inverse=FALSE,
                              gd=NULL,
+                             rew.cik = FALSE,
                              ...) {
   
   if(!is.null(gd)){
@@ -401,7 +403,7 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
                               year_range = time[[1]]$firstyear:time[[1]]$lastyear)
   restr <- !(likelihood$weights$type %in%
                c('penalty','understocking','migrationpenalty',
-                 'catchinkilos'))
+                 if(rew.cik) NULL else 'catchinkilos'))
   SS <- read.gadget.lik.out(paste(wgts,'lik.init',
                                   sep='/'))$data[likelihood$weights$name[restr]]
   ## NB: Internal function, so not Roxygen-ized
