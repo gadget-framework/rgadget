@@ -16,6 +16,9 @@ jobs:
       - uses: r-lib/actions/setup-r@v1
       - uses: r-lib/actions/setup-pandoc@v1
 
+      - name: System dependencies (curl for httr)
+        run: sudo apt-get install curl libcurl4-openssl-dev
+
       - name: Install build-docs prerequisites
         run: Rscript -e 'install.packages(c("pkgdown"))'
 
