@@ -20,13 +20,15 @@ jobs:
         run: sudo apt-get install curl libcurl4-openssl-dev
 
       - name: Install build-docs prerequisites
-        run: Rscript -e 'install.packages(c("pkgdown"))'
+        run: Rscript -e 'install.packages(c("pkgdown", "devtools"))'
 
       - name: Install Rgadget
-        run: R CMD INSTALL --install-tests --html --example .
+        run: devtools::install(dependencies = TRUE, upgrade = "always")
+        shell: Rscript {0}
 
       - name: Render Documentation
-        run: echo 'pkgdown::build_site()' | R --vanilla
+        run: pkgdown::build_site()
+        shell: Rscript {0}
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
