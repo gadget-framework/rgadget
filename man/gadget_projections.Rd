@@ -132,7 +132,7 @@ res <-
  gadget_project_advice(pre_fleet = 'comm',
                        harvest_rate = 1:100/100, 
                        params.file = paste(attr(.,'variant_dir'),'params.pre',sep='/')) \%>\% 
- gadget_project_output(imm.file = 'Modelfiles/cod.imm',mat.file = 'Modelfiles/cod.mat'
+ gadget_project_output(imm.file = 'Modelfiles/cod.imm',mat.file = 'Modelfiles/cod.mat',
                        pre_fleet = 'comm') \%>\% 
  gadget_evaluate(params.in = paste(attr(.,'variant_dir'),'params.pre',sep='/'))  \%>\% 
  {read.printfiles(paste(attr(.,'variant_dir'),'out',sep='/'))} \%>\% 
@@ -252,7 +252,7 @@ res <-
                        params.file = paste(attr(.,'variant_dir'),'params.pre',sep='/'),
                        n_replicates = 1, 
                        advice_cv = 0) \%>\% 
- gadget_project_output(imm.file = 'Modelfiles/cod.imm',mat.file = 'Modelfiles/cod.mat'
+ gadget_project_output(imm.file = 'Modelfiles/cod.imm',mat.file = 'Modelfiles/cod.mat',
                        pre_fleet = 'comm') \%>\% 
  gadget_evaluate(params.in = paste(attr(.,'variant_dir'),'params.pre',sep='/'))  \%>\% 
  {read.printfiles(paste(attr(.,'variant_dir'),'out',sep='/'))} \%>\% 
