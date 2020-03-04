@@ -22,6 +22,10 @@ jobs:
       - name: Install build-docs prerequisites
         run: Rscript -e 'install.packages(c("pkgdown", "devtools"))'
 
+      - name: Install gadget2, mfdb from Github
+        run: devtools::install_github('hafro/gadget2') ; devtools::install_github('mareframe/mfdb')
+        shell: Rscript {0}
+
       - name: Install Rgadget
         run: devtools::install(dependencies = TRUE, upgrade = "always")
         shell: Rscript {0}
