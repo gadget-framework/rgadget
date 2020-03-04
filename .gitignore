@@ -7,4 +7,5 @@ vignettes/*.R
 vignettes/*.html
 /*.html
 /*.Rproj
+/docs
 gadget_example
