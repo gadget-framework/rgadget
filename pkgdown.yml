@@ -1,0 +1,8 @@
+pandoc: 2.7.3
+pkgdown: 1.4.1
+pkgdown_sha: ~
+articles:
+  an-example-gadget-model: an-example-gadget-model.html
+  building-models: building-models.html
+  iterative_reweighting: iterative_reweighting.html
+
