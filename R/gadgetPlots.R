@@ -456,22 +456,24 @@ plot.gadget.fit <- function(x, ...){
   
   if(data == 'stock.std') {
     year_span <- 
-      unique(fit$stock.std$year)
+      fit$stock.std %>% 
+      dplyr::select(year,age) %>% 
+      dplyr::distinct()
     
     pl <-
       fit$stock.std %>% 
       dplyr::mutate(yc = as.factor(.data$year - .data$age)) %>% 
-      ggplot2::ggplot(ggplot2::aes(.data$year,.data$number,fill=.data$yc),col='black') + 
-      ggplot2::geom_bar(stat='identity') + 
+      ggplot2::ggplot(ggplot2::aes(.data$year,.data$number),col='black') + 
+      ggplot2::geom_bar(stat='identity',ggplot2::aes(fill = .data$yc)) + 
       ggplot2::facet_wrap(~.data$age,ncol=1,scale='free_y') + 
       ggplot2::theme(legend.position='none',panel.spacing = ggplot2::unit(0,'cm'),
                      plot.margin = ggplot2::unit(c(0,0,0,0),'cm'),
                      strip.background = ggplot2::element_blank(),
                      strip.text.x = ggplot2::element_blank()) + 
-      ggplot2::annotate("segment", 
-                        x=year_span-0.5, 
-                        xend=year_span+.5,
-                        y=Inf, yend=-Inf,lty=2,col='gray') + 
+      ggplot2::geom_segment(ggplot2::aes(x=.data$year-0.5, 
+                                         xend=.data$year+.5),
+                        y=Inf, yend=-Inf,lty=2,col='gray',
+                        data=year_span, inherit.aes = FALSE) + 
       ggplot2::geom_text(ggplot2::aes(Inf,Inf,label=paste('Age',.data$age)),
                          hjust=2,vjust=2,col='gray')+
       ggplot2::labs(x='Year',y='Num. fish (in millions)') 
