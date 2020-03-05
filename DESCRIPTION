@@ -5,6 +5,7 @@ Version: 0.5
 Date: 2020-01-28
 Authors@R: c(person("Bjarki Thor", "Elvarsson", email="bjarki.elvarsson@hafogvatn.is",role = c("aut", "cre")),
             person("Jamie", "Lentin", email="lentinj@shuttlethread.com",role = c("aut")),
+             person("Hoskuldur", "Bjornsson", email="hoskuldur.bjornsson@hafogvatn.is",role = c("ctb")),
             person("Marine and Freshwater Research Institute (Iceland)", role = c("cph")))
 Maintainer: Bjarki Thor Elvarsson <bjarki.elvarsson@hafogvatn.is>
 Description: Companion R package for Gadget ecosystem modelling package <https://hafro.github.io/gadget2>.
