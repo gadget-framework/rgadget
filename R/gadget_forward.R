@@ -585,6 +585,11 @@ gadget_project_ref_point <- function(path,ref_points,params.file='PRE/params.pre
 #' @return path
 #' @export
 gadget_evaluate <- function(path='.',params.in = NULL, params.out = NULL, lik.out = NULL){
+  if('data.frame' %in% class(params.in)){
+    tmp <- tempfile()
+    params.in %>% write.gadget.parameters(file = tmp)
+    params.in <- tmp
+  }
   Sys.setenv(GADGET_WORKING_DIR = normalizePath(path))
   callGadget(s=1,i=params.in,p=params.out,o=lik.out,main = attr(path,'mainfile'))
   Sys.setenv(GADGET_WORKING_DIR = '.')

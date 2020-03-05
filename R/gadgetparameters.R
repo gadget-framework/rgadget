@@ -1,4 +1,4 @@
-
+  
 ##' \code{read.gadget.parameters} reads a gadget parameter file
 ##' @title Gadget parameters
 ##' @rdname gadget.parameters
@@ -124,13 +124,22 @@ write.gadget.parameters <- function(params,file='params.out'){
     paste("; input file for the gadget model",
           "; created by from Rgadget",
           sprintf('; %s - %s',file,date()),
-          paste(names(params),collapse='\t'),
+          paste(c('switch','value','lower','upper','optimise'),collapse='\t'),
           sep='\n')
   
-  if(attr(params,'file_format')=='wide')
+  if(is.null(attr(params,'file_format'))){
+    print('Parameter file format not specified, assuming long format')
+    attr(params,'file_format') <- 'long'
+  }
+  
+  if(attr(params,'file_format')=='wide'){
     write.unix(paste(c('switches',names(params)),collapse='\t'),f=file)
-  else
+  } else {
+    compare_cols(names(params),c('switch','value','lower','upper','optimise'))
+    params <- params[c('switch','value','lower','upper','optimise')]
     write.unix(input.text,file)
+  }
+  
   write.gadget.table(params,file=file,
                      quote=FALSE, row.names=FALSE, col.names=FALSE,
                      append=TRUE, sep="\t")
@@ -187,3 +196,5 @@ wide_parameters <- function(dat,value){
   
   return(dat)
 }
+
+
