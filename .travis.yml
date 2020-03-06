@@ -1,7 +1,10 @@
+os: linux
 language: r
 r:
   - release
   - devel
 cache: packages
-sudo: false
+r_github_packages:
+  - hafro/gadget2
+  - mareframe/mfdb
 warnings_are_errors: true
