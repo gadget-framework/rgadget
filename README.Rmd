@@ -20,7 +20,14 @@ output and rudimentary plots.
 
 Prerequisites
 -------------
-Gadget obviously, can be obtained from github.com/hafro/gadget
+
+Before installing, make sure R is configured to optimise the gadget2 code before compiling.
+Create a ``~/.R/Makevars`` (Linux/MacOS) or ``~/.R/Makevars.win`` (Windows) file and add the following:
+
+    CFLAGS += -O3 -march=native
+    CXXFLAGS += -O3 -march=native
+
+Next install gadget2, see the installation instructions at: https://github.com/hafro/gadget2
 
 Installing
 ----------
