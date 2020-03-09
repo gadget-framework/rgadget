@@ -642,7 +642,7 @@ read.gadget.file <- function(path, file_name, file_type = "generic",
         comp_header$implicit <- FALSE  # Moved on from implicit component, so check on following rounds
 
         # If this is a reference to a gadget_file, read it in
-        if (recursive && grepl("^amount$|file$", line_name) && class(line_values) == "character" && length(line_values) == 1) {  # NB: Can't have a vector of gadgetfile
+        if (recursive && grepl("^amount$|file$", line_name) && identical(class(line_values), "character") && length(line_values) == 1) {  # NB: Can't have a vector of gadgetfile
           line_values <- read.gadget.file(
             path,
             line_values,
