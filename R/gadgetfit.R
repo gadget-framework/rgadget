@@ -82,8 +82,8 @@ gadget.fit <- function(wgts = 'WGTS',
     resTable <- list()
     nesTable <- list()
     wgts <- fit.folder
-    dir.create(fit.folder,showWarnings=FALSE)
-    params <- read.gadget.parameters(params.file)
+    dir.create(fit.folder,showWarnings = FALSE)
+    params <- if(!is.null(params.file)) read.gadget.parameters(params.file) else NULL
     lik <- read.gadget.likelihood(main$likelihoodfiles)
   }
   
