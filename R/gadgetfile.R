@@ -214,6 +214,10 @@ print.gadgetfile <- function (x, ...) {
           comp[, i] <- vapply(comp[, i], to.gadget.formulae, "")
         }
       }
+      if (anyNA(comp)) {
+          stop("Missing data in ", name, " component, column: ",
+              paste(Filter(function (x) anyNA(comp[[x]]), names(comp)), collapse = ", "))
+      }
       cat("; ")
       utils::write.table(comp,
                   file = "",

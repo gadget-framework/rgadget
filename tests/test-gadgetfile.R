@@ -130,6 +130,18 @@ ok_group("Can write arbitary data files", {
 
 })
 
+ok_group("Will error if we try and write data.frame with NAs in", {
+    dir <- tempfile()
+
+    ok(ut_cmp_error({
+        write.gadget.file(gadgetfile("wobble", components = list(
+            holey_data = data.frame(
+                length = c(1,2,NA,3),
+                mean = 1:4,
+                stddev = c(1,2,3,NA)))), dir)
+    }, "holey_data.*length, stddev"), "Noticed missing value, which columns it was in")
+})
+
 ok_group("Can add components and preambles", {
     dir <- tempfile()
     gf <- gadgetfile("wibble",
