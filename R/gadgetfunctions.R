@@ -621,10 +621,6 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
     
     if(run.serial){
       lapply(comp,run.final)
-    } else if(Sys.info()[['sysname']]=='Windows'){
-      cl <- parallel::makeCluster(parallel::detectCores(logical=TRUE))
-      res <- parallel::parLapply(cl,run.string,run.final)
-      parallel::stopCluster(cl)
     } else {
       parallel::mclapply(comp,run.final,
                          mc.cores = parallel::detectCores(logical = TRUE))
