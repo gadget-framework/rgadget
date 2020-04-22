@@ -230,7 +230,7 @@ gadget.fit <- function(wgts = 'WGTS',
       dplyr::left_join(lik$surveyindices %>% 
                          dplyr::select(.data$name,.data$stocknames,.data$sitype,.data$fittype), 
                        by='name') %>% 
-      dplyr::bind_rows(dplyr::data_frame(length=NA,
+      dplyr::bind_rows(tibble::tibble(length=NA,
                                          age=NA,
                                          survey = NA,
                                          fleet = NA)) %>% 
