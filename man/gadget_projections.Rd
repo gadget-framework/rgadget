@@ -24,6 +24,8 @@ gadget_project_fleets(
   pre_fleet = "comm",
   post_fix = "pre",
   fleet_type = "linearfleet",
+  common_mult = NULL,
+  pre_propotion = NULL,
   ...
 )
 
@@ -79,6 +81,8 @@ gadget_project_output(
 
 \item{fleet_type}{type of gadget fleet for the projections}
 
+\item{common_mult}{a string with a base name for a vector of harvest/catch rate multipliers (shared between fleets)}
+
 \item{...}{additional arguments for the}
 
 \item{stock}{name of immature stock}
@@ -104,6 +108,8 @@ gadget_project_output(
 \item{output_dir}{location of the model output}
 
 \item{f_age_range}{F age range, specified in the format a1:a2}
+
+\item{pre_proportion}{proportion of the effort taken}
 }
 \value{
 gadget variant directory

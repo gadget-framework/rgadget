@@ -182,19 +182,19 @@ gadget_project_time <- function(path='.', num_years = 100,
     gadget_update(lastyear = .[[1]]$lastyear+num_years) %>% 
     write.gadget.file(project_path)
   
- ## create a timing schedule for the projections and save to file
- schedule <- 
-   expand.grid(year = seq(main[[1]]$timefile[[1]]$lastyear,
-                         by=1,
-                         length.out = num_years+1),
-              step = 1:main[[1]]$timefile[[1]]$notimesteps[1],
-              area = main[[1]]$areafile[[1]]$areas) %>% 
+  ## create a timing schedule for the projections and save to file
+  schedule <- 
+    expand.grid(year = seq(main[[1]]$timefile[[1]]$lastyear,
+                           by=1,
+                           length.out = num_years+1),
+                step = 1:main[[1]]$timefile[[1]]$notimesteps[1],
+                area = main[[1]]$areafile[[1]]$areas) %>% 
     dplyr::filter(!(.data$year==main[[1]]$timefile[[1]]$lastyear & 
                       .data$step <= main[[1]]$timefile[[1]]$laststep),
                   !(.data$year==max(.data$year) & .data$step > main[[1]]$timefile[[1]]$laststep)) %>% 
     dplyr::arrange(.data$year,.data$step,.data$area)
- 
- schedule %>% 
+  
+  schedule %>% 
     readr::write_delim(sprintf('%s/.schedule',paste(project_path,attributes(project_path)$variant_dir,sep='/')))
   
   ## update the area file
@@ -282,17 +282,17 @@ gadget_project_stocks <- function(path, imm.file, mat.file, spawn_func = 'hockey
   gadgetfile(paste('hockeyrec',imm_stock[[1]]$stockname,sep = '.'),
              file_type = 'timevariable',
              components = list(list(paste('hockeyrec',imm_stock[[1]]$stockname,sep = '.'),
-                                  data = 
-                                    tibble::tibble(year = main[[1]]$timefile[[1]]$firstyear,
-                                                   step = main[[1]]$timefile[[1]]$firststep,
-                                                   value = "0") %>% 
-                                    dplyr::bind_rows(expand.grid(year = unique(schedule$year),
-                                                                 step = rec_table$step %>% unique()) %>% 
-                                                       dplyr::mutate(value = paste0('#',imm_stock[[1]]$stockname,
-                                                                                    '.rec.pre.',.data$year,'.',.data$step),
-                                                                     year = .data$year - imm_stock[[1]]$minage)) %>% 
-                                    dplyr::select(.data$year,.data$step,.data$value) %>%
-                                    as.data.frame()))) %>% 
+                                    data = 
+                                      tibble::tibble(year = main[[1]]$timefile[[1]]$firstyear,
+                                                     step = main[[1]]$timefile[[1]]$firststep,
+                                                     value = "0") %>% 
+                                      dplyr::bind_rows(expand.grid(year = unique(schedule$year),
+                                                                   step = rec_table$step %>% unique()) %>% 
+                                                         dplyr::mutate(value = paste0('#',imm_stock[[1]]$stockname,
+                                                                                      '.rec.pre.',.data$year,'.',.data$step),
+                                                                       year = .data$year - imm_stock[[1]]$minage)) %>% 
+                                      dplyr::select(.data$year,.data$step,.data$value) %>%
+                                      as.data.frame()))) %>% 
     write.gadget.file(path)
   
   
@@ -330,19 +330,23 @@ gadget_project_stocks <- function(path, imm.file, mat.file, spawn_func = 'hockey
 #' @param pre_fleet name of the fleet projections are based on
 #' @param post_fix label
 #' @param fleet_type type of gadget fleet for the projections
+#' @param common_mult a string with a base name for a vector of harvest/catch rate multipliers (shared between fleets)
+#' @param pre_proportion proportion of the effort taken
 #' @param ... addition input to the fleet files
 #' @export
 gadget_project_fleets <- function(path, pre_fleet = 'comm',
                                   post_fix='pre',fleet_type='linearfleet',
+                                  common_mult = NULL,
+                                  pre_propotion = NULL,
                                   ...) {
-
+  
   schedule <- 
     readr::read_delim(sprintf('%s/.schedule',
                               paste(path,attributes(path)$variant_dir,sep='/')),
                       delim = ' ')
   
   main <- read.gadget.file(path,attributes(path)$mainfile,file_type = 'main')
-  #pre.fleets <- data_frame(fleet_name = c('lln','bmt','gil'))
+  #pre.fleets <- tibble::tibble(fleet_name = c('lln','bmt','gil'))
   ## collect the model fleets
   fleets <-
     main$fleet$fleetfiles %>% 
@@ -352,9 +356,9 @@ gadget_project_fleets <- function(path, pre_fleet = 'comm',
   suits <- 
     fleets %>% 
     purrr::map(~purrr::keep(.,~.[[1]]==pre_fleet)) %>% 
-    purrr::flatten() %>% 
+    purrr::flatten(.x = .) %>% 
     purrr::map('suitability') %>%
-    purrr::flatten() %>%
+    purrr::flatten(.x = .) %>%
     purrr::map(~purrr::map_if(.,is.call,to.gadget.formulae)) %>% 
     purrr::map(t) %>% 
     purrr::map(paste, collapse = '\t') %>% 
@@ -363,18 +367,27 @@ gadget_project_fleets <- function(path, pre_fleet = 'comm',
     dplyr::select(-.data$fleet)
   
   ## check if the projection fleets are defined 
-  tmp <- 
-    fleets %>% 
-    purrr::flatten() %>% 
+  fleets %>% 
+    purrr::flatten(.x = .) %>% 
     purrr::map(~.[[1]]) %>% 
     unlist() %>% 
     setdiff(pre_fleet,.) %>% 
     purrr::map(~stop(sprintf('Projection fleet %s not found',.)))
   
   ## define fleet amounts that are parametrised by year, step, area 
+  if(is.null(common_mult)){
+    common_mult <- '#fleet.%s.%s.%s.%s.%s'
+  } else {
+    if(is.null(pre_propotion)) pre_propotion <- 1
+    common_mult <- paste('(*', pre_propotion, paste0('#fleet.',common_mult, '.%3$s.%4$s.%5$s'), ')')
+  }
+
+  
+  
+  
   fleet.amounts <- 
     schedule %>% 
-    dplyr::mutate(number= paste('#fleet',pre_fleet,post_fix,.data$year,.data$step,.data$area,sep='.')) %>% 
+    dplyr::mutate(number = sprintf(common_mult,pre_fleet,post_fix,.data$year,.data$step,.data$area)) %>% 
     structure(area_group = main[[1]]$areafile[[1]]$areas %>% 
                 purrr::set_names(.,.))
   
@@ -390,6 +403,52 @@ gadget_project_fleets <- function(path, pre_fleet = 'comm',
                     sprintf('\n%s',.),
                   ...,
                   data = fleet.amounts) %>% 
+    write.gadget.file(path)
+  
+  return(path)
+}
+
+gadget_project_prognosis_likelihood <- function(path,
+                                                stocks,
+                                                pre_fleets = 'comm',
+                                                post_fix = 'pre',
+                                                mainfile_overwrite = TRUE,
+                                                ...){
+  progn <- 
+    gadgetfile('fleet.likelihood',
+               file_type = 'likelihood',
+               components = list(list('[component]',
+                                      name = 'prognosis',
+                                      weight = 1,
+                                      type = "proglikelihood",
+                                      fleetnames = pre.fleet.names,
+                                      stocknames = stocks,
+                                      ...,
+                                      asserr = gadgetfile('asserr',
+                                                          file_type = 'timevariable',
+                                                          components=list(list('asserr',
+                                                                               data = tibble::tibble(year = main[[1]]$timefile[[1]]$firstyear,
+                                                                                                 step = main[[1]]$timefile[[1]]$firststep,
+                                                                                                 value = "0") %>% 
+                                                                                 bind_rows(expand.grid(year = unique(schedule$year),
+                                                                                                       step = 2) %>% 
+                                                                                             dplyr::mutate(value = paste0('#',mat.stock,'.asserr.',year))) %>% 
+                                                                                 as.data.frame()))),
+                                      implerr = gadgetfile('asserr',
+                                                           file_type = 'timevariable',
+                                                           components=list(list('implerr',
+                                                                                data = tibble::tibble(year = main[[1]]$timefile[[1]]$firstyear,
+                                                                                                  step = main[[1]]$timefile[[1]]$firststep,
+                                                                                                  value = "0") %>% 
+                                                                                  bind_rows(expand.grid(year = unique(schedule$year),
+                                                                                                        step = 2) %>% 
+                                                                                              dplyr::mutate(value = paste0('#',mat.stock,'.implerr.',year))) %>% 
+                                                                                  as.data.frame())))))) 
+  
+  
+  
+  attr(progn,'file_config')$mainfile_overwrite = mainfile_overwrite
+  progn %>% 
     write.gadget.file(path)
   
   return(path)
@@ -453,7 +512,7 @@ gadget_project_recruitment <- function(path,
                   rec = .data$rec/1e4) %>% 
     tidyr::spread("year", "rec") %>% 
     dplyr::select(-c('trial','model'))
-      
+  
   read.gadget.parameters(file = params.file) %>% 
     wide_parameters(value = rec) %>% 
     write.gadget.parameters(file = params.file)
@@ -483,7 +542,7 @@ gadget_project_rec_arima <- function(recruitment,schedule,n_replicates){
                                          sd=unique(.data$sigma)),
                   rec = mrec*exp(.data$rec)) %>% 
     dplyr::select('trial','year','rec')
-    
+  
 }
 
 gadget_project_rec_bootstrap <- function(recruitment,schedule,n_replicates,block_size = 7) {
@@ -535,12 +594,12 @@ gadget_project_advice <- function(path,
                                         value = harvest_rate) %>% 
                        dplyr::mutate(iter = 1:dplyr::n()),
                      by = 'replicate')
-              
+  
   if(advice_cv > 0){
     fleet_parameters <- 
       fleet_parameters %>% 
       dplyr::mutate(value = .data$value * exp(stats::arima.sim(n = dplyr::n(),
-                                                               list(ar=advice_rho),
+                                                               list(ar = advice_rho),
                                                                sd = advice_cv))) ## bias correction?
   } 
   
@@ -660,7 +719,7 @@ gadget_project_output <- function(path, imm.file, mat.file,
                                                                data = data.frame(name = sprintf('area%s',mat_stock[[1]]$livesonareas),
                                                                                  value = mat_stock[[1]]$livesonareas)),
                                       ageaggfile = gadgetdata(sprintf('Aggfiles/%s.stock.allage.agg',mat_stock[[1]]$stockname),
-                                                              data = tibble::data_frame(value = paste(imm_stock[[1]]$minage:mat_stock[[1]]$maxage,
+                                                              data = tibble::tibble(value = paste(imm_stock[[1]]$minage:mat_stock[[1]]$maxage,
                                                                                                       collapse = ' '),
                                                                                         name = 'allages') %>% 
                                                                 dplyr::select(.data$name,.data$value) %>% 
@@ -680,7 +739,7 @@ gadget_project_output <- function(path, imm.file, mat.file,
                                                                                  value = mat_stock[[1]]$livesonareas)),
                                       ageaggfile = gadgetdata(sprintf('Aggfiles/%s.stock.Fage.agg',mat_stock[[1]]$stockname),
                                                               data = tibble::tibble(value = if(is.null(f_age_range)) mat_stock[[1]]$maxage else paste(f_age_range, collapse = ' '),
-                                                                                        name = 'allages') %>% 
+                                                                                    name = 'allages') %>% 
                                                                 dplyr::select(.data$name,.data$value) %>% 
                                                                 as.data.frame()),
                                       lenaggfile = gadgetdata(paste0('Aggfiles/', mat_stock[[1]]$stockname, '.stock.len.agg'),
