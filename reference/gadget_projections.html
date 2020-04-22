@@ -144,6 +144,8 @@
   <span class='kw'>pre_fleet</span> <span class='kw'>=</span> <span class='st'>"comm"</span>,
   <span class='kw'>post_fix</span> <span class='kw'>=</span> <span class='st'>"pre"</span>,
   <span class='kw'>fleet_type</span> <span class='kw'>=</span> <span class='st'>"linearfleet"</span>,
+  <span class='kw'>common_mult</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>pre_propotion</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='no'>...</span>
 )
 
@@ -220,6 +222,10 @@
       <td><p>type of gadget fleet for the projections</p></td>
     </tr>
     <tr>
+      <th>common_mult</th>
+      <td><p>a string with a base name for a vector of harvest/catch rate multipliers (shared between fleets)</p></td>
+    </tr>
+    <tr>
       <th>...</th>
       <td><p>additional arguments for the</p></td>
     </tr>
@@ -270,6 +276,10 @@
     <tr>
       <th>f_age_range</th>
       <td><p>F age range, specified in the format a1:a2</p></td>
+    </tr>
+    <tr>
+      <th>pre_proportion</th>
+      <td><p>proportion of the effort taken</p></td>
     </tr>
     </table>
 
