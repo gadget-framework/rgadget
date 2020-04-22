@@ -488,9 +488,9 @@ plot.gadget.fit <- function(x, ...){
           x %>% 
             dplyr::mutate(pred.ratio= ifelse(is.nan(.data$pred.ratio),0,.data$pred.ratio)) %>% 
             ggplot2::ggplot(ggplot2::aes(.data$length,.data$obs.ratio)) +
-            ggplot2::geom_point() + 
+            ggplot2::geom_point(ggplot2::aes(pch=.data$stock,col=.data$stock)) + 
             ggplot2::geom_line(ggplot2::aes(y=.data$pred.ratio,lty = .data$stock))+
-            ggplot2::facet_wrap(~.data$year+.data$step) + ggplot2::theme_light() + 
+            ggplot2::facet_wrap(~.data$year+.data$step) + 
             ggplot2::labs(y='Stock prop.',x='Length') +
             ggplot2::geom_label(data= fit$stockdist %>% 
                                   dplyr::ungroup() %>% 
@@ -506,10 +506,9 @@ plot.gadget.fit <- function(x, ...){
             dplyr::mutate(pred.ratio= ifelse(is.nan(.data$pred.ratio),0,.data$pred.ratio),
                           age = gsub('age','',.data$age) %>% as.numeric()) %>% 
             ggplot2::ggplot(ggplot2::aes(.data$age,.data$obs.ratio,col=.data$stock)) +
-            ggplot2::geom_point() + 
+            ggplot2::geom_point(ggplot2::aes(pch=.data$stock)) + 
             ggplot2::geom_line(ggplot2::aes(y=.data$pred.ratio,lty = .data$stock))+
             ggplot2::facet_wrap(~.data$year+.data$step) + 
-            ggplot2::theme_light() + 
             ggplot2::labs(y='Stock prop.',x='Age',lty = 'Stock') +
             ggplot2::geom_label(data= fit$stockdist %>% 
                                   dplyr::ungroup() %>% 
