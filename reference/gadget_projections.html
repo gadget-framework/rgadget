@@ -146,6 +146,19 @@
   <span class='kw'>fleet_type</span> <span class='kw'>=</span> <span class='st'>"linearfleet"</span>,
   <span class='kw'>common_mult</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>pre_propotion</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"standard"</span>,
+  <span class='no'>...</span>
+)
+
+<span class='fu'>gadget_project_prognosis_likelihood</span>(
+  <span class='no'>path</span>,
+  <span class='no'>stocks</span>,
+  <span class='kw'>pre_fleets</span> <span class='kw'>=</span> <span class='st'>"comm"</span>,
+  <span class='kw'>post_fix</span> <span class='kw'>=</span> <span class='st'>"pre"</span>,
+  <span class='kw'>mainfile_overwrite</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>firsttacyear</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>assessmentstep</span> <span class='kw'>=</span> <span class='fl'>2</span>,
+  <span class='kw'>weightoflastyearstac</span> <span class='kw'>=</span> <span class='fl'>0</span>,
   <span class='no'>...</span>
 )
 
@@ -167,6 +180,7 @@
   <span class='kw'>advice_rho</span> <span class='kw'>=</span> <span class='fl'>0.6</span>,
   <span class='kw'>pre_fleet</span> <span class='kw'>=</span> <span class='st'>"comm"</span>,
   <span class='kw'>post_fix</span> <span class='kw'>=</span> <span class='st'>"pre"</span>,
+  <span class='kw'>prefix</span> <span class='kw'>=</span> <span class='st'>"fleet"</span>,
   <span class='kw'>n_replicates</span> <span class='kw'>=</span> <span class='fl'>100</span>
 )
 
@@ -230,6 +244,14 @@
       <td><p>additional arguments for the</p></td>
     </tr>
     <tr>
+      <th>stocks</th>
+      <td><p>names of of the stocks</p></td>
+    </tr>
+    <tr>
+      <th>pre_fleets</th>
+      <td><p>vector of fleets on which the projections is based</p></td>
+    </tr>
+    <tr>
       <th>stock</th>
       <td><p>name of immature stock</p></td>
     </tr>
@@ -264,10 +286,6 @@
     <tr>
       <th>ref_points</th>
       <td><p>tibble with reference points</p></td>
-    </tr>
-    <tr>
-      <th>pre_fleets</th>
-      <td><p>vector of fleets on which the projections is based</p></td>
     </tr>
     <tr>
       <th>output_dir</th>
