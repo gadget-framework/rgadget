@@ -4,6 +4,7 @@
 \alias{gadget_project_time}
 \alias{gadget_project_stocks}
 \alias{gadget_project_fleets}
+\alias{gadget_project_prognosis_likelihood}
 \alias{gadget_project_recruitment}
 \alias{gadget_project_advice}
 \alias{gadget_project_ref_point}
@@ -26,6 +27,19 @@ gadget_project_fleets(
   fleet_type = "linearfleet",
   common_mult = NULL,
   pre_propotion = NULL,
+  type = "standard",
+  ...
+)
+
+gadget_project_prognosis_likelihood(
+  path,
+  stocks,
+  pre_fleets = "comm",
+  post_fix = "pre",
+  mainfile_overwrite = TRUE,
+  firsttacyear = NULL,
+  assessmentstep = 2,
+  weightoflastyearstac = 0,
   ...
 )
 
@@ -47,6 +61,7 @@ gadget_project_advice(
   advice_rho = 0.6,
   pre_fleet = "comm",
   post_fix = "pre",
+  prefix = "fleet",
   n_replicates = 100
 )
 
@@ -85,6 +100,10 @@ gadget_project_output(
 
 \item{...}{additional arguments for the}
 
+\item{stocks}{names of of the stocks}
+
+\item{pre_fleets}{vector of fleets on which the projections is based}
+
 \item{stock}{name of immature stock}
 
 \item{recruitment}{recruitment time series}
@@ -102,8 +121,6 @@ gadget_project_output(
 \item{advice_rho}{assessment error correlation}
 
 \item{ref_points}{tibble with reference points}
-
-\item{pre_fleets}{vector of fleets on which the projections is based}
 
 \item{output_dir}{location of the model output}
 

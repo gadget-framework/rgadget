@@ -335,10 +335,13 @@ gadget_project_stocks <- function(path, imm.file, mat.file, spawn_func = 'hockey
 #' @param ... addition input to the fleet files
 #' @export
 gadget_project_fleets <- function(path, pre_fleet = 'comm',
-                                  post_fix='pre',fleet_type='linearfleet',
+                                  post_fix='pre',
+                                  fleet_type='linearfleet',
                                   common_mult = NULL,
                                   pre_propotion = NULL,
+                                  type = 'standard',
                                   ...) {
+  
   
   schedule <- 
     readr::read_delim(sprintf('%s/.schedule',
@@ -377,6 +380,10 @@ gadget_project_fleets <- function(path, pre_fleet = 'comm',
   ## define fleet amounts that are parametrised by year, step, area 
   if(is.null(common_mult)){
     common_mult <- '#fleet.%s.%s.%s.%s.%s'
+  } else if(type == 'prognosis') {
+    ## advice error is defined via prognosis likelihood
+    common_mult <- '1' 
+    fleet_type <- 'totalfleet'
   } else {
     if(is.null(pre_propotion)) pre_propotion <- 1
     common_mult <- paste('(*', pre_propotion, paste0('#fleet.',common_mult, '.%3$s.%4$s.%5$s'), ')')
@@ -408,12 +415,38 @@ gadget_project_fleets <- function(path, pre_fleet = 'comm',
   return(path)
 }
 
+
+#' @rdname gadget_projections
+#' @param stocks names of of the stocks
+#' @param pre_fleets names of the fleets projections are based on
+#' @param post_fix label
+#' @param ... additional input to the prognosis likelihood component
+#' @export
 gadget_project_prognosis_likelihood <- function(path,
                                                 stocks,
                                                 pre_fleets = 'comm',
                                                 post_fix = 'pre',
                                                 mainfile_overwrite = TRUE,
+                                                firsttacyear = NULL,
+                                                assessmentstep = 2,
+                                                weightoflastyearstac = 0,
                                                 ...){
+  
+  schedule <- 
+    readr::read_delim(sprintf('%s/.schedule',
+                              paste(path,attributes(path)$variant_dir,sep='/')),
+                      delim = ' ')
+  
+  main <- read.gadget.file(path,attributes(path)$mainfile,file_type = 'main')
+  
+  
+  
+  pre.fleet.names <- 
+    paste(pre_fleets, post_fix, sep = '.')
+  
+  fleet_label <- 
+    paste0(paste(pre_fleets, collapse = '.'), '.', post_fix)
+  
   progn <- 
     gadgetfile('fleet.likelihood',
                file_type = 'likelihood',
@@ -424,28 +457,32 @@ gadget_project_prognosis_likelihood <- function(path,
                                       fleetnames = pre.fleet.names,
                                       stocknames = stocks,
                                       ...,
-                                      asserr = gadgetfile('asserr',
+                                      fleetproportions= sprintf('#fleet.prop.%s',pre.fleet.names),
+                                      weightoflastyearstac = weightoflastyearstac,
+                                      maxchange=4,
+                                      functionnumber=1,
+                                      firsttacyear = if(is.null(firsttacyear)) min(schedule$year) else firsttacyear,
+                                      assessmentstep = assessmentstep,
+                                      asserr = gadgetfile(paste('asserr',fleet_label,'timevar',sep = '.'),
                                                           file_type = 'timevariable',
                                                           components=list(list('asserr',
                                                                                data = tibble::tibble(year = main[[1]]$timefile[[1]]$firstyear,
                                                                                                  step = main[[1]]$timefile[[1]]$firststep,
                                                                                                  value = "0") %>% 
                                                                                  bind_rows(expand.grid(year = unique(schedule$year),
-                                                                                                       step = 2) %>% 
-                                                                                             dplyr::mutate(value = paste0('#',mat.stock,'.asserr.',year))) %>% 
+                                                                                                       step = assessmentstep) %>% 
+                                                                                             dplyr::mutate(value = paste0('1#','asserr.',fleet_label,'.',year,'.',step,'.1'))) %>% 
                                                                                  as.data.frame()))),
-                                      implerr = gadgetfile('asserr',
+                                      implerr = gadgetfile(paste('implerr',fleet_label,'timevar',sep = '.'),
                                                            file_type = 'timevariable',
                                                            components=list(list('implerr',
                                                                                 data = tibble::tibble(year = main[[1]]$timefile[[1]]$firstyear,
                                                                                                   step = main[[1]]$timefile[[1]]$firststep,
                                                                                                   value = "0") %>% 
                                                                                   bind_rows(expand.grid(year = unique(schedule$year),
-                                                                                                        step = 2) %>% 
-                                                                                              dplyr::mutate(value = paste0('#',mat.stock,'.implerr.',year))) %>% 
+                                                                                                        step = assessmentstep) %>% 
+                                                                                              dplyr::mutate(value = paste0('1#','implerr.',fleet_label,'.',year,'.',step,'.1'))) %>% 
                                                                                   as.data.frame())))))) 
-  
-  
   
   attr(progn,'file_config')$mainfile_overwrite = mainfile_overwrite
   progn %>% 
@@ -573,8 +610,9 @@ gadget_project_advice <- function(path,
                                   harvest_rate = 0.2, 
                                   advice_cv = 0.2, 
                                   advice_rho = 0.6,
-                                  pre_fleet='comm',
-                                  post_fix = 'pre', 
+                                  pre_fleet = 'comm',
+                                  post_fix = 'pre',
+                                  prefix = 'fleet',
                                   n_replicates = 100){
   schedule <- 
     readr::read_delim(sprintf('%s/.schedule',
@@ -585,7 +623,7 @@ gadget_project_advice <- function(path,
     purrr::map(1:n_replicates,
                function(x)
                  schedule %>% 
-                 dplyr::mutate(name = paste('fleet',pre_fleet,post_fix,
+                 dplyr::mutate(name = paste(prefix,pre_fleet,post_fix,
                                             .data$year,.data$step,.data$area,
                                             sep = '.'),
                                replicate = x)) %>% 
@@ -596,17 +634,23 @@ gadget_project_advice <- function(path,
                      by = 'replicate')
   
   if(advice_cv > 0){
+    advice_mult <- 
+      fleet_parameters %>% 
+      dplyr::select(year) %>% 
+      dplyr::distinct() %>% 
+      dplyr::mutate(mult = exp(stats::arima.sim(n = dplyr::n(),
+                                                list(ar = advice_rho),
+                                                sd = advice_cv)))
     fleet_parameters <- 
       fleet_parameters %>% 
-      dplyr::mutate(value = .data$value * exp(stats::arima.sim(n = dplyr::n(),
-                                                               list(ar = advice_rho),
-                                                               sd = advice_cv))) ## bias correction?
+      dplyr::left_join(advice_mult, by = 'year') %>% 
+      dplyr::mutate(value = .data$value * mult) %>%  ## bias correction?
+      dplyr::select(-mult)
   } 
-  
-  
   
   params <- 
     read.gadget.parameters(params.file) %>% 
+    wide_parameters() %>% 
     dplyr::slice(rep(1:dplyr::n(),each=length(harvest_rate)*n_replicates/dplyr::n())) %>% 
     wide_parameters(value=fleet_parameters %>%
                       dplyr::select(-c('year','step','area')) %>% 
@@ -626,8 +670,14 @@ gadget_project_advice <- function(path,
 gadget_project_ref_point <- function(path,ref_points,params.file='PRE/params.pre'){
   params <- read.gadget.parameters(params.file) 
   
-  params %>% 
-    wide_parameters(ref_points %>% dplyr::slice(rep(1,nrow(params)))) %>% 
+  ref_points %>% 
+    split(1:nrow(ref_points)) %>% 
+    purrr::map(function(x){
+      params %>% 
+        wide_parameters(x %>% dplyr::slice(rep(1,nrow(params))))
+      }) %>% 
+    dplyr::bind_rows() %>% 
+    structure(file_format='wide') %>% 
     write.gadget.parameters(params.file)
   
   return(path)

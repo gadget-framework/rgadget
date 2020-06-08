@@ -20,7 +20,7 @@ init_guess(
   optimise = 0
 )
 
-wide_parameters(dat, value)
+wide_parameters(dat, value = NULL)
 }
 \arguments{
 \item{file}{a string naming the file to write to}

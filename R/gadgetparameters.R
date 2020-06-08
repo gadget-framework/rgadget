@@ -179,21 +179,34 @@ init_guess <- function(dat,pattern='', value = 0,  lower = -999, upper = 999, op
 #'
 #' @return gadget parameters object
 #' @export
-wide_parameters <- function(dat,value){
+wide_parameters <- function(dat,value = NULL){
+  
   if(attr(dat,'file_format')=='long'){
     dat <- 
       dat %>% 
       dplyr::select(.data$switch,.data$value) %>% 
-      tidyr::spread(.data$switch,.data$value) %>% 
-      dplyr::slice(rep(1,nrow(value)))     
+      tidyr::spread(.data$switch,.data$value) 
+    if(!is.null(value)){
+      dat <- dat %>% 
+        dplyr::slice(rep(1,nrow(value)))     
+    }
   } 
   
+  
+  if(!is.null(value)){
+    value <- value[intersect(names(value),names(dat))]
+    
+    
   dat <- 
     dat %>% 
     dplyr::select(-c(names(value))) %>% 
     dplyr::bind_cols(value) %>% 
     structure(file_format='wide')
-  
+  } else{
+    dat <- 
+      dat %>% 
+      structure(file_format='wide')
+  }
   return(dat)
 }
 
