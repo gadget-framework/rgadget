@@ -48,10 +48,12 @@ gadget.fit <- function(wgts = 'WGTS',
                        steps = 1,
                        recruitment_step_age = NULL,
                        gd = NULL){
-  if(!is.null(gd)){
-    old.dir <- getwd()
+  old.dir <- getwd()
+  on.exit(setwd(old.dir))
+  
+  
+   if(!is.null(gd)){
     setwd(gd)
-    on.exit(setwd(old.dir))
   } else {
     gd <-  gadget.variant.dir('.')
   }
@@ -476,7 +478,8 @@ gadget.fit <- function(wgts = 'WGTS',
          catchstatistics = catchstatistics)
   class(out) <- c('gadget.fit',class(out))
   save(out,file=sprintf('%s/WGTS.Rdata',wgts))
-
+setwd(old.dir)
+  
   return(out)
 }
 

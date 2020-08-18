@@ -8,7 +8,8 @@ gadget_evaluate(
   path = ".",
   params.in = NULL,
   params.out = NULL,
-  lik.out = NULL
+  lik.out = NULL,
+  ...
 )
 }
 \arguments{
@@ -19,6 +20,8 @@ gadget_evaluate(
 \item{params.out}{parameter output file}
 
 \item{lik.out}{likelihood output file}
+
+\item{...}{additional arguments passed on to callGadget}
 }
 \value{
 path
