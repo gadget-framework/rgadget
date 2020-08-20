@@ -684,28 +684,6 @@ gadget_project_ref_point <- function(path,ref_points,params.file='PRE/params.pre
 }
 
 
-#' Evaluate a gadget model 
-#'
-#' @param path locatoin of the gadget model
-#' @param params.in parameter input file
-#' @param params.out parameter output file
-#' @param lik.out likelihood output file
-#' @param ... additional arguments passed on to callGadget
-#'
-#' @return path
-#' @export
-gadget_evaluate <- function(path='.',params.in = NULL, params.out = NULL, lik.out = NULL,...){
-  if('data.frame' %in% class(params.in)){
-    tmp <- tempfile()
-    params.in %>% write.gadget.parameters(file = tmp)
-    params.in <- tmp
-  }
-  Sys.setenv(GADGET_WORKING_DIR = normalizePath(path))
-  callGadget(s=1,i=params.in,p=params.out,o=lik.out,main = attr(path,'mainfile'),...)
-  Sys.setenv(GADGET_WORKING_DIR = '.')
-  return(path)
-} 
-
 
 #' @rdname gadget_projections
 #' @param output_dir location of the model output
