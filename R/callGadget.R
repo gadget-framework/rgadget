@@ -202,6 +202,7 @@ gadget_evaluate <- function(path='.',params.in = NULL, params.out = NULL, lik.ou
     params.in %>% write.gadget.parameters(file = tmp)
     params.in <- tmp
   }
+  
   Sys.setenv(GADGET_WORKING_DIR = normalizePath(path))
   callGadget(s=1,i=params.in,p=params.out,o=lik.out,main = attr(path,'mainfile'),...)
   Sys.setenv(GADGET_WORKING_DIR = '.')
@@ -255,3 +256,34 @@ gadget_optimize <- function(path='.',params.in = NULL, params.out = NULL, contro
   Sys.setenv(GADGET_WORKING_DIR = '.')
   return(path)
 } 
+
+
+
+
+#' gadget.variant.dir to unix line endings
+#' 
+#' This function converts all files in the gadget variant directory from windows line endings to unix
+#'
+#' @param gd gadget.variant.dir
+#'
+#' @return nothing
+#' @export
+#'
+#' @examples
+#' 
+#' gd <- gadget.variant.dir('test')
+#' gadgetfile('test',components = list(test = list(a=1))) %>% 
+#' write.gadget.file(gd)
+#' 
+#' gd_to_unix(gd)
+#' 
+gd_to_unix <- function(gd){
+  list.files(path = gd, full.names = TRUE) %>% 
+    map(function(x){
+      txt <- readLines(x)
+      x <- file(x, open = 'wb')
+      writeLines(txt, x, sep = '\n')
+      close(x)
+    })
+  invisible(1)
+}

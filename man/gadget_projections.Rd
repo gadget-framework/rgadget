@@ -18,7 +18,15 @@ gadget_project_time(
     paste(collapse = "") \%>\% paste(tempdir(), sep = "")
 )
 
-gadget_project_stocks(path, imm.file, mat.file, spawn_func = "hockeystick")
+gadget_project_stocks(
+  path,
+  imm.file,
+  mat.file,
+  spawn_func = "hockeystick",
+  proportionfunction = "constant 1",
+  mortalityfunction = "constant 0",
+  weightlossfunction = "constant 0"
+)
 
 gadget_project_fleets(
   path,
@@ -89,6 +97,12 @@ gadget_project_output(
 \item{mat.file}{location of the mature stock file}
 
 \item{spawn_func}{what spawn function to use (only hockeystick atm)}
+
+\item{proportionfunction}{proportion suitability}
+
+\item{mortalityfunction}{mortataliy suitability}
+
+\item{weightlossfunction}{weightloss suitability}
 
 \item{pre_fleet}{name of the fleet projections are based on}
 

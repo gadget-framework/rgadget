@@ -213,11 +213,22 @@ gadget_project_time <- function(path='.', num_years = 100,
 
 
 #' @rdname gadget_projections
+#'
 #' @param imm.file location of the immature stock file
 #' @param mat.file location of the mature stock file
+#' @param proportionfunction proportion suitability
+#' @param mortalityfunction mortataliy suitability
+#' @param weightlossfunction weightloss suitability
 #' @param spawn_func what spawn function to use (only hockeystick atm)
+#'
 #' @export
-gadget_project_stocks <- function(path, imm.file, mat.file, spawn_func = 'hockeystick'){
+gadget_project_stocks <- function(path, 
+                                  imm.file, 
+                                  mat.file, 
+                                  spawn_func = 'hockeystick',
+                                  proportionfunction = 'constant 1',
+                                  mortalityfunction = 'constant 0',
+                                  weightlossfunction = 'constant 0'){
   
   main <- read.gadget.file(path,attributes(path)$mainfile,file_type = 'main')
   
@@ -267,7 +278,7 @@ gadget_project_stocks <- function(path, imm.file, mat.file, spawn_func = 'hockey
     hockey_stock <- imm_stock
   }
   
-  attr(hockey_stock,'file_config')$mainfile_overwrite = TRUE  
+  #attr(hockey_stock,'file_config')$mainfile_overwrite = TRUE  
   hockey_stock %>% 
     write.gadget.file(path)  
   
@@ -296,6 +307,9 @@ gadget_project_stocks <- function(path, imm.file, mat.file, spawn_func = 'hockey
     write.gadget.file(path)
   
   
+  imm_stock %>% 
+    write.gadget.file(path)
+  
   #attr(mat_stock,'file_config')$mainfile_overwrite = TRUE
   mat_stock %>% 
     gadget_update('doesspawn',
@@ -304,10 +318,10 @@ gadget_project_stocks <- function(path, imm.file, mat.file, spawn_func = 'hockey
                   firstspawnyear = min(schedule$year) - imm_stock[[1]]$minage,
                   lastspawnyear = max(schedule$year),
                   spawnstocksandratios = list(hockey_stock[[1]]$stockname,1),
-                  proportionfunction = 'constant 1',
-                  mortalityfunction = 'constant 0',
-                  weightlossfunction = 'constant 0',
-                  recruitment = list(spawn_func = 'hockeystick',
+                  proportionfunction = proportionfunction,
+                  mortalityfunction = mortalityfunction,
+                  weightlossfunction = weightlossfunction,
+                  recruitment = list(spawn_func = spawn_func,
                                      R = paste(attributes(path)$variant_dir,
                                                paste('hockeyrec', imm_stock[[1]]$stockname,sep = '.'), sep = '/'),
                                      Blim = sprintf('#%s.blim', mat_stock[[1]]$stockname)),
@@ -319,8 +333,6 @@ gadget_project_stocks <- function(path, imm.file, mat.file, spawn_func = 'hockey
                     unlist()) %>% 
     write.gadget.file(path)
   
-  imm_stock %>% 
-    write.gadget.file(path)
   
   return(path)
 }
@@ -354,21 +366,7 @@ gadget_project_fleets <- function(path, pre_fleet = 'comm',
   fleets <-
     main$fleet$fleetfiles %>% 
     purrr::map(~gadgetfleet(.,path))
-  
-  ### ugly as hell but works for now
-  suits <- 
-    fleets %>% 
-    purrr::map(~purrr::keep(.,~.[[1]]==pre_fleet)) %>% 
-    purrr::flatten(.x = .) %>% 
-    purrr::map('suitability') %>%
-    purrr::flatten(.x = .) %>%
-    purrr::map(~purrr::map_if(.,is.call,to.gadget.formulae)) %>% 
-    purrr::map(t) %>% 
-    purrr::map(paste, collapse = '\t') %>% 
-    dplyr::bind_rows(.id = 'fleet') %>% 
-    tidyr::gather("stock","val",-c(1)) %>% 
-    dplyr::select(-.data$fleet)
-  
+
   ## check if the projection fleets are defined 
   fleets %>% 
     purrr::flatten(.x = .) %>% 
@@ -376,6 +374,19 @@ gadget_project_fleets <- function(path, pre_fleet = 'comm',
     unlist() %>% 
     setdiff(pre_fleet,.) %>% 
     purrr::map(~stop(sprintf('Projection fleet %s not found',.)))
+  
+    
+  ### ugly as hell but works for now
+  suits <- 
+    fleets %>% 
+    purrr::map(~purrr::keep(.,~.[[1]]==pre_fleet)) %>% 
+    purrr::flatten(.x = .) %>% 
+    purrr::map('suitability') %>%
+    purrr::flatten(.x = .) %>% 
+    purrr::map(~paste(.,collapse = '\t')) %>% 
+    unlist() %>% 
+    paste(names(.),.,sep='\t')
+  
   
   ## define fleet amounts that are parametrised by year, step, area 
   if(is.null(common_mult)){
@@ -404,8 +415,6 @@ gadget_project_fleets <- function(path, pre_fleet = 'comm',
                   name = paste(pre_fleet,post_fix,sep='.'),
                   suitability = 
                     suits %>% 
-                    tidyr::unite(col,sep='\t') %>% 
-                    unlist() %>% 
                     paste(collapse="\n") %>% 
                     sprintf('\n%s',.),
                   ...,
