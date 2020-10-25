@@ -26,7 +26,7 @@ callGadget(
   qsub.script = NULL,
   PBS.name = "run",
   qsub.output = "output",
-  ignore.stderr = TRUE,
+  ignore.stderr = FALSE,
   parallel = NULL
 )
 }

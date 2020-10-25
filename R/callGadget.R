@@ -95,7 +95,7 @@ callGadget <- function(l=NULL,
                        qsub.script=NULL,
                        PBS.name='run',
                        qsub.output='output',
-                       ignore.stderr=TRUE,
+                       ignore.stderr=FALSE,
                        parallel=NULL){
   
   if(!is.null(.Options$gadget.path)){
@@ -128,13 +128,14 @@ callGadget <- function(l=NULL,
                     ifelse(is.null(parallel),'',
                            paste('-parallel',parallel)))
   
-  run.string <- paste(gadget.exe,switches)
   if(!PBS){
-    run.history <- try(system(run.string,intern=TRUE,
-                              ignore.stderr=ignore.stderr))
+    run.history <- try(system2(gadget.exe,
+                               args = switches,
+                               stdout = FALSE,
+                               stderr = ignore.stderr))
   } else {
     if(file.exists(sprintf('%s.sh',PBS.name))){
-      write.unix(run.string, f=sprintf('%s.sh',PBS.name),append=TRUE)
+      write.unix(paste(gadget.exe,switches), f=sprintf('%s.sh',PBS.name),append=TRUE)
       qsub.script <- NULL
     } else {
       PBS.header <-
@@ -155,7 +156,7 @@ callGadget <- function(l=NULL,
               sep='\n')
       
       PBS.script <- paste(PBS.header,
-                          run.string,
+                          paste(gadget.exe,switches),
                           sep='\n')
       write.unix(PBS.script, f=sprintf('%s.sh',PBS.name))
       Sys.chmod(sprintf('%s.sh',PBS.name),mode = '0777')
@@ -278,7 +279,7 @@ gadget_optimize <- function(path='.',params.in = NULL, params.out = NULL, contro
 #' gd_to_unix(gd)
 #' 
 gd_to_unix <- function(gd){
-  list.files(path = gd, full.names = TRUE) %>% 
+  list.files(path = gd, full.names = TRUE,recursive = TRUE) %>% 
     map(function(x){
       txt <- readLines(x)
       x <- file(x, open = 'wb')
