@@ -211,3 +211,15 @@ wide_parameters <- function(dat,value = NULL){
 }
 
 
+gadgetparameters <- function(gd){
+  if(!is.null(attr(gd,'params_in'))){
+    gd <- gadget_evaluate(gd)
+  }
+  read.gadget.parameters(paste(gd,attr(gd, 'params_out')))
+}
+
+gadget_update.gadgetparameters <- function(x){
+  init_guess(x)
+}
+
+
