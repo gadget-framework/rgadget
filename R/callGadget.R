@@ -62,14 +62,6 @@
 ##' @param gadget.exe path to the gadget executable, if not set, first looks
 ##' to see if the gadget R package is installed, if that fails uses the system
 ##' path. .Options$gadget.path will override any given parameter.
-##' @param PBS Logical, should, instead of running gadget directly,
-##' a pbs script be
-##' generated that can be submitted to a cluster queue (defaults to FALSE).
-##' @param qsub.script The name of the qsub script that can be generated, if
-##' desired. As with the PBS script R tries to set the permission to 777
-##' (not wether or not this works on windows).
-##' @param PBS.name Name of the pbs script (.sh will be appended).
-##' @param qsub.output The directory where the output from the script is stored
 ##' @param ignore.stderr should error output be ignored
 ##' @param parallel (experimental) should the parallel option be used
 ##' @return the run history
@@ -91,10 +83,6 @@ callGadget <- function(l=NULL,
                        printinitial=NULL,
                        printfinal=NULL,
                        gadget.exe='gadget',
-                       PBS=FALSE,
-                       qsub.script=NULL,
-                       PBS.name='run',
-                       qsub.output='output',
                        ignore.stderr=FALSE,
                        parallel=NULL){
   
@@ -128,58 +116,12 @@ callGadget <- function(l=NULL,
                     ifelse(is.null(parallel),'',
                            paste('-parallel',parallel)))
   
-  if(!PBS){
-    run.history <- try(system2(gadget.exe,
-                               args = switches,
-                               stdout = FALSE,
-                               stderr = ignore.stderr))
-  } else {
-    if(file.exists(sprintf('%s.sh',PBS.name))){
-      write.unix(paste(gadget.exe,switches), f=sprintf('%s.sh',PBS.name),append=TRUE)
-      qsub.script <- NULL
-    } else {
-      PBS.header <-
-        paste('#!/bin/bash',
-              sprintf('# job file for pbs queue created by Rgadget at %s',
-                      date()),
-              '# Copy evironment, join output and error, medium queue:',
-              '#PBS -V',
-              '#PBS -j oe',
-              '#PBS -q medium',
-              '#PBS -l cput=60:00:00',
-              '#PBS -m n',
-              '',
-              '# Go to the directory where the job was submitted from',
-              'cd $PBS_O_WORKDIR',
-              '',
-              '# run gadget',
-              sep='\n')
-      
-      PBS.script <- paste(PBS.header,
-                          paste(gadget.exe,switches),
-                          sep='\n')
-      write.unix(PBS.script, f=sprintf('%s.sh',PBS.name))
-      Sys.chmod(sprintf('%s.sh',PBS.name),mode = '0777')
-      if(!is.null(qsub.script)){
-        dir.create(qsub.output)
-        qsub.string <-
-          sprintf('# %1$s\nqsub -N gadget-%2$s -o %3$s/%4$s.txt %2$s.sh \n',
-                  date(),PBS.name,qsub.output,gsub('/','.',PBS.name))
-        if(file.exists(qsub.script)){
-          write.unix(qsub.string,f=qsub.script,append=TRUE)
-        } else {
-          header <-
-            paste('#!/bin/bash',
-                  sprintf('# created by Rgadget at %s',date()),
-                  sep='\n')
-          write.unix(paste(header,qsub.string,sep='\n'),f=qsub.script)
-          Sys.chmod(qsub.script,mode = '0777')
-        }
-      }
-    }
-    
-    run.history <- NULL
-  }
+  
+  run.history <- system2(gadget.exe,
+                         args = switches,
+                         stdout = FALSE,
+                         stderr = ignore.stderr)
+  
   
   invisible(run.history)
 }
@@ -198,16 +140,15 @@ callGadget <- function(l=NULL,
 #' @return path
 #' @export
 gadget_evaluate <- function(path='.',params.in = NULL, params.out = NULL, lik.out = NULL,...){
-  if('data.frame' %in% class(params.in)){
-    tmp <- tempfile()
-    params.in %>% write.gadget.parameters(file = tmp)
-    params.in <- tmp
-  }
-  
+  path <- variant_append_settings(path, params.in, params.out)
   Sys.setenv(GADGET_WORKING_DIR = normalizePath(path))
-  callGadget(s=1,i=params.in,p=params.out,o=lik.out,main = attr(path,'mainfile'),...)
+  callGadget(s=1,
+             i = attr(path, 'params_in'),
+             p = attr(path, 'params_out'),
+             main = attr(path,'mainfile'),
+             o=lik.out,...)
   Sys.setenv(GADGET_WORKING_DIR = '.')
-  return(path)
+  invisible(path)
 } 
 
 
@@ -228,34 +169,18 @@ gadget_evaluate <- function(path='.',params.in = NULL, params.out = NULL, lik.ou
 #' gadget_optimize(gd,params.in = 'params.in',params.out = 'params.opt', control = optinfo)
 #' }
 #' @export
-gadget_optimize <- function(path='.',params.in = NULL, params.out = NULL, control = NULL,...){
-  if('data.frame' %in% class(params.in)){
-    tmp <- tempfile()
-    params.in %>% write.gadget.parameters(file = tmp)
-    params.in <- tmp
-  }
-  
-  if('gadgetfile' %in% class(control)){
-    control %>% write.gadget.file(path)
-  }
-  
-  if(is.null(params.in)){
-    stop('No input parameter file specified')
-  }
-  
-  if(is.null(params.out)){
-    warning('No params.out file specified, will default to "params.out"')
-  }
-  
+gadget_optimize <- function(path ,params.in = attr(path,'params_in'), params.out = attr(path,'params_out'), control = attr(path,'optinfo'),...){
+  path <- variant_append_settings(path, params.in, params.out, control)
   Sys.setenv(GADGET_WORKING_DIR = normalizePath(path))
   callGadget(l=1,
-             i = params.in,
-             p = params.out,
+             i = attr(path, 'params_in'),
+             p = attr(path, 'params_out'),
              main = attr(path,'mainfile'),
-             opt = attr(control,'file_name'),
+             opt = attr(path,'optinfo'),
              ...)
   Sys.setenv(GADGET_WORKING_DIR = '.')
-  return(path)
+  attr(path, 'params_in') <- attr(path, 'params_out')
+  invisible(path)
 } 
 
 
@@ -280,7 +205,7 @@ gadget_optimize <- function(path='.',params.in = NULL, params.out = NULL, contro
 #' 
 gd_to_unix <- function(gd){
   list.files(path = gd, full.names = TRUE,recursive = TRUE) %>% 
-    map(function(x){
+    purrr::map(function(x){
       txt <- readLines(x)
       x <- file(x, open = 'wb')
       writeLines(txt, x, sep = '\n')
@@ -288,3 +213,49 @@ gd_to_unix <- function(gd){
     })
   invisible(1)
 }
+
+
+
+variant_append_settings <- function(gd, params.in = attr(gd,'params_in'), params.out = NULL, control = NULL){
+  if(!('gadget.variant' %in% class(gd))){
+    warning('"path" is not a variant directory, cast to variant.dir')
+    gd <- gadget.variant.dir(gd)
+  }
+  
+  
+  if(is.null(params.in)){
+    warning('No input parameters specified, will run with default values')
+  }
+  
+  if(is.null(params.out)){
+    warning(paste0('No params.out file specified, will default to "params.out.', Sys.Date(),'"'))
+    params.out <- variant_within_path(gd,paste0('params.out.',Sys.Date()))
+  } else {
+    params.out <- variant_strip_path(gd,params.out)
+  }
+  
+  if('data.frame' %in% class(params.in)){
+    tmp <- variant_within_path(gd,paste0('params.in.',Sys.Date()))
+    params.in %>% write.gadget.parameters(file = variant_full_path(tmp))
+    params.in <- tmp
+  }
+  
+  attr(gd, 'params_in') <- params.in
+  attr(gd, 'params_out') <- params.out
+  
+  if('gadgetfile' %in% class(control)){
+    attr(control, 'file_name') <- paste0('optinfo.', Sys.Date())
+    control %>% write.gadget.file(gd)
+    attr(gd,'optinfo') <- variant_within_path(gd,attr(control, 'file_name'))
+  } else {
+    attr(gd,'optinfo') <- control
+  }
+  
+  return(gd)  
+}
+
+variant_within_path <- function(gd, file){
+  if(!is.null(attr(gd,'variant_dir'))) paste(attr(gd,'variant_dir'), file, sep = '/') else file
+}
+
+
