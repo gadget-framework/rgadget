@@ -1,12 +1,72 @@
-#' Title
+
+#' @title Iterative reweighting for Gadget models
+#' 
+#' An implementation of the iterative reweigthing of likelihood
+#' components in gadget. It analyzes a given gadget model and, after
+#' a series of optimisations where each likelihood component is
+#' heavily weigthed, suggests a weigthing for the components based on
+#' the respective variance.  If one (or more) components, other than
+#' understocking and penalty, are 0 then the gadget optimisation with
+#' the final weights will not be completed.
 #'
-#' @param gd 
-#' @param grouping 
-#' @param wgts 
-#' @param params.in 
-#' @param ... 
+#' In Taylor et. al an objective reweighting scheme for likelihood
+#' components is described for cod in Icelandic waters. The authors
+#' nota that the issue of component weighting has been discussed for
+#' some time, as the data sources have different natural scales (e.g
+#' g vs. kg) that should not affect the outcome. A simple heuristic,
+#' where the weights are the inverse of the initial sums of squares
+#' for the respective component resulting in an initials score equal
+#' to the number of components, is therfor often used. This has the
+#' intutitive advantage of all components being normalised. There is
+#' however a drawback to this since the component scores, given the
+#' initial parametrisation, are most likely not equally far from
+#' their respective optima resulting in sub-optimal weighting.  The
+#' iterative reweighting heuristic tackles this problem by optimising
+#' each component separately in order to determine the lowest
+#' possible value for each component. This is then used to determine
+#' the final weights.  The resoning for this approach is as follows:
+#' Conceptually the likelihood components can be thought of as
+#' residual sums of squares, and as such their variance can be
+#' esimated by dividing the SS by the degrees of freedom. The optimal
+#' weighting strategy is the inverse of the variance.  Here the
+#' iteration starts with assigning the inverse SS as the initial
+#' weight, that is the initial score of each component when
+#' multiplied with the weight is 1. Then an optimisation run for each
+#' component with the intial score for that component set to
+#' 10000. After the optimisation run the inverse of the resulting SS
+#' is multiplied by the effective number of datapoints and used as
+#' the final weight for that particular component.  The effective
+#' number of datapoints is used as a proxy for the degrees of freedom
+#' is determined from the number of non-zero datapoints. This is
+#' viewed as satisfactory proxy when the dataset is large, but for
+#' smaller datasets this could be a gross overestimate. In
+#' particular, if the surveyindices are weigthed on their own while
+#' the yearly recruitment is esimated they could be overfitted. If
+#' there are two surveys within the year Taylor et. al suggest that
+#' the corresponding indices from each survey are weigthed
+#' simultaneously in order to make sure that there are at least two
+#' measurement for each yearly recruit, this is done through
+#' component grouping which is implemented. Another approach, which
+#' is also implemented, for say a single survey fleet the weight for
+#' each index component is estimated from a model of the form
+#' \deqn{\log(I_{lts}) = \mu + Y_t + \lambda_l + \Sigma_s +
+#' \epsilon_{lts}}{% log(I_lts) = mu + Y_t + lambda_l + Sigma_s +
+#' e_lts} where the residual term, \eqn{\epsilon_{lts}}{e_lts}, is
+#' independent normal with variance
+#' \eqn{\sigma_{ls}^2}{sigma_ls^2}. The inverse of the estimated
+#' variance from the above model as the weights between the
+#' surveyindices.  After these weights have been determined all
+#' surveyindices are weighted simultaneously.
+
+#' @param gd gadget directory
+#' @param grouping a list naming the groups of components that should be reweighted together.
+#' @param wgts a string containing the path the folder where the
+#' interim weighting results should be stored.
+#' @param params.in  a string containing the location of the input
+#' parameters
+#' @param ... passed to gadget_evaluate
 #'
-#' @return
+#' @return list of gadget variant dirs 
 #' @export
 #'
 #' @examples
@@ -88,6 +148,15 @@ gadget_iterative_stage_1 <- function(gd,
     purrr::map(setup_function)
 }
 
+
+
+#' @describeIn gadget_iterative_stage_1
+#'
+#' @param variants list of gadget directories 
+#' @param cv_floor minimum value for the survey CV
+#'
+#' @return gadget directory 
+#' @export
 gadget_iterative_stage_2 <- function(variants, cv_floor = 0){
   variants %>% 
     purrr::map(~read.gadget.parameters(paste(., attr(., 'params_in'), sep = '/'))) %>%
@@ -142,12 +211,13 @@ gadget_iterative_stage_2 <- function(variants, cv_floor = 0){
   weights <- 
     SStable %>% 
     tidyr::pivot_longer(-id,names_to = 'component',values_to = 'SS') %>%
-    dplyr::left_join(lik.df) %>% 
+    dplyr::left_join(lik.df, by = 'component') %>% 
     dplyr::left_join(tibble::tibble(component = names(lik.type),
-                                    type = unlist(lik.type))) %>%
+                                    type = unlist(lik.type)),
+                     by = 'component') %>%
     dplyr::filter(component %in% strsplit(id,'__'))
   
-  if(sum(weigths$SS == 0) > 0){
+  if(sum(weights$SS == 0) > 0){
     stop(paste("Likelihood component score exactly 0", weights$component[weigths$SS == 0]))
   }
   
@@ -170,10 +240,14 @@ gadget_iterative_stage_2 <- function(variants, cv_floor = 0){
   }
   
   gd <- variants[[1]]
-  attr(gd, 'mainfile') <- paste(attr(gd, 'variant_dir'), 'main.final')
+  attr(gd, 'mainfile') <- paste(attr(gd, 'variant_dir'), 'main.final', sep = '/')
   attr(main, 'file_name') <- 'main.final'
+  main$likelihood$likelihoodfiles <- NULL
   write.gadget.file(main,gd)
-  attr(gd,'params_in') <- paste(attr(gd, 'variant_dir'), 'params.in')
+  attr(gd,'params_in') <- paste(attr(gd, 'variant_dir'), 'params.in', sep = '/')
+  attr(gd,'params_out') <- paste(attr(gd, 'variant_dir'), 'params.final', sep = '/')
+  attr(lik,'file_name') <- paste(attr(gd, 'variant_dir'), 'likelihood.final', sep = '/')
+  write.gadget.file(lik, gd)
   return(gd)
 }
 

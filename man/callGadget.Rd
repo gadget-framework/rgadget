@@ -22,10 +22,6 @@ callGadget(
   printinitial = NULL,
   printfinal = NULL,
   gadget.exe = "gadget",
-  PBS = FALSE,
-  qsub.script = NULL,
-  PBS.name = "run",
-  qsub.output = "output",
   ignore.stderr = FALSE,
   parallel = NULL
 )
@@ -73,18 +69,6 @@ information should be saved.}
 \item{gadget.exe}{path to the gadget executable, if not set, first looks
 to see if the gadget R package is installed, if that fails uses the system
 path. .Options$gadget.path will override any given parameter.}
-
-\item{PBS}{Logical, should, instead of running gadget directly,
-a pbs script be
-generated that can be submitted to a cluster queue (defaults to FALSE).}
-
-\item{qsub.script}{The name of the qsub script that can be generated, if
-desired. As with the PBS script R tries to set the permission to 777
-(not wether or not this works on windows).}
-
-\item{PBS.name}{Name of the pbs script (.sh will be appended).}
-
-\item{qsub.output}{The directory where the output from the script is stored}
 
 \item{ignore.stderr}{should error output be ignored}
 
