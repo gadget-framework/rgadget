@@ -70,15 +70,16 @@
 #' @export
 #'
 #' @examples
-#' library(Rgadget)
 #' 
+#' 
+#' \dontrun{
 #' gd <- gadget.variant.dir('01-base')
 #' 
 #' gadget_iterative_stage_1(gd, params.in = 'params.in') %>% 
 #'   parallel::mclapply(gadget_optimize, mc.cores = parallel::detectCores()) %>% 
 #'   gadget_iterative_stage_2() %>% 
 #'   gadget_optimize()
-#' 
+#' }
 gadget_iterative_stage_1 <- function(gd, 
                                      grouping = list(),
                                      wgts = 'WGTS',
@@ -225,7 +226,7 @@ gadget_iterative_stage_2 <- function(variants, cv_floor = 0){
     weights %>%
     dplyr::mutate(variance = SS/n,
                   variance = ifelse(type == 'surveyindices', 
-                                    pmin(variance,cv_floor^2), variance)) %>%
+                                    pmax(variance,cv_floor^2), variance)) %>%
     dplyr::group_by(component) %>% 
     dplyr::summarise(w = mean(n)/min(pmax(SS,1))) 
   

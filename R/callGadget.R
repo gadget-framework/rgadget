@@ -216,6 +216,16 @@ gd_to_unix <- function(gd){
 
 
 
+#' Append setting to variant directories
+#'
+#' More description needed
+#'
+#' @param gd variant directory
+#' @param params.in input parameters
+#' @param params.out output
+#' @param control optinfo file
+#'
+#' @return variant dir with appended attributes
 variant_append_settings <- function(gd, params.in = attr(gd,'params_in'), params.out = NULL, control = NULL){
   if(!('gadget.variant' %in% class(gd))){
     warning('"path" is not a variant directory, cast to variant.dir')

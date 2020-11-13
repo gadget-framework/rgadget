@@ -160,13 +160,14 @@ surveyindices are weighted simultaneously.
 }}
 
 \examples{
-library(Rgadget)
 
+
+\dontrun{
 gd <- gadget.variant.dir('01-base')
 
 gadget_iterative_stage_1(gd, params.in = 'params.in') \%>\% 
   parallel::mclapply(gadget_optimize, mc.cores = parallel::detectCores()) \%>\% 
   gadget_iterative_stage_2() \%>\% 
   gadget_optimize()
-
+}
 }
