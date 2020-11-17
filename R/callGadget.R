@@ -251,7 +251,7 @@ variant_append_settings <- function(gd, params.in = attr(gd,'params_in'), params
   }
   
   attr(gd, 'params_in') <- params.in
-  attr(gd, 'params_out') <- params.out
+  attr(gd, 'params_out') <- params.out  
   
   if('gadgetfile' %in% class(control)){
     attr(control, 'file_name') <- paste0('optinfo.', Sys.Date())
