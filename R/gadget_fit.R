@@ -15,8 +15,17 @@ gadget_fit <- function(gd, params.in = 'params.in', fit = 'FIT'){
     purrr::map(~read.gadget.file(path=gd,file_name = .,
                                  file_type = 'likelihood',
                                  recursive = TRUE) %>%  
-                 purrr::discard(~.$type %in% c('penalty','understocking','migrationpenalty')))
-    
+                 purrr::discard(~.$type %in% c('penalty','understocking','migrationpenalty'))) %>% 
+    purrr::flatten() 
+  
+  lik <- 
+    lik %>% 
+    purrr::set_names(.,lik %>% purrr::map('name')) 
+  
+  lik.dat <- 
+    lik %>% 
+    purrr::map(g2_to_tibble) 
+  
   
   fleets <- 
     main$fleet$fleetfiles %>% 
@@ -35,7 +44,7 @@ gadget_fit <- function(gd, params.in = 'params.in', fit = 'FIT'){
     gadgetprintfile('printfile',gv, missingOkay = TRUE) 
   
   ## add the likelihood output to the printfile
-  for(comp in lik$likelihood %>% purrr::map('name')){
+  for(comp in lik %>% purrr::map('name')){
     print <- 
       print %>% 
       gadget_update('likelihoodprinter',printfile = comp, likelihoodcomponent = comp)
@@ -58,7 +67,7 @@ gadget_fit <- function(gd, params.in = 'params.in', fit = 'FIT'){
                                          upper = tail(length_range(stocks[[stock]]),-1)) %>% 
                       dplyr::mutate(label = as.ordered(.data$lower)) %>%
                       split(.$label) %>% 
-                       purrr::set_names(.,paste0('len',names(.))) %>% 
+                      purrr::set_names(.,paste0('len',names(.))) %>% 
                       purrr::map(dplyr::select, -.data$label) %>% 
                       purrr::map(unlist)) %>% 
       gadget_update('stockprinter',
@@ -108,7 +117,7 @@ gadget_fit <- function(gd, params.in = 'params.in', fit = 'FIT'){
                         purrr::set_names(.,paste0('len',names(.))) %>% 
                         purrr::map(dplyr::select, -.data$label) %>% 
                         purrr::map(unlist)) 
-
+      
     }
   }
   
@@ -119,14 +128,12 @@ gadget_fit <- function(gd, params.in = 'params.in', fit = 'FIT'){
   gv <- gadget_evaluate(gv,params.in = params.in, params.out = tempfile())
   
   ## read in the output
-  out <- gadgetprintfile('printfile',gv)
-  
-  
-  out %>% 
+  out <- 
+    gadgetprintfile('printfile',gv) %>% 
     purrr::map('printfile') %>% 
     purrr::set_names(.,purrr::map(.,~attr(.,'file_name')) %>% gsub('out/','',.)) %>% 
     purrr::map(1) %>% 
-    purrr::map(tibble::as_tibble)
+    purrr::map(tibble::as_tibble) 
   
   
   print('Gathering results')
@@ -212,14 +219,14 @@ gadget_fit <- function(gd, params.in = 'params.in', fit = 'FIT'){
                   harv.rate = .data$amount/.data$harv.bio)
   
   
-  
-  if(!is.null(fleet.predict)){
-    d <- 
-      predator.prey %>% 
-      dplyr::filter(.data$predator %in% fleet.predict$fleet)
-  } else {
-    d <- predator.prey
-  }
+  # 
+  # if(!is.null(fleet.predict)){
+  #   d <- 
+  #     predator.prey %>% 
+  #     dplyr::filter(.data$predator %in% fleet.predict$fleet)
+  # } else {
+  d <- predator.prey
+  #  }
   
   harv.suit <- 
     d %>% 
@@ -229,34 +236,50 @@ gadget_fit <- function(gd, params.in = 'params.in', fit = 'FIT'){
     dplyr::rename(stock = .data$prey)
   
   print('Merging input and output')
+  
+  for(comp in names(lik.dat)){
+    if(lik.dat[[comp]]$type[1] == 'surveyindices'){
+      if(lik.dat[[comp]]$sitype[1] == 'lengths'){
+        out[[comp]] <- 
+          out[[comp]] %>% 
+          dplyr::rename(length = label)
+      } else if(lik.dat[[comp]]$sitype[1] == 'age'){
+        out[[comp]] <- 
+          out[[comp]] %>% 
+          dplyr::rename(age = label)
+      } else if(lik.dat[[comp]]$sitype[1] == 'effort'){
+        out[[comp]] <- 
+          out[[comp]] %>% 
+          dplyr::rename(fleet = label)
+      } else if(lik.dat[[comp]]$sitype[1] == 'acoustic'){
+        out[[comp]] <- 
+          out[[comp]] %>% 
+          dplyr::rename(survey = label)
+      } else if(lik.dat[[comp]]$sitype[1] == 'fleet'){
+        out[[comp]] <- 
+          out[[comp]] %>% 
+          dplyr::rename(length = label)
+      }
+    }
+    
+    lik.dat[[comp]] <- 
+      lik.dat[[comp]] %>% 
+      dplyr::left_join(out[[comp]], 
+                       by = intersect(names(out[[comp]]), names(lik.dat[[comp]]))) %>% 
+      dplyr::rename(predicted = number)
+  }
+  
+  
   ## merge data and estimates
-  if('surveyindices' %in% names(lik.dat$dat)){
+  if('surveyindices' %in% names(lik.type)){
     sidat <- 
-      out[names(lik.dat$dat$surveyindices)] %>% 
-      purrr::set_names(.,names(.)) %>%
-      dplyr::bind_rows(.id='name') %>% 
-      dplyr::left_join(lik$surveyindices %>% 
-                         dplyr::select(.data$name,.data$stocknames,.data$sitype,.data$fittype), 
-                       by='name') %>% 
+      lik.dat %>% 
+      purrr::keep(~'surveyindices' %in% .$type) %>% 
+      dplyr::bind_rows() %>% 
       dplyr::bind_rows(tibble::tibble(length=NA,
                                       age=NA,
                                       survey = NA,
                                       fleet = NA)) %>% 
-      dplyr::mutate(age = ifelse(.data$sitype == 'ages',.data$label,.data$age),
-                    length = ifelse(.data$sitype %in% c('lengths','fleets'),.data$label,.data$length),
-                    fleet = ifelse(.data$sitype == 'effort',.data$label,.data$fleet),
-                    survey = ifelse(.data$sitype == 'acoustic',.data$label,.data$survey)) %>% 
-      dplyr::left_join(lik.dat$dat$surveyindices %>% 
-                         purrr::set_names(.,names(.)) %>% 
-                         dplyr::bind_rows(.id='name') %>% 
-                         dplyr::as_tibble() %>% 
-                         dplyr::rename(observed=.data$number) %>% 
-                         dplyr::bind_rows(tibble::tibble(name = NA, year = NA, step = NA, 
-                                                         area = NA,length = NA,age = NA,
-                                                         fleet = NA,survey = NA,
-                                                         upper = NA, lower = NA)) %>% 
-                         dplyr::filter(!is.na(.data$year)),
-                       by = c("name", "year", "step", "area", "age", "length","fleet","survey")) %>% 
       dplyr::mutate(length = ifelse(.data$sitype %in% c('lengths','fleets'),
                                     paste(.data$lower,.data$upper,sep=' - '),
                                     .data$length)) %>% 
@@ -500,8 +523,72 @@ length_range <- function(stock){
       by = stock[[1]]$dl)
 }
 
-
-
 livesonareas <- function(stock){
   stock[[1]]$livesonareas 
+}
+
+
+
+g2_to_tibble <- function(comp){
+  dat <- 
+    comp$datafile[[1]] %>% 
+    dplyr::rename(obs = number) %>% 
+    dplyr::mutate(name = comp$name,
+                  weight = comp$weight,
+                  type = comp$type) %>% 
+    tibble::as_tibble()
+  
+  if(comp$type == 'surveyindices'){
+    
+    dat <- 
+      dat %>% 
+      dplyr::mutate(sitype = comp$sitype,
+                    fittype = comp$fittype,
+                    stocknames = paste(comp$stocknames, collapse = '\t'))
+    
+  } else if(comp$type %in% c('catcdistribution','stockdistribution')){
+    
+    dat <- 
+      dat %>% 
+      dplyr::mutate(data_function = comp[["function"]],
+                    aggregationlevel = comp$aggregationlevel,
+                    overconsumption = comp$overconsumption,
+                    epsilon = comp$epsilon,
+                    fleetnames = paste(comp$fleetnames, collapse = '\t'))
+  }
+  
+  if(!is.null(comp$areaaggfile)){
+    
+    dat <- 
+      dat %>% 
+      dplyr::mutate(area = as.character(area)) %>% 
+      dplyr::inner_join(comp$areaaggfile[[1]] %>% {tibble::tibble(area = names(.), area_range = paste(unlist(.), collapse = '\t'))},
+                        by = 'area') %>% 
+      dplyr::select(-area) 
+    
+  }
+  
+  if(!is.null(comp$lenaggfile)){
+    
+    dat <- 
+      dat %>% 
+      dplyr::inner_join(comp$lenaggfile %>% 
+                          capture.output() %>% 
+                          paste(collapse = '\n') %>% 
+                          readr::read_table2(comment = ';',col_names = c('length','lower','upper')),
+                        by = 'length')
+  }
+  
+  if(!is.null(comp$ageaggfile)){
+    
+    dat <- 
+      dat %>% 
+      dplyr::inner_join(comp$ageaggfile[[1]] %>% {tibble::tibble(age = names(.), age_range = paste(unlist(.), collapse = '\t'))},
+                        by = 'age') %>% 
+      dplyr::select(-age) 
+    
+  }
+  
+  return(dat)  
+  
 }
