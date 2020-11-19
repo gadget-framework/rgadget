@@ -624,7 +624,8 @@ gadget_project_advice <- function(path,
                                   advice_rho = 0.6,
                                   pre_fleet = 'comm',
                                   post_fix = 'pre',
-                                  n_replicates = 100){
+                                  n_replicates = 100,
+                                  seed = NULL){
   schedule <- 
     readr::read_delim(sprintf('%s/.schedule',
                               paste(path,attributes(path)$variant_dir,sep='/')),
@@ -645,6 +646,9 @@ gadget_project_advice <- function(path,
                      by = 'replicate')
   
   if(advice_cv > 0){
+    
+    if(!is.null(seed)){set.seed(seed = seed)}
+    
     advice_mult <- 
       fleet_parameters %>% 
       dplyr::select(.data$year) %>% 

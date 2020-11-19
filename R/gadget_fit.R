@@ -1,4 +1,4 @@
-gadget_fit <- function(gd, params.in = 'params.in', fit = 'FIT', f.range = NULL){
+gadget_fit <- function(gd, params.in = 'params.in', fit = 'FIT', f.age.range = NULL){
   
   main <- read.gadget.file(gd,attr(gd,'mainfile'), recursive = FALSE)
   attr(main, 'file_name') <- 'main'
