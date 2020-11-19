@@ -18,7 +18,7 @@
 #' res <- 
 #'  gadget_project_time() %>% 
 #'  gadget_project_stocks(imm.file = 'Modelfiles/cod.imm',mat.file = 'Modelfiles/cod.mat') %>% 
-#'  gadget_project_fleets(pre_fleet = 'comm') %>% 
+#'  gadget_project_fleet(pre_fleet = 'comm') %>% 
 #'  gadget_evaluate(params.out = paste(attr(.,'variant_dir'),'params.pre',sep='/'),
 #'                  params.in = 'WGTS/params.final') %>% 
 #'  gadget_project_recruitment(stock = 'codimm', 
@@ -26,7 +26,7 @@
 #'                               filter(stock == 'codimm',
 #'                                      year > 1980),
 #'                             params.file = paste(attr(.,'variant_dir'),'params.pre',sep='/')) %>% 
-#'  gadget_project_ref_point(ref_points = tibble(codmat.blim = 207727665), 
+#'  gadget_project_ref_points(ref_points = tibble(codmat.blim = 207727665), 
 #'                          params.file = paste(attr(.,'variant_dir'),'params.pre',sep='/')) %>% 
 #'  gadget_project_advice(pre_fleet = 'comm',
 #'                        harvest_rate = 1:100/100, 
@@ -134,7 +134,7 @@
 #' res <- 
 #'  gadget_project_time(num_years = 5, variant_dir = 'PRG') %>% 
 #'  gadget_project_stocks(imm.file = 'Modelfiles/cod.imm',mat.file = 'Modelfiles/cod.mat') %>% 
-#'  gadget_project_fleets(pre_fleet = 'comm') %>% 
+#'  gadget_project_fleet(pre_fleet = 'comm') %>% 
 #'  gadget_evaluate(params.out = paste(attr(.,'variant_dir'),'params.pre',sep='/'),
 #'                  params.in = 'WGTS/params.final') %>% 
 #'  gadget_project_recruitment(stock = 'codimm', 
@@ -144,7 +144,7 @@
 #'                             method = 'constant',
 #'                             n_replicates = 1,          
 #'                             params.file = paste(attr(.,'variant_dir'),'params.pre',sep='/')) %>% 
-#'  gadget_project_ref_point(ref_points = tibble(codmat.blim = 207727665), 
+#'  gadget_project_ref_points(ref_points = tibble(codmat.blim = 207727665), 
 #'                          params.file = paste(attr(.,'variant_dir'),'params.pre',sep='/')) %>% 
 #'  gadget_project_advice(pre_fleet = 'comm',
 #'                        harvest_rate = hr_msy, 
@@ -219,13 +219,13 @@ gadget_project_time <- function(path='.', num_years = 100,
 #' @param proportionfunction proportion suitability
 #' @param mortalityfunction mortataliy suitability
 #' @param weightlossfunction weightloss suitability
-#' @param spawn_func what spawn function to use (only hockeystick atm)
+#' @param spawnfunction what spawn function to use (only hockeystick atm)
 #'
 #' @export
 gadget_project_stocks <- function(path, 
                                   imm.file, 
                                   mat.file, 
-                                  spawn_func = 'hockeystick',
+                                  spawnfunction = 'hockeystick',
                                   proportionfunction = 'constant 1',
                                   mortalityfunction = 'constant 0',
                                   weightlossfunction = 'constant 0'){
@@ -321,7 +321,7 @@ gadget_project_stocks <- function(path,
                   proportionfunction = proportionfunction,
                   mortalityfunction = mortalityfunction,
                   weightlossfunction = weightlossfunction,
-                  recruitment = list(spawn_func = spawn_func,
+                  recruitment = list(spawnfunction = spawnfunction,
                                      R = paste(attributes(path)$variant_dir,
                                                paste('hockeyrec', imm_stock[[1]]$stockname,sep = '.'), sep = '/'),
                                      Blim = sprintf('#%s.blim', mat_stock[[1]]$stockname)),
@@ -339,18 +339,18 @@ gadget_project_stocks <- function(path,
 
 
 #' @rdname gadget_projections
-#' @param pre_fleet name of the fleet projections are based on
-#' @param post_fix label
+#' @param pre_fleet name of the fleet projections are based on (original fleet). Only a single fleet should be implemented here at a time. Multiple fleets require multiple gadget_project_fleet calls.
+#' @param post_fix A single label (vector of length 1) used to distinguish the original fleet and the projection fleet (with same parameterisations). Should be the same for all projection fleets.
 #' @param fleet_type type of gadget fleet for the projections
 #' @param common_mult a string with a base name for a vector of harvest/catch rate multipliers (shared between fleets)
 #' @param pre_proportion proportion of the effort taken
 #' @param ... addition input to the fleet files
 #' @export
-gadget_project_fleets <- function(path, pre_fleet = 'comm',
+gadget_project_fleet <- function(path, pre_fleet = 'comm',
                                   post_fix='pre',
                                   fleet_type='linearfleet',
                                   common_mult = NULL,
-                                  pre_propotion = NULL,
+                                  pre_proportion = NULL,
                                   type = 'standard',
                                   ...) {
   
@@ -396,8 +396,8 @@ gadget_project_fleets <- function(path, pre_fleet = 'comm',
     common_mult <- '1' 
     fleet_type <- 'totalfleet'
   } else {
-    if(is.null(pre_propotion)) pre_propotion <- 1
-    common_mult <- paste('(*', pre_propotion, paste0('#fleet.',common_mult, '.%3$s.%4$s.%5$s'), ')')
+    if(is.null(pre_proportion)) pre_proportion <- 1
+    common_mult <- paste('(*', pre_proportion, paste0('#fleet.',common_mult, '.%3$s.%4$s.%5$s'), ')')
   }
 
   
@@ -427,8 +427,8 @@ gadget_project_fleets <- function(path, pre_fleet = 'comm',
 
 #' @rdname gadget_projections
 #' @param stocks names of of the stocks
-#' @param pre_fleets names of the fleets projections are based on
-#' @param post_fix label
+#' @param pre_fleets vector of fleets on which the projections are based
+#' @param post_fix A single label (vector of length 1) used to distinguish the original fleets and the projection fleets (with same parameterisations). Should be the same for all projection fleets.
 #' @param ... additional input to the prognosis likelihood component
 #' @export
 gadget_project_prognosis_likelihood <- function(path,
@@ -613,6 +613,8 @@ gadget_project_rec_constant <- function(recruitment,schedule){
 #' @param harvest_rate median harvest rate
 #' @param advice_cv assessment error cv
 #' @param advice_rho assessment error correlation
+#' @param pre_fleet name of the fleet projections are based on (original fleet). Only a single fleet should be implemented here at a time. Multiple fleets require multiple gadget_project_advice calls.
+#' @param post_fix A single label (vector of length 1) used to distinguish the original fleet and the projection fleet (with same parameterisations). Should be the same for all projection fleets.
 #' @export
 gadget_project_advice <- function(path,
                                   params.file = 'PRE/params.pre',
@@ -621,7 +623,6 @@ gadget_project_advice <- function(path,
                                   advice_rho = 0.6,
                                   pre_fleet = 'comm',
                                   post_fix = 'pre',
-                                  prefix = 'fleet',
                                   n_replicates = 100){
   schedule <- 
     readr::read_delim(sprintf('%s/.schedule',
@@ -632,7 +633,7 @@ gadget_project_advice <- function(path,
     purrr::map(1:n_replicates,
                function(x)
                  schedule %>% 
-                 dplyr::mutate(name = paste(prefix,pre_fleet,post_fix,
+                 dplyr::mutate(name = paste('fleet',pre_fleet,post_fix,
                                             .data$year,.data$step,.data$area,
                                             sep = '.'),
                                replicate = x)) %>% 
@@ -676,7 +677,7 @@ gadget_project_advice <- function(path,
 #' @rdname gadget_projections
 #' @param ref_points tibble with reference points
 #' @export
-gadget_project_ref_point <- function(path,ref_points,params.file='PRE/params.pre'){
+gadget_project_ref_points <- function(path,ref_points,params.file='PRE/params.pre'){
   params <- read.gadget.parameters(params.file) 
   
   ref_points %>% 
@@ -696,7 +697,7 @@ gadget_project_ref_point <- function(path,ref_points,params.file='PRE/params.pre
 
 #' @rdname gadget_projections
 #' @param output_dir location of the model output
-#' @param pre_fleets vector of fleets on which the projections is based
+#' @param pre_fleets vector of fleets on which the projections are based
 #' @param f_age_range F age range, specified in the format a1:a2
 #' @export
 gadget_project_output <- function(path, imm.file, mat.file,
