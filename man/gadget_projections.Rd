@@ -3,11 +3,11 @@
 \name{gadget_project_time}
 \alias{gadget_project_time}
 \alias{gadget_project_stocks}
-\alias{gadget_project_fleets}
+\alias{gadget_project_fleet}
 \alias{gadget_project_prognosis_likelihood}
 \alias{gadget_project_recruitment}
 \alias{gadget_project_advice}
-\alias{gadget_project_ref_point}
+\alias{gadget_project_ref_points}
 \alias{gadget_project_output}
 \title{Gadget projection function}
 \usage{
@@ -22,19 +22,19 @@ gadget_project_stocks(
   path,
   imm.file,
   mat.file,
-  spawn_func = "hockeystick",
+  spawnfunction = "hockeystick",
   proportionfunction = "constant 1",
   mortalityfunction = "constant 0",
   weightlossfunction = "constant 0"
 )
 
-gadget_project_fleets(
+gadget_project_fleet(
   path,
   pre_fleet = "comm",
   post_fix = "pre",
   fleet_type = "linearfleet",
   common_mult = NULL,
-  pre_propotion = NULL,
+  pre_proportion = NULL,
   type = "standard",
   ...
 )
@@ -69,11 +69,10 @@ gadget_project_advice(
   advice_rho = 0.6,
   pre_fleet = "comm",
   post_fix = "pre",
-  prefix = "fleet",
   n_replicates = 100
 )
 
-gadget_project_ref_point(path, ref_points, params.file = "PRE/params.pre")
+gadget_project_ref_points(path, ref_points, params.file = "PRE/params.pre")
 
 gadget_project_output(
   path,
@@ -96,7 +95,7 @@ gadget_project_output(
 
 \item{mat.file}{location of the mature stock file}
 
-\item{spawn_func}{what spawn function to use (only hockeystick atm)}
+\item{spawnfunction}{what spawn function to use (only hockeystick atm)}
 
 \item{proportionfunction}{proportion suitability}
 
@@ -104,19 +103,21 @@ gadget_project_output(
 
 \item{weightlossfunction}{weightloss suitability}
 
-\item{pre_fleet}{name of the fleet projections are based on}
+\item{pre_fleet}{name of the fleet projections are based on (original fleet). Only a single fleet should be implemented here at a time. Multiple fleets require multiple gadget_project_advice calls.}
 
-\item{post_fix}{label}
+\item{post_fix}{A single label (vector of length 1) used to distinguish the original fleet and the projection fleet (with same parameterisations). Should be the same for all projection fleets.}
 
 \item{fleet_type}{type of gadget fleet for the projections}
 
 \item{common_mult}{a string with a base name for a vector of harvest/catch rate multipliers (shared between fleets)}
 
+\item{pre_proportion}{proportion of the effort taken}
+
 \item{...}{additional arguments for the}
 
 \item{stocks}{names of of the stocks}
 
-\item{pre_fleets}{vector of fleets on which the projections is based}
+\item{pre_fleets}{vector of fleets on which the projections are based}
 
 \item{stock}{name of immature stock}
 
@@ -139,8 +140,6 @@ gadget_project_output(
 \item{output_dir}{location of the model output}
 
 \item{f_age_range}{F age range, specified in the format a1:a2}
-
-\item{pre_proportion}{proportion of the effort taken}
 }
 \value{
 gadget variant directory
@@ -156,7 +155,7 @@ fit <- gadget.fit()
 res <- 
  gadget_project_time() \%>\% 
  gadget_project_stocks(imm.file = 'Modelfiles/cod.imm',mat.file = 'Modelfiles/cod.mat') \%>\% 
- gadget_project_fleets(pre_fleet = 'comm') \%>\% 
+ gadget_project_fleet(pre_fleet = 'comm') \%>\% 
  gadget_evaluate(params.out = paste(attr(.,'variant_dir'),'params.pre',sep='/'),
                  params.in = 'WGTS/params.final') \%>\% 
  gadget_project_recruitment(stock = 'codimm', 
@@ -164,7 +163,7 @@ res <-
                               filter(stock == 'codimm',
                                      year > 1980),
                             params.file = paste(attr(.,'variant_dir'),'params.pre',sep='/')) \%>\% 
- gadget_project_ref_point(ref_points = tibble(codmat.blim = 207727665), 
+ gadget_project_ref_points(ref_points = tibble(codmat.blim = 207727665), 
                          params.file = paste(attr(.,'variant_dir'),'params.pre',sep='/')) \%>\% 
  gadget_project_advice(pre_fleet = 'comm',
                        harvest_rate = 1:100/100, 
@@ -272,7 +271,7 @@ yield_curve \%>\%
 res <- 
  gadget_project_time(num_years = 5, variant_dir = 'PRG') \%>\% 
  gadget_project_stocks(imm.file = 'Modelfiles/cod.imm',mat.file = 'Modelfiles/cod.mat') \%>\% 
- gadget_project_fleets(pre_fleet = 'comm') \%>\% 
+ gadget_project_fleet(pre_fleet = 'comm') \%>\% 
  gadget_evaluate(params.out = paste(attr(.,'variant_dir'),'params.pre',sep='/'),
                  params.in = 'WGTS/params.final') \%>\% 
  gadget_project_recruitment(stock = 'codimm', 
@@ -282,7 +281,7 @@ res <-
                             method = 'constant',
                             n_replicates = 1,          
                             params.file = paste(attr(.,'variant_dir'),'params.pre',sep='/')) \%>\% 
- gadget_project_ref_point(ref_points = tibble(codmat.blim = 207727665), 
+ gadget_project_ref_points(ref_points = tibble(codmat.blim = 207727665), 
                          params.file = paste(attr(.,'variant_dir'),'params.pre',sep='/')) \%>\% 
  gadget_project_advice(pre_fleet = 'comm',
                        harvest_rate = hr_msy, 

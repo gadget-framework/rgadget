@@ -103,9 +103,9 @@ plot.gadget.fit <- function(x, ...){
       ggplot2::ggplot(fit$sidat, 
                       ggplot2::aes(.data$year,.data$observed)) +
       ggplot2::geom_point() +
-      ggplot2::geom_line(ggplot2::aes(.data$year,.data$predict)) +
+      ggplot2::geom_line(ggplot2::aes(.data$year,.data$predicted)) +
       ggplot2::geom_linerange(data=fit$sidat %>% dplyr::filter(.data$year==max(.data$year)),
-                              ggplot2::aes(.data$year,ymax=.data$observed,ymin=.data$predict),col='green')+
+                              ggplot2::aes(.data$year,ymax=.data$observed,ymin=.data$predicted),col='green')+
       ggplot2::geom_text(data = fit$sidat %>% 
                            dplyr::group_by(.data$length) %>% 
                            dplyr::filter(.data$year == min(.data$year)) %>% 
@@ -125,10 +125,10 @@ plot.gadget.fit <- function(x, ...){
       ggplot2::ggplot(fit$sidat, 
                       ggplot2::aes(.data$year,.data$observed)) +
       ggplot2::geom_point() +
-      ggplot2::geom_line(ggplot2::aes(.data$year,.data$predict)) +
+      ggplot2::geom_line(ggplot2::aes(.data$year,.data$predicted)) +
       ggplot2::geom_linerange(data=fit$sidat %>% 
                                 dplyr::filter(.data$year==max(.data$year)),
-                              ggplot2::aes(.data$year,ymax=.data$observed,ymin=.data$predict),col='green') +
+                              ggplot2::aes(.data$year,ymax=.data$observed,ymin=.data$predicted),col='green') +
       ggplot2::geom_text(data=fit$sidat %>% 
                            dplyr::group_by(.data$name) %>% 
                            dplyr::filter(.data$year==min(.data$year)) %>% 
@@ -147,7 +147,7 @@ plot.gadget.fit <- function(x, ...){
       fit$sidat %>% 
       dplyr::group_by(.data$year,.data$step) %>% 
       dplyr::summarise(obs = sum(.data$observed*.data$bio),
-                       prd = sum(.data$predict*.data$bio)) 
+                       prd = sum(.data$predicted*.data$bio)) 
     pl <-
       ggplot2::ggplot(bio.tmp, ggplot2::aes(.data$year,.data$obs)) +
       ggplot2::geom_point() +
@@ -166,16 +166,16 @@ plot.gadget.fit <- function(x, ...){
   if(data == 'sidat' & type == 'x-y' ) {
     pl <-
       fit$sidat %>% 
-      ggplot2::ggplot(ggplot2::aes(.data$observed,.data$predict,label=.data$year)) + 
+      ggplot2::ggplot(ggplot2::aes(.data$observed,.data$predicted,label=.data$year)) + 
       ggplot2::geom_text() + 
       ggplot2::facet_wrap(~name,scale='free') + 
       ggplot2::geom_abline(slope = 1, lty = 2) +
       
       ggplot2::labs(y='Predicted value', x='Observed') + 
       ggplot2::geom_hline(data=dplyr::filter(fit$sidat,.data$year==max(.data$year)),
-                          ggplot2::aes(yintercept=.data$predict),col='green') + 
+                          ggplot2::aes(yintercept=.data$predicted),col='green') + 
       ggplot2::geom_vline(data=dplyr::filter(fit$sidat,.data$year==max(.data$year)),
-                          ggplot2::aes(xintercept=.data$predict),col='green') + 
+                          ggplot2::aes(xintercept=.data$predicted),col='green') + 
       ggplot2::geom_text(data = fit$sidat %>% 
                            dplyr::select(.data$name) %>% 
                            dplyr::distinct(),

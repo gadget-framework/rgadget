@@ -252,3 +252,13 @@ gadget_iterative_stage_2 <- function(variants, cv_floor = 0){
   return(gd)
 }
 
+
+#' Removed functions
+#'
+#' @param ... 
+#'
+#' @export
+gadget.iterative <- function(...){
+  print('gadget.iterative no longer supported use gadget_iterative_stage_* functions')
+}
+
