@@ -195,18 +195,20 @@ gadget_project_time <- function(path='.', num_years = 100,
     dplyr::arrange(.data$year,.data$step,.data$area)
   
   schedule %>% 
-    readr::write_delim(sprintf('%s/.schedule',paste(project_path,attributes(project_path)$variant_dir,sep='/')))
+    readr::write_delim(., sprintf('%s/.schedule',paste(project_path,attributes(project_path)$variant_dir,sep='/')))
   
   ## update the area file
-  main[[1]]$areafile[[2]] <- 
-    main[[1]]$areafile[[2]] %>%
-    purrr::set_names(c('year', 'step', 'area', 'mean')) %>% 
-    dplyr::bind_rows(schedule %>% 
-                       dplyr::mutate(mean=3))   ## this bit could be user defined
-  
-  main[[1]]$areafile %>% 
-    write.gadget.file(project_path) 
-  
+  gadgetfile('Modelfiles/area',
+             file_type = 'area',
+             components = list(list(areas = main[[1]]$areafile[[1]]$areas,
+                                    size = main[[1]]$areafile[[1]]$size,
+                                    temperature = main[[1]]$areafile %>% 
+                                      capture.output() %>% 
+                                      readr::read_table2(.,skip = 4, comment = ';', col_names = c('year','step','area','temperature')) %>% 
+                                      dplyr::bind_rows(schedule %>% 
+                                                         dplyr::mutate(temperature=3))))) %>% ## this is a mess
+    write.gadget.file(project_path)
+
   return(project_path)
 }
 
@@ -278,7 +280,6 @@ gadget_project_stocks <- function(path,
     hockey_stock <- imm_stock
   }
   
-  #attr(hockey_stock,'file_config')$mainfile_overwrite = TRUE  
   hockey_stock %>% 
     write.gadget.file(path)  
   
@@ -478,9 +479,9 @@ gadget_project_prognosis_likelihood <- function(path,
                                                                                data = tibble::tibble(year = main[[1]]$timefile[[1]]$firstyear,
                                                                                                  step = main[[1]]$timefile[[1]]$firststep,
                                                                                                  value = "0") %>% 
-                                                                                 bind_rows(expand.grid(year = unique(schedule$year),
+                                                                                 dplyr::bind_rows(expand.grid(year = unique(schedule$year),
                                                                                                        step = assessmentstep) %>% 
-                                                                                             dplyr::mutate(value = paste0('1#','asserr.',fleet_label,'.',year,'.',step,'.1'))) %>% 
+                                                                                             dplyr::mutate(value = paste0('1#','asserr.',fleet_label,'.',.data$year,'.',step,'.1'))) %>% 
                                                                                  as.data.frame()))),
                                       implerr = gadgetfile(paste('implerr',fleet_label,'timevar',sep = '.'),
                                                            file_type = 'timevariable',
@@ -488,9 +489,9 @@ gadget_project_prognosis_likelihood <- function(path,
                                                                                 data = tibble::tibble(year = main[[1]]$timefile[[1]]$firstyear,
                                                                                                   step = main[[1]]$timefile[[1]]$firststep,
                                                                                                   value = "0") %>% 
-                                                                                  bind_rows(expand.grid(year = unique(schedule$year),
+                                                                                  dplyr::bind_rows(expand.grid(year = unique(schedule$year),
                                                                                                         step = assessmentstep) %>% 
-                                                                                              dplyr::mutate(value = paste0('1#','implerr.',fleet_label,'.',year,'.',step,'.1'))) %>% 
+                                                                                              dplyr::mutate(value = paste0('1#','implerr.',fleet_label,'.',.data$year,'.',step,'.1'))) %>% 
                                                                                   as.data.frame())))))) 
   
   attr(progn,'file_config')$mainfile_overwrite = mainfile_overwrite
@@ -556,7 +557,7 @@ gadget_project_recruitment <- function(path,
     rec %>% 
     dplyr::mutate(year = sprintf('%s.rec.pre.%s.%s', stock, .data$year, rec_step),
                   rec = .data$rec/1e4) %>% 
-    tidyr::spread("year", "rec") %>% 
+    tidyr::spread(., "year", "rec") %>% 
     dplyr::select(-c('trial','model'))
   
   read.gadget.parameters(file = params.file) %>% 
@@ -646,7 +647,7 @@ gadget_project_advice <- function(path,
   if(advice_cv > 0){
     advice_mult <- 
       fleet_parameters %>% 
-      dplyr::select(year) %>% 
+      dplyr::select(.data$year) %>% 
       dplyr::distinct() %>% 
       dplyr::mutate(mult = exp(stats::arima.sim(n = dplyr::n(),
                                                 list(ar = advice_rho),
@@ -654,8 +655,8 @@ gadget_project_advice <- function(path,
     fleet_parameters <- 
       fleet_parameters %>% 
       dplyr::left_join(advice_mult, by = 'year') %>% 
-      dplyr::mutate(value = .data$value * mult) %>%  ## bias correction?
-      dplyr::select(-mult)
+      dplyr::mutate(value = .data$value * .data$mult) %>%  ## bias correction?
+      dplyr::select(-.data$mult)
   } 
   
   params <- 
@@ -664,7 +665,7 @@ gadget_project_advice <- function(path,
     dplyr::slice(rep(1:dplyr::n(),each=length(harvest_rate)*n_replicates/dplyr::n())) %>% 
     wide_parameters(value=fleet_parameters %>%
                       dplyr::select(-c('year','step','area')) %>% 
-                      tidyr::spread('name','value') %>% 
+                      tidyr::spread(.,'name','value') %>% 
                       dplyr::select(-c("replicate","iter"))) %>% 
     write.gadget.parameters(params.file)
   

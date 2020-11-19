@@ -727,7 +727,8 @@ gadget_mainfile_update <- function (
     if (is.null(repl_val)) return(old_val);
     
     # Merge vectors
-    new_val <- if (single) repl_val else unique(c(old_val, repl_val))
+    new_val <- if (single) repl_val else c(repl_val, old_val)
+    new_val <- new_val[!duplicated(variant_strip_path(attr(path, 'variant_dir'), new_val))]
     if (!identical(all.equal(old_val, new_val), TRUE)) {
       made_change <<- TRUE
     }
