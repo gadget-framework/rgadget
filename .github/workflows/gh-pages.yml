@@ -20,11 +20,7 @@ jobs:
         run: sudo apt-get install curl libcurl4-openssl-dev
 
       - name: Install build-docs prerequisites
-        run: Rscript -e 'install.packages(c("pkgdown", "devtools"))'
-
-      - name: Install gadget2, mfdb from Github
-        run: devtools::install_github('hafro/gadget2') ; devtools::install_github('mareframe/mfdb')
-        shell: Rscript {0}
+        run: Rscript -e 'install.packages(c("pkgdown", "devtools", "gadget2", "mfdb"))'
 
       - name: Install Rgadget
         run: devtools::install(dependencies = TRUE, upgrade = "always")
