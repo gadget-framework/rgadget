@@ -437,7 +437,7 @@ gadget_fit <- function(gd, params.in = 'params.in', fit = 'FIT', f.age.range = N
 #         params = params,
          catchstatistics = catchstatistics)
   class(out) <- c('gadget.fit',class(out))
-  save(out,file=sprintf('%s/WGTS.Rdata',wgts))
+  save(out,file=sprintf('%s/%s/WGTS.Rdata',variant_full_path(gd,fit)))
   
   return(out)
   

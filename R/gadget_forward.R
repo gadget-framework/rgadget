@@ -216,6 +216,18 @@ gadget_project_time <- function(path='.', num_years = 100,
 
 #' @rdname gadget_projections
 #'
+#' Here the user can define the SSB - Rec relationship used in the 
+#' projections. It defines link between two stocks, immature and 
+#' mature stock and in the case of minage (immstock) > 0 an interim 
+#' bookeeping stock from age 0 to minage. 
+#' 
+#' Limitiations:
+#' At present theres is no way to define recruitment into multiple 
+#' stocks (ie. via multiple interim stocks). 
+#' This function also assumes that there is no SSB - Rec relationship, 
+#' since if it is already present the simulation should use that.
+#' Multi-annual recruitment is currently not defined. 
+#' 
 #' @param imm.file location of the immature stock file
 #' @param mat.file location of the mature stock file
 #' @param proportionfunction proportion suitability
@@ -267,14 +279,15 @@ gadget_project_stocks <- function(path,
                     transitionstocksandratios = sprintf('%s 1',imm_stock[[1]]$stockname),
                     transitionstep = rec_table$step %>% unique() %>% utils::head(1)) %>% 
       gadget_update('initialconditions',
-                    normalparam = tibble::tibble(age = .[[1]]$minage:.[[1]]$maxage,
-                                                 area = .[[1]]$livesonareas,
-                                                 age.factor = 0,   
-                                                 area.factor = 0,
-                                                 mean = .[[1]]$minlength,
-                                                 stddev = 1,
-                                                 alpha = 0.00001, ## never used 
-                                                 beta = 3)) 
+                    normalparam = tidyr::expand_grid(age = .[[1]]$minage:.[[1]]$maxage,
+                                                     area = .[[1]]$livesonareas,
+                                                     age.factor = 0,   
+                                                     area.factor = 0,
+                                                     mean = .[[1]]$minlength,
+                                                     stddev = 1,
+                                                     alpha = 0.00001, ## never used 
+                                                     beta = 3) %>% 
+                      dplyr::arrange(.data$area,.data$age)) 
     
   } else {
     hockey_stock <- imm_stock
@@ -310,8 +323,7 @@ gadget_project_stocks <- function(path,
   
   imm_stock %>% 
     write.gadget.file(path)
-  
-  #attr(mat_stock,'file_config')$mainfile_overwrite = TRUE
+ ## if the stock already has a SSB - Rec relationship defined we don't need to run this funcion
   mat_stock %>% 
     gadget_update('doesspawn',
                   spawnsteps = imm_stock$doesrenew$normalparamfile[[1]]$step %>% unique(), 
@@ -502,6 +514,11 @@ gadget_project_prognosis_likelihood <- function(path,
 }
 
 #' @rdname gadget_projections
+#' 
+#' Sets up the process error for the stock recruitment relationship.
+#' The user has a choice of three types, constant, AR and block bootstrap
+#' based on a time-series of recruitment
+#' 
 #' @param stock name of immature stock
 #' @param recruitment recruitment time series
 #' @param n_replicates number of simulations
@@ -528,12 +545,20 @@ gadget_project_recruitment <- function(path,
     recruitment$model <- 1
   } 
   
+  ## remove unwanted columns and sum
+  recruitment <- 
+    recruitment %>% 
+    dplyr::group_by(.data$model,.data$year, .data$step) %>% 
+    dplyr::summarise(recruitment = sum(.data$recruitment)) %>% 
+    dplyr::arrange(.data$model,.data$year)
+ 
+  
   if(method == 'AR'){
     rec <- 
       recruitment %>% 
       split(.$model) %>% 
       purrr::map(gadget_project_rec_arima,schedule=schedule,n_replicates=n_replicates,...) %>% 
-      dplyr::bind_rows(.id="model")
+      dplyr::bind_rows(.id="model") 
     
   } else if(method == 'bootstrap'){
     rec <- 
@@ -557,12 +582,12 @@ gadget_project_recruitment <- function(path,
     rec %>% 
     dplyr::mutate(year = sprintf('%s.rec.pre.%s.%s', stock, .data$year, rec_step),
                   rec = .data$rec/1e4) %>% 
-    tidyr::spread(., "year", "rec") %>% 
+    tidyr::pivot_wider(., id_cols = c(trial,model), names_from = year, values_from = rec) %>% 
     dplyr::select(-c('trial','model'))
   
-  read.gadget.parameters(file = params.file) %>% 
+  read.gadget.parameters(file = paste(path, params.file, sep = '/')) %>% 
     wide_parameters(value = rec) %>% 
-    write.gadget.parameters(file = params.file)
+    write.gadget.parameters(file = paste(path, params.file, sep = '/'))
   
   
   return(path)
@@ -594,6 +619,8 @@ gadget_project_rec_arima <- function(recruitment,schedule,n_replicates){
 
 gadget_project_rec_bootstrap <- function(recruitment,schedule,n_replicates,block_size = 7) {
   schedule %>% 
+    dplyr::select(.data$year,.data$step) %>% 
+    dplyr::distinct() %>% 
     dplyr::filter(.data$step %in% unique(recruitment$step)[1]) %>% 
     dplyr::slice(rep(1:dplyr::n(),n_replicates)) %>%  
     dplyr::mutate(trial = cut(1:length(.data$year),c(0,which(diff(.data$year)<0),1e9),labels = FALSE),
@@ -604,6 +631,8 @@ gadget_project_rec_bootstrap <- function(recruitment,schedule,n_replicates,block
 
 gadget_project_rec_constant <- function(recruitment,schedule){
   schedule %>% 
+    dplyr::select(.data$year,.data$step) %>% 
+    dplyr::distinct() %>% 
     dplyr::filter(.data$step %in% unique(recruitment$step)[1]) %>% 
     dplyr::mutate(trial = 1,
                   rec = exp(mean(log(recruitment$recruitment)))) %>% 
@@ -664,14 +693,14 @@ gadget_project_advice <- function(path,
   } 
   
   params <- 
-    read.gadget.parameters(params.file) %>% 
+    read.gadget.parameters(paste(path, params.file, sep = '/')) %>% 
     wide_parameters() %>% 
     dplyr::slice(rep(1:dplyr::n(),each=length(harvest_rate)*n_replicates/dplyr::n())) %>% 
     wide_parameters(value=fleet_parameters %>%
                       dplyr::select(-c('year','step','area')) %>% 
                       tidyr::spread(.,'name','value') %>% 
                       dplyr::select(-c("replicate","iter"))) %>% 
-    write.gadget.parameters(params.file)
+    write.gadget.parameters(paste(path, params.file, sep = '/'))
   
   return(path)
   
@@ -683,7 +712,7 @@ gadget_project_advice <- function(path,
 #' @param ref_points tibble with reference points
 #' @export
 gadget_project_ref_points <- function(path,ref_points,params.file='PRE/params.pre'){
-  params <- read.gadget.parameters(params.file) 
+  params <- read.gadget.parameters(paste(path, params.file, sep = '/'))
   
   ref_points %>% 
     split(1:nrow(ref_points)) %>% 
@@ -693,7 +722,7 @@ gadget_project_ref_points <- function(path,ref_points,params.file='PRE/params.pr
       }) %>% 
     dplyr::bind_rows() %>% 
     structure(file_format='wide') %>% 
-    write.gadget.parameters(params.file)
+    write.gadget.parameters(paste(path, params.file, sep = '/'))
   
   return(path)
 }

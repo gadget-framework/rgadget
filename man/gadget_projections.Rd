@@ -2,10 +2,8 @@
 % Please edit documentation in R/gadget_forward.R
 \name{gadget_project_time}
 \alias{gadget_project_time}
-\alias{gadget_project_stocks}
 \alias{gadget_project_fleet}
 \alias{gadget_project_prognosis_likelihood}
-\alias{gadget_project_recruitment}
 \alias{gadget_project_advice}
 \alias{gadget_project_ref_points}
 \alias{gadget_project_output}
@@ -16,16 +14,6 @@ gadget_project_time(
   num_years = 100,
   variant_dir = getwd() \%>\% stringr::str_count("/") \%>\% rep("../", .) \%>\%
     paste(collapse = "") \%>\% paste(tempdir(), sep = "")
-)
-
-gadget_project_stocks(
-  path,
-  imm.file,
-  mat.file,
-  spawnfunction = "hockeystick",
-  proportionfunction = "constant 1",
-  mortalityfunction = "constant 0",
-  weightlossfunction = "constant 0"
 )
 
 gadget_project_fleet(
@@ -51,16 +39,6 @@ gadget_project_prognosis_likelihood(
   ...
 )
 
-gadget_project_recruitment(
-  path,
-  stock,
-  recruitment = NULL,
-  n_replicates = 100,
-  params.file = "PRE/params.pre",
-  method = "AR",
-  ...
-)
-
 gadget_project_advice(
   path,
   params.file = "PRE/params.pre",
@@ -69,7 +47,8 @@ gadget_project_advice(
   advice_rho = 0.6,
   pre_fleet = "comm",
   post_fix = "pre",
-  n_replicates = 100
+  n_replicates = 100,
+  seed = NULL
 )
 
 gadget_project_ref_points(path, ref_points, params.file = "PRE/params.pre")
@@ -91,18 +70,6 @@ gadget_project_output(
 
 \item{variant_dir}{location of the}
 
-\item{imm.file}{location of the immature stock file}
-
-\item{mat.file}{location of the mature stock file}
-
-\item{spawnfunction}{what spawn function to use (only hockeystick atm)}
-
-\item{proportionfunction}{proportion suitability}
-
-\item{mortalityfunction}{mortataliy suitability}
-
-\item{weightlossfunction}{weightloss suitability}
-
 \item{pre_fleet}{name of the fleet projections are based on (original fleet). Only a single fleet should be implemented here at a time. Multiple fleets require multiple gadget_project_advice calls.}
 
 \item{post_fix}{A single label (vector of length 1) used to distinguish the original fleet and the projection fleet (with same parameterisations). Should be the same for all projection fleets.}
@@ -113,21 +80,11 @@ gadget_project_output(
 
 \item{pre_proportion}{proportion of the effort taken}
 
-\item{...}{additional arguments for the}
+\item{...}{additional input to the prognosis likelihood component}
 
 \item{stocks}{names of of the stocks}
 
 \item{pre_fleets}{vector of fleets on which the projections are based}
-
-\item{stock}{name of immature stock}
-
-\item{recruitment}{recruitment time series}
-
-\item{n_replicates}{number of simulations}
-
-\item{params.file}{name of the parameter files}
-
-\item{method}{prediction method, built in options are 'AR', 'bootstrap' or constant}
 
 \item{harvest_rate}{median harvest rate}
 
