@@ -203,7 +203,7 @@ gadget_project_time <- function(path='.', num_years = 100,
              components = list(list(areas = main[[1]]$areafile[[1]]$areas,
                                     size = main[[1]]$areafile[[1]]$size,
                                     temperature = main[[1]]$areafile %>% 
-                                      capture.output() %>% 
+                                      utils::capture.output() %>% 
                                       readr::read_table2(.,skip = 4, comment = ';', col_names = c('year','step','area','temperature')) %>% 
                                       dplyr::bind_rows(schedule %>% 
                                                          dplyr::mutate(temperature=3))))) %>% ## this is a mess

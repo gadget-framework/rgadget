@@ -73,8 +73,8 @@ gadget_fit <- function(gd, params.in = attr(gd,'params_in'), fit = 'FIT', f.age.
                     stocknames = stock,
                     area = livesonareas(stocks[[stock]]) %>% purrr::set_names(.,.) %>% as.list(),
                     age = list(allages = age_range(stocks[[stock]])),
-                    len = tibble::tibble(lower = head(length_range(stocks[[stock]]),-1),
-                                         upper = tail(length_range(stocks[[stock]]),-1)) %>% 
+                    len = tibble::tibble(lower = utils::head(length_range(stocks[[stock]]),-1),
+                                         upper = utils::tail(length_range(stocks[[stock]]),-1)) %>% 
                       dplyr::mutate(label = as.ordered(.data$lower)) %>%
                       split(.$label) %>% 
                       purrr::set_names(.,paste0('len',names(.))) %>% 
@@ -248,28 +248,28 @@ gadget_fit <- function(gd, params.in = attr(gd,'params_in'), fit = 'FIT', f.age.
   for(comp in names(lik.dat)){
     out[[comp]] <- 
       out[[comp]] %>% 
-      dplyr::mutate(area = as.character(area))
+      dplyr::mutate(area = as.character(.data$area))
     if(lik.dat[[comp]]$type[1] == 'surveyindices'){
       if(lik.dat[[comp]]$sitype[1] == 'lengths'){
         out[[comp]] <- 
           out[[comp]] %>% 
-          dplyr::rename(length = label)
+          dplyr::rename(length = .data$label)
       } else if(lik.dat[[comp]]$sitype[1] == 'age'){
         out[[comp]] <- 
           out[[comp]] %>% 
-          dplyr::rename(age = label)
+          dplyr::rename(age = .data$label)
       } else if(lik.dat[[comp]]$sitype[1] == 'effort'){
         out[[comp]] <- 
           out[[comp]] %>% 
-          dplyr::rename(fleet = label)
+          dplyr::rename(fleet = .data$label)
       } else if(lik.dat[[comp]]$sitype[1] == 'acoustic'){
         out[[comp]] <- 
           out[[comp]] %>% 
-          dplyr::rename(survey = label)
+          dplyr::rename(survey = .data$label)
       } else if(lik.dat[[comp]]$sitype[1] == 'fleet'){
         out[[comp]] <- 
           out[[comp]] %>% 
-          dplyr::rename(length = label)
+          dplyr::rename(length = .data$label)
       }
     }
     
@@ -513,7 +513,7 @@ lik_to_tibble <- function(comp){
     dat <- 
       dat %>% 
       dplyr::inner_join(comp$lenaggfile %>% 
-                          capture.output() %>% 
+                          utils::capture.output() %>% 
                           paste(collapse = '\n') %>% 
                           readr::read_table2(.,comment = ';',col_names = c('length','lower','upper')),
                         by = 'length')
