@@ -27,8 +27,7 @@ jobs:
         shell: Rscript {0}
 
       - name: Render Documentation
-        run: pkgdown::build_site()
-        shell: Rscript {0}
+        run: Rscript -e "pkgdown::build_site()"
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
