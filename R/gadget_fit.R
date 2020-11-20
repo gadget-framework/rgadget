@@ -1,5 +1,15 @@
-gadget_fit <- function(gd, params.in = 'params.in', fit = 'FIT', f.age.range = NULL, steps = 1, wgts = 'WGTS'){
-  
+#' Gadget fit 
+#'
+#' @param gd gadget.variant.dir
+#' @param params.in input parameters
+#' @param fit location of the fit folder
+#' @param f.age.range age range for F
+#' @param steps (unused)
+#'
+#' @return list
+#' @export
+gadget_fit <- function(gd, params.in = attr(gd,'params_in'), fit = 'FIT', f.age.range = NULL, steps = 1){
+  fit <- variant_strip_path(gd,fit)
   main <- read.gadget.file(gd,attr(gd,'mainfile'), recursive = FALSE)
   attr(main, 'file_name') <- 'main'
   stocks <- 
@@ -437,7 +447,7 @@ gadget_fit <- function(gd, params.in = 'params.in', fit = 'FIT', f.age.range = N
 #         params = params,
          catchstatistics = catchstatistics)
   class(out) <- c('gadget.fit',class(out))
-  save(out,file=sprintf('%s/%s/WGTS.Rdata',variant_full_path(gd,fit)))
+  save(out,file=sprintf('%s/fit.Rdata',variant_full_path(gd,variant_within_path(gd,fit))))
   
   return(out)
   
