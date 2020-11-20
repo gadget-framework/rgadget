@@ -153,7 +153,7 @@ if the list is named those names will be used to identify the model." />
 
     <div class="ref-description">
     <p><code>gadget.fit</code> calls Gadget and compiles fit statistics, relevant biomass trajectories and consumption.
-It returns an object of class 'gadget.fit' which is essentially a list containing the following objects:</p><dl'>
+It returns an object of class 'gadget.fit' which is essentially a list containing the following objects:</p><dl>
 <dt>sidat</dt><dd><p>data.frame containing the model fit to the surveyindices</p></dd>
 <dt>resTable</dt><dd><p>Table of likelihood component scores from the different stages of the iterative reweighting run</p></dd>
 <dt>nesTable</dt><dd><p>Same as resTable but normalised with the minimum score for each component</p></dd>
@@ -180,21 +180,21 @@ single list. Each object in the list will have an extra column indicating the mo
 if the list is named those names will be used to identify the model.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>gadget.fit</span>(
-  <span class='kw'>wgts</span> <span class='kw'>=</span> <span class='st'>"WGTS"</span>,
-  <span class='kw'>main.file</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>fleet.predict</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>mat.par</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>params.file</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>f.age.range</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>fit.folder</span> <span class='kw'>=</span> <span class='st'>"FIT"</span>,
-  <span class='kw'>printatstart</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-  <span class='kw'>steps</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-  <span class='kw'>recruitment_step_age</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>gd</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
-)
+    <pre class="usage"><span class='fu'>gadget.fit</span><span class='op'>(</span>
+  wgts <span class='op'>=</span> <span class='st'>"WGTS"</span>,
+  main.file <span class='op'>=</span> <span class='cn'>NULL</span>,
+  fleet.predict <span class='op'>=</span> <span class='cn'>NULL</span>,
+  mat.par <span class='op'>=</span> <span class='cn'>NULL</span>,
+  params.file <span class='op'>=</span> <span class='cn'>NULL</span>,
+  f.age.range <span class='op'>=</span> <span class='cn'>NULL</span>,
+  fit.folder <span class='op'>=</span> <span class='st'>"FIT"</span>,
+  printatstart <span class='op'>=</span> <span class='fl'>1</span>,
+  steps <span class='op'>=</span> <span class='fl'>1</span>,
+  recruitment_step_age <span class='op'>=</span> <span class='cn'>NULL</span>,
+  gd <span class='op'>=</span> <span class='cn'>NULL</span>
+<span class='op'>)</span>
 
-<span class='fu'>bind.gadget.fit</span>(<span class='no'>...</span>)</pre>
+<span class='fu'>bind.gadget.fit</span><span class='op'>(</span><span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -253,6 +253,9 @@ Input columns should include stock, age.min and age.max</p></td>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>list containing the output from Gadget.</p>
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Bjarki Thor Elvarsson</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -269,7 +272,7 @@ Input columns should include stock, age.min and age.max</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

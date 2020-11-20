@@ -75,13 +75,14 @@
 
       
 
-      </header><script src="iterative_reweighting_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+      </header><script src="iterative_reweighting_files/accessible-code-block-0.0.1/empty-anchor.js"></script><link href="iterative_reweighting_files/anchor-sections-1.0/anchor-sections.css" rel="stylesheet">
+<script src="iterative_reweighting_files/anchor-sections-1.0/anchor-sections.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Weighing likelihood components using Rgadget</h1>
                         <h4 class="author">Bjarki Þór Elvarsson</h4>
             
-            <h4 class="date">2020-08-20</h4>
+            <h4 class="date">2020-11-20</h4>
       
       
       <div class="hidden name"><code>iterative_reweighting.Rmd</code></div>
@@ -102,12 +103,13 @@
 <h2 class="hasAnchor">
 <a href="#examples" class="anchor"></a>Examples</h2>
 <p>As an illustrative example consider the model for Icelandic cod. Following the logic of <span class="citation">@taylor2007simple</span> the survey indices are grouped together by size category to prevent overfitting, as you will have more than one observation for each recruitment variable. That is done with the <code>grouping</code> input variable. It essentially takes a list of vectors, where each vector lists the likelihood component names from the likelihood file that should be grouped.</p>
-<div class="sourceCode" id="cb1"><html><body><pre class="r"><span class="fu"><a href="../reference/gadget.iterative.html">gadget.iterative</a></span>(<span class="kw">main</span><span class="kw">=</span><span class="st">'main'</span>,
-                 <span class="kw">grouping</span><span class="kw">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="kw">sind1</span><span class="kw">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">'si.gp1'</span>,<span class="st">'si.gp1a'</span>),
-                               <span class="kw">sind2</span><span class="kw">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">'si.gp2'</span>,<span class="st">'si.gp2a'</span>),
-                               <span class="kw">sind3</span><span class="kw">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">'si.gp3'</span>,<span class="st">'si.gp3a'</span>)),
-                 <span class="kw">params.file</span> <span class="kw">=</span> <span class="st">'params.in'</span>,
-                 <span class="kw">wgts</span><span class="kw">=</span><span class="st">'WGTS'</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/gadget.iterative.html">gadget.iterative</a></span><span class="op">(</span>main<span class="op">=</span><span class="st">'main'</span>,
+                 grouping<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>sind1<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'si.gp1'</span>,<span class="st">'si.gp1a'</span><span class="op">)</span>,
+                               sind2<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'si.gp2'</span>,<span class="st">'si.gp2a'</span><span class="op">)</span>,
+                               sind3<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'si.gp3'</span>,<span class="st">'si.gp3a'</span><span class="op">)</span><span class="op">)</span>,
+                 params.file <span class="op">=</span> <span class="st">'params.in'</span>,
+                 wgts<span class="op">=</span><span class="st">'WGTS'</span><span class="op">)</span></code></pre></div>
 <p>In the above example Other options to the function include</p>
 </div>
   </div>
@@ -127,7 +129,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

@@ -142,27 +142,27 @@ understocking and penalty, are 0 then the gadget optimisation with
 the final weights will not be completed.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>gadget.iterative</span>(
-  <span class='kw'>main.file</span> <span class='kw'>=</span> <span class='st'>"main"</span>,
-  <span class='kw'>gadget.exe</span> <span class='kw'>=</span> <span class='st'>"gadget"</span>,
-  <span class='kw'>params.file</span> <span class='kw'>=</span> <span class='st'>"params.in"</span>,
-  <span class='kw'>rew.sI</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>run.final</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>resume.final</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>wgts</span> <span class='kw'>=</span> <span class='st'>"WGTS"</span>,
-  <span class='kw'>grouping</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>optinfofile</span> <span class='kw'>=</span> <span class='st'>"optinfofile"</span>,
-  <span class='kw'>PBS</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>qsub.script</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>run.serial</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"lm"</span>,
-  <span class='kw'>cv.floor</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>comp</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>inverse</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>gd</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>rew.cik</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='no'>...</span>
-)</pre>
+    <pre class="usage"><span class='fu'>gadget.iterative</span><span class='op'>(</span>
+  main.file <span class='op'>=</span> <span class='st'>"main"</span>,
+  gadget.exe <span class='op'>=</span> <span class='st'>"gadget"</span>,
+  params.file <span class='op'>=</span> <span class='st'>"params.in"</span>,
+  rew.sI <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  run.final <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  resume.final <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  wgts <span class='op'>=</span> <span class='st'>"WGTS"</span>,
+  grouping <span class='op'>=</span> <span class='cn'>NULL</span>,
+  optinfofile <span class='op'>=</span> <span class='st'>"optinfofile"</span>,
+  PBS <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  qsub.script <span class='op'>=</span> <span class='cn'>NULL</span>,
+  run.serial <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  method <span class='op'>=</span> <span class='st'>"lm"</span>,
+  cv.floor <span class='op'>=</span> <span class='cn'>NULL</span>,
+  comp <span class='op'>=</span> <span class='cn'>NULL</span>,
+  inverse <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  gd <span class='op'>=</span> <span class='cn'>NULL</span>,
+  rew.cik <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -311,16 +311,20 @@ independent normal with variance
 variance from the above model as the weights between the
 surveyindices.  After these weights have been determined all
 surveyindices are weighted simultaneously.</p>
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Bjarki Þór Elvarsson</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='no'>tmp</span> <span class='kw'>&lt;-</span> <span class='fu'>gadget.iterative</span>(<span class='kw'>rew.sI</span><span class='kw'>=</span><span class='fl'>TRUE</span>,
-                        <span class='kw'>grouping</span><span class='kw'>=</span><span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>sind</span><span class='kw'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>'si2039'</span>,<span class='st'>'si4069'</span>,<span class='st'>'si70110'</span>),
-                        <span class='kw'>survey</span><span class='kw'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>'ldist.survey'</span>,<span class='st'>'alkeys.survey'</span>),
-                        <span class='kw'>catch</span><span class='kw'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>'ldist.catch'</span>,<span class='st'>'alkeys.catch'</span>)),
-                        <span class='kw'>params.file</span><span class='kw'>=</span><span class='st'>'params.base'</span>,
-                        <span class='kw'>wgts</span><span class='kw'>=</span><span class='st'>'WGTS'</span>)
-}</div></pre>
+    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
+<span class='va'>tmp</span> <span class='op'>&lt;-</span> <span class='fu'>gadget.iterative</span><span class='op'>(</span>rew.sI<span class='op'>=</span><span class='cn'>TRUE</span>,
+                        grouping<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>sind<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>'si2039'</span>,<span class='st'>'si4069'</span>,<span class='st'>'si70110'</span><span class='op'>)</span>,
+                        survey<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>'ldist.survey'</span>,<span class='st'>'alkeys.survey'</span><span class='op'>)</span>,
+                        catch<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>'ldist.catch'</span>,<span class='st'>'alkeys.catch'</span><span class='op'>)</span><span class='op'>)</span>,
+                        params.file<span class='op'>=</span><span class='st'>'params.base'</span>,
+                        wgts<span class='op'>=</span><span class='st'>'WGTS'</span><span class='op'>)</span>
+<span class='op'>}</span>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -336,7 +340,7 @@ surveyindices are weighted simultaneously.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

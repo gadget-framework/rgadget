@@ -130,16 +130,16 @@
     <p>Call paramin</p>
     </div>
 
-    <pre class="usage"><span class='fu'>callParamin</span>(
-  <span class='kw'>i</span> <span class='kw'>=</span> <span class='st'>"params.in"</span>,
-  <span class='kw'>func</span> <span class='kw'>=</span> <span class='st'>"gadget -s -n"</span>,
-  <span class='kw'>opt</span> <span class='kw'>=</span> <span class='st'>"optinfo"</span>,
-  <span class='kw'>network</span> <span class='kw'>=</span> <span class='st'>"network"</span>,
-  <span class='kw'>o</span> <span class='kw'>=</span> <span class='st'>"params.out"</span>,
-  <span class='kw'>scale</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>condor</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>paramin.exe</span> <span class='kw'>=</span> <span class='st'>"paramin"</span>
-)</pre>
+    <pre class="usage"><span class='fu'>callParamin</span><span class='op'>(</span>
+  i <span class='op'>=</span> <span class='st'>"params.in"</span>,
+  func <span class='op'>=</span> <span class='st'>"gadget -s -n"</span>,
+  opt <span class='op'>=</span> <span class='st'>"optinfo"</span>,
+  network <span class='op'>=</span> <span class='st'>"network"</span>,
+  o <span class='op'>=</span> <span class='st'>"params.out"</span>,
+  scale <span class='op'>=</span> <span class='cn'>NULL</span>,
+  condor <span class='op'>=</span> <span class='cn'>NULL</span>,
+  paramin.exe <span class='op'>=</span> <span class='st'>"paramin"</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -189,6 +189,9 @@ of paramin is implemented with MPI, Message Passing Interface, which handles all
 message passing between the master process, paramin, and the slave processes, which 
 are Gadget simulation runs. The setup is very similar to a normal Gadget run, with 
 all the Gadget input files are the same, it's only the optimisation execution that differs.</p>
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Bjarki Thor Elvarsson</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -205,7 +208,7 @@ all the Gadget input files are the same, it's only the optimisation execution th
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

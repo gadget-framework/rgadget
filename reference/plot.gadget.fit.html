@@ -131,7 +131,7 @@
     </div>
 
     <pre class="usage"><span class='co'># S3 method for gadget.fit</span>
-<span class='fu'><a href='https://rdrr.io/r/base/plot.html'>plot</a></span>(<span class='no'>x</span>, <span class='no'>...</span>)</pre>
+<span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='va'>x</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -142,7 +142,7 @@
     </tr>
     <tr>
       <th>...</th>
-      <td><p>Can include</p><dl'>
+      <td><p>Can include</p><dl>
     <dt>type</dt><dd><p>The type of plot that is returned, depends on the input data (see details)</p></dd>
     <dt>data</dt><dd><p>What results should be plotted, default sidat</p></dd>
 
@@ -156,7 +156,7 @@
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>Plot the results from gadget.fit. The function produces a different plots by datatype and plottype. 
-Valid datatypes are:</p><dl'>
+Valid datatypes are:</p><dl>
   <dt>sidat</dt><dd><p>Surveyindices</p></dd>
   <dt>summary</dt><dd><p>Likelihood summary data</p></dd>
   <dt>catchdist.fleets</dt><dd><p>Catchdistribution data</p></dd>
@@ -166,7 +166,7 @@ Valid datatypes are:</p><dl'>
   <dt>suitability</dt><dd><p>Suitability estimated from the model by year and step</p></dd> 
   <dt>params</dt><dd><p>Parameter values relative to their boundaries</p></dd>
 
-</dl><p>and valid plottypes are:</p><dl'>
+</dl><p>and valid plottypes are:</p><dl>
   <dt>direct</dt><dd><p>Default value, plots direct comparisons of data with model output. Valid for all datatype except 'res.by.year'</p></dd>
   <dt>weighted</dt><dd><p>Only for 'summary'. Plots the weighted likelihood value for each component.</p></dd>
   <dt>pie</dt><dd><p>Only for 'summary'. Plots the likelihood composition as a pie chart</p></dd>
@@ -187,16 +187,20 @@ Valid datatypes are:</p><dl'>
 
 </dl>
 
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Bjarki Þór Elvarsson</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
+    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
 <span class='co'>## collect the data from gadget</span>
-<span class='no'>fit</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='gadget.fit.html'>gadget.fit</a></span>()
+<span class='va'>fit</span> <span class='op'>&lt;-</span> <span class='fu'><a href='gadget.fit.html'>gadget.fit</a></span><span class='op'>(</span><span class='op'>)</span>
 <span class='co'>## plot survey indices</span>
-<span class='fu'><a href='https://rdrr.io/r/base/plot.html'>plot</a></span>(<span class='no'>fit</span>)
+<span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='va'>fit</span><span class='op'>)</span> 
 <span class='co'>## plot likelihood</span>
-<span class='fu'><a href='https://rdrr.io/r/base/plot.html'>plot</a></span>(<span class='no'>fit</span>,<span class='kw'>data</span><span class='kw'>=</span><span class='st'>'summary'</span>)
-}</div></pre>
+<span class='fu'><a href='https://rdrr.io/r/graphics/plot.default.html'>plot</a></span><span class='op'>(</span><span class='va'>fit</span>,data<span class='op'>=</span><span class='st'>'summary'</span><span class='op'>)</span>
+<span class='op'>}</span>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -212,7 +216,7 @@ Valid datatypes are:</p><dl'>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
