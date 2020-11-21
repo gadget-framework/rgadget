@@ -137,6 +137,16 @@
     <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste</a></span><span class='op'>(</span>collapse <span class='op'>=</span> <span class='st'>""</span><span class='op'>)</span> <span class='op'>%&gt;%</span> <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempdir</a></span><span class='op'>(</span><span class='op'>)</span>, sep <span class='op'>=</span> <span class='st'>""</span><span class='op'>)</span>
 <span class='op'>)</span>
 
+<span class='fu'>gadget_project_stocks</span><span class='op'>(</span>
+  <span class='va'>path</span>,
+  <span class='va'>imm.file</span>,
+  <span class='va'>mat.file</span>,
+  spawnfunction <span class='op'>=</span> <span class='st'>"hockeystick"</span>,
+  proportionfunction <span class='op'>=</span> <span class='st'>"constant 1"</span>,
+  mortalityfunction <span class='op'>=</span> <span class='st'>"constant 0"</span>,
+  weightlossfunction <span class='op'>=</span> <span class='st'>"constant 0"</span>
+<span class='op'>)</span>
+
 <span class='fu'>gadget_project_fleet</span><span class='op'>(</span>
   <span class='va'>path</span>,
   pre_fleet <span class='op'>=</span> <span class='st'>"comm"</span>,
@@ -160,6 +170,16 @@
   <span class='va'>...</span>
 <span class='op'>)</span>
 
+<span class='fu'>gadget_project_recruitment</span><span class='op'>(</span>
+  <span class='va'>path</span>,
+  <span class='va'>stock</span>,
+  recruitment <span class='op'>=</span> <span class='cn'>NULL</span>,
+  n_replicates <span class='op'>=</span> <span class='fl'>100</span>,
+  params.file <span class='op'>=</span> <span class='st'>"PRE/params.pre"</span>,
+  method <span class='op'>=</span> <span class='st'>"AR"</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span>
+
 <span class='fu'>gadget_project_advice</span><span class='op'>(</span>
   <span class='va'>path</span>,
   params.file <span class='op'>=</span> <span class='st'>"PRE/params.pre"</span>,
@@ -168,8 +188,7 @@
   advice_rho <span class='op'>=</span> <span class='fl'>0.6</span>,
   pre_fleet <span class='op'>=</span> <span class='st'>"comm"</span>,
   post_fix <span class='op'>=</span> <span class='st'>"pre"</span>,
-  n_replicates <span class='op'>=</span> <span class='fl'>100</span>,
-  seed <span class='op'>=</span> <span class='cn'>NULL</span>
+  n_replicates <span class='op'>=</span> <span class='fl'>100</span>
 <span class='op'>)</span>
 
 <span class='fu'>gadget_project_ref_points</span><span class='op'>(</span><span class='va'>path</span>, <span class='va'>ref_points</span>, params.file <span class='op'>=</span> <span class='st'>"PRE/params.pre"</span><span class='op'>)</span>
@@ -189,7 +208,7 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>path</th>
-      <td><p>gadget model directory</p></td>
+      <td><p>gadget variant director</p></td>
     </tr>
     <tr>
       <th>num_years</th>
@@ -198,6 +217,30 @@
     <tr>
       <th>variant_dir</th>
       <td><p>location of the</p></td>
+    </tr>
+    <tr>
+      <th>imm.file</th>
+      <td><p>location of the immature stock file</p></td>
+    </tr>
+    <tr>
+      <th>mat.file</th>
+      <td><p>location of the mature stock file</p></td>
+    </tr>
+    <tr>
+      <th>spawnfunction</th>
+      <td><p>what spawn function to use (only hockeystick atm)</p></td>
+    </tr>
+    <tr>
+      <th>proportionfunction</th>
+      <td><p>proportion suitability</p></td>
+    </tr>
+    <tr>
+      <th>mortalityfunction</th>
+      <td><p>mortataliy suitability</p></td>
+    </tr>
+    <tr>
+      <th>weightlossfunction</th>
+      <td><p>weightloss suitability</p></td>
     </tr>
     <tr>
       <th>pre_fleet</th>
@@ -220,8 +263,12 @@
       <td><p>proportion of the effort taken</p></td>
     </tr>
     <tr>
+      <th>type</th>
+      <td><p>type of projection, either "standard" or "prognosis"</p></td>
+    </tr>
+    <tr>
       <th>...</th>
-      <td><p>additional input to the prognosis likelihood component</p></td>
+      <td><p>additional arguments for the</p></td>
     </tr>
     <tr>
       <th>stocks</th>
@@ -230,6 +277,42 @@
     <tr>
       <th>pre_fleets</th>
       <td><p>vector of fleets on which the projections are based</p></td>
+    </tr>
+    <tr>
+      <th>mainfile_overwrite</th>
+      <td><p>should the likelihood be overwritten, defaults to TRUE, but should be set as FALSE for multiple prognosis components (different groups of fleets)</p></td>
+    </tr>
+    <tr>
+      <th>firsttacyear</th>
+      <td><p>when does the TAC scheme start</p></td>
+    </tr>
+    <tr>
+      <th>assessmentstep</th>
+      <td><p>when is the assessment</p></td>
+    </tr>
+    <tr>
+      <th>weightoflastyearstac</th>
+      <td><p>running average TAC..</p></td>
+    </tr>
+    <tr>
+      <th>stock</th>
+      <td><p>name of immature stock</p></td>
+    </tr>
+    <tr>
+      <th>recruitment</th>
+      <td><p>recruitment time series</p></td>
+    </tr>
+    <tr>
+      <th>n_replicates</th>
+      <td><p>number of simulations</p></td>
+    </tr>
+    <tr>
+      <th>params.file</th>
+      <td><p>name of the parameter files</p></td>
+    </tr>
+    <tr>
+      <th>method</th>
+      <td><p>prediction method, built in options are 'AR', 'bootstrap' or constant</p></td>
     </tr>
     <tr>
       <th>harvest_rate</th>
@@ -260,6 +343,23 @@
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>gadget variant directory</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>gadget project recruitment:
+Sets up the process error for the stock recruitment relationship.
+The user has a choice of three types, constant, AR and block bootstrap
+based on a time-series of recruitment</p>
+<p>gadget project stocks:
+Here the user can define the SSB - Rec relationship used in the 
+projections. It defines link between two stocks, immature and 
+mature stock and in the case of minage (immstock) &gt; 0 an interim 
+bookeeping stock from age 0 to minage.</p>
+<p>Limitiations:
+At present theres is no way to define recruitment into multiple 
+stocks (ie. via multiple interim stocks). 
+This function also assumes that there is no SSB - Rec relationship, 
+since if it is already present the simulation should use that.
+Multi-annual recruitment is currently not defined.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
