@@ -84,7 +84,7 @@ ok_group("Can create multiple likelihood files and update", {
             "[otherfood]",
             "[fleet]",
             "[likelihood]",
-            "likelihoodfiles\tlikelihood\tlikelihood2",
+            "likelihoodfiles\tlikelihood2\tlikelihood",
         NULL)
     )), "Wrote out 2 likelihood files")
 
@@ -199,7 +199,7 @@ ok_group("Can create likelihood files in a variant directory", {
             "[otherfood]",
             "[fleet]",
             "[likelihood]",
-            "likelihoodfiles\tlikelihood\tbs.1/likelihood_bootstrap",
+            "likelihoodfiles\tbs.1/likelihood_bootstrap\tlikelihood",
         NULL),
         likelihood = c(
             ver_string,

@@ -25,12 +25,13 @@ ok_group("fleet", {
     path <- tempfile()
 
     gadgetfleet('fleet', path, missingOkay = TRUE) %>%
-        gadget_update('totalfleet', name = 'comm', data = data.frame(
+        gadget_update('totalfleet', name = 'comm', data = structure(data.frame(
             year = 1990,
             step = 1,
             area = 1,
             weight = 1,
-            stringsAsFactors = FALSE)) %>% # Add an totalfleet component
+            stringsAsFactors = FALSE),
+            area_group = list('1'=1))) %>% # Add an totalfleet component
         write.gadget.file(path)
 
     ok(cmp_dir(path, list(
@@ -38,14 +39,14 @@ ok_group("fleet", {
             ver_string,
             "; -- data --",
             "; year\tstep\tarea\tfleetname\tweight",
-            "1990\t1\tNA\tcomm\t1",
+            "1990\t1\t1\tcomm\t1",
         NULL),
         fleet = c(
             ver_string,
             "; ",
             "[component]",
             "totalfleet\tcomm",
-            "livesonareas\t",
+            "livesonareas\t1",
             "multiplicative\t1",
             "suitability",
             "amount\tData/fleet.comm.data",
@@ -65,12 +66,13 @@ ok_group("fleet", {
     )), "Created fleet file with a fleet component")
 
     gadgetfleet('fleet', path, missingOkay = TRUE) %>%
-        gadget_update('numberfleet', name = 'surv', data = data.frame(
+        gadget_update('numberfleet', name = 'surv', data = structure(data.frame(
             year = 1990,
             step = 1,
             area = 1,
             number = 1,
-            stringsAsFactors = FALSE)) %>% # Add an totalfleet component
+            stringsAsFactors = FALSE),
+            area_group = list('1' = 1))) %>% # Add an totalfleet component
         write.gadget.file(path)
 
     ok(cmp_dir(path, list(
@@ -78,27 +80,27 @@ ok_group("fleet", {
             ver_string,
             "; -- data --",
             "; year\tstep\tarea\tfleetname\tweight",
-            "1990\t1\tNA\tcomm\t1",
+            "1990\t1\t1\tcomm\t1",
         NULL),
         "Data/fleet.surv.data" = c(
             ver_string,
             "; -- data --",
             "; year\tstep\tarea\tfleetname\tnumber",
-            "1990\t1\tNA\tsurv\t1",
+            "1990\t1\t1\tsurv\t1",
         NULL),
         fleet = c(
             ver_string,
             "; ",
             "[component]",
             "totalfleet\tcomm",
-            "livesonareas\t",
+            "livesonareas\t1",
             "multiplicative\t1",
             "suitability",
             "amount\tData/fleet.comm.data",
             "; ",
             "[component]",
             "numberfleet\tsurv",
-            "livesonareas\t",
+            "livesonareas\t1",
             "multiplicative\t1",
             "suitability",
             "amount\tData/fleet.surv.data",

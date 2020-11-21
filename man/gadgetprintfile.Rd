@@ -20,7 +20,9 @@ A list of print components representing file
 Create a print file object, from fresh or an existing file.
 }
 \examples{
+\dontrun{
 path <- './cod-model'
 # Read 'print' print file, creating it if it doesn't exist
-gadgetprint('print', path, missingOkay = TRUE)  
+gadgetprintfile('print', path, missingOkay = TRUE)  
+}
 }

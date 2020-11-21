@@ -15,15 +15,19 @@ gadget_stockpreyprinter_component(
 )
 }
 \arguments{
-\item{printfile}{A descriptive name for the component, default same as component type}
+\item{printfile}{Name for the output file to be created}
 
-\item{precision}{}
+\item{preynames}{Names of the prey stocks}
 
-\item{yearsandsteps}{}
+\item{area}{list of area aggregations}
 
-\item{stockname}{A numeric weighting}
+\item{age}{list of age aggregations}
 
-\item{printatstart}{}
+\item{len}{list of length aggregations}
+
+\item{precision}{optional value defining numerical precision}
+
+\item{yearsandsteps}{character defining when to print, defaults to "all all"}
 }
 \description{
 https://hafro.github.io/gadget2/userguide/chap-print.html#sec:stockpreyprinter

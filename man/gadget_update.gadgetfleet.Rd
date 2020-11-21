@@ -17,6 +17,7 @@
 Replace and/or append new fleet comonents to an existing file
 }
 \examples{
+\dontrun{
 library(magrittr)  # import \%>\% function
 path <- './model'
 gadgetfleet('fleet', path, missingOkay = TRUE) \%>\%
@@ -25,4 +26,5 @@ gadgetfleet('fleet', path, missingOkay = TRUE) \%>\%
        name = 'comm',
        data = data.frame(year = 1990, step = 1, area = 1, weight = 1)) \%>\%
    write.gadget.file(path)
+   }
 }

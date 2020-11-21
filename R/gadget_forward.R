@@ -2,6 +2,24 @@
 #' 
 #' Setup model and parameter files for forward simulations and deterministic projections. 
 #' 
+#' gadget project recruitment:
+#' Sets up the process error for the stock recruitment relationship.
+#' The user has a choice of three types, constant, AR and block bootstrap
+#' based on a time-series of recruitment
+#' 
+#' gadget project stocks:
+#' Here the user can define the SSB - Rec relationship used in the 
+#' projections. It defines link between two stocks, immature and 
+#' mature stock and in the case of minage (immstock) > 0 an interim 
+#' bookeeping stock from age 0 to minage. 
+#' 
+#' Limitiations:
+#' At present theres is no way to define recruitment into multiple 
+#' stocks (ie. via multiple interim stocks). 
+#' This function also assumes that there is no SSB - Rec relationship, 
+#' since if it is already present the simulation should use that.
+#' Multi-annual recruitment is currently not defined. 
+#' 
 #' @rdname gadget_projections
 #' @param path gadget model directory
 #' @param num_years number of years 
@@ -215,18 +233,6 @@ gadget_project_time <- function(path='.', num_years = 100,
 
 
 #' @rdname gadget_projections
-#'
-#' Here the user can define the SSB - Rec relationship used in the 
-#' projections. It defines link between two stocks, immature and 
-#' mature stock and in the case of minage (immstock) > 0 an interim 
-#' bookeeping stock from age 0 to minage. 
-#' 
-#' Limitiations:
-#' At present theres is no way to define recruitment into multiple 
-#' stocks (ie. via multiple interim stocks). 
-#' This function also assumes that there is no SSB - Rec relationship, 
-#' since if it is already present the simulation should use that.
-#' Multi-annual recruitment is currently not defined. 
 #' 
 #' @param imm.file location of the immature stock file
 #' @param mat.file location of the mature stock file
@@ -352,12 +358,16 @@ gadget_project_stocks <- function(path,
 
 
 #' @rdname gadget_projections
+#'
 #' @param pre_fleet name of the fleet projections are based on (original fleet). Only a single fleet should be implemented here at a time. Multiple fleets require multiple gadget_project_fleet calls.
 #' @param post_fix A single label (vector of length 1) used to distinguish the original fleet and the projection fleet (with same parameterisations). Should be the same for all projection fleets.
 #' @param fleet_type type of gadget fleet for the projections
 #' @param common_mult a string with a base name for a vector of harvest/catch rate multipliers (shared between fleets)
 #' @param pre_proportion proportion of the effort taken
+#' @param path gadget variant directory
+#' @param type type of projection, either "standard" or "prognosis"
 #' @param ... addition input to the fleet files
+#'
 #' @export
 gadget_project_fleet <- function(path, pre_fleet = 'comm',
                                   post_fix='pre',
@@ -439,10 +449,17 @@ gadget_project_fleet <- function(path, pre_fleet = 'comm',
 
 
 #' @rdname gadget_projections
+#'
 #' @param stocks names of of the stocks
 #' @param pre_fleets vector of fleets on which the projections are based
 #' @param post_fix A single label (vector of length 1) used to distinguish the original fleets and the projection fleets (with same parameterisations). Should be the same for all projection fleets.
+#' @param path gadget variant director
+#' @param mainfile_overwrite should the likelihood be overwritten, defaults to TRUE, but should be set as FALSE for multiple prognosis components (different groups of fleets)
+#' @param firsttacyear when does the TAC scheme start
+#' @param assessmentstep when is the assessment
+#' @param weightoflastyearstac running average TAC..
 #' @param ... additional input to the prognosis likelihood component
+#'
 #' @export
 gadget_project_prognosis_likelihood <- function(path,
                                                 stocks,
@@ -493,7 +510,7 @@ gadget_project_prognosis_likelihood <- function(path,
                                                                                                  value = "0") %>% 
                                                                                  dplyr::bind_rows(expand.grid(year = unique(schedule$year),
                                                                                                        step = assessmentstep) %>% 
-                                                                                             dplyr::mutate(value = paste0('1#','asserr.',fleet_label,'.',.data$year,'.',step,'.1'))) %>% 
+                                                                                             dplyr::mutate(value = paste0('1#','asserr.',fleet_label,'.',.data$year,'.',.data$step,'.1'))) %>% 
                                                                                  as.data.frame()))),
                                       implerr = gadgetfile(paste('implerr',fleet_label,'timevar',sep = '.'),
                                                            file_type = 'timevariable',
@@ -503,7 +520,7 @@ gadget_project_prognosis_likelihood <- function(path,
                                                                                                   value = "0") %>% 
                                                                                   dplyr::bind_rows(expand.grid(year = unique(schedule$year),
                                                                                                         step = assessmentstep) %>% 
-                                                                                              dplyr::mutate(value = paste0('1#','implerr.',fleet_label,'.',.data$year,'.',step,'.1'))) %>% 
+                                                                                              dplyr::mutate(value = paste0('1#','implerr.',fleet_label,'.',.data$year,'.',.data$step,'.1'))) %>% 
                                                                                   as.data.frame())))))) 
   
   attr(progn,'file_config')$mainfile_overwrite = mainfile_overwrite
@@ -514,10 +531,6 @@ gadget_project_prognosis_likelihood <- function(path,
 }
 
 #' @rdname gadget_projections
-#' 
-#' Sets up the process error for the stock recruitment relationship.
-#' The user has a choice of three types, constant, AR and block bootstrap
-#' based on a time-series of recruitment
 #' 
 #' @param stock name of immature stock
 #' @param recruitment recruitment time series
@@ -582,7 +595,7 @@ gadget_project_recruitment <- function(path,
     rec %>% 
     dplyr::mutate(year = sprintf('%s.rec.pre.%s.%s', stock, .data$year, rec_step),
                   rec = .data$rec/1e4) %>% 
-    tidyr::pivot_wider(., id_cols = c(trial,model), names_from = year, values_from = rec) %>% 
+    tidyr::pivot_wider(., id_cols = c(.data$trial,.data$model), names_from = .data$year, values_from = .data$rec) %>% 
     dplyr::select(-c('trial','model'))
   
   read.gadget.parameters(file = paste(path, params.file, sep = '/')) %>% 
@@ -653,8 +666,7 @@ gadget_project_advice <- function(path,
                                   advice_rho = 0.6,
                                   pre_fleet = 'comm',
                                   post_fix = 'pre',
-                                  n_replicates = 100,
-                                  seed = NULL){
+                                  n_replicates = 100){
   schedule <- 
     readr::read_delim(sprintf('%s/.schedule',
                               paste(path,attributes(path)$variant_dir,sep='/')),
@@ -676,7 +688,6 @@ gadget_project_advice <- function(path,
   
   if(advice_cv > 0){
     
-    if(!is.null(seed)){set.seed(seed = seed)}
     
     advice_mult <- 
       fleet_parameters %>% 

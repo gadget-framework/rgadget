@@ -17,15 +17,23 @@ gadget_predatorprinter_component(
 )
 }
 \arguments{
-\item{printfile}{A descriptive name for the component, default same as component type}
+\item{printfile}{Name for the output file to be created}
 
-\item{precision}{}
+\item{predatornames}{Names of the predators}
 
-\item{yearsandsteps}{}
+\item{preynames}{Names of the prey stocks}
 
-\item{stockname}{A numeric weighting}
+\item{area}{list of area aggregations    agere}
 
-\item{printatstart}{}
+\item{predlen}{list of length aggregations}
+
+\item{preylen}{list of length aggregations}
+
+\item{biomass}{should biomass (1) or abundance (0) be printed}
+
+\item{precision}{optional value defining numerical precision}
+
+\item{yearsandsteps}{character defining when to print, defaults to "all all"}
 }
 \description{
 https://hafro.github.io/gadget2/userguide/chap-print.html#sec:predatorprinter

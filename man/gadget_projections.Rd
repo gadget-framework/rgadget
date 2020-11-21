@@ -2,8 +2,10 @@
 % Please edit documentation in R/gadget_forward.R
 \name{gadget_project_time}
 \alias{gadget_project_time}
+\alias{gadget_project_stocks}
 \alias{gadget_project_fleet}
 \alias{gadget_project_prognosis_likelihood}
+\alias{gadget_project_recruitment}
 \alias{gadget_project_advice}
 \alias{gadget_project_ref_points}
 \alias{gadget_project_output}
@@ -14,6 +16,16 @@ gadget_project_time(
   num_years = 100,
   variant_dir = getwd() \%>\% stringr::str_count("/") \%>\% rep("../", .) \%>\%
     paste(collapse = "") \%>\% paste(tempdir(), sep = "")
+)
+
+gadget_project_stocks(
+  path,
+  imm.file,
+  mat.file,
+  spawnfunction = "hockeystick",
+  proportionfunction = "constant 1",
+  mortalityfunction = "constant 0",
+  weightlossfunction = "constant 0"
 )
 
 gadget_project_fleet(
@@ -39,6 +51,16 @@ gadget_project_prognosis_likelihood(
   ...
 )
 
+gadget_project_recruitment(
+  path,
+  stock,
+  recruitment = NULL,
+  n_replicates = 100,
+  params.file = "PRE/params.pre",
+  method = "AR",
+  ...
+)
+
 gadget_project_advice(
   path,
   params.file = "PRE/params.pre",
@@ -47,8 +69,7 @@ gadget_project_advice(
   advice_rho = 0.6,
   pre_fleet = "comm",
   post_fix = "pre",
-  n_replicates = 100,
-  seed = NULL
+  n_replicates = 100
 )
 
 gadget_project_ref_points(path, ref_points, params.file = "PRE/params.pre")
@@ -64,11 +85,23 @@ gadget_project_output(
 )
 }
 \arguments{
-\item{path}{gadget model directory}
+\item{path}{gadget variant director}
 
 \item{num_years}{number of years}
 
 \item{variant_dir}{location of the}
+
+\item{imm.file}{location of the immature stock file}
+
+\item{mat.file}{location of the mature stock file}
+
+\item{spawnfunction}{what spawn function to use (only hockeystick atm)}
+
+\item{proportionfunction}{proportion suitability}
+
+\item{mortalityfunction}{mortataliy suitability}
+
+\item{weightlossfunction}{weightloss suitability}
 
 \item{pre_fleet}{name of the fleet projections are based on (original fleet). Only a single fleet should be implemented here at a time. Multiple fleets require multiple gadget_project_advice calls.}
 
@@ -80,11 +113,31 @@ gadget_project_output(
 
 \item{pre_proportion}{proportion of the effort taken}
 
-\item{...}{additional input to the prognosis likelihood component}
+\item{type}{type of projection, either "standard" or "prognosis"}
+
+\item{...}{additional arguments for the}
 
 \item{stocks}{names of of the stocks}
 
 \item{pre_fleets}{vector of fleets on which the projections are based}
+
+\item{mainfile_overwrite}{should the likelihood be overwritten, defaults to TRUE, but should be set as FALSE for multiple prognosis components (different groups of fleets)}
+
+\item{firsttacyear}{when does the TAC scheme start}
+
+\item{assessmentstep}{when is the assessment}
+
+\item{weightoflastyearstac}{running average TAC..}
+
+\item{stock}{name of immature stock}
+
+\item{recruitment}{recruitment time series}
+
+\item{n_replicates}{number of simulations}
+
+\item{params.file}{name of the parameter files}
+
+\item{method}{prediction method, built in options are 'AR', 'bootstrap' or constant}
 
 \item{harvest_rate}{median harvest rate}
 
@@ -103,6 +156,25 @@ gadget variant directory
 }
 \description{
 Setup model and parameter files for forward simulations and deterministic projections.
+}
+\details{
+gadget project recruitment:
+Sets up the process error for the stock recruitment relationship.
+The user has a choice of three types, constant, AR and block bootstrap
+based on a time-series of recruitment
+
+gadget project stocks:
+Here the user can define the SSB - Rec relationship used in the 
+projections. It defines link between two stocks, immature and 
+mature stock and in the case of minage (immstock) > 0 an interim 
+bookeeping stock from age 0 to minage. 
+
+Limitiations:
+At present theres is no way to define recruitment into multiple 
+stocks (ie. via multiple interim stocks). 
+This function also assumes that there is no SSB - Rec relationship, 
+since if it is already present the simulation should use that.
+Multi-annual recruitment is currently not defined.
 }
 \examples{
 \dontrun{

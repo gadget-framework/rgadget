@@ -20,7 +20,9 @@ A list of fleet components representing file
 Create a fleet file object, from fresh or an existing file.
 }
 \examples{
+\dontrun{
 path <- './cod-model'
 # Read 'fleet' fleet file, creating it if it doesn't exist
 gadgetfleet('fleet', path, missingOkay = TRUE)  
+}
 }

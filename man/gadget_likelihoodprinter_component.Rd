@@ -2,23 +2,15 @@
 % Please edit documentation in R/gadgetprintcomponent.R
 \name{gadget_likelihoodprinter_component}
 \alias{gadget_likelihoodprinter_component}
-\title{https://hafro.github.io/gadget2/userguide/chap-print.html#sec:stockstdprinter}
+\title{https://hafro.github.io/gadget2/userguide/chap-print.html#sec:likelihoodprinter}
 \usage{
 gadget_likelihoodprinter_component(printfile, likelihoodcomponent)
 }
 \arguments{
-\item{printfile}{A descriptive name for the component, default same as component type}
+\item{printfile}{Name for the output file to be created}
 
-\item{stockname}{A numeric weighting}
-
-\item{scale}{The datafile lists these weights and the power that is to be used for each parameter}
-
-\item{precision}{}
-
-\item{printatstart}{}
-
-\item{yearsandsteps}{}
+\item{likelihoodcomponent}{name of the likelihood component}
 }
 \description{
-https://hafro.github.io/gadget2/userguide/chap-print.html#sec:stockstdprinter
+https://hafro.github.io/gadget2/userguide/chap-print.html#sec:likelihoodprinter
 }

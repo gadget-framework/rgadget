@@ -7,9 +7,11 @@
 #' @param missingOkay	If \code{TRUE}, return an empty fleet file object if file does not exist.
 #' @return A list of fleet components representing file
 #' @examples
+#' \dontrun{
 #' path <- './cod-model'
 #' # Read 'fleet' fleet file, creating it if it doesn't exist
 #' gadgetfleet('fleet', path, missingOkay = TRUE)  
+#' }
 #' @export
 gadgetfleet <- function(file_name, path, missingOkay = FALSE) {
   gf <- read.gadget.file(path, file_name, file_type = "fleet",
@@ -28,6 +30,7 @@ gadgetfleet <- function(file_name, path, missingOkay = FALSE) {
 #' @param ...		If a component type was provided above, the extra options to supply to \code{gadget_fleet_component}
 #'
 #' @examples
+#' \dontrun{
 #' library(magrittr)  # import %>% function
 #' path <- './model'
 #' gadgetfleet('fleet', path, missingOkay = TRUE) %>%
@@ -36,6 +39,7 @@ gadgetfleet <- function(file_name, path, missingOkay = FALSE) {
 #'        name = 'comm',
 #'        data = data.frame(year = 1990, step = 1, area = 1, weight = 1)) %>%
 #'    write.gadget.file(path)
+#'    }
 #' @export
 gadget_update.gadgetfleet <- function(gf, component, ...) {
   if (!("gadget_fleet_component" %in% class(component))) {

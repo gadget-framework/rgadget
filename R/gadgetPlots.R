@@ -67,7 +67,7 @@ plot.gadget.fit <- function(x, ...){
       dplyr::mutate(year = as.numeric(.data$year)) %>%
       ggplot2::ggplot(ggplot2::aes(.data$year, .data$likelihood_value)) +
       ggplot2::geom_point() + 
-      ggplot2::facet_wrap(~.data$component,scale='free_y') +
+      ggplot2::facet_wrap(~.data$component,scales = 'free_y') +
       ggplot2::labs(x='Year',y='Score') 
     
   } 
@@ -81,7 +81,7 @@ plot.gadget.fit <- function(x, ...){
       dplyr::mutate(year = as.numeric(.data$year)) %>%
       ggplot2::ggplot(ggplot2::aes(.data$year, .data$weight*.data$likelihood_value)) +
       ggplot2::geom_point() + 
-      ggplot2::facet_wrap(~.data$component,scale='free_y') +
+      ggplot2::facet_wrap(~.data$component,scales = 'free_y') +
       ggplot2::labs(x='Year',y='Weighted score')
     
   } 
@@ -103,15 +103,15 @@ plot.gadget.fit <- function(x, ...){
       ggplot2::ggplot(fit$sidat, 
                       ggplot2::aes(.data$year,.data$observed)) +
       ggplot2::geom_point() +
-      ggplot2::geom_line(ggplot2::aes(.data$year,.data$predict)) +
+      ggplot2::geom_line(ggplot2::aes(.data$year,.data$predicted)) +
       ggplot2::geom_linerange(data=fit$sidat %>% dplyr::filter(.data$year==max(.data$year)),
-                              ggplot2::aes(.data$year,ymax=.data$observed,ymin=.data$predict),col='green')+
+                              ggplot2::aes(.data$year,ymax=.data$observed,ymin=.data$predicted),col='green')+
       ggplot2::geom_text(data = fit$sidat %>% 
                            dplyr::group_by(.data$length) %>% 
                            dplyr::filter(.data$year == min(.data$year)) %>% 
                            dplyr::mutate(y = Inf),
                          ggplot2::aes(.data$year,.data$y,label=length), vjust = 2,hjust = -1) +
-      ggplot2::facet_wrap(~.data$lower+.data$step,scale='free_y',ncol=2) + 
+      ggplot2::facet_wrap(~.data$lower+.data$step,scales = 'free_y',ncol=2) + 
       ggplot2::labs(y='Index', x='Year') +
       ggplot2::theme(panel.spacing = ggplot2::unit(0,'cm'), 
                      plot.margin = ggplot2::unit(c(0,0,0,0),'cm'),
@@ -125,16 +125,16 @@ plot.gadget.fit <- function(x, ...){
       ggplot2::ggplot(fit$sidat, 
                       ggplot2::aes(.data$year,.data$observed)) +
       ggplot2::geom_point() +
-      ggplot2::geom_line(ggplot2::aes(.data$year,.data$predict)) +
+      ggplot2::geom_line(ggplot2::aes(.data$year,.data$predicted)) +
       ggplot2::geom_linerange(data=fit$sidat %>% 
                                 dplyr::filter(.data$year==max(.data$year)),
-                              ggplot2::aes(.data$year,ymax=.data$observed,ymin=.data$predict),col='green') +
+                              ggplot2::aes(.data$year,ymax=.data$observed,ymin=.data$predicted),col='green') +
       ggplot2::geom_text(data=fit$sidat %>% 
                            dplyr::group_by(.data$name) %>% 
                            dplyr::filter(.data$year==min(.data$year)) %>% 
                            dplyr::mutate(y=Inf),
                          ggplot2::aes(.data$year,.data$y,label = .data$name), vjust = 2,hjust = -1)+
-      ggplot2::facet_wrap(~.data$name,scale='free_y',ncol=2) + 
+      ggplot2::facet_wrap(~.data$name,scales = 'free_y',ncol=2) + 
       ggplot2::labs(y='Index', x='Year') +
       ggplot2::theme (panel.spacing = ggplot2::unit(0,'cm'), 
                       plot.margin = ggplot2::unit(c(0,0,0,0),'cm'),
@@ -147,7 +147,7 @@ plot.gadget.fit <- function(x, ...){
       fit$sidat %>% 
       dplyr::group_by(.data$year,.data$step) %>% 
       dplyr::summarise(obs = sum(.data$observed*.data$bio),
-                       prd = sum(.data$predict*.data$bio)) 
+                       prd = sum(.data$predicted*.data$bio)) 
     pl <-
       ggplot2::ggplot(bio.tmp, ggplot2::aes(.data$year,.data$obs)) +
       ggplot2::geom_point() +
@@ -155,7 +155,7 @@ plot.gadget.fit <- function(x, ...){
       ggplot2::geom_linerange(data=bio.tmp %>% 
                                 dplyr::filter(.data$year==max(.data$year)),
                               ggplot2::aes(.data$year,ymax=.data$obs,ymin=.data$prd),col='green')+
-      ggplot2::facet_wrap(~.data$step,scale='free_y',ncol=2)  +
+      ggplot2::facet_wrap(~.data$step,scales = 'free_y',ncol=2)  +
       ggplot2::labs(y='Biomass index', x='Year') +
       ggplot2::theme (panel.spacing = ggplot2::unit(0,'cm'), 
                       plot.margin = ggplot2::unit(c(0,0,0,0),'cm'),
@@ -166,16 +166,16 @@ plot.gadget.fit <- function(x, ...){
   if(data == 'sidat' & type == 'x-y' ) {
     pl <-
       fit$sidat %>% 
-      ggplot2::ggplot(ggplot2::aes(.data$observed,.data$predict,label=.data$year)) + 
+      ggplot2::ggplot(ggplot2::aes(.data$observed,.data$predicted,label=.data$year)) + 
       ggplot2::geom_text() + 
-      ggplot2::facet_wrap(~name,scale='free') + 
+      ggplot2::facet_wrap(~name,scales = 'free') + 
       ggplot2::geom_abline(slope = 1, lty = 2) +
       
       ggplot2::labs(y='Predicted value', x='Observed') + 
       ggplot2::geom_hline(data=dplyr::filter(fit$sidat,.data$year==max(.data$year)),
-                          ggplot2::aes(yintercept=.data$predict),col='green') + 
+                          ggplot2::aes(yintercept=.data$predicted),col='green') + 
       ggplot2::geom_vline(data=dplyr::filter(fit$sidat,.data$year==max(.data$year)),
-                          ggplot2::aes(xintercept=.data$predict),col='green') + 
+                          ggplot2::aes(xintercept=.data$predicted),col='green') + 
       ggplot2::geom_text(data = fit$sidat %>% 
                            dplyr::select(.data$name) %>% 
                            dplyr::distinct(),
@@ -236,7 +236,7 @@ plot.gadget.fit <- function(x, ...){
               ggplot2::geom_text(data=dat %>% 
                                    dplyr::ungroup() %>% 
                                    dplyr::mutate(age = as.numeric(gsub('age','',.data$age))) %>% 
-                                   dplyr::filter(age == min(.data$age)) %>% 
+                                   dplyr::filter(.data$age == min(.data$age)) %>% 
                                    dplyr::mutate(y=Inf,
                                                  label = paste(.data$year,.data$step,sep=',')) %>% 
                                    dplyr::select(.data$step,.data$age,.data$y,.data$year,.data$label) %>% 
@@ -338,7 +338,7 @@ plot.gadget.fit <- function(x, ...){
                fit$catchdist.fleets %>% 
                dplyr::group_by(.data$name) %>% 
                dplyr::mutate(n=dplyr::n_distinct(.data$age)) %>% 
-               dplyr::filter(n!=1) %>% 
+               dplyr::filter(.data$n!=1) %>% 
                dplyr::mutate(age=as.numeric(gsub('age','',.data$age))) %>% 
                dplyr::group_by(.data$name,.data$year,.data$age,.data$step,.data$total.catch) %>% 
                dplyr::summarise(o=sum(.data$observed,na.rm=TRUE),
@@ -457,7 +457,7 @@ plot.gadget.fit <- function(x, ...){
   if(data == 'stock.std') {
     year_span <- 
       fit$stock.std %>% 
-      dplyr::select(year,age) %>% 
+      dplyr::select(.data$year,.data$age) %>% 
       dplyr::distinct()
     
     pl <-
@@ -465,7 +465,7 @@ plot.gadget.fit <- function(x, ...){
       dplyr::mutate(yc = as.factor(.data$year - .data$age)) %>% 
       ggplot2::ggplot(ggplot2::aes(.data$year,.data$number),col='black') + 
       ggplot2::geom_bar(stat='identity',ggplot2::aes(fill = .data$yc)) + 
-      ggplot2::facet_wrap(~.data$age,ncol=1,scale='free_y') + 
+      ggplot2::facet_wrap(~.data$age,ncol=1,scales = 'free_y') + 
       ggplot2::theme(legend.position='none',panel.spacing = ggplot2::unit(0,'cm'),
                      plot.margin = ggplot2::unit(c(0,0,0,0),'cm'),
                      strip.background = ggplot2::element_blank(),

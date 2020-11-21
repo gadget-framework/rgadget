@@ -14,17 +14,17 @@ gadget_stockstdprinter_component(
 )
 }
 \arguments{
-\item{printfile}{A descriptive name for the component, default same as component type}
+\item{printfile}{Name for the output file to be created}
 
-\item{stockname}{A numeric weighting}
+\item{stockname}{Name of the stock}
 
 \item{scale}{The datafile lists these weights and the power that is to be used for each parameter}
 
-\item{precision}{}
+\item{precision}{optional value defining numerical precision}
 
-\item{printatstart}{}
+\item{printatstart}{should the output be printed at the start (1) or the end (0) of the timesstep}
 
-\item{yearsandsteps}{}
+\item{yearsandsteps}{character defining when to print, defaults to "all all"}
 }
 \description{
 https://hafro.github.io/gadget2/userguide/chap-print.html#sec:stockstdprinter

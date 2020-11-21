@@ -559,7 +559,7 @@ ok_group("Writing to mainfile", {
             "[otherfood]",
             "[fleet]",
             "[likelihood]",
-            "likelihoodfiles\tlikelihood/bubble\tlikelihood/bobble",
+            "likelihoodfiles\tlikelihood/bobble\tlikelihood/bubble",
         NULL),
         wobble = c(
             ver_string,
@@ -721,8 +721,8 @@ ok_group("Variant directories", {
             "[fleet]",
             "[likelihood]",
             paste("likelihoodfiles",
-                "likelihood/bubble",
                 "similar/likelihood/bubble.variant",
+                "likelihood/bubble",
                 sep = "\t"),
         NULL)
     )), "Can add a likelihood file in a variant directory")

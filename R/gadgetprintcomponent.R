@@ -11,12 +11,12 @@ gadgetprintcomponent <- function (component, ...) {
 
 #' https://hafro.github.io/gadget2/userguide/chap-print.html#sec:stockstdprinter
 #'
-#' @param printfile		A descriptive name for the component, default same as component type
-#' @param stockname	A numeric weighting
+#' @param printfile	Name for the output file to be created
+#' @param stockname	Name of the stock 
 #' @param scale		The datafile lists these weights and the power that is to be used for each parameter 
-#' @param precision 
-#' @param printatstart 
-#' @param yearsandsteps 
+#' @param precision optional value defining numerical precision
+#' @param printatstart should the output be printed at the start (1) or the end (0) of the timesstep
+#' @param yearsandsteps character defining when to print, defaults to "all all"
 #' 
 #' @export
 gadget_stockstdprinter_component <- function (printfile,
@@ -46,11 +46,11 @@ gadget_stockstdprinter_component <- function (printfile,
 
 #' https://hafro.github.io/gadget2/userguide/chap-print.html#sec:stockfullprinter
 #'
-#' @param printfile		A descriptive name for the component, default same as component type
-#' @param stockname	A numeric weighting
-#' @param precision 
-#' @param printatstart 
-#' @param yearsandsteps 
+#' @param printfile	Name for the output file to be created
+#' @param stockname	Name of the stock 
+#' @param precision optional value defining numerical precision
+#' @param printatstart should the output be printed at the start (1) or the end (0) of the timesstep
+#' @param yearsandsteps character defining when to print, defaults to "all all"
 #' 
 #' @export
 gadget_stockfullprinter_component <- function (printfile,
@@ -77,11 +77,14 @@ gadget_stockfullprinter_component <- function (printfile,
 
 #' https://hafro.github.io/gadget2/userguide/chap-print.html#sec:stockprinter
 #'
-#' @param printfile		A descriptive name for the component, default same as component type
-#' @param stockname	A numeric weighting
-#' @param precision 
-#' @param printatstart 
-#' @param yearsandsteps 
+#' @param printfile	Name for the output file to be created
+#' @param precision optional value defining numerical precision
+#' @param printatstart should the output be printed at the start (1) or the end (0) of the timesstep
+#' @param yearsandsteps character defining when to print, defaults to "all all"
+#' @param stocknames	Names of the stocks  
+#' @param area list of area aggregations	agere 
+#' @param age list of age aggregations 
+#' @param len list of length aggregations 
 #' 
 #' @export
 gadget_stockprinter_component <- function (printfile,
@@ -115,11 +118,15 @@ gadget_stockprinter_component <- function (printfile,
 
 #' https://hafro.github.io/gadget2/userguide/chap-print.html#sec:predatorprinter
 #'
-#' @param printfile		A descriptive name for the component, default same as component type
-#' @param stockname	A numeric weighting
-#' @param precision 
-#' @param printatstart 
-#' @param yearsandsteps 
+#' @param printfile	Name for the output file to be created
+#' @param precision optional value defining numerical precision
+#' @param yearsandsteps character defining when to print, defaults to "all all"
+#' @param predatornames	Names of the predators 
+#' @param preynames	Names of the prey stocks 
+#' @param area list of area aggregations	agere 
+#' @param predlen list of length aggregations 
+#' @param preylen list of length aggregations 
+#' @param biomass should biomass (1) or abundance (0) be printed
 #' 
 #' @export
 gadget_predatorprinter_component <- function (printfile,
@@ -154,11 +161,12 @@ gadget_predatorprinter_component <- function (printfile,
 
 #' https://hafro.github.io/gadget2/userguide/chap-print.html#sec:predatoroverprinter
 #'
-#' @param printfile		A descriptive name for the component, default same as component type
-#' @param stockname	A numeric weighting
-#' @param precision 
-#' @param printatstart 
-#' @param yearsandsteps 
+#' @param printfile	Name for the output file to be created
+#' @param precision optional value defining numerical precision
+#' @param yearsandsteps character defining when to print, defaults to "all all"
+#' @param predatornames	Names of the predators 
+#' @param area list of area aggregations	agere 
+#' @param len list of length aggregations 
 #' 
 #' @export
 gadget_predatoroverprinter_component <- function (printfile,
@@ -186,11 +194,12 @@ gadget_predatoroverprinter_component <- function (printfile,
 }
 #' https://hafro.github.io/gadget2/userguide/chap-print.html#sec:stockpreyfullprinter
 #'
-#' @param printfile		A descriptive name for the component, default same as component type
-#' @param stockname	A numeric weighting
-#' @param precision 
-#' @param printatstart 
-#' @param yearsandsteps 
+#' @param printfile	Name for the output file to be created
+#' @param precision optional value defining numerical precision
+#' @param yearsandsteps character defining when to print, defaults to "all all"
+#' @param preynames	Names of the prey stocks 
+#' @param area list of area aggregations 
+#' @param len list of length aggregations 
 #' 
 #' @export
 gadget_stockpreyfullprinter_component <- function (printfile,
@@ -217,11 +226,13 @@ gadget_stockpreyfullprinter_component <- function (printfile,
 
 #' https://hafro.github.io/gadget2/userguide/chap-print.html#sec:stockpreyprinter
 #'
-#' @param printfile		A descriptive name for the component, default same as component type
-#' @param stockname	A numeric weighting
-#' @param precision 
-#' @param printatstart 
-#' @param yearsandsteps 
+#' @param printfile	Name for the output file to be created
+#' @param precision optional value defining numerical precision
+#' @param yearsandsteps character defining when to print, defaults to "all all" 
+#' @param preynames	Names of the prey stocks 
+#' @param area list of area aggregations 
+#' @param age list of age aggregations 
+#' @param len list of length aggregations 
 #' 
 #' @export
 gadget_stockpreyprinter_component <- function (printfile,
@@ -254,11 +265,14 @@ gadget_stockpreyprinter_component <- function (printfile,
 
 #' https://hafro.github.io/gadget2/userguide/chap-print.html#sec:predatorpreyprinter
 #'
-#' @param printfile		A descriptive name for the component, default same as component type
-#' @param stockname	A numeric weighting
-#' @param precision 
-#' @param printatstart 
-#' @param yearsandsteps 
+#' @param printfile	Name for the output file to be created
+#' @param precision optional value defining numerical precision
+#' @param yearsandsteps character defining when to print, defaults to "all all"
+#' @param predatornames	Names of the predators 
+#' @param preynames	Names of the prey stocks 
+#' @param area list of area aggregations 
+#' @param age list of age aggregations 
+#' @param len list of length aggregations 
 #' 
 #' @export
 gadget_predatorpreyprinter_component <- function (printfile,
@@ -290,14 +304,10 @@ gadget_predatorpreyprinter_component <- function (printfile,
 }
 
 
-#' https://hafro.github.io/gadget2/userguide/chap-print.html#sec:stockstdprinter
+#' https://hafro.github.io/gadget2/userguide/chap-print.html#sec:likelihoodprinter
 #'
-#' @param printfile		A descriptive name for the component, default same as component type
-#' @param stockname	A numeric weighting
-#' @param scale		The datafile lists these weights and the power that is to be used for each parameter 
-#' @param precision 
-#' @param printatstart 
-#' @param yearsandsteps 
+#' @param likelihoodcomponent name of the likelihood component
+#' @param printfile	Name for the output file to be created
 #' 
 #' @export
 gadget_likelihoodprinter_component <- function (printfile,
@@ -315,4 +325,25 @@ gadget_likelihoodprinter_component <- function (printfile,
     class = c(paste0("gadget_", type, "_component"),
               "gadgetprintcomponent"))
 }
+
+#' https://hafro.github.io/gadget2/userguide/chap-print.html#sec:likelihoodsummaryprinter
+#'
+#' @param printfile	Name for the output file to be created
+#'
+#' @export
+gadget_likelihoodsummaryprinter_component <- function (printfile) {
+  
+  type <- 'likelihoodsummaryprinter'
+  
+  structure(c(
+    list(
+      type = type,
+      printfile = gadgetfile(
+        fname('out', printfile),
+        components = list()))),
+    class = c(paste0("gadget_", type, "_component"),
+              "gadgetprintcomponent"))
+}
+
+
 

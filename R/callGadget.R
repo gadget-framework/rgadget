@@ -271,16 +271,16 @@ gadget_optimize <- function(path='.',params.in = NULL, params.out = NULL, contro
 #' @export
 #'
 #' @examples
-#' 
+#' \dontrun{
 #' gd <- gadget.variant.dir('test')
 #' gadgetfile('test',components = list(test = list(a=1))) %>% 
 #' write.gadget.file(gd)
 #' 
 #' gd_to_unix(gd)
-#' 
+#' }
 gd_to_unix <- function(gd){
   list.files(path = gd, full.names = TRUE,recursive = TRUE) %>% 
-    map(function(x){
+    purrr::map(function(x){
       txt <- readLines(x)
       x <- file(x, open = 'wb')
       writeLines(txt, x, sep = '\n')

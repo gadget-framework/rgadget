@@ -633,3 +633,4 @@ ok_group("catchinkilos", {
             step = mfdb::mfdb_timestep_yearly))
     ok(ut_cmp_identical(names(comp$datafile$data), c("year", "area", "fleet", "total_weight")), "step column removed")
 })
+

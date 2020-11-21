@@ -7,9 +7,11 @@
 #' @param missingOkay	If \code{TRUE}, return an empty print file object if file does not exist.
 #' @return A list of print components representing file
 #' @examples
+#' \dontrun{
 #' path <- './cod-model'
 #' # Read 'print' print file, creating it if it doesn't exist
-#' gadgetprint('print', path, missingOkay = TRUE)  
+#' gadgetprintfile('print', path, missingOkay = TRUE)  
+#' }
 #' @export
 gadgetprintfile <- function(file_name, path, missingOkay = FALSE) {
   gf <- read.gadget.file(path, file_name, file_type = "print",
@@ -27,15 +29,6 @@ gadgetprintfile <- function(file_name, path, missingOkay = FALSE) {
 #' @param component	Either a replacement \code{gadget_print_component} (from MFDB or rgadget), or a component type name
 #' @param ...		If a component type was provided above, the extra options to supply to \code{gadget_print_component}
 #'
-#' @examples
-#' library(magrittr)  # import %>% function
-#' path <- './model'
-#' gadgetprint('print', path, missingOkay = TRUE) %>%
-#'    gadget_update( # Add a print component
-#'        'totalprint',
-#'        name = 'comm',
-#'        data = data.frame(year = 1990, step = 1, area = 1, weight = 1)) %>%
-#'    write.gadget.file(path)
 #' @export
 gadget_update.gadgetprint <- function(gf, component, ...) {
   if (!("gadget_print_component" %in% class(component))) {

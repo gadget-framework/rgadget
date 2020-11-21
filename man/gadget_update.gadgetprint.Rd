@@ -16,13 +16,3 @@
 \description{
 Replace and/or append new print comonents to an existing file
 }
-\examples{
-library(magrittr)  # import \%>\% function
-path <- './model'
-gadgetprint('print', path, missingOkay = TRUE) \%>\%
-   gadget_update( # Add a print component
-       'totalprint',
-       name = 'comm',
-       data = data.frame(year = 1990, step = 1, area = 1, weight = 1)) \%>\%
-   write.gadget.file(path)
-}
