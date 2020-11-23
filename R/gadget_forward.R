@@ -18,7 +18,7 @@
 #' res <- 
 #'  gadget_project_time() %>% 
 #'  gadget_project_stocks(imm.file = 'Modelfiles/cod.imm',mat.file = 'Modelfiles/cod.mat') %>% 
-#'  gadget_project_fleets(pre_fleet = 'comm') %>% 
+#'  gadget_project_fleet(pre_fleet = 'comm') %>% 
 #'  gadget_evaluate(params.out = paste(attr(.,'variant_dir'),'params.pre',sep='/'),
 #'                  params.in = 'WGTS/params.final') %>% 
 #'  gadget_project_recruitment(stock = 'codimm', 
@@ -26,7 +26,7 @@
 #'                               filter(stock == 'codimm',
 #'                                      year > 1980),
 #'                             params.file = paste(attr(.,'variant_dir'),'params.pre',sep='/')) %>% 
-#'  gadget_project_ref_point(ref_points = tibble(codmat.blim = 207727665), 
+#'  gadget_project_ref_points(ref_points = tibble(codmat.blim = 207727665), 
 #'                          params.file = paste(attr(.,'variant_dir'),'params.pre',sep='/')) %>% 
 #'  gadget_project_advice(pre_fleet = 'comm',
 #'                        harvest_rate = 1:100/100, 
@@ -134,7 +134,7 @@
 #' res <- 
 #'  gadget_project_time(num_years = 5, variant_dir = 'PRG') %>% 
 #'  gadget_project_stocks(imm.file = 'Modelfiles/cod.imm',mat.file = 'Modelfiles/cod.mat') %>% 
-#'  gadget_project_fleets(pre_fleet = 'comm') %>% 
+#'  gadget_project_fleet(pre_fleet = 'comm') %>% 
 #'  gadget_evaluate(params.out = paste(attr(.,'variant_dir'),'params.pre',sep='/'),
 #'                  params.in = 'WGTS/params.final') %>% 
 #'  gadget_project_recruitment(stock = 'codimm', 
@@ -144,7 +144,7 @@
 #'                             method = 'constant',
 #'                             n_replicates = 1,          
 #'                             params.file = paste(attr(.,'variant_dir'),'params.pre',sep='/')) %>% 
-#'  gadget_project_ref_point(ref_points = tibble(codmat.blim = 207727665), 
+#'  gadget_project_ref_points(ref_points = tibble(codmat.blim = 207727665), 
 #'                          params.file = paste(attr(.,'variant_dir'),'params.pre',sep='/')) %>% 
 #'  gadget_project_advice(pre_fleet = 'comm',
 #'                        harvest_rate = hr_msy, 
@@ -195,18 +195,20 @@ gadget_project_time <- function(path='.', num_years = 100,
     dplyr::arrange(.data$year,.data$step,.data$area)
   
   schedule %>% 
-    readr::write_delim(sprintf('%s/.schedule',paste(project_path,attributes(project_path)$variant_dir,sep='/')))
+    readr::write_delim(., sprintf('%s/.schedule',paste(project_path,attributes(project_path)$variant_dir,sep='/')))
   
   ## update the area file
-  main[[1]]$areafile[[2]] <- 
-    main[[1]]$areafile[[2]] %>%
-    purrr::set_names(c('year', 'step', 'area', 'mean')) %>% 
-    dplyr::bind_rows(schedule %>% 
-                       dplyr::mutate(mean=3))   ## this bit could be user defined
-  
-  main[[1]]$areafile %>% 
-    write.gadget.file(project_path) 
-  
+  gadgetfile('Modelfiles/area',
+             file_type = 'area',
+             components = list(list(areas = main[[1]]$areafile[[1]]$areas,
+                                    size = main[[1]]$areafile[[1]]$size,
+                                    temperature = main[[1]]$areafile %>% 
+                                      utils::capture.output() %>% 
+                                      readr::read_table2(.,skip = 4, comment = ';', col_names = c('year','step','area','temperature')) %>% 
+                                      dplyr::bind_rows(schedule %>% 
+                                                         dplyr::mutate(temperature=3))))) %>% ## this is a mess
+    write.gadget.file(project_path)
+
   return(project_path)
 }
 
@@ -214,18 +216,30 @@ gadget_project_time <- function(path='.', num_years = 100,
 
 #' @rdname gadget_projections
 #'
+#' Here the user can define the SSB - Rec relationship used in the 
+#' projections. It defines link between two stocks, immature and 
+#' mature stock and in the case of minage (immstock) > 0 an interim 
+#' bookeeping stock from age 0 to minage. 
+#' 
+#' Limitiations:
+#' At present theres is no way to define recruitment into multiple 
+#' stocks (ie. via multiple interim stocks). 
+#' This function also assumes that there is no SSB - Rec relationship, 
+#' since if it is already present the simulation should use that.
+#' Multi-annual recruitment is currently not defined. 
+#' 
 #' @param imm.file location of the immature stock file
 #' @param mat.file location of the mature stock file
 #' @param proportionfunction proportion suitability
 #' @param mortalityfunction mortataliy suitability
 #' @param weightlossfunction weightloss suitability
-#' @param spawn_func what spawn function to use (only hockeystick atm)
+#' @param spawnfunction what spawn function to use (only hockeystick atm)
 #'
 #' @export
 gadget_project_stocks <- function(path, 
                                   imm.file, 
                                   mat.file, 
-                                  spawn_func = 'hockeystick',
+                                  spawnfunction = 'hockeystick',
                                   proportionfunction = 'constant 1',
                                   mortalityfunction = 'constant 0',
                                   weightlossfunction = 'constant 0'){
@@ -265,20 +279,20 @@ gadget_project_stocks <- function(path,
                     transitionstocksandratios = sprintf('%s 1',imm_stock[[1]]$stockname),
                     transitionstep = rec_table$step %>% unique() %>% utils::head(1)) %>% 
       gadget_update('initialconditions',
-                    normalparam = tibble::tibble(age = .[[1]]$minage:.[[1]]$maxage,
-                                                 area = .[[1]]$livesonareas,
-                                                 age.factor = 0,   
-                                                 area.factor = 0,
-                                                 mean = .[[1]]$minlength,
-                                                 stddev = 1,
-                                                 alpha = 0.00001, ## never used 
-                                                 beta = 3)) 
+                    normalparam = tidyr::expand_grid(age = .[[1]]$minage:.[[1]]$maxage,
+                                                     area = .[[1]]$livesonareas,
+                                                     age.factor = 0,   
+                                                     area.factor = 0,
+                                                     mean = .[[1]]$minlength,
+                                                     stddev = 1,
+                                                     alpha = 0.00001, ## never used 
+                                                     beta = 3) %>% 
+                      dplyr::arrange(.data$area,.data$age)) 
     
   } else {
     hockey_stock <- imm_stock
   }
   
-  #attr(hockey_stock,'file_config')$mainfile_overwrite = TRUE  
   hockey_stock %>% 
     write.gadget.file(path)  
   
@@ -309,8 +323,7 @@ gadget_project_stocks <- function(path,
   
   imm_stock %>% 
     write.gadget.file(path)
-  
-  #attr(mat_stock,'file_config')$mainfile_overwrite = TRUE
+ ## if the stock already has a SSB - Rec relationship defined we don't need to run this funcion
   mat_stock %>% 
     gadget_update('doesspawn',
                   spawnsteps = imm_stock$doesrenew$normalparamfile[[1]]$step %>% unique(), 
@@ -321,7 +334,7 @@ gadget_project_stocks <- function(path,
                   proportionfunction = proportionfunction,
                   mortalityfunction = mortalityfunction,
                   weightlossfunction = weightlossfunction,
-                  recruitment = list(spawn_func = spawn_func,
+                  recruitment = list(spawnfunction = spawnfunction,
                                      R = paste(attributes(path)$variant_dir,
                                                paste('hockeyrec', imm_stock[[1]]$stockname,sep = '.'), sep = '/'),
                                      Blim = sprintf('#%s.blim', mat_stock[[1]]$stockname)),
@@ -339,18 +352,18 @@ gadget_project_stocks <- function(path,
 
 
 #' @rdname gadget_projections
-#' @param pre_fleet name of the fleet projections are based on
-#' @param post_fix label
+#' @param pre_fleet name of the fleet projections are based on (original fleet). Only a single fleet should be implemented here at a time. Multiple fleets require multiple gadget_project_fleet calls.
+#' @param post_fix A single label (vector of length 1) used to distinguish the original fleet and the projection fleet (with same parameterisations). Should be the same for all projection fleets.
 #' @param fleet_type type of gadget fleet for the projections
 #' @param common_mult a string with a base name for a vector of harvest/catch rate multipliers (shared between fleets)
 #' @param pre_proportion proportion of the effort taken
 #' @param ... addition input to the fleet files
 #' @export
-gadget_project_fleets <- function(path, pre_fleet = 'comm',
+gadget_project_fleet <- function(path, pre_fleet = 'comm',
                                   post_fix='pre',
                                   fleet_type='linearfleet',
                                   common_mult = NULL,
-                                  pre_propotion = NULL,
+                                  pre_proportion = NULL,
                                   type = 'standard',
                                   ...) {
   
@@ -396,8 +409,8 @@ gadget_project_fleets <- function(path, pre_fleet = 'comm',
     common_mult <- '1' 
     fleet_type <- 'totalfleet'
   } else {
-    if(is.null(pre_propotion)) pre_propotion <- 1
-    common_mult <- paste('(*', pre_propotion, paste0('#fleet.',common_mult, '.%3$s.%4$s.%5$s'), ')')
+    if(is.null(pre_proportion)) pre_proportion <- 1
+    common_mult <- paste('(*', pre_proportion, paste0('#fleet.',common_mult, '.%3$s.%4$s.%5$s'), ')')
   }
 
   
@@ -427,8 +440,8 @@ gadget_project_fleets <- function(path, pre_fleet = 'comm',
 
 #' @rdname gadget_projections
 #' @param stocks names of of the stocks
-#' @param pre_fleets names of the fleets projections are based on
-#' @param post_fix label
+#' @param pre_fleets vector of fleets on which the projections are based
+#' @param post_fix A single label (vector of length 1) used to distinguish the original fleets and the projection fleets (with same parameterisations). Should be the same for all projection fleets.
 #' @param ... additional input to the prognosis likelihood component
 #' @export
 gadget_project_prognosis_likelihood <- function(path,
@@ -478,9 +491,9 @@ gadget_project_prognosis_likelihood <- function(path,
                                                                                data = tibble::tibble(year = main[[1]]$timefile[[1]]$firstyear,
                                                                                                  step = main[[1]]$timefile[[1]]$firststep,
                                                                                                  value = "0") %>% 
-                                                                                 bind_rows(expand.grid(year = unique(schedule$year),
+                                                                                 dplyr::bind_rows(expand.grid(year = unique(schedule$year),
                                                                                                        step = assessmentstep) %>% 
-                                                                                             dplyr::mutate(value = paste0('1#','asserr.',fleet_label,'.',year,'.',step,'.1'))) %>% 
+                                                                                             dplyr::mutate(value = paste0('1#','asserr.',fleet_label,'.',.data$year,'.',step,'.1'))) %>% 
                                                                                  as.data.frame()))),
                                       implerr = gadgetfile(paste('implerr',fleet_label,'timevar',sep = '.'),
                                                            file_type = 'timevariable',
@@ -488,9 +501,9 @@ gadget_project_prognosis_likelihood <- function(path,
                                                                                 data = tibble::tibble(year = main[[1]]$timefile[[1]]$firstyear,
                                                                                                   step = main[[1]]$timefile[[1]]$firststep,
                                                                                                   value = "0") %>% 
-                                                                                  bind_rows(expand.grid(year = unique(schedule$year),
+                                                                                  dplyr::bind_rows(expand.grid(year = unique(schedule$year),
                                                                                                         step = assessmentstep) %>% 
-                                                                                              dplyr::mutate(value = paste0('1#','implerr.',fleet_label,'.',year,'.',step,'.1'))) %>% 
+                                                                                              dplyr::mutate(value = paste0('1#','implerr.',fleet_label,'.',.data$year,'.',step,'.1'))) %>% 
                                                                                   as.data.frame())))))) 
   
   attr(progn,'file_config')$mainfile_overwrite = mainfile_overwrite
@@ -501,6 +514,11 @@ gadget_project_prognosis_likelihood <- function(path,
 }
 
 #' @rdname gadget_projections
+#' 
+#' Sets up the process error for the stock recruitment relationship.
+#' The user has a choice of three types, constant, AR and block bootstrap
+#' based on a time-series of recruitment
+#' 
 #' @param stock name of immature stock
 #' @param recruitment recruitment time series
 #' @param n_replicates number of simulations
@@ -527,12 +545,20 @@ gadget_project_recruitment <- function(path,
     recruitment$model <- 1
   } 
   
+  ## remove unwanted columns and sum
+  recruitment <- 
+    recruitment %>% 
+    dplyr::group_by(.data$model,.data$year, .data$step) %>% 
+    dplyr::summarise(recruitment = sum(.data$recruitment)) %>% 
+    dplyr::arrange(.data$model,.data$year)
+ 
+  
   if(method == 'AR'){
     rec <- 
       recruitment %>% 
       split(.$model) %>% 
       purrr::map(gadget_project_rec_arima,schedule=schedule,n_replicates=n_replicates,...) %>% 
-      dplyr::bind_rows(.id="model")
+      dplyr::bind_rows(.id="model") 
     
   } else if(method == 'bootstrap'){
     rec <- 
@@ -556,12 +582,12 @@ gadget_project_recruitment <- function(path,
     rec %>% 
     dplyr::mutate(year = sprintf('%s.rec.pre.%s.%s', stock, .data$year, rec_step),
                   rec = .data$rec/1e4) %>% 
-    tidyr::spread("year", "rec") %>% 
+    tidyr::pivot_wider(., id_cols = c(trial,model), names_from = year, values_from = rec) %>% 
     dplyr::select(-c('trial','model'))
   
-  read.gadget.parameters(file = params.file) %>% 
+  read.gadget.parameters(file = paste(path, params.file, sep = '/')) %>% 
     wide_parameters(value = rec) %>% 
-    write.gadget.parameters(file = params.file)
+    write.gadget.parameters(file = paste(path, params.file, sep = '/'))
   
   
   return(path)
@@ -593,6 +619,8 @@ gadget_project_rec_arima <- function(recruitment,schedule,n_replicates){
 
 gadget_project_rec_bootstrap <- function(recruitment,schedule,n_replicates,block_size = 7) {
   schedule %>% 
+    dplyr::select(.data$year,.data$step) %>% 
+    dplyr::distinct() %>% 
     dplyr::filter(.data$step %in% unique(recruitment$step)[1]) %>% 
     dplyr::slice(rep(1:dplyr::n(),n_replicates)) %>%  
     dplyr::mutate(trial = cut(1:length(.data$year),c(0,which(diff(.data$year)<0),1e9),labels = FALSE),
@@ -603,6 +631,8 @@ gadget_project_rec_bootstrap <- function(recruitment,schedule,n_replicates,block
 
 gadget_project_rec_constant <- function(recruitment,schedule){
   schedule %>% 
+    dplyr::select(.data$year,.data$step) %>% 
+    dplyr::distinct() %>% 
     dplyr::filter(.data$step %in% unique(recruitment$step)[1]) %>% 
     dplyr::mutate(trial = 1,
                   rec = exp(mean(log(recruitment$recruitment)))) %>% 
@@ -613,6 +643,8 @@ gadget_project_rec_constant <- function(recruitment,schedule){
 #' @param harvest_rate median harvest rate
 #' @param advice_cv assessment error cv
 #' @param advice_rho assessment error correlation
+#' @param pre_fleet name of the fleet projections are based on (original fleet). Only a single fleet should be implemented here at a time. Multiple fleets require multiple gadget_project_advice calls.
+#' @param post_fix A single label (vector of length 1) used to distinguish the original fleet and the projection fleet (with same parameterisations). Should be the same for all projection fleets.
 #' @export
 gadget_project_advice <- function(path,
                                   params.file = 'PRE/params.pre',
@@ -621,8 +653,8 @@ gadget_project_advice <- function(path,
                                   advice_rho = 0.6,
                                   pre_fleet = 'comm',
                                   post_fix = 'pre',
-                                  prefix = 'fleet',
-                                  n_replicates = 100){
+                                  n_replicates = 100,
+                                  seed = NULL){
   schedule <- 
     readr::read_delim(sprintf('%s/.schedule',
                               paste(path,attributes(path)$variant_dir,sep='/')),
@@ -632,7 +664,7 @@ gadget_project_advice <- function(path,
     purrr::map(1:n_replicates,
                function(x)
                  schedule %>% 
-                 dplyr::mutate(name = paste(prefix,pre_fleet,post_fix,
+                 dplyr::mutate(name = paste('fleet',pre_fleet,post_fix,
                                             .data$year,.data$step,.data$area,
                                             sep = '.'),
                                replicate = x)) %>% 
@@ -643,9 +675,12 @@ gadget_project_advice <- function(path,
                      by = 'replicate')
   
   if(advice_cv > 0){
+    
+    if(!is.null(seed)){set.seed(seed = seed)}
+    
     advice_mult <- 
       fleet_parameters %>% 
-      dplyr::select(year) %>% 
+      dplyr::select(.data$year) %>% 
       dplyr::distinct() %>% 
       dplyr::mutate(mult = exp(stats::arima.sim(n = dplyr::n(),
                                                 list(ar = advice_rho),
@@ -653,19 +688,19 @@ gadget_project_advice <- function(path,
     fleet_parameters <- 
       fleet_parameters %>% 
       dplyr::left_join(advice_mult, by = 'year') %>% 
-      dplyr::mutate(value = .data$value * mult) %>%  ## bias correction?
-      dplyr::select(-mult)
+      dplyr::mutate(value = .data$value * .data$mult) %>%  ## bias correction?
+      dplyr::select(-.data$mult)
   } 
   
   params <- 
-    read.gadget.parameters(params.file) %>% 
+    read.gadget.parameters(paste(path, params.file, sep = '/')) %>% 
     wide_parameters() %>% 
     dplyr::slice(rep(1:dplyr::n(),each=length(harvest_rate)*n_replicates/dplyr::n())) %>% 
     wide_parameters(value=fleet_parameters %>%
                       dplyr::select(-c('year','step','area')) %>% 
-                      tidyr::spread('name','value') %>% 
+                      tidyr::spread(.,'name','value') %>% 
                       dplyr::select(-c("replicate","iter"))) %>% 
-    write.gadget.parameters(params.file)
+    write.gadget.parameters(paste(path, params.file, sep = '/'))
   
   return(path)
   
@@ -676,8 +711,8 @@ gadget_project_advice <- function(path,
 #' @rdname gadget_projections
 #' @param ref_points tibble with reference points
 #' @export
-gadget_project_ref_point <- function(path,ref_points,params.file='PRE/params.pre'){
-  params <- read.gadget.parameters(params.file) 
+gadget_project_ref_points <- function(path,ref_points,params.file='PRE/params.pre'){
+  params <- read.gadget.parameters(paste(path, params.file, sep = '/'))
   
   ref_points %>% 
     split(1:nrow(ref_points)) %>% 
@@ -687,7 +722,7 @@ gadget_project_ref_point <- function(path,ref_points,params.file='PRE/params.pre
       }) %>% 
     dplyr::bind_rows() %>% 
     structure(file_format='wide') %>% 
-    write.gadget.parameters(params.file)
+    write.gadget.parameters(paste(path, params.file, sep = '/'))
   
   return(path)
 }
@@ -696,7 +731,7 @@ gadget_project_ref_point <- function(path,ref_points,params.file='PRE/params.pre
 
 #' @rdname gadget_projections
 #' @param output_dir location of the model output
-#' @param pre_fleets vector of fleets on which the projections is based
+#' @param pre_fleets vector of fleets on which the projections are based
 #' @param f_age_range F age range, specified in the format a1:a2
 #' @export
 gadget_project_output <- function(path, imm.file, mat.file,

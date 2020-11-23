@@ -9,7 +9,7 @@
 ##' @return a list containing the data that has been read in named after the files found in path.
 ##' @export
 read.printfiles <- function(path='.',suppress=FALSE){
-  
+  print('FUNCTION DEPRECATED')
   
   
   read.printfile <- function(file){
@@ -89,6 +89,7 @@ read.printfiles <- function(path='.',suppress=FALSE){
 ##' @author Bjarki Þór Elvarsson
 ##' @export
 read.gadget.likelihood <- function(files='likelihood'){
+  print('FUNCTION DEPRECATED')
   lik <- NULL
   for(file in files){
     lik <- c(lik,sub(' +$','',gsub('\t',' ',readLines(file))))
@@ -180,6 +181,7 @@ read.gadget.likelihood <- function(files='likelihood'){
 ##' @author Bjarki Þór Elvarsson
 write.gadget.likelihood <- function(lik,file='likelihood',
                                     data.folder=NULL, bs.sample=NULL){
+  print('FUNCTION DEPRECATED')
   lik.text <- sprintf('; Likelihood file - created in Rgadget\n; %s - %s',
                       file, Sys.Date())
   weights <- lik$weights[c('name','weight')]
@@ -244,6 +246,7 @@ write.gadget.likelihood <- function(lik,file='likelihood',
 ##' @return likelihood object
 ##' @author Bjarki Thor Elvarsson
 get.gadget.likelihood <- function(likelihood,comp,inverse=FALSE){
+  print('FUNCTION DEPRECATED')
   if(inverse)
     weights <- dplyr::filter(likelihood$weights,!(.data$name %in% comp))
   else
@@ -272,6 +275,7 @@ get.gadget.likelihood <- function(likelihood,comp,inverse=FALSE){
 ##' @return object of class gadget.main
 ##' @author Bjarki Þór Elvarsson
 read.gadget.main <- function(file='main'){
+  print('FUNCTION DEPRECATED')
   if(!file.exists(file)) {
     stop('Main file not found')
   }
@@ -297,6 +301,7 @@ read.gadget.main <- function(file='main'){
 ##' @return text of the main file (if desired)
 ##' @author Bjarki Þór Elvarsson
 write.gadget.main <- function(main,file='main'){
+  print('FUNCTION DEPRECATED')
   main.text <- sprintf('; main file for gadget - created in Rgadget\n; %s - %s',
                        file,date())
   if(is.null(main$printfiles)){
@@ -335,6 +340,7 @@ write.gadget.main <- function(main,file='main'){
 ##' @return list or matrix containing the (non-empty) values from the string
 ##' @author Bjarki Þór Elvarsson
 clear.spaces <- function(text){
+  print('FUNCTION DEPRECATED')
   sapply(strsplit(sapply(strsplit(text,'[ \t]'),
                          function(x) {
                            paste(x[!(x==''|x=='\t')],
@@ -362,7 +368,7 @@ make.gadget.printfile <- function(main.file='main',
                                   steps = 1,
                                   recruitment_step_age = NULL,
                                   gd = list(dir='.',output = 'out',aggfiles = 'print.aggfiles')){
-  
+  print('FUNCTION DEPRECATED')
   main <- read.gadget.file(gd$dir,main.file,file_type = 'main')
   
   if(length(main$likelihood$likelihoodfiles)>0){
@@ -484,7 +490,7 @@ make.gadget.printfile <- function(main.file='main',
           sep = '\n')
   
   prey.subset <- 
-    stocks %>%  purrr::keep(~.$iseaten$iseaten == 1) %>% names()
+    stocks %>% purrr::keep(~.$iseaten$iseaten == 1) %>% names()
   
   pred_prey_table <- expand.grid(preys = prey.subset,
                                  predators = c(names(fleets),
@@ -645,7 +651,7 @@ read.gadget.results <- function(grouping=list(),
                                 wgts='WGTS',
                                 normalize = FALSE
 ){
-  
+  print('FUNCTION DEPRECATED')
   read.gadget.SS <- function(file='lik.out'){
     lik.out <- readLines(file)
     SS <- as.numeric(clear.spaces(strsplit(lik.out[length(lik.out)],
@@ -699,6 +705,7 @@ read.gadget.results <- function(grouping=list(),
 ##' @author Bjarki Þór Elvarsson
 ##' @export
 read.gadget.data <- function(likelihood,debug=FALSE,year_range=NULL){
+  print('FUNCTION DEPRECATED')
   read.agg <- function(x, first = FALSE){      
     if(first){
       return(sapply(strsplit(readLines(x),'[\t ]'),function(x) x[1]))
@@ -859,62 +866,6 @@ read.gadget.data <- function(likelihood,debug=FALSE,year_range=NULL){
 
 
 
-##' Read in the gadget likelihood output.
-##' @title Read gadget lik.out
-##' @param file string containing the name of the file
-##' @param suppress logical, should file errors be suppressed
-##' @return a list containing the swicthes (names of variable), weigths
-##' (l?kelihood components) and data (dataframe with the parameter values,
-##' likelihood component values and the final score.
-##' @author Bjarki Thor Elvarsson, Hoskuldur Bjornsson
-##' @export
-read.gadget.lik.out <- function(file='lik.out',suppress=FALSE){
-  if(!file.exists(file)){
-    return(NULL)
-  }
-  lik <-  tryCatch(readLines(file),
-                   error = function(e){
-                     if(!suppress)
-                       print(sprintf('file corrupted -- %s', file))
-                     return(NULL)
-                   })
-  
-  i <- grep("Listing of the switches",lik)
-  i1 <- grep("Listing of the likelihood components",lik)
-  i2 <- grep("Listing of the output from the likelihood",lik)
-  
-  if(is.null(i)|is.null(i1)|is.null(i2)){
-    warning(sprintf('file %s is corrupt',file))
-    return(NULL)
-  }
-  
-  switches <- tryCatch(lapply(strsplit(lik[(i+1):(i1-2)],'\t'),unique),
-                       error = function(e){
-                         if(!suppress)
-                           print(sprintf('file corrupted -- %s', file))
-                         return(NULL)
-                       })
-  if(is.null(switches)){
-    return(NULL)
-  }
-  names(switches) <- sapply(switches,function(x) x[1])
-  switches <- lapply(switches,function(x) x[-1])
-  
-  weights <- t(sapply(strsplit(lik[(i1+3):(i2-2)],'\t'),function(x) x))
-  weights <- as.data.frame(weights,stringsAsFactors=FALSE)
-  weights$V2 <- as.numeric(weights$V2)
-  weights$V3 <- as.numeric(weights$V3)
-  names(weights) <- c('Component','Type','Weight')
-  
-  data <- utils::read.table(file,skip=(i2+1))
-  names(data) <- c('iteration',names(switches),weights$Component,'score')
-  attr(data,'Likelihood components') <- weights$Component
-  attr(data,'Parameters') <- names(switches)
-  lik.out <- list(switches=switches,weights=weights,data=data)
-  class(lik.out) <- c('gadget.lik.out',class(lik.out))
-  return(lik.out)
-}
-
 
 
 ##' \code{strip.comments} is a helper function created to clear out all comments (indicated by ';') and
@@ -924,6 +875,7 @@ read.gadget.lik.out <- function(file='lik.out',suppress=FALSE){
 ##' @return list containing the lines from the file stripped of unwanted text.
 ##' @author Bjarki Thor Elvarsson
 strip.comments <- function(file='main'){
+  print('FUNCTION DEPRECATED')
   tmp <- unlist(plyr::llply(file,readLines))
   main <- sub('\t+$',' ',tmp)
   main <- gsub("^\\s+|\\s+$", "", tmp) #sub(' +$','',main)
@@ -963,7 +915,7 @@ read.gadget.wgts <- function(params.file = 'params.in',
                              lik.pre = 'lik.',
                              params.pre = 'params.',
                              parallel=FALSE){
-  
+  print('FUNCTION DEPRECATED')
   
   params.in <- read.gadget.parameters(params.file)
   bs.lik <- read.gadget.likelihood(likelihood)
@@ -1070,12 +1022,14 @@ read.gadget.grouping <- function(lik = read.gadget.likelihood(),
 
 
 write.unix <- function(x,f,append=FALSE,...){
+  print('FUNCTION DEPRECATED')
   f <- file(f,open=ifelse(append,'ab','wb'))
   write(x,file=f,...)
   close(f)
 }
 
 write.gadget.table <- function(x,file='',append=FALSE,...){
+  print('FUNCTION DEPRECATED')
   f <- file(file,open=ifelse(append,'ab','wb'))
   utils::write.table(x,file=f,eol='\n',...)
   close(f)

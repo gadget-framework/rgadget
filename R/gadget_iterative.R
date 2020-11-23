@@ -207,28 +207,28 @@ gadget_iterative_stage_2 <- function(variants, cv_floor = 0){
   SStable <- 
     lik.wgts$data %>% 
     dplyr::mutate(id = names(variants)) %>% 
-    dplyr::select(all_of(c('id',lik.names)))
+    dplyr::select(dplyr::all_of(c('id',lik.names)))
   
   weights <- 
     SStable %>% 
-    tidyr::pivot_longer(-id,names_to = 'component',values_to = 'SS') %>%
+    tidyr::pivot_longer(-.data$id,names_to = 'component',values_to = 'SS') %>%
     dplyr::left_join(lik.df, by = 'component') %>% 
     dplyr::left_join(tibble::tibble(component = names(lik.type),
                                     type = unlist(lik.type)),
                      by = 'component') %>%
-    dplyr::filter(!(type %in% c('penalty','understocking','migrationpenalty','catchinkilos')))
+    dplyr::filter(!(.data$type %in% c('penalty','understocking','migrationpenalty','catchinkilos')))
   
   if(sum(weights$SS == 0) > 0){
-    stop(paste("Likelihood component score exactly 0", weights$component[weigths$SS == 0]))
+    stop(paste("Likelihood component score exactly 0", weights$component[weights$SS == 0]))
   }
   
   weights <- 
     weights %>%
-    dplyr::mutate(variance = SS/n,
-                  variance = ifelse(type == 'surveyindices', 
-                                    pmax(variance,cv_floor^2), variance)) %>%
-    dplyr::group_by(component) %>% 
-    dplyr::summarise(w = mean(n)/min(pmax(SS,1))) 
+    dplyr::mutate(variance = .data$SS/.data$n,
+                  variance = ifelse(.data$type == 'surveyindices', 
+                                    pmax(.data$variance,cv_floor^2), .data$variance)) %>%
+    dplyr::group_by(.data$component) %>% 
+    dplyr::summarise(w = mean(.data$n)/min(pmax(.data$SS,1))) 
   
   weights <- 
     weights$w %>% 
@@ -250,5 +250,15 @@ gadget_iterative_stage_2 <- function(variants, cv_floor = 0){
   attr(lik,'file_name') <- paste(attr(gd, 'variant_dir'), 'likelihood.final', sep = '/')
   write.gadget.file(lik, gd)
   return(gd)
+}
+
+
+#' Removed functions
+#'
+#' @param ... 
+#'
+#' @export
+gadget.iterative <- function(...){
+  print('gadget.iterative no longer supported use gadget_iterative_stage_* functions')
 }
 

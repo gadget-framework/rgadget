@@ -48,6 +48,10 @@ gadget.fit <- function(wgts = 'WGTS',
                        steps = 1,
                        recruitment_step_age = NULL,
                        gd = NULL){
+  
+  print('FUNCTION DEPRECATED use gadget_fit instead')
+  
+  
   old.dir <- getwd()
   on.exit(setwd(old.dir))
   

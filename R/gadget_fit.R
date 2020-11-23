@@ -1,5 +1,15 @@
-gadget_fit <- function(gd, params.in = 'params.in', fit = 'FIT'){
-  
+#' Gadget fit 
+#'
+#' @param gd gadget.variant.dir
+#' @param params.in input parameters
+#' @param fit location of the fit folder
+#' @param f.age.range age range for F
+#' @param steps (unused)
+#'
+#' @return list
+#' @export
+gadget_fit <- function(gd, params.in = attr(gd,'params_in'), fit = 'FIT', f.age.range = NULL, steps = 1){
+  fit <- variant_strip_path(gd,fit)
   main <- read.gadget.file(gd,attr(gd,'mainfile'), recursive = FALSE)
   attr(main, 'file_name') <- 'main'
   stocks <- 
@@ -16,7 +26,7 @@ gadget_fit <- function(gd, params.in = 'params.in', fit = 'FIT'){
                                  file_type = 'likelihood',
                                  recursive = TRUE) %>%  
                  purrr::discard(~.$type %in% c('penalty','understocking','migrationpenalty'))) %>% 
-    purrr::flatten() 
+    purrr::flatten(.) 
   
   lik <- 
     lik %>% 
@@ -24,7 +34,7 @@ gadget_fit <- function(gd, params.in = 'params.in', fit = 'FIT'){
   
   lik.dat <- 
     lik %>% 
-    purrr::map(g2_to_tibble) 
+    purrr::map(lik_to_tibble) 
   
   
   fleets <- 
@@ -44,7 +54,7 @@ gadget_fit <- function(gd, params.in = 'params.in', fit = 'FIT'){
     gadgetprintfile('printfile',gv, missingOkay = TRUE) 
   
   ## add the likelihood output to the printfile
-  for(comp in lik %>% purrr::map('name')){
+  for(comp in (lik %>% purrr::map('name'))){
     print <- 
       print %>% 
       gadget_update('likelihoodprinter',printfile = comp, likelihoodcomponent = comp)
@@ -63,8 +73,8 @@ gadget_fit <- function(gd, params.in = 'params.in', fit = 'FIT'){
                     stocknames = stock,
                     area = livesonareas(stocks[[stock]]) %>% purrr::set_names(.,.) %>% as.list(),
                     age = list(allages = age_range(stocks[[stock]])),
-                    len = tibble::tibble(lower = head(length_range(stocks[[stock]]),-1),
-                                         upper = tail(length_range(stocks[[stock]]),-1)) %>% 
+                    len = tibble::tibble(lower = utils::head(length_range(stocks[[stock]]),-1),
+                                         upper = utils::tail(length_range(stocks[[stock]]),-1)) %>% 
                       dplyr::mutate(label = as.ordered(.data$lower)) %>%
                       split(.$label) %>% 
                       purrr::set_names(.,paste0('len',names(.))) %>% 
@@ -130,10 +140,8 @@ gadget_fit <- function(gd, params.in = 'params.in', fit = 'FIT'){
   ## read in the output
   out <- 
     gadgetprintfile('printfile',gv) %>% 
-    purrr::map('printfile') %>% 
-    purrr::set_names(.,purrr::map(.,~attr(.,'file_name')) %>% gsub('out/','',.)) %>% 
-    purrr::map(1) %>% 
-    purrr::map(tibble::as_tibble) 
+    purrr::set_names(.,purrr::map(.,~attr(.$printfile,'file_name')) %>% gsub('out/','',.)) %>% 
+    purrr::map(print_to_tibble)
   
   
   print('Gathering results')
@@ -238,40 +246,42 @@ gadget_fit <- function(gd, params.in = 'params.in', fit = 'FIT'){
   print('Merging input and output')
   
   for(comp in names(lik.dat)){
+    out[[comp]] <- 
+      out[[comp]] %>% 
+      dplyr::mutate(area = as.character(.data$area))
     if(lik.dat[[comp]]$type[1] == 'surveyindices'){
       if(lik.dat[[comp]]$sitype[1] == 'lengths'){
         out[[comp]] <- 
           out[[comp]] %>% 
-          dplyr::rename(length = label)
+          dplyr::rename(length = .data$label)
       } else if(lik.dat[[comp]]$sitype[1] == 'age'){
         out[[comp]] <- 
           out[[comp]] %>% 
-          dplyr::rename(age = label)
+          dplyr::rename(age = .data$label)
       } else if(lik.dat[[comp]]$sitype[1] == 'effort'){
         out[[comp]] <- 
           out[[comp]] %>% 
-          dplyr::rename(fleet = label)
+          dplyr::rename(fleet = .data$label)
       } else if(lik.dat[[comp]]$sitype[1] == 'acoustic'){
         out[[comp]] <- 
           out[[comp]] %>% 
-          dplyr::rename(survey = label)
+          dplyr::rename(survey = .data$label)
       } else if(lik.dat[[comp]]$sitype[1] == 'fleet'){
         out[[comp]] <- 
           out[[comp]] %>% 
-          dplyr::rename(length = label)
+          dplyr::rename(length = .data$label)
       }
     }
     
     lik.dat[[comp]] <- 
       lik.dat[[comp]] %>% 
       dplyr::left_join(out[[comp]], 
-                       by = intersect(names(out[[comp]]), names(lik.dat[[comp]]))) %>% 
-      dplyr::rename(predicted = number)
+                       by = intersect(names(out[[comp]]), names(lik.dat[[comp]])))
   }
   
   
   ## merge data and estimates
-  if('surveyindices' %in% names(lik.type)){
+  if('surveyindices' %in% (lik %>% purrr::map('type'))){
     sidat <- 
       lik.dat %>% 
       purrr::keep(~'surveyindices' %in% .$type) %>% 
@@ -283,7 +293,8 @@ gadget_fit <- function(gd, params.in = 'params.in', fit = 'FIT'){
       dplyr::mutate(length = ifelse(.data$sitype %in% c('lengths','fleets'),
                                     paste(.data$lower,.data$upper,sep=' - '),
                                     .data$length)) %>% 
-      dplyr::mutate(predict = ifelse(grepl('loglinearfit',tolower(.data$fittype)),
+      dplyr::mutate(number = .data$predicted, 
+                    predicted = ifelse(grepl('loglinearfit',tolower(.data$fittype)),
                                      exp(.data$intercept)*.data$number^.data$slope,
                                      .data$intercept + .data$slope*.data$number)) %>% 
       dplyr::filter(!is.na(.data$name))
@@ -293,34 +304,19 @@ gadget_fit <- function(gd, params.in = 'params.in', fit = 'FIT'){
   
   
   
-  if('catchdistribution' %in% names(lik.dat$dat)){
-    dat.names <- names(lik.dat$dat$catchdistribution)
-    
-    aggs <- 
-      dat.names %>% 
-      purrr::set_names(.,.) %>% 
-      purrr::map(~attr(lik.dat$dat$catchdistribution[[.]],'len.agg')) %>% 
-      dplyr::bind_rows(.id='name') %>% 
-      tibble::as_tibble()
+  if('catchdistribution' %in% (lik %>% purrr::map('type'))){
     
     catchdist.fleets <-
-      lik.dat$dat$catchdistribution %>% 
-      purrr::set_names(.,names(.)) %>%
-      purrr::map(. %>% dplyr::mutate(age = as.character(.data$age))) %>%
-      dplyr::bind_rows(.id='name') %>%  
-      dplyr::right_join(out[dat.names] %>%
-                          purrr::set_names(.,dat.names) %>%
-                          purrr::map(. %>% dplyr::mutate(age = as.character(.data$age))) %>%
-                          dplyr::bind_rows(.id='name') %>% 
-                          dplyr::left_join(aggs,by=c('name','length')) ,
-                        by=c('name','length', 'year',
-                             'step', 'area','age','upper','lower')) %>% 
-      dplyr::ungroup() %>% 
+      lik.dat %>% 
+      purrr::keep(~'catchdistribution' %in% .$type) %>% 
+      dplyr::bind_rows() %>% 
       dplyr::group_by(.data$name,.data$year, .data$step,  .data$area) %>%
-      dplyr::mutate(total.catch = sum(.data$number.x,na.rm=TRUE),
-                    total.pred = sum(.data$number.y,na.rm=TRUE),
-                    observed = .data$number.x/sum(.data$number.x,na.rm=TRUE),
-                    predicted = .data$number.y/sum(.data$number.y,na.rm=TRUE)) %>%
+      dplyr::mutate(total.catch = sum(.data$observed,na.rm=TRUE),
+                    total.pred = sum(.data$predicted,na.rm=TRUE),
+                    obs = .data$observed,
+                    pred = .data$predicted,
+                    observed = .data$observed/sum(.data$observed,na.rm=TRUE),
+                    predicted = .data$predicted/sum(.data$predicted,na.rm=TRUE)) %>%
       dplyr::ungroup() %>% 
       dplyr::group_by(.data$name,.data$length,.data$age) %>%
       dplyr::mutate(upper = as.double(max(ifelse(is.na(.data$upper),0.0,
@@ -328,10 +324,7 @@ gadget_fit <- function(gd, params.in = 'params.in', fit = 'FIT'){
                     lower = as.double(max(ifelse(is.na(.data$lower),0.0,
                                                  .data$lower))),
                     avg.length = as.numeric((.data$lower+.data$upper)/2),
-                    residuals = as.numeric(.data$observed - .data$predicted)) %>% 
-      dplyr::inner_join(lik$catchdistribution %>% 
-                          dplyr::select(.data$name,.data$fleetnames,.data$stocknames),
-                        by = 'name')
+                    residuals = as.numeric(.data$observed - .data$predicted)) 
   } else {
     catchdist.fleets <- NULL
   }
@@ -363,11 +356,7 @@ gadget_fit <- function(gd, params.in = 'params.in', fit = 'FIT'){
       dplyr::group_by(.data$stock,.data$year,.data$area,.data$step) %>%
       dplyr::summarise(total.number = sum(.data$number),
                        total.biomass = sum(.data$number*.data$mean_weight),
-                       harv.biomass = sum(.data$number*.data$suit*.data$mean_weight),
-                       ssb = sum(.data$mean_weight*logit(mat.par[1],
-                                                         mat.par[2],
-                                                         .data$length)*
-                                   .data$number)) %>% 
+                       harv.biomass = sum(.data$number*.data$suit*.data$mean_weight)) %>% 
       dplyr::left_join(f.by.year %>%
                          dplyr::mutate(area = .data$area),
                        by = c("stock","year","area")) %>% 
@@ -388,70 +377,31 @@ gadget_fit <- function(gd, params.in = 'params.in', fit = 'FIT'){
   #            }
   #  }
   
-  if('stockdistribution' %in% names(lik.dat$dat)){
-    dat.names <- names(lik.dat$dat$stockdistribution) 
-    
-    aggs <- 
-      dat.names %>% 
-      purrr::set_names(.,.) %>% 
-      purrr::map(~attr(lik.dat$dat$stockdistribution[[.]],'len.agg')) %>% 
-      dplyr::bind_rows(.id='name') %>% 
-      dplyr::as_tibble()
-    
+  if('stockdistribution' %in% (lik %>% purrr::map('type'))){
+
     stockdist <-
-      lik.dat$dat$stockdistribution %>% 
-      purrr::set_names(.,names(.)) %>%
-      dplyr::bind_rows(.id='name') %>% 
-      dplyr::right_join(out[dat.names] %>%
-                          purrr::set_names(.,dat.names) %>% 
-                          dplyr::bind_rows(.id='name') %>% 
-                          dplyr::left_join(aggs,by=c('name','length')),
-                        by=c('name','length', 'year',
-                             'step', 'area','age',
-                             'stock','upper','lower'),
-                        suffix = c('.y','.x')) %>% 
+      lik.dat %>% 
+      purrr::keep(~'stockdistribution' %in% .$type) %>% 
+      dplyr::bind_rows() %>% 
       dplyr::group_by(.data$name, .data$year, .data$step, 
                       .data$area, .data$age, .data$length) %>% 
-      dplyr::mutate(pred.ratio = .data$number.x/sum(.data$number.x,na.rm=TRUE),
-                    obs.ratio = .data$number.y/sum(.data$number.y)) %>% 
+      dplyr::mutate(pred.ratio = .data$predicted/sum(.data$predicted,na.rm=TRUE),
+                    obs.ratio = .data$observed/sum(.data$observed)) %>% 
       dplyr::ungroup() %>% 
-      dplyr::mutate(length = (.data$lower+.data$upper)/2) %>% 
-      dplyr::inner_join(lik$stockdistribution %>% 
-                          dplyr::select(.data$name,.data$fleetnames,.data$stocknames) %>% 
-                          dplyr::distinct(),
-                        by='name')
+      dplyr::mutate(length = (.data$lower+.data$upper)/2) 
     
   } else {
     stockdist <- NULL
   }
   
   
-  if('stomachcontent' %in% names(lik.dat$dat)){
-    pred.agg <- 
-      names(lik.dat$dat$stomachcontent) %>% 
-      purrr::set_names(.,.) %>% 
-      purrr::map(~attr(lik.dat$dat$stomachcontent[[.]],'pred.agg')) %>% 
-      dplyr::bind_rows(.id='component')
-    
-    prey.agg <- 
-      names(lik.dat$dat$stomachcontent) %>% 
-      purrr::set_names(.,.) %>% 
-      purrr::map(~attr(lik.dat$dat$stomachcontent[[.]],'prey.agg')) %>% 
-      dplyr::bind_rows(.id='component')
-    
+  if('stomachcontent' %in% (lik %>% purrr::map('type'))){
+   
     
     stomachcontent <-
-      lik.dat$dat$stomachcontent %>% 
-      dplyr::bind_rows(.id = 'component') %>% 
-      dplyr::select(-c(.data$prey.lower,.data$prey.upper,
-                       .data$lower,.data$upper)) %>% 
-      dplyr::right_join(
-        out[lik.dat$dat$stomachcontent %>% 
-              names()] %>%
-          dplyr::bind_rows(.id = 'component') %>% 
-          dplyr::left_join(prey.agg) %>% 
-          dplyr::left_join(pred.agg),
-        by = c('component','predator','prey','year','step','area')) %>% 
+      lik.dat %>% 
+      purrr::keep(~'stomachcontent' %in% .$type) %>% 
+      dplyr::bind_rows() %>% 
       dplyr::group_by(.data$component,.data$year,.data$step,.data$predator) %>%
       dplyr::mutate(observed=.data$ratio/sum(.data$ratio,na.rm=TRUE),
                     predicted=.data$number/sum(.data$number,na.rm=TRUE),
@@ -463,29 +413,20 @@ gadget_fit <- function(gd, params.in = 'params.in', fit = 'FIT'){
     stomachcontent <- NULL
   }
   
-  if('catchstatistics' %in% names(lik.dat$dat)){
+  if('catchstatistics' %in% (lik %>% purrr::map('type'))){
+    
     catchstatistics <- 
-      lik.dat$dat$catchstatistics %>% 
-      names() %>% 
-      purrr::set_names(.,.) %>% 
-      purrr::map(function(x){
-        out[[x]] %>% 
-          dplyr::rename(fitted_mean = .data$mean,
-                        fitted_number = .data$number) %>% 
-          dplyr::left_join(lik.dat$dat$catchstatistics[[x]],
-                           by = c("year", "step", "area",  "age")) %>% 
-          dplyr::rename(observed_mean = .data$mean,
-                        observed_number = .data$number)
-      }) %>% 
-      dplyr::bind_rows(.id = 'name') %>% 
-      dplyr::as_tibble()
+      lik.dat %>% 
+      purrr::keep(~'catchstatistics' %in% .$type) %>% 
+      dplyr::bind_rows() 
+      
   } else {
     catchstatistics <- NULL
   }
   
   
   out <- 
-    list(sidat = sidat, resTable = resTable, nesTable = nesTable,
+    list(sidat = sidat, #resTable = resTable, nesTable = nesTable,
          suitability = predator.prey %>% 
            dplyr::select(.data$year,.data$step,stock=.data$prey,
                          fleet=.data$predator,.data$length,.data$suit),# gss.suit, 
@@ -497,16 +438,16 @@ gadget_fit <- function(gd, params.in = 'params.in', fit = 'FIT'){
          catchdist.fleets = catchdist.fleets, 
          stockdist = stockdist,
          #out.fit=out, 
-         SS = SS,
+#         SS = SS,
          stock.full = stock.full, 
          stock.std = stock.std,
          stock.prey = stock.prey,
          fleet.info = fleet.info,
          predator.prey = predator.prey,
-         params = params,
+#         params = params,
          catchstatistics = catchstatistics)
   class(out) <- c('gadget.fit',class(out))
-  save(out,file=sprintf('%s/WGTS.Rdata',wgts))
+  save(out,file=sprintf('%s/fit.Rdata',variant_full_path(gd,variant_within_path(gd,fit))))
   
   return(out)
   
@@ -529,10 +470,10 @@ livesonareas <- function(stock){
 
 
 
-g2_to_tibble <- function(comp){
+lik_to_tibble <- function(comp){
   dat <- 
     comp$datafile[[1]] %>% 
-    dplyr::rename(obs = number) %>% 
+    dplyr::rename(observed = .data$number) %>% 
     dplyr::mutate(name = comp$name,
                   weight = comp$weight,
                   type = comp$type) %>% 
@@ -561,10 +502,9 @@ g2_to_tibble <- function(comp){
     
     dat <- 
       dat %>% 
-      dplyr::mutate(area = as.character(area)) %>% 
+      dplyr::mutate(area = as.character(.data$area)) %>% 
       dplyr::inner_join(comp$areaaggfile[[1]] %>% {tibble::tibble(area = names(.), area_range = paste(unlist(.), collapse = '\t'))},
-                        by = 'area') %>% 
-      dplyr::select(-area) 
+                        by = 'area') 
     
   }
   
@@ -573,9 +513,9 @@ g2_to_tibble <- function(comp){
     dat <- 
       dat %>% 
       dplyr::inner_join(comp$lenaggfile %>% 
-                          capture.output() %>% 
+                          utils::capture.output() %>% 
                           paste(collapse = '\n') %>% 
-                          readr::read_table2(comment = ';',col_names = c('length','lower','upper')),
+                          readr::read_table2(.,comment = ';',col_names = c('length','lower','upper')),
                         by = 'length')
   }
   
@@ -585,10 +525,57 @@ g2_to_tibble <- function(comp){
       dat %>% 
       dplyr::inner_join(comp$ageaggfile[[1]] %>% {tibble::tibble(age = names(.), age_range = paste(unlist(.), collapse = '\t'))},
                         by = 'age') %>% 
-      dplyr::select(-age) 
+      dplyr::select(-.data$age) 
     
   }
   
   return(dat)  
   
 }
+
+
+print_to_tibble <- function(comp){
+  dat <- 
+    comp$printfile[[1]] %>% 
+    dplyr::mutate(name = attr(comp$printfile,'file_name') %>% gsub('out/','',.),
+                  print_type = comp$type) %>% 
+    dplyr::bind_cols(attr(comp$printfile[[1]],'preamble') %>% purrr::set_names(paste('preamble',1:length(.),sep='_')))
+  
+  if(comp$type == 'likelihoodprinter'){
+    dat <- 
+      dat %>% 
+      dplyr::rename(predicted = .data$number)
+  }
+  
+  ## digest the postamble, only used for survey indices
+  #pos <- grep('Regression information',tmp)
+  if(!is.null(attr(comp$printfile[[1]],'postamble'))){
+    postamble <- attr(comp$printfile[[1]],'postamble')
+    
+    pos <- grep('Regression', postamble)
+    
+     areas <- 
+      gsub('Regression information for area ','',postamble[pos]) %>%
+      cbind(areas=.,n=diff(c(pos,length(postamble)+1))-1) %>%
+      as.data.frame() %>%
+      split(.$areas) %>%
+      purrr::map_df(function(x) data.frame(areas=rep(x$areas,x$n))) 
+    
+    regr.txt <- 
+      postamble[-c(1:min(pos-1),pos)] %>%
+      gsub('; ','',.) %>%
+      paste(.,areas$areas)
+    
+    regr <- utils::read.table(text=regr.txt,stringsAsFactors = FALSE)[c(1,3,5,7,8)] %>% 
+      tibble::as_tibble()
+    names(regr) <- c('label','intercept','slope','sse','area')
+    dat <- dat %>% 
+      dplyr::left_join(regr, by = c('area','label')) %>% 
+      tibble::as_tibble()
+  }
+  return(dat)
+}
+  
+  
+  
+  
