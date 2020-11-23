@@ -12,7 +12,7 @@ multi-species multi-area marine ecosystem modelling toolbox.
 
 This package aids in the developement of Gadget models in a number of
 ways. It can interact with Gadget, by manipulating input files, digest
-output and rudimentary plots.
+output and rudimentary plots. A rendered version of the on-line help can be accessed [here](http://hafro.github.io/rgadget)
 
 [![Travis build status](https://travis-ci.org/Hafro/rgadget.svg?branch=master)](https://travis-ci.org/Hafro/rgadget)
 
