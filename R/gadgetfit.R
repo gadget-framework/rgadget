@@ -254,7 +254,7 @@ gadget.fit <- function(wgts = 'WGTS',
       dplyr::mutate(length = ifelse(.data$sitype %in% c('lengths','fleets'),
                                     paste(.data$lower,.data$upper,sep=' - '),
                                     .data$length)) %>% 
-      dplyr::mutate(predict = ifelse(grepl('loglinearfit',tolower(.data$fittype)),
+      dplyr::mutate(predicted = ifelse(grepl('loglinearfit',tolower(.data$fittype)),
                                      exp(.data$intercept)*.data$number^.data$slope,
                                      .data$intercept + .data$slope*.data$number)) %>% 
       dplyr::filter(!is.na(.data$name))
