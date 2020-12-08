@@ -175,7 +175,8 @@ from <code>maturityfunction</code>, e.g.
 
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://magrittr.tidyverse.org'>magrittr</a></span><span class='op'>)</span>  <span class='co'># import %&gt;% function</span>
+    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
+<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://magrittr.tidyverse.org'>magrittr</a></span><span class='op'>)</span>  <span class='co'># import %&gt;% function</span>
 <span class='va'>path</span> <span class='op'>&lt;-</span> <span class='st'>'./model'</span>
 <span class='fu'><a href='gadgetstock.html'>gadgetstock</a></span><span class='op'>(</span><span class='st'>'codimm'</span>, <span class='va'>path</span>, missingOkay <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span> <span class='op'>%&gt;%</span>  <span class='co'># Create a skeleton if missing</span>
    <span class='fu'><a href='gadget_update.html'>gadget_update</a></span><span class='op'>(</span><span class='st'>'stock'</span>, minage <span class='op'>=</span> <span class='fl'>2</span>, maxage <span class='op'>=</span> <span class='fl'>4</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
@@ -185,6 +186,7 @@ from <code>maturityfunction</code>, e.g.
                                              matrix <span class='op'>=</span> <span class='st'>'codmat-migration'</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
    <span class='fu'><a href='gadget_update.html'>gadget_update</a></span><span class='op'>(</span><span class='st'>'doesrenew'</span>, <span class='fl'>0</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
    <span class='fu'><a href='write.gadget.file.html'>write.gadget.file</a></span><span class='op'>(</span><span class='va'>path</span><span class='op'>)</span>
+   <span class='op'>}</span>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
