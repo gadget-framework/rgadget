@@ -80,8 +80,8 @@ gadget_project_output(
   mat.file,
   pre_fleets = "comm",
   post_fix = "pre",
-  output_dir = "out",
-  f_age_range = NULL
+  f_age_range = NULL,
+  rec_age
 )
 }
 \arguments{
@@ -147,9 +147,11 @@ gadget_project_output(
 
 \item{ref_points}{tibble with reference points}
 
-\item{output_dir}{location of the model output}
-
 \item{f_age_range}{F age range, specified in the format a1:a2}
+
+\item{rec_age}{age of recruitment (as reported)}
+
+\item{output_dir}{location of the model output}
 }
 \value{
 gadget variant directory

@@ -222,7 +222,7 @@ gadget_project_time <- function(path='.', num_years = 100,
                                     size = main[[1]]$areafile[[1]]$size,
                                     temperature = main[[1]]$areafile %>% 
                                       utils::capture.output() %>% 
-                                      readr::read_lines() %>% 
+                                      readr::read_lines(.) %>% 
                                       .[!grepl('^;',.)] %>% 
                                       readr::read_table2(.,skip = 3, comment = ';', col_names = c('year','step','area','temperature')) %>% 
                                       dplyr::bind_rows(schedule %>% 
@@ -746,12 +746,13 @@ gadget_project_ref_points <- function(path,ref_points,params.file='PRE/params.pr
 #' @param output_dir location of the model output
 #' @param pre_fleets vector of fleets on which the projections are based
 #' @param f_age_range F age range, specified in the format a1:a2
+#' @param rec_age age of recruitment (as reported)
 #' @export
 gadget_project_output <- function(path, imm.file, mat.file,
                                   pre_fleets = 'comm', 
                                   post_fix = 'pre',
-                                  output_dir = 'out',
-                                  f_age_range = NULL){
+                                  f_age_range = NULL,
+                                  rec_age = NULL){
   
   pre.fleet.names <- paste(pre_fleets, post_fix, sep = '.')
   
@@ -763,79 +764,41 @@ gadget_project_output <- function(path, imm.file, mat.file,
   
   
   print <- 
-    gadgetfile('pre.print',
-               components = list(list('[component]',
-                                      type = 'stockprinter',
-                                      stocknames = mat_stock[[1]]$stockname,
-                                      areaaggfile = gadgetdata(sprintf('Aggfiles/%s.area.agg',mat_stock[[1]]$stockname),
-                                                               data = data.frame(name = sprintf('area%s',mat_stock[[1]]$livesonareas),
-                                                                                 value = mat_stock[[1]]$livesonareas)),
-                                      ageaggfile = gadgetdata(sprintf('Aggfiles/%s.ssb.age.agg',mat_stock[[1]]$stockname),
-                                                              data = data.frame(name = 'allages',
-                                                                                value = paste(mat_stock[[1]]$minage:mat_stock[[1]]$maxage,
-                                                                                              collapse = ' '))),
-                                      lenaggfile =   gadgetdata(paste0('Aggfiles/', mat_stock[[1]]$stockname, '.stock.len.agg'),
-                                                                data = data.frame(name = 'alllen',
-                                                                                  value = paste(mat_stock[[1]]$minlength,mat_stock[[1]]$maxlength,
-                                                                                                sep = ' '))),
-                                      printfile = gadgetfile(sprintf('%s/%s.ssb',output_dir,mat_stock[[1]]$stockname)),
-                                      printatstart = 1,
-                                      yearsandsteps = 'all 1'),
-                                 list('[component]',
-                                      type = 'stockprinter',
-                                      stocknames = imm_stock[[1]]$stockname,
-                                      areaaggfile = gadgetdata(sprintf('Aggfiles/%s.area.agg',imm_stock[[1]]$stockname),
-                                                               data = data.frame(name = sprintf('area%s',imm_stock[[1]]$livesonareas),
-                                                                                 value = imm_stock[[1]]$livesonareas)),
-                                      ageaggfile = gadgetdata(sprintf('Aggfiles/%s.age.agg',imm_stock[[1]]$stockname),
-                                                              data = data.frame(name = imm_stock[[1]]$minage,
-                                                                                value = imm_stock[[1]]$minage)),
-                                      lenaggfile =   gadgetdata(paste0('Aggfiles/', imm_stock[[1]]$stockname, '.stock.len.agg'),
-                                                                data = data.frame(name = 'alllen',
-                                                                                  value = paste(imm_stock[[1]]$minlength,imm_stock[[1]]$maxlength,
-                                                                                                sep = ' '))),
-                                      printfile = gadgetfile(sprintf('%s/%s.rec',output_dir,imm_stock[[1]]$stockname)),
-                                      printatstart = 1,
-                                      yearsandsteps = 'all 2'),
-                                 list('[component]',
-                                      type = 'predatorpreyprinter',
-                                      predatornames = pre.fleet.names,
-                                      preynames = c(imm_stock[[1]]$stockname,mat_stock[[1]]$stockname),
-                                      areaaggfile = gadgetdata(sprintf('Aggfiles/%s.area.agg',mat_stock[[1]]$stockname),
-                                                               data = data.frame(name = sprintf('area%s',mat_stock[[1]]$livesonareas),
-                                                                                 value = mat_stock[[1]]$livesonareas)),
-                                      ageaggfile = gadgetdata(sprintf('Aggfiles/%s.stock.allage.agg',mat_stock[[1]]$stockname),
-                                                              data = tibble::tibble(value = paste(imm_stock[[1]]$minage:mat_stock[[1]]$maxage,
-                                                                                                      collapse = ' '),
-                                                                                        name = 'allages') %>% 
-                                                                dplyr::select(.data$name,.data$value) %>% 
-                                                                as.data.frame()),
-                                      lenaggfile = gadgetdata(paste0('Aggfiles/', mat_stock[[1]]$stockname, '.stock.len.agg'),
-                                                              data = data.frame(name = 'alllen',
-                                                                                value = paste(imm_stock[[1]]$minlength,mat_stock[[1]]$maxlength,
-                                                                                              sep = ' '))),
-                                      printfile = gadgetfile(sprintf('%s/catch.lw',output_dir)),
-                                      yearsandsteps = 'all all'),
-                                 list('[component]',
-                                      type = 'predatorpreyprinter',
-                                      predatornames = pre.fleet.names,
-                                      preynames = c(imm_stock[[1]]$stockname,mat_stock[[1]]$stockname),
-                                      areaaggfile = gadgetdata(sprintf('Aggfiles/%s.area.agg',mat_stock[[1]]$stockname),
-                                                               data = data.frame(name = sprintf('area%s',mat_stock[[1]]$livesonareas),
-                                                                                 value = mat_stock[[1]]$livesonareas)),
-                                      ageaggfile = gadgetdata(sprintf('Aggfiles/%s.stock.Fage.agg',mat_stock[[1]]$stockname),
-                                                              data = tibble::tibble(value = if(is.null(f_age_range)) mat_stock[[1]]$maxage else paste(f_age_range, collapse = ' '),
-                                                                                    name = 'allages') %>% 
-                                                                dplyr::select(.data$name,.data$value) %>% 
-                                                                as.data.frame()),
-                                      lenaggfile = gadgetdata(paste0('Aggfiles/', mat_stock[[1]]$stockname, '.stock.len.agg'),
-                                                              data = data.frame(name = 'alllen',
-                                                                                value = paste(imm_stock[[1]]$minlength,mat_stock[[1]]$maxlength,
-                                                                                              sep = ' '))),
-                                      printfile = gadgetfile(sprintf('%s/catch.F',output_dir)),
-                                      yearsandsteps = 'all all')))
-  
-  attr(print,'file_config')$mainfile_section <- 'printfiles'
+    gadgetprintfile('pre.print',path,missingOkay = TRUE) %>% 
+    gadget_update('stockprinter',
+                  stocknames = mat_stock[[1]]$stockname,
+                  area = mat_stock[[1]]$livesonareas %>% purrr::set_names(.,paste0('area',.)) %>% as.list(),
+                  age = list(allages = mat_stock[[1]]$minage:mat_stock[[1]]$maxage),
+                  len = list(alllen = c(mat_stock[[1]]$minlength,mat_stock[[1]]$maxlength)),
+                  printfile = sprintf('%s.ssb',mat_stock[[1]]$stockname),
+                  printatstart = 1,
+                  yearsandsteps = 'all 1') %>% 
+    gadget_update('stockprinter',
+                  stocknames = imm_stock[[1]]$stockname,
+                  area = imm_stock[[1]]$livesonareas %>% purrr::set_names(.,paste0('area',.)) %>% as.list(),
+                  age = list(rec_age = if(is.null(rec_age)) imm_stock[[1]]$minage else rec_age),
+                  len = list(alllen = c(imm_stock[[1]]$minlength,imm_stock[[1]]$maxlength)),
+                  printfile = sprintf('%s.rec',imm_stock[[1]]$stockname),
+                  printatstart = 1,
+                  yearsandsteps = 'all all') %>% 
+    gadget_update('predatorpreyprinter',
+                  predatornames = pre.fleet.names,
+                  preynames = unique(c(imm_stock[[1]]$stockname,mat_stock[[1]]$stockname)),
+                  area = c(imm_stock[[1]]$livesonareas,mat_stock[[1]]$livesonareas) %>% unique() %>% 
+                    purrr::set_names(.,paste0('area',.)) %>% as.list(),
+                  age = list(allages = imm_stock[[1]]$minage:mat_stock[[1]]$maxage),
+                  len = list(alllen = c(imm_stock[[1]]$minlength,mat_stock[[1]]$maxlength)),
+                  printfile = sprintf('%s.%s.catch.lw',imm_stock[[1]]$stockname,mat_stock[[1]]$stockname),
+                  yearsandsteps = 'all all') %>% 
+    gadget_update('predatorpreyprinter',
+                  predatornames = pre.fleet.names,
+                  preynames = unique(c(imm_stock[[1]]$stockname,mat_stock[[1]]$stockname)),
+                  area = c(imm_stock[[1]]$livesonareas,mat_stock[[1]]$livesonareas) %>% unique() %>% 
+                    purrr::set_names(.,paste0('area',.)) %>% as.list(),
+                  age = list(Fages =  if(is.null(f_age_range)) mat_stock[[1]]$maxage else paste(f_age_range, collapse = ' ')),
+                  len = list(alllen = c(imm_stock[[1]]$minlength,mat_stock[[1]]$maxlength)),
+                  printfile = sprintf('%s.%s.catch.F',imm_stock[[1]]$stockname,mat_stock[[1]]$stockname),
+                  yearsandsteps = 'all all')
   write.gadget.file(print, path)
   return(path)
 }
