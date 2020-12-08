@@ -47,6 +47,7 @@ Replace components of a gadgetstock with either new values or or content
 derived from an MFDB query.
 }
 \examples{
+\dontrun{
 library(magrittr)  # import \%>\% function
 path <- './model'
 gadgetstock('codimm', path, missingOkay = TRUE) \%>\%  # Create a skeleton if missing
@@ -57,4 +58,5 @@ gadgetstock('codimm', path, missingOkay = TRUE) \%>\%  # Create a skeleton if mi
                                              matrix = 'codmat-migration')))) \%>\%
    gadget_update('doesrenew', 0) \%>\%
    write.gadget.file(path)
+   }
 }

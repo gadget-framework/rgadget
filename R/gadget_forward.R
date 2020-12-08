@@ -222,7 +222,9 @@ gadget_project_time <- function(path='.', num_years = 100,
                                     size = main[[1]]$areafile[[1]]$size,
                                     temperature = main[[1]]$areafile %>% 
                                       utils::capture.output() %>% 
-                                      readr::read_table2(.,skip = 4, comment = ';', col_names = c('year','step','area','temperature')) %>% 
+                                      readr::read_lines() %>% 
+                                      .[!grepl('^;',.)] %>% 
+                                      readr::read_table2(.,skip = 3, comment = ';', col_names = c('year','step','area','temperature')) %>% 
                                       dplyr::bind_rows(schedule %>% 
                                                          dplyr::mutate(temperature=3))))) %>% ## this is a mess
     write.gadget.file(project_path)

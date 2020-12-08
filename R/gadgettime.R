@@ -7,9 +7,11 @@
 #' @param missingOkay	If \code{TRUE}, return an empty time file object if file does not exist.
 #' @return A list of time components representing file
 #' @examples
+#' \dontrun{
 #' path <- './cod-model'
 #' # Read 'Modelfiles/time' time file, creating it if it doesn't exist
 #' gadgettime('Modelfiles/time', path, missingOkay = TRUE)  
+#' }
 #' @export
 gadgettime <- function(file_name, path, missingOkay = FALSE) {
   gf <- read.gadget.file(path, file_name, file_type = "time", missingOkay = missingOkay)
@@ -30,11 +32,13 @@ gadgettime <- function(file_name, path, missingOkay = FALSE) {
 #' @param ...		Valid options for a time file; firstyear, firststep, lastyear, laststep, notimesteps. See gadget user guide
 #'
 #' @examples
+#' \dontrun{
 #' library(magrittr)  # import %>% function
 #' path <- './model'
 #' gadgettime('time', path, missingOkay = TRUE) %>%
 #'    gadget_update(firstyear = 1990, lastyear = 2000) %>% 
 #'    write.gadget.file(path)
+#'    }
 #' @export
 gadget_update.gadgettime <- function(gf, ...) {
   args <- list(...)

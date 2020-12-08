@@ -7,11 +7,13 @@
 #' @param missingOkay If \code{TRUE}, return an empty gadgetstock object if file does not exist.
 #' @return A list of lists representing the gadget stock file
 #' @examples
+#' \dontrun{
 #' path <- './cod-model'
 #' # Read codmat from './cod-model', throw an error if it doesn't exist
 #' gadgetstock('codmat', path, missingOkay = TRUE)  
 #' # Read codimm stock / create a new one
 #' gadgetstock('codimm', path, missingOkay = TRUE)  
+#' }
 #' @export
 gadgetstock <- function(stock_name, path, missingOkay = FALSE) {
     # Fetch the name of all stockfiles
@@ -103,6 +105,7 @@ gadgetstock <- function(stock_name, path, missingOkay = FALSE) {
 #' \code{gadget_update('doesrenew', number = data)}
 #'
 #' @examples
+#' \dontrun{
 #' library(magrittr)  # import %>% function
 #' path <- './model'
 #' gadgetstock('codimm', path, missingOkay = TRUE) %>%  # Create a skeleton if missing
@@ -113,6 +116,7 @@ gadgetstock <- function(stock_name, path, missingOkay = FALSE) {
 #'                                              matrix = 'codmat-migration')))) %>%
 #'    gadget_update('doesrenew', 0) %>%
 #'    write.gadget.file(path)
+#'    }
 #' @export
 gadget_update.gadgetstock <- function(gf, component, ...) {
     args <- list(...)

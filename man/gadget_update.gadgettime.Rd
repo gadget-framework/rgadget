@@ -15,9 +15,11 @@
 Replace and/or append new time comonents to an existing file
 }
 \examples{
+\dontrun{
 library(magrittr)  # import \%>\% function
 path <- './model'
 gadgettime('time', path, missingOkay = TRUE) \%>\%
    gadget_update(firstyear = 1990, lastyear = 2000) \%>\% 
    write.gadget.file(path)
+   }
 }

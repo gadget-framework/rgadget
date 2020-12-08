@@ -20,9 +20,11 @@ A list of lists representing the gadget stock file
 Create a gadgetstock object, from fresh or an existing file
 }
 \examples{
+\dontrun{
 path <- './cod-model'
 # Read codmat from './cod-model', throw an error if it doesn't exist
 gadgetstock('codmat', path, missingOkay = TRUE)  
 # Read codimm stock / create a new one
 gadgetstock('codimm', path, missingOkay = TRUE)  
+}
 }

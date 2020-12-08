@@ -27,6 +27,7 @@ gadgetlikelihood <- function(file_name, path, missingOkay = FALSE) {
 #' @param ...		If a component type was provided above, the extra options to supply to \code{gadget_likelihood_component}
 #'
 #' @examples
+#' \dontrun{
 #' library(magrittr)  # import %>% function
 #' path <- './model'
 #' gadgetlikelihood('likelihood', path, missingOkay = TRUE) %>%
@@ -34,6 +35,7 @@ gadgetlikelihood <- function(file_name, path, missingOkay = FALSE) {
 #'    gadget_update(gadget_understocking_component(name = 'understocking')) %>% 
 #'    gadget_update('understocking', name = 'understocking') %>% # Identical to above
 #'    write.gadget.file(path)
+#'    }
 #' @export
 gadget_update.gadgetlikelihood <- function(gf, component, ...) {
     if (!("gadget_likelihood_component" %in% class(component) || "gadgetlikelihoodcomponent" %in% class(component))) {

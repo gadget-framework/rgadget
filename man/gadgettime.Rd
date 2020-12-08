@@ -20,7 +20,9 @@ A list of time components representing file
 Create a time file object, from fresh or an existing file.
 }
 \examples{
+\dontrun{
 path <- './cod-model'
 # Read 'Modelfiles/time' time file, creating it if it doesn't exist
 gadgettime('Modelfiles/time', path, missingOkay = TRUE)  
+}
 }
