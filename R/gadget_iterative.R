@@ -228,7 +228,7 @@ gadget_iterative_stage_2 <- function(variants, cv_floor = 0){
                   variance = ifelse(.data$type == 'surveyindices', 
                                     pmax(.data$variance,cv_floor^2), .data$variance)) %>%
     dplyr::group_by(.data$component) %>% 
-    dplyr::summarise(w = mean(.data$n)/min(pmax(.data$SS,1))) 
+    dplyr::summarise(w = 1/variance[1]) 
   
   weights <- 
     weights$w %>% 
