@@ -9,7 +9,9 @@
 #' @return list
 #' @export
 gadget_fit <- function(gd, params.in = attr(gd,'params_in'), fit = 'FIT', f.age.range = NULL, steps = 1){
+  
   fit <- variant_strip_path(gd,fit)
+  on.exit({closeAllConnections()})#; unlink(paste(gd,fit,sep='/'))})
   main <- read.gadget.file(gd,attr(gd,'mainfile'), recursive = FALSE)
   attr(main, 'file_name') <- 'main'
   stocks <- 
@@ -71,7 +73,7 @@ gadget_fit <- function(gd, params.in = attr(gd,'params_in'), fit = 'FIT', f.age.
       gadget_update('stockprinter',
                     printfile = paste(stock, 'full', sep = '.'),
                     stocknames = stock,
-                    area = livesonareas(stocks[[stock]]) %>% purrr::set_names(.,.) %>% as.list(),
+                    area = stocks %>% purrr::map(~Rgadget:::livesonareas(.)) %>% unlist(.) %>% unique() %>% set_names(.,.) %>% as.list(), 
                     age = list(allages = age_range(stocks[[stock]])),
                     len = tibble::tibble(lower = utils::head(length_range(stocks[[stock]]),-1),
                                          upper = utils::tail(length_range(stocks[[stock]]),-1)) %>% 
@@ -83,7 +85,7 @@ gadget_fit <- function(gd, params.in = attr(gd,'params_in'), fit = 'FIT', f.age.
       gadget_update('stockprinter',
                     printfile = paste(stock, 'recruitment', sep = '.'),
                     stocknames = stock,
-                    area = livesonareas(stocks[[stock]]) %>% purrr::set_names(.,.) %>% as.list(),
+                    area = stocks %>% purrr::map(~Rgadget:::livesonareas(.)) %>% unlist(.) %>% unique() %>% set_names(.,.) %>% as.list(), 
                     age = list(recage = stocks[[stock]][[1]]$minage),
                     len = list(alllen = length_range(stocks[[stock]])))
   }
@@ -103,7 +105,7 @@ gadget_fit <- function(gd, params.in = attr(gd,'params_in'), fit = 'FIT', f.age.
                       printfile = sprintf('%s.prey',prey),
                       predatornames = fleets[[1]] %>% purrr::map(1),
                       preynames = prey,
-                      area = livesonareas(stocks[[prey]]) %>% purrr::set_names(.,.) %>% as.list(),
+                      area = stocks %>% purrr::map(~Rgadget:::livesonareas(.)) %>% unlist(.) %>% unique() %>% set_names(.,.) %>% as.list(),
                       age = age_range(stocks[[prey]]) %>% purrr::set_names(.,.) %>% as.list(),
                       len =  list(alllen = length_range(stocks[[prey]]))) 
       
@@ -117,7 +119,7 @@ gadget_fit <- function(gd, params.in = attr(gd,'params_in'), fit = 'FIT', f.age.
                       printfile = sprintf('%s.prey.%s', prey, predator),
                       predatornames = predator,
                       preynames = prey,
-                      area = livesonareas(stocks[[prey]]) %>% purrr::set_names(.,.) %>% as.list(),
+                      area = stocks %>% purrr::map(~Rgadget:::livesonareas(.)) %>% unlist(.) %>% unique() %>% set_names(.,.) %>% as.list(), 
                       age = list(allages = age_range(stocks[[prey]])),
                       len = tibble::tibble(lower = head(length_range(stocks[[prey]]),-1),
                                            upper = tail(length_range(stocks[[prey]]),-1)) %>% 
