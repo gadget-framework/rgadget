@@ -81,7 +81,8 @@ gadget_project_output(
   pre_fleets = "comm",
   post_fix = "pre",
   f_age_range = NULL,
-  rec_age
+  rec_age = NULL,
+  print_block = "1"
 )
 }
 \arguments{
@@ -150,6 +151,8 @@ gadget_project_output(
 \item{f_age_range}{F age range, specified in the format a1:a2}
 
 \item{rec_age}{age of recruitment (as reported)}
+
+\item{print_block}{file suffix for the printfile}
 
 \item{output_dir}{location of the model output}
 }

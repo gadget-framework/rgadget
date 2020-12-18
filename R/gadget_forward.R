@@ -408,6 +408,7 @@ gadget_project_fleet <- function(path, pre_fleet = 'comm',
     purrr::flatten(.x = .) %>% 
     purrr::map('suitability') %>%
     purrr::flatten(.x = .) %>% 
+    purrr::map(~purrr::map_if(.,is.call,to.gadget.formulae)) %>% 
     purrr::map(~paste(.,collapse = '\t')) %>% 
     unlist() %>% 
     paste(names(.),.,sep='\t')
@@ -747,12 +748,14 @@ gadget_project_ref_points <- function(path,ref_points,params.file='PRE/params.pr
 #' @param pre_fleets vector of fleets on which the projections are based
 #' @param f_age_range F age range, specified in the format a1:a2
 #' @param rec_age age of recruitment (as reported)
+#' @param print_block file suffix for the printfile
 #' @export
 gadget_project_output <- function(path, imm.file, mat.file,
                                   pre_fleets = 'comm', 
                                   post_fix = 'pre',
                                   f_age_range = NULL,
-                                  rec_age = NULL){
+                                  rec_age = NULL,
+                                  print_block = '1'){
   
   pre.fleet.names <- paste(pre_fleets, post_fix, sep = '.')
   
@@ -764,7 +767,7 @@ gadget_project_output <- function(path, imm.file, mat.file,
   
   
   print <- 
-    gadgetprintfile('pre.print',path,missingOkay = TRUE) %>% 
+    gadgetprintfile(sprintf('pre.print.%s',print_block),path,missingOkay = TRUE) %>% 
     gadget_update('stockprinter',
                   stocknames = mat_stock[[1]]$stockname,
                   area = mat_stock[[1]]$livesonareas %>% purrr::set_names(.,paste0('area',.)) %>% as.list(),
