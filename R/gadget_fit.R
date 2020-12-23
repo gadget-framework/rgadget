@@ -137,7 +137,8 @@ gadget_fit <- function(gd, params.in = attr(gd,'params_in'), fit = 'FIT', f.age.
   write.gadget.file(print,gv)
   
   ## call gadget
-  gv <- gadget_evaluate(gv,params.in = params.in, params.out = tempfile())
+  dir.create(paste0(Rgadget:::variant_full_path(gv, fit),'/tmp'), showWarnings = FALSE)
+  gv <- gadget_evaluate(gv,params.in = params.in, params.out = paste0(Rgadget:::variant_full_path(gv, fit),tempfile(tmpdir='/tmp')))
   
   ## read in the output
   out <- 
