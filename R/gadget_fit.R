@@ -10,7 +10,7 @@
 #' @export
 gadget_fit <- function(gd, params.in = attr(gd,'params_in'), fit = 'FIT', f.age.range = NULL, steps = 1){
   
-  fit <- variant_strip_path(gd,fit)
+  fit <- Rgadget:::variant_strip_path(gd,fit)
   on.exit({closeAllConnections()})#; unlink(paste(gd,fit,sep='/'))})
   main <- read.gadget.file(gd,attr(gd,'mainfile'), recursive = FALSE)
   attr(main, 'file_name') <- 'main'
@@ -47,8 +47,10 @@ gadget_fit <- function(gd, params.in = attr(gd,'params_in'), fit = 'FIT', f.age.
                                  recursive = TRUE,
                                  missingOkay = TRUE)) 
   
-  gv <- 
-    gadget.variant.dir(gd, variant_dir = fit)
+  if(is.null(attr(gd, "variant_dir"))){
+    gv <- gadget.variant.dir(gd, variant_dir = fit)} else {
+      gv <- gadget.variant.dir(gd, variant_dir = paste(attr(gd,"variant_dir"), fit,sep='/'))
+      }
   
   write.gadget.file(main,gv)
   
@@ -74,9 +76,9 @@ gadget_fit <- function(gd, params.in = attr(gd,'params_in'), fit = 'FIT', f.age.
                     printfile = paste(stock, 'full', sep = '.'),
                     stocknames = stock,
                     area = stocks %>% purrr::map(~Rgadget:::livesonareas(.)) %>% unlist(.) %>% unique() %>% set_names(.,.) %>% as.list(), 
-                    age = list(allages = age_range(stocks[[stock]])),
-                    len = tibble::tibble(lower = utils::head(length_range(stocks[[stock]]),-1),
-                                         upper = utils::tail(length_range(stocks[[stock]]),-1)) %>% 
+                    age = list(allages = Rgadget:::age_range(stocks[[stock]])),
+                    len = tibble::tibble(lower = utils::head(Rgadget:::length_range(stocks[[stock]]),-1),
+                                         upper = utils::tail(Rgadget:::length_range(stocks[[stock]]),-1)) %>% 
                       dplyr::mutate(label = as.ordered(.data$lower)) %>%
                       split(.$label) %>% 
                       purrr::set_names(.,paste0('len',names(.))) %>% 
@@ -87,7 +89,7 @@ gadget_fit <- function(gd, params.in = attr(gd,'params_in'), fit = 'FIT', f.age.
                     stocknames = stock,
                     area = stocks %>% purrr::map(~Rgadget:::livesonareas(.)) %>% unlist(.) %>% unique() %>% set_names(.,.) %>% as.list(), 
                     age = list(recage = stocks[[stock]][[1]]$minage),
-                    len = list(alllen = length_range(stocks[[stock]])))
+                    len = list(alllen = Rgadget:::length_range(stocks[[stock]])))
   }
   
   prey.subset <- 
@@ -106,8 +108,8 @@ gadget_fit <- function(gd, params.in = attr(gd,'params_in'), fit = 'FIT', f.age.
                       predatornames = fleets[[1]] %>% purrr::map(1),
                       preynames = prey,
                       area = stocks %>% purrr::map(~Rgadget:::livesonareas(.)) %>% unlist(.) %>% unique() %>% set_names(.,.) %>% as.list(),
-                      age = age_range(stocks[[prey]]) %>% purrr::set_names(.,.) %>% as.list(),
-                      len =  list(alllen = length_range(stocks[[prey]]))) 
+                      age = Rgadget:::age_range(stocks[[prey]]) %>% purrr::set_names(.,.) %>% as.list(),
+                      len =  list(alllen = Rgadget:::length_range(stocks[[prey]]))) 
       
     }
     for(predator in c(pred.subset,fleets[[1]] %>% purrr::map(1))){
@@ -120,9 +122,9 @@ gadget_fit <- function(gd, params.in = attr(gd,'params_in'), fit = 'FIT', f.age.
                       predatornames = predator,
                       preynames = prey,
                       area = stocks %>% purrr::map(~Rgadget:::livesonareas(.)) %>% unlist(.) %>% unique() %>% set_names(.,.) %>% as.list(), 
-                      age = list(allages = age_range(stocks[[prey]])),
-                      len = tibble::tibble(lower = head(length_range(stocks[[prey]]),-1),
-                                           upper = tail(length_range(stocks[[prey]]),-1)) %>% 
+                      age = list(allages = Rgadget:::age_range(stocks[[prey]])),
+                      len = tibble::tibble(lower = head(Rgadget:::length_range(stocks[[prey]]),-1),
+                                           upper = tail(Rgadget:::length_range(stocks[[prey]]),-1)) %>% 
                         dplyr::mutate(label = as.ordered(.data$lower))  %>%
                         dplyr::arrange(.data$lower) %>% 
                         split(.$label) %>% 
@@ -137,8 +139,8 @@ gadget_fit <- function(gd, params.in = attr(gd,'params_in'), fit = 'FIT', f.age.
   write.gadget.file(print,gv)
   
   ## call gadget
-  dir.create(paste0(Rgadget:::variant_full_path(gv, fit),'/tmp'), showWarnings = FALSE)
-  gv <- gadget_evaluate(gv,params.in = params.in, params.out = paste0(Rgadget:::variant_full_path(gv, fit),tempfile(tmpdir='/tmp')))
+  dir.create(paste0(Rgadget:::variant_full_path(gv, attr(gv,"variant_dir")),'/tmp'), showWarnings = FALSE)
+  gv <- gadget_evaluate(gv,params.in = params.in, params.out = paste0(Rgadget:::variant_full_path(gv, attr(gv,"variant_dir")),tempfile(tmpdir='/tmp')))
   
   ## read in the output
   out <- 
@@ -450,7 +452,7 @@ gadget_fit <- function(gd, params.in = attr(gd,'params_in'), fit = 'FIT', f.age.
 #         params = params,
          catchstatistics = catchstatistics)
   class(out) <- c('gadget.fit',class(out))
-  save(out,file=sprintf('%s/fit.Rdata',variant_full_path(gd,variant_within_path(gd,fit))))
+  save(out,file=sprintf('%s/fit.Rdata',Rgadget:::variant_full_path(gd,Rgadget:::variant_within_path(gd,fit))))
   
   return(out)
   
