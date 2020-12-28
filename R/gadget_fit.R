@@ -14,6 +14,7 @@ gadget_fit <- function(gd, params.in = attr(gd,'params_in'), fit = 'FIT', f.age.
   on.exit({closeAllConnections()})#; unlink(paste(gd,fit,sep='/'))})
   main <- read.gadget.file(gd,attr(gd,'mainfile'), recursive = FALSE)
   attr(main, 'file_name') <- 'main'
+  if(!file.exists(paste(gd, params.in, sep = "/"))){stop("params.in file is missing")}
   stocks <- 
     main$stock$stockfiles %>% 
     purrr::set_names(.,.) %>% 
@@ -36,7 +37,7 @@ gadget_fit <- function(gd, params.in = attr(gd,'params_in'), fit = 'FIT', f.age.
   
   lik.dat <- 
     lik %>% 
-    purrr::map(lik_to_tibble) 
+    purrr::map(Rgadget:::lik_to_tibble) 
   
   
   fleets <- 
