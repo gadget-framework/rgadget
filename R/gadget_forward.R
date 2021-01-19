@@ -732,12 +732,19 @@ gadget_project_ref_points <- function(path,ref_points,params.file='PRE/params.pr
 #' @rdname gadget_projections
 #' @param output_dir location of the model output
 #' @param pre_fleets vector of fleets on which the projections are based
+#' @param post_fix A single label (vector of length 1) used to distinguish the original fleet and the projection fleet (with same parameterisations). Should be the same for all projection fleets.
+#' @param other_fleets vector of other fleet names to include when printing results
+#' @param rec_step step during which immature recruitment occurs in the model
+#' @param ref_cm minimum cm to include in reference biomass range
 #' @param f_age_range F age range, specified in the format a1:a2
 #' @export
 gadget_project_output <- function(path, imm.file, mat.file,
                                   pre_fleets = 'comm', 
                                   post_fix = 'pre',
+                                  other_fleets = '',
                                   output_dir = 'out',
+                                  rec_step = 1,
+                                  ref_cm = 0,
                                   f_age_range = NULL){
   
   pre.fleet.names <- paste(pre_fleets, post_fix, sep = '.')
@@ -770,7 +777,45 @@ gadget_project_output <- function(path, imm.file, mat.file,
                                       yearsandsteps = 'all 1'),
                                  list('[component]',
                                       type = 'stockprinter',
-                                      stocknames = imm_stock[[1]]$stockname,
+                                      stocknames = c(imm_stock[[1]]$stockname,mat_stock[[1]]$stockname),
+                                      areaaggfile = gadgetdata(sprintf('Aggfiles/%s.area.agg',mat_stock[[1]]$stockname),
+                                                               data = data.frame(name = sprintf('area%s',mat_stock[[1]]$livesonareas),
+                                                                                 value = mat_stock[[1]]$livesonareas)),
+                                      ageaggfile = gadgetdata(sprintf('Aggfiles/%s.stock.allage.agg',mat_stock[[1]]$stockname),
+                                                              data = tibble::tibble(value = paste(imm_stock[[1]]$minage:mat_stock[[1]]$maxage,
+                                                                                                  collapse = ' '),
+                                                                                    name = 'allages') %>% 
+                                                                dplyr::select(.data$name,.data$value) %>% 
+                                                                as.data.frame()),
+                                      lenaggfile = gadgetdata(paste0('Aggfiles/', mat_stock[[1]]$stockname, '.stock.len.agg'),
+                                                              data = data.frame(name = 'alllen',
+                                                                                value = paste(imm_stock[[1]]$minlength,mat_stock[[1]]$maxlength,
+                                                                                              sep = ' '))),
+                                      printfile = gadgetfile(sprintf('%s/stock.tb',output_dir)),
+                                      printatstart = 1,
+                                      yearsandsteps = 'all 1'),
+                                 list('[component]',
+                                      type = 'stockprinter',
+                                      stocknames = c(imm_stock[[1]]$stockname,mat_stock[[1]]$stockname),
+                                      areaaggfile = gadgetdata(sprintf('Aggfiles/%s.area.agg',mat_stock[[1]]$stockname),
+                                                               data = data.frame(name = sprintf('area%s',mat_stock[[1]]$livesonareas),
+                                                                                 value = mat_stock[[1]]$livesonareas)),
+                                      ageaggfile = gadgetdata(sprintf('Aggfiles/%s.stock.allage.agg',mat_stock[[1]]$stockname),
+                                                              data = tibble::tibble(value = paste(imm_stock[[1]]$minage:mat_stock[[1]]$maxage,
+                                                                                                  collapse = ' '),
+                                                                                    name = 'allages') %>% 
+                                                                dplyr::select(.data$name,.data$value) %>% 
+                                                                as.data.frame()),
+                                      lenaggfile = gadgetdata(paste0('Aggfiles/', mat_stock[[1]]$stockname, '.stock.len.agg'),
+                                                              data = data.frame(name = 'alllen',
+                                                                                value = paste(ref_cm, mat_stock[[1]]$maxlength,
+                                                                                              sep = ' '))),
+                                      printfile = gadgetfile(sprintf('%s/stock.refb',output_dir)),
+                                      printatstart = 1,
+                                      yearsandsteps = 'all 1'),
+                                 list('[component]',
+                                      type = 'stockprinter',
+                                      stocknames =  imm_stock[[1]]$stockname,
                                       areaaggfile = gadgetdata(sprintf('Aggfiles/%s.area.agg',imm_stock[[1]]$stockname),
                                                                data = data.frame(name = sprintf('area%s',imm_stock[[1]]$livesonareas),
                                                                                  value = imm_stock[[1]]$livesonareas)),
@@ -783,10 +828,10 @@ gadget_project_output <- function(path, imm.file, mat.file,
                                                                                                 sep = ' '))),
                                       printfile = gadgetfile(sprintf('%s/%s.rec',output_dir,imm_stock[[1]]$stockname)),
                                       printatstart = 1,
-                                      yearsandsteps = 'all 2'),
+                                      yearsandsteps = paste0('all ',rec_step + 1)),
                                  list('[component]',
                                       type = 'predatorpreyprinter',
-                                      predatornames = pre.fleet.names,
+                                      predatornames = c(pre.fleet.names, pre_fleets, other_fleets),
                                       preynames = c(imm_stock[[1]]$stockname,mat_stock[[1]]$stockname),
                                       areaaggfile = gadgetdata(sprintf('Aggfiles/%s.area.agg',mat_stock[[1]]$stockname),
                                                                data = data.frame(name = sprintf('area%s',mat_stock[[1]]$livesonareas),
@@ -805,7 +850,7 @@ gadget_project_output <- function(path, imm.file, mat.file,
                                       yearsandsteps = 'all all'),
                                  list('[component]',
                                       type = 'predatorpreyprinter',
-                                      predatornames = pre.fleet.names,
+                                      predatornames =  c(pre.fleet.names, pre_fleets, other_fleets),
                                       preynames = c(imm_stock[[1]]$stockname,mat_stock[[1]]$stockname),
                                       areaaggfile = gadgetdata(sprintf('Aggfiles/%s.area.agg',mat_stock[[1]]$stockname),
                                                                data = data.frame(name = sprintf('area%s',mat_stock[[1]]$livesonareas),
