@@ -176,9 +176,9 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="gadget.iterative.html">gadget.iterative()</a></code> </p>
+          <p><code><a href="gadget.iterative.html">gadget.iterative()</a></code> <code><a href="gadget.iterative.html">gadget.iterative()</a></code> </p>
         </td>
-        <td><p>Iterative reweighting for Gadget models</p></td>
+        <td><p>Removed functions</p></td>
       </tr><tr>
         
         <td>
@@ -269,6 +269,74 @@
           <p><code><a href="gadget_filetypes.html">gadget_filetypes</a></code> </p>
         </td>
         <td><p>Recognised GADGET file types and their quirks</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="gadget_fit.html">gadget_fit()</a></code> </p>
+        </td>
+        <td><p>Gadget fit</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="gadget_iterative_stage_1.html">gadget_iterative_stage_1()</a></code> <code><a href="gadget_iterative_stage_1.html">gadget_iterative_stage_2()</a></code> </p>
+        </td>
+        <td><p>Iterative reweighting for Gadget models
+
+An implementation of the iterative reweigthing of likelihood
+components in gadget. It analyzes a given gadget model and, after
+a series of optimisations where each likelihood component is
+heavily weigthed, suggests a weigthing for the components based on
+the respective variance.  If one (or more) components, other than
+understocking and penalty, are 0 then the gadget optimisation with
+the final weights will not be completed.
+
+In Taylor et. al an objective reweighting scheme for likelihood
+components is described for cod in Icelandic waters. The authors
+nota that the issue of component weighting has been discussed for
+some time, as the data sources have different natural scales (e.g
+g vs. kg) that should not affect the outcome. A simple heuristic,
+where the weights are the inverse of the initial sums of squares
+for the respective component resulting in an initials score equal
+to the number of components, is therfor often used. This has the
+intutitive advantage of all components being normalised. There is
+however a drawback to this since the component scores, given the
+initial parametrisation, are most likely not equally far from
+their respective optima resulting in sub-optimal weighting.  The
+iterative reweighting heuristic tackles this problem by optimising
+each component separately in order to determine the lowest
+possible value for each component. This is then used to determine
+the final weights.  The resoning for this approach is as follows:
+Conceptually the likelihood components can be thought of as
+residual sums of squares, and as such their variance can be
+esimated by dividing the SS by the degrees of freedom. The optimal
+weighting strategy is the inverse of the variance.  Here the
+iteration starts with assigning the inverse SS as the initial
+weight, that is the initial score of each component when
+multiplied with the weight is 1. Then an optimisation run for each
+component with the intial score for that component set to
+10000. After the optimisation run the inverse of the resulting SS
+is multiplied by the effective number of datapoints and used as
+the final weight for that particular component.  The effective
+number of datapoints is used as a proxy for the degrees of freedom
+is determined from the number of non-zero datapoints. This is
+viewed as satisfactory proxy when the dataset is large, but for
+smaller datasets this could be a gross overestimate. In
+particular, if the surveyindices are weigthed on their own while
+the yearly recruitment is esimated they could be overfitted. If
+there are two surveys within the year Taylor et. al suggest that
+the corresponding indices from each survey are weigthed
+simultaneously in order to make sure that there are at least two
+measurement for each yearly recruit, this is done through
+component grouping which is implemented. Another approach, which
+is also implemented, for say a single survey fleet the weight for
+each index component is estimated from a model of the form
+$$\log(I_{lts}) = \mu + Y_t + \lambda_l + \Sigma_s +
+\epsilon_{lts}$$ where the residual term, \(\epsilon_{lts}\), is
+independent normal with variance
+\(\sigma_{ls}^2\). The inverse of the estimated
+variance from the above model as the weights between the
+surveyindices.  After these weights have been determined all
+surveyindices are weighted simultaneously.</p></td>
       </tr><tr>
         
         <td>
@@ -563,6 +631,12 @@
           <p><code><a href="to.gadget.formulae.html">to.gadget.formulae()</a></code> </p>
         </td>
         <td><p>Turn R expression into GADGET formulae string</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="variant_append_settings.html">variant_append_settings()</a></code> </p>
+        </td>
+        <td><p>Append setting to variant directories</p></td>
       </tr><tr>
         
         <td>

@@ -156,10 +156,6 @@ The source code for gadget can be obtained from https://github.com/hafro/gadget<
   printinitial <span class='op'>=</span> <span class='cn'>NULL</span>,
   printfinal <span class='op'>=</span> <span class='cn'>NULL</span>,
   gadget.exe <span class='op'>=</span> <span class='st'>"gadget"</span>,
-  PBS <span class='op'>=</span> <span class='cn'>FALSE</span>,
-  qsub.script <span class='op'>=</span> <span class='cn'>NULL</span>,
-  PBS.name <span class='op'>=</span> <span class='st'>"run"</span>,
-  qsub.output <span class='op'>=</span> <span class='st'>"output"</span>,
   ignore.stderr <span class='op'>=</span> <span class='cn'>FALSE</span>,
   parallel <span class='op'>=</span> <span class='cn'>NULL</span>
 <span class='op'>)</span></pre>
@@ -243,26 +239,6 @@ information should be saved.</p></td>
       <td><p>path to the gadget executable, if not set, first looks
 to see if the gadget R package is installed, if that fails uses the system
 path. .Options$gadget.path will override any given parameter.</p></td>
-    </tr>
-    <tr>
-      <th>PBS</th>
-      <td><p>Logical, should, instead of running gadget directly,
-a pbs script be
-generated that can be submitted to a cluster queue (defaults to FALSE).</p></td>
-    </tr>
-    <tr>
-      <th>qsub.script</th>
-      <td><p>The name of the qsub script that can be generated, if
-desired. As with the PBS script R tries to set the permission to 777
-(not wether or not this works on windows).</p></td>
-    </tr>
-    <tr>
-      <th>PBS.name</th>
-      <td><p>Name of the pbs script (.sh will be appended).</p></td>
-    </tr>
-    <tr>
-      <th>qsub.output</th>
-      <td><p>The directory where the output from the script is stored</p></td>
     </tr>
     <tr>
       <th>ignore.stderr</th>

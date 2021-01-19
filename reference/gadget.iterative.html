@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Iterative reweighting for Gadget models — gadget.iterative • Rgadget</title>
+<title>Removed functions — gadget.iterative • Rgadget</title>
 
 
 <!-- jquery -->
@@ -39,7 +39,7 @@
 
 
 
-<meta property="og:title" content="Iterative reweighting for Gadget models — gadget.iterative" />
+<meta property="og:title" content="Removed functions — gadget.iterative" />
 <meta property="og:description" content="An implementation of the iterative reweigthing of likelihood
 components in gadget. It analyzes a given gadget model and, after
 a series of optimisations where each likelihood component is
@@ -127,7 +127,7 @@ the final weights will not be completed." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Iterative reweighting for Gadget models</h1>
+    <h1>Removed functions</h1>
     
     <div class="hidden name"><code>gadget.iterative.Rd</code></div>
     </div>
@@ -152,8 +152,26 @@ the final weights will not be completed.</p>
   wgts <span class='op'>=</span> <span class='st'>"WGTS"</span>,
   grouping <span class='op'>=</span> <span class='cn'>NULL</span>,
   optinfofile <span class='op'>=</span> <span class='st'>"optinfofile"</span>,
-  PBS <span class='op'>=</span> <span class='cn'>FALSE</span>,
-  qsub.script <span class='op'>=</span> <span class='cn'>NULL</span>,
+  run.serial <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  method <span class='op'>=</span> <span class='st'>"lm"</span>,
+  cv.floor <span class='op'>=</span> <span class='cn'>NULL</span>,
+  comp <span class='op'>=</span> <span class='cn'>NULL</span>,
+  inverse <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  gd <span class='op'>=</span> <span class='cn'>NULL</span>,
+  rew.cik <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span>
+
+<span class='fu'>gadget.iterative</span><span class='op'>(</span>
+  main.file <span class='op'>=</span> <span class='st'>"main"</span>,
+  gadget.exe <span class='op'>=</span> <span class='st'>"gadget"</span>,
+  params.file <span class='op'>=</span> <span class='st'>"params.in"</span>,
+  rew.sI <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  run.final <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  resume.final <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  wgts <span class='op'>=</span> <span class='st'>"WGTS"</span>,
+  grouping <span class='op'>=</span> <span class='cn'>NULL</span>,
+  optinfofile <span class='op'>=</span> <span class='st'>"optinfofile"</span>,
   run.serial <span class='op'>=</span> <span class='cn'>FALSE</span>,
   method <span class='op'>=</span> <span class='st'>"lm"</span>,
   cv.floor <span class='op'>=</span> <span class='cn'>NULL</span>,
@@ -209,15 +227,6 @@ interim weighting results should be stored.</p></td>
     <tr>
       <th>optinfofile</th>
       <td><p>optinfofile used in the reweighting</p></td>
-    </tr>
-    <tr>
-      <th>PBS</th>
-      <td><p>Logical, should the gadget runs be defined to be run in pbs
-scripts (defaults to FALSE).</p></td>
-    </tr>
-    <tr>
-      <th>qsub.script</th>
-      <td><p>Name of cluster submission script.</p></td>
     </tr>
     <tr>
       <th>run.serial</th>
