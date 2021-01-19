@@ -18,8 +18,9 @@ This function converts all files in the gadget variant directory from windows li
 \examples{
 \dontrun{
 gd <- gadget.variant.dir('test')
-gadgetfile('test',components = list(test = list(a=1))) \%>\% 
-write.gadget.file(gd)
+test <- 
+   gadgetfile('test',components = list(test = list(a=1)))
+write.gadget.file(test, gd)
 
 gd_to_unix(gd)
 }

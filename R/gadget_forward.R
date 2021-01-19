@@ -744,7 +744,6 @@ gadget_project_ref_points <- function(path,ref_points,params.file='PRE/params.pr
 
 
 #' @rdname gadget_projections
-#' @param output_dir location of the model output
 #' @param pre_fleets vector of fleets on which the projections are based
 #' @param f_age_range F age range, specified in the format a1:a2
 #' @param rec_age age of recruitment (as reported)

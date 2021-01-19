@@ -113,9 +113,6 @@ callParamin <- function(i='params.in',
 ##' interim weighting results should be stored.
 ##' @param grouping a list naming the groups of components that should be reweighted together.
 ##' @param optinfofile optinfofile used in the reweighting
-##' @param PBS Logical, should the gadget runs be defined to be run in pbs
-##' scripts (defaults to FALSE).
-##' @param qsub.script Name of cluster submission script.
 ##' @param run.serial should the weighting run be run in parallel (used in
 ##' bootstrap).
 ##' @param method linear model or loess smoother used to calculate SI
@@ -149,8 +146,6 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
                              wgts = 'WGTS',
                              grouping = NULL,
                              optinfofile='optinfofile',
-                             PBS = FALSE,
-                             qsub.script = NULL,
                              run.serial = FALSE,
                              method = 'lm',
                              cv.floor=NULL,
@@ -159,6 +154,8 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
                              gd=NULL,
                              rew.cik = FALSE,
                              ...) {
+  
+  warning('Function deprecated - has been replaced by gadget_iterative_*')
   
   if(!is.null(gd)){
     ## Change the gadget working directory to whatever the gd says it should be
@@ -316,17 +313,12 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
                p=paste(wgts,paste('params',comp,sep='.'),sep='/'),
                opt=optinfofile,
                gadget.exe=gadget.exe,
-               PBS=PBS,
-               qsub.script=qsub.script,
-               PBS.name=paste(wgts,comp,sep='/'),
                ...)
     callGadget(s=1,
                main=paste(wgts,paste('main',comp,sep='.'),sep='/'),
                i=paste(wgts,paste('params',comp,sep='.'),sep='/'),
                o=paste(wgts,paste('lik',comp,sep='.'),sep='/'),
                gadget.exe=gadget.exe,
-               PBS=PBS,
-               PBS.name=paste(wgts,comp,sep='/'),
                ...)
     print(sprintf('Comp %s completed',comp))
   }
@@ -368,9 +360,6 @@ gadget.iterative <- function(main.file='main',gadget.exe='gadget',
                  p=sprintf('%s/params.%s',wgts,comp),
                  opt=optinfofile,
                  gadget.exe=gadget.exe,
-                 PBS=PBS,
-                 PBS.name=paste(wgts,comp,sep='/'),
-                 qsub.script=qsub.script,
                  ...)
       callGadget(s=1,
                  main=sprintf('%s/main.%s',wgts,comp),

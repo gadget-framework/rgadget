@@ -5,10 +5,10 @@
 \title{Evaluate a gadget model}
 \usage{
 gadget_optimize(
-  path = ".",
-  params.in = NULL,
-  params.out = NULL,
-  control = NULL,
+  path,
+  params.in = attr(path, "params_in"),
+  params.out = attr(path, "params_out"),
+  control = attr(path, "optinfo"),
   ...
 )
 }

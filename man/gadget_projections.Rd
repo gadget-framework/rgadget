@@ -153,8 +153,6 @@ gadget_project_output(
 \item{rec_age}{age of recruitment (as reported)}
 
 \item{print_block}{file suffix for the printfile}
-
-\item{output_dir}{location of the model output}
 }
 \value{
 gadget variant directory
