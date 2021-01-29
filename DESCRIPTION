@@ -10,7 +10,7 @@ Authors@R: c(person("Bjarki Thor", "Elvarsson", email="bjarki.elvarsson@hafogvat
              person("William", "Butler", email="will.butler@hafogvatn.is",role = c("ctb")),
             person("Marine and Freshwater Research Institute (Iceland)", role = c("cph")))
 Maintainer: Bjarki Thor Elvarsson <bjarki.elvarsson@hafogvatn.is>
-Description: Companion R package for Gadget ecosystem modelling package <https://hafro.github.io/gadget2>.
+Description: Companion R package for Gadget ecosystem modelling package <https://gadget-framework.github.io/gadget2>.
              Manages creation and modification of input files for Gadget, as
              well as providing utilities to start model runs and digest outputs.
 Encoding: UTF-8
