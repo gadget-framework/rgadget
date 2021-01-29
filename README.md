@@ -24,7 +24,7 @@ You can use devtools to install this directly:
 
 ```r
 # install.packages("devtools")
-devtools::install_github("hafro/rgadget")
+devtools::install_github("gadget-framework/rgadget")
 ```
 
 
