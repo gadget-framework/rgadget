@@ -9,7 +9,7 @@ output:
 #knitr::opts_knit$set(root.dir = '~/rgadget/gadget_example/cod_model')  # with something else than `getwd()`
 ```
 
-Rgadget is a set of useful utilities for gadget, a statistical
+Rgadget is a set of useful utilities for Gadget, a statistical
 multi-species multi-area marine ecosystem modelling toolbox.
 
 This package aids in the developement of Gadget models in a number of
@@ -17,17 +17,6 @@ ways. It can interact with Gadget, by manipulating input files, digest
 output and rudimentary plots.
 
 [![Travis build status](https://travis-ci.org/Hafro/rgadget.svg?branch=master)](https://travis-ci.org/Hafro/rgadget)
-
-Prerequisites
--------------
-
-Before installing, make sure R is configured to optimise the gadget2 code before compiling.
-Create a ``~/.R/Makevars`` (Linux/MacOS) or ``~/.R/Makevars.win`` (Windows) file and add the following:
-
-    CFLAGS += -O3 -march=native
-    CXXFLAGS += -O3 -march=native
-
-Next install gadget2, see the installation instructions at: https://github.com/hafro/gadget2
 
 Installing
 ----------
