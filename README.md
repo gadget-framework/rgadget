@@ -16,9 +16,6 @@ output and rudimentary plots. A rendered version of the on-line help can be acce
 
 [![Travis build status](https://travis-ci.org/Hafro/rgadget.svg?branch=master)](https://travis-ci.org/Hafro/rgadget)
 
-Prerequisites
--------------
-Gadget obviously, can be obtained from github.com/hafro/gadget
 
 Installing
 ----------
