@@ -17,6 +17,8 @@ Encoding: UTF-8
 Depends:
     R (>= 3.3.0)
 Imports:
+    gadget2,
+    mfdb,
     dplyr,
     fs,
     readr,
@@ -36,10 +38,8 @@ Imports:
     methods,
     tseries
 Suggests:
-    gadget2,
     unittest (>= 1.4),
     knitr,
-    mfdb,
     logging,
     rmarkdown
 License: GPL
