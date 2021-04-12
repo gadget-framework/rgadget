@@ -22,7 +22,7 @@ gadgetprintcomponent <- function (component, ...) {
 gadget_stockstdprinter_component <- function (printfile,
                                               stockname, 
                                               scale = 1, 
-                                              precision = 1,
+                                              precision = 15,
                                               printatstart = 1,
                                               yearsandsteps = 'all\tall') {
   
@@ -55,7 +55,7 @@ gadget_stockstdprinter_component <- function (printfile,
 #' @export
 gadget_stockfullprinter_component <- function (printfile,
                                                stockname, 
-                                               precision = 1,
+                                               precision = 15,
                                                printatstart = 1,
                                                yearsandsteps = 'all\tall') {
   
@@ -92,7 +92,7 @@ gadget_stockprinter_component <- function (printfile,
                                            area, 
                                            age,
                                            len,
-                                           precision = 1,
+                                           precision = 15,
                                            printatstart = 1,
                                            yearsandsteps = 'all\tall') {
   
@@ -136,7 +136,7 @@ gadget_predatorprinter_component <- function (printfile,
                                               predlen,
                                               preylen,
                                               biomass = 1,
-                                              precision = 1,
+                                              precision = 15,
                                               yearsandsteps = 'all\tall') {
   
   type <- 'predatorprinter'
@@ -173,7 +173,7 @@ gadget_predatoroverprinter_component <- function (printfile,
                                                   predatornames,
                                                   area, 
                                                   len,
-                                                  precision = 1,
+                                                  precision = 15,
                                                   yearsandsteps = 'all\tall') {
   
   type <- 'predatoroverprinter'
@@ -206,7 +206,7 @@ gadget_stockpreyfullprinter_component <- function (printfile,
                                                    preynames,
                                                    area, 
                                                    len,
-                                                   precision = 1,
+                                                   precision = 15,
                                                    yearsandsteps = 'all\tall') {
   
   type <- 'stockpreyfullprinter'
@@ -240,7 +240,7 @@ gadget_stockpreyprinter_component <- function (printfile,
                                                area,
                                                age,
                                                len,
-                                               precision = 1,
+                                               precision = 15,
                                                yearsandsteps = 'all\tall') {
   
   type <- 'stockpreyprinter'
@@ -281,7 +281,7 @@ gadget_predatorpreyprinter_component <- function (printfile,
                                                area,
                                                age,
                                                len,
-                                               precision = 1,
+                                               precision = 15,
                                                yearsandsteps = 'all\tall') {
   
   type <- 'predatorpreyprinter'

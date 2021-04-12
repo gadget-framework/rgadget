@@ -9,7 +9,7 @@ gadget_predatoroverprinter_component(
   predatornames,
   area,
   len,
-  precision = 1,
+  precision = 15,
   yearsandsteps = "all\\tall"
 )
 }

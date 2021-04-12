@@ -11,7 +11,7 @@ gadget_predatorpreyprinter_component(
   area,
   age,
   len,
-  precision = 1,
+  precision = 15,
   yearsandsteps = "all\\tall"
 )
 }

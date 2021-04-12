@@ -10,7 +10,7 @@ gadget_stockpreyprinter_component(
   area,
   age,
   len,
-  precision = 1,
+  precision = 15,
   yearsandsteps = "all\\tall"
 )
 }

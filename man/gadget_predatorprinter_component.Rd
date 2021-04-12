@@ -12,7 +12,7 @@ gadget_predatorprinter_component(
   predlen,
   preylen,
   biomass = 1,
-  precision = 1,
+  precision = 15,
   yearsandsteps = "all\\tall"
 )
 }

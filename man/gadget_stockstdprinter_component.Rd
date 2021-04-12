@@ -8,7 +8,7 @@ gadget_stockstdprinter_component(
   printfile,
   stockname,
   scale = 1,
-  precision = 1,
+  precision = 15,
   printatstart = 1,
   yearsandsteps = "all\\tall"
 )

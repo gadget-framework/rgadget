@@ -415,12 +415,15 @@ gadget_project_fleet <- function(path, pre_fleet = 'comm',
   
   
   ## define fleet amounts that are parametrised by year, step, area 
-  if(is.null(common_mult)){
-    common_mult <- '#fleet.%s.%s.%s.%s.%s'
-  } else if(type == 'prognosis') {
+
+  if(type == 'prognosis') {
     ## advice error is defined via prognosis likelihood
     common_mult <- '1' 
     fleet_type <- 'totalfleet'
+    
+  } else if(is.null(common_mult)){
+    common_mult <- '#fleet.%s.%s.%s.%s.%s'
+  
   } else {
     if(is.null(pre_proportion)) pre_proportion <- 1
     common_mult <- paste('(*', pre_proportion, paste0('#fleet.',common_mult, '.%3$s.%4$s.%5$s'), ')')
