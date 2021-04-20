@@ -19,6 +19,14 @@ gadget_fit <- function(gd, params.in = attr(gd,'params_in'), fit = 'FIT', f.age.
                                  file_type = 'stock',
                                  recursive = FALSE)) 
   
+  ## ensure that the stock objects are correctly as people have the option of 
+  ## giving the stock file an arbitrary name
+  
+  names(stocks) <- 
+    stocks %>% 
+    purrr::map(~.[[1]]['stockname']) %>% 
+    purrr::flatten()
+  
   lik <- 
     main$likelihood$likelihoodfiles %>% 
     purrr::set_names(.,.) %>% 
@@ -135,7 +143,9 @@ gadget_fit <- function(gd, params.in = attr(gd,'params_in'), fit = 'FIT', f.age.
   write.gadget.file(print,gv)
   
   ## call gadget
-  gv <- gadget_evaluate(gv,params.in = params.in, params.out = tempfile())
+  gv <- gadget_evaluate(gv,params.in = params.in, 
+                        params.out = tempfile(), 
+                        log = paste(attr(gv,"variant_dir"),'fit.log',sep = '/'))
   
   ## read in the output
   out <- 

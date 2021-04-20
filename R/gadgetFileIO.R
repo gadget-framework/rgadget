@@ -76,7 +76,7 @@ read.printfiles <- function(path='.',suppress=FALSE){
   printfiles <- 
     fs::dir_ls(path) %>% 
     purrr::map(read.printfile) %>% 
-    purrr::set_names(.,gsub(path,'',names(.)) %>% gsub('/','',.,fixed = TRUE))
+    purrr::set_names(.,gsub(path,'',names(.)) %>% gsub('/','__',.,fixed = TRUE))
   class(printfiles) <- c('gadgetOut','list')
   return(printfiles)
 }

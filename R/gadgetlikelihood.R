@@ -12,7 +12,8 @@
 #' gadgetlikelihood('likelihood', path, missingOkay = TRUE)  
 #' @export
 gadgetlikelihood <- function(file_name, path, missingOkay = FALSE) {
-    gf <- read.gadget.file(path, file_name, file_type = "likelihood", missingOkay = missingOkay)
+    gf <- read.gadget.file(path, file_name, file_type = "likelihood", 
+                           missingOkay = missingOkay)
     class(gf) <- c("gadgetlikelihood", class(gf))
 
     return(gf)

@@ -5,6 +5,7 @@
 #' @param file_name	The name of the print file
 #' @param path		The path to the gadget directory to read from
 #' @param missingOkay	If \code{TRUE}, return an empty print file object if file does not exist.
+#' @param recursive If \code{TRUE}, read all connected files recursively
 #' @return A list of print components representing file
 #' @examples
 #' \dontrun{
@@ -13,9 +14,9 @@
 #' gadgetprintfile('print', path, missingOkay = TRUE)  
 #' }
 #' @export
-gadgetprintfile <- function(file_name, path, missingOkay = FALSE) {
+gadgetprintfile <- function(file_name, path, missingOkay = FALSE, recursive = TRUE) {
   gf <- read.gadget.file(path, file_name, file_type = "print",
-                         missingOkay = missingOkay)
+                         missingOkay = missingOkay, recursive = recursive)
   class(gf) <- c("gadgetprint", class(gf))
   
   return(gf)

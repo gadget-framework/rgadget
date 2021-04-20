@@ -601,7 +601,8 @@ gadget_project_recruitment <- function(path,
     rec %>% 
     dplyr::mutate(year = sprintf('%s.rec.pre.%s.%s', stock, .data$year, rec_step),
                   rec = .data$rec/1e4) %>% 
-    tidyr::pivot_wider(., id_cols = c(.data$trial,.data$model), names_from = .data$year, values_from = .data$rec) %>% 
+    tidyr::pivot_wider(., id_cols = c(.data$trial,.data$model), 
+                       names_from = .data$year, values_from = .data$rec) %>% 
     dplyr::select(-c('trial','model'))
   
   read.gadget.parameters(file = paste(path, params.file, sep = '/')) %>% 

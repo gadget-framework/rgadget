@@ -4,7 +4,7 @@
 \alias{gadgetprintfile}
 \title{Create a gadgetprint object}
 \usage{
-gadgetprintfile(file_name, path, missingOkay = FALSE)
+gadgetprintfile(file_name, path, missingOkay = FALSE, recursive = TRUE)
 }
 \arguments{
 \item{file_name}{The name of the print file}
@@ -12,6 +12,8 @@ gadgetprintfile(file_name, path, missingOkay = FALSE)
 \item{path}{The path to the gadget directory to read from}
 
 \item{missingOkay}{If \code{TRUE}, return an empty print file object if file does not exist.}
+
+\item{recursive}{If \code{TRUE}, read all connected files recursively}
 }
 \value{
 A list of print components representing file
