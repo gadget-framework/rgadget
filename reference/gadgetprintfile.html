@@ -130,7 +130,7 @@
     <p>Create a print file object, from fresh or an existing file.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>gadgetprintfile</span><span class='op'>(</span><span class='va'>file_name</span>, <span class='va'>path</span>, missingOkay <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>gadgetprintfile</span><span class='op'>(</span><span class='va'>file_name</span>, <span class='va'>path</span>, missingOkay <span class='op'>=</span> <span class='cn'>FALSE</span>, recursive <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -146,6 +146,10 @@
     <tr>
       <th>missingOkay</th>
       <td><p>If <code>TRUE</code>, return an empty print file object if file does not exist.</p></td>
+    </tr>
+    <tr>
+      <th>recursive</th>
+      <td><p>If <code>TRUE</code>, read all connected files recursively</p></td>
     </tr>
     </table>
 
