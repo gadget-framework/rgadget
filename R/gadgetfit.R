@@ -120,7 +120,8 @@ gadget.fit <- function(wgts = 'WGTS',
              o = sprintf('%s/SS.print',wgts))
   
   print("Reading output files") 
-  out <- read.printfiles(sprintf('%s/out.fit',wgts))
+  out <- read.printfiles(sprintf('%s/out.fit',wgts)) %>% 
+    setNames(gsub("^[^a-zA-Z]*","",names(.)))
   SS <- tryCatch(read.gadget.lik.out(sprintf('%s/SS.print',wgts)),
                  error = function(e) 'SS could not be read')
   #stocks <- read.gadget.stockfiles(main$stockfiles)
