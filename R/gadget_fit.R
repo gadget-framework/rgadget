@@ -4,11 +4,22 @@
 #' @param params.in input parameters
 #' @param fit location of the fit folder
 #' @param f.age.range age range for F
+#' @param weighted.mortality Method for calculating annual mortality. TRUE for a weighted mean, FALSE for an unweighted mean. This is only applicable if f.age.range is specified. Defaults to FALSE.
+#' @param rec.at.age Age at which recruitment occurs, integer value that applies across stocks.
+#' @param rec.steps Step(s) at which recruitment occurs, defaults to "all" & applies to all stocks. Note that recruitment is printed at the start of the timestep. 
 #' @param steps (unused)
 #'
 #' @return list
 #' @export
-gadget_fit <- function(gd, params.in = attr(gd,'params_in'), fit = 'FIT', f.age.range = NULL, steps = 1){
+gadget_fit <- function(gd, 
+                       params.in = attr(gd,'params_in'), 
+                       fit = 'FIT', 
+                       f.age.range = NULL, 
+                       weighted.mortality = FALSE,
+                       rec.age = NULL,
+                       rec.steps = NULL,
+                       steps = 1){
+  
   fit <- variant_strip_path(gd,fit)
   main <- read.gadget.file(gd,attr(gd,'mainfile'), recursive = FALSE)
   attr(main, 'file_name') <- 'main'
@@ -69,7 +80,6 @@ gadget_fit <- function(gd, params.in = attr(gd,'params_in'), fit = 'FIT', f.age.
   }
   
   ## add stock printers 
-  
   for(stock in names(stocks)){
     print <- 
       print %>% 
@@ -92,7 +102,7 @@ gadget_fit <- function(gd, params.in = attr(gd,'params_in'), fit = 'FIT', f.age.
                     printfile = paste(stock, 'recruitment', sep = '.'),
                     stocknames = stock,
                     area = livesonareas(stocks[[stock]]) %>% purrr::set_names(.,.) %>% as.list(),
-                    age = list(recage = stocks[[stock]][[1]]$minage),
+                    age = list(recage = ifelse(is.null(rec.age), stocks[[stock]][[1]]$minage, rec.age)),
                     len = list(alllen = length_range(stocks[[stock]])))
   }
   
@@ -156,11 +166,27 @@ gadget_fit <- function(gd, params.in = attr(gd,'params_in'), fit = 'FIT', f.age.
   
   print('Gathering results')
   
+  ## Sort recruitment steps
   stock.recruitment <- 
     out[sprintf('%s.recruitment',names(stocks))] %>% 
     purrr::set_names(.,names(stocks)) %>% 
     dplyr::bind_rows(.id='stock') %>% 
-    dplyr::select(.data$stock,.data$year,.data$area,.data$step, recruitment=.data$number)
+    dplyr::select(.data$stock,.data$year,.data$area,.data$step, recruitment=.data$number) 
+  
+  ## Specific steps
+  if (!is.null(rec.steps)){
+    ## Check
+    if (all(rec.steps %in% unique(stock.recruitment$step))){
+      stock.recruitment <- 
+        stock.recruitment %>% 
+        dplyr::filter(step %in% rec.steps)
+    }
+    else{
+      warning(paste0("Output not filtered by recruitment step because specified steps were not found. Available steps: ",
+                     paste(unique(stock.recruitment$step), collapse=","),", specified steps: ", paste(rec.steps, collapse=",")))
+    }
+    
+  } 
   
   stock.full <-
     out[sprintf('%s.full',names(stocks))] %>% 
@@ -305,8 +331,8 @@ gadget_fit <- function(gd, params.in = attr(gd,'params_in'), fit = 'FIT', f.age.
                                     .data$length)) %>% 
       dplyr::mutate(number = .data$predicted, 
                     predicted = ifelse(grepl('loglinearfit',tolower(.data$fittype)),
-                                     exp(.data$intercept)*.data$number^.data$slope,
-                                     .data$intercept + .data$slope*.data$number)) %>% 
+                                       exp(.data$intercept)*.data$number^.data$slope,
+                                       .data$intercept + .data$slope*.data$number)) %>% 
       dplyr::filter(!is.na(.data$name))
   } else {
     sidat <- NULL
@@ -343,13 +369,18 @@ gadget_fit <- function(gd, params.in = attr(gd,'params_in'), fit = 'FIT', f.age.
   if(sum(grepl('.std',names(out),fixed = TRUE))>0){
     
     if(is.null(f.age.range)){
+      
+      ## No need to re-calculate F as all ages considered
+      weighted.mortality <- FALSE
+      
+      ## Defaults to maximum age for each stock
       f.age.range <- 
         stock.prey %>% 
         dplyr::group_by(.data$stock) %>% 
         dplyr::summarise(age.min = max(.data$age),age.max=max(.data$age))
     }
     
-    
+    ## Mean mortality weighted by number in age class
     f.by.year <- 
       stock.prey %>% 
       dplyr::left_join(f.age.range,by="stock") %>% 
@@ -357,6 +388,29 @@ gadget_fit <- function(gd, params.in = attr(gd,'params_in'), fit = 'FIT', f.age.
       dplyr::summarise(catch=sum(.data$biomass_consumed),
                        num.catch=sum(.data$number_consumed),
                        F=mean(.data$mortality[.data$age>=.data$age.min&.data$age<=.data$age.max]))
+    
+    ## Adjust mean F to a weighted mean
+    if (weighted.mortality){
+      
+      f.by.year <- 
+        f.by.year %>% 
+        #    mutate(oldf=F) %>% 
+        select(-F) %>% 
+        left_join(stock.std %>% 
+                    dplyr::select(-c(number_consumed, biomass_consumed)) %>% 
+                    dplyr::left_join(stock.prey %>% 
+                                       dplyr::select(year,step,age,area,stock,
+                                                     number_consumed, biomass_consumed, mortality)) %>%
+                    dplyr::left_join(f.age.range, by="stock") %>%
+                    tibble::as_tibble() %>% 
+                    dplyr::filter(.data$age >= .data$age.min & .data$age <= .data$age.max) %>% 
+                    dplyr::group_by(year, step) %>% 
+                    dplyr::summarise(F = -log(1 - sum(number_consumed)/sum(number))/0.25)  %>% 
+                    dplyr::ungroup() %>% 
+                    dplyr::group_by(year) %>% 
+                    dplyr::summarise(F = mean(F)))
+      
+    }
     
     res.by.year <- 
       stock.full %>% 
@@ -388,7 +442,7 @@ gadget_fit <- function(gd, params.in = attr(gd,'params_in'), fit = 'FIT', f.age.
   #  }
   
   if('stockdistribution' %in% (lik %>% purrr::map('type'))){
-
+    
     stockdist <-
       lik.dat %>% 
       purrr::keep(~'stockdistribution' %in% .$type) %>% 
@@ -406,7 +460,7 @@ gadget_fit <- function(gd, params.in = attr(gd,'params_in'), fit = 'FIT', f.age.
   
   
   if('stomachcontent' %in% (lik %>% purrr::map('type'))){
-   
+    
     
     stomachcontent <-
       lik.dat %>% 
@@ -429,7 +483,7 @@ gadget_fit <- function(gd, params.in = attr(gd,'params_in'), fit = 'FIT', f.age.
       lik.dat %>% 
       purrr::keep(~'catchstatistics' %in% .$type) %>% 
       dplyr::bind_rows() 
-      
+    
   } else {
     catchstatistics <- NULL
   }
@@ -564,7 +618,7 @@ print_to_tibble <- function(comp){
     
     pos <- grep('Regression', postamble)
     
-     areas <- 
+    areas <- 
       gsub('Regression information for area ','',postamble[pos]) %>%
       cbind(areas=.,n=diff(c(pos,length(postamble)+1))-1) %>%
       as.data.frame() %>%
@@ -585,7 +639,7 @@ print_to_tibble <- function(comp){
   }
   return(dat)
 }
-  
-  
-  
-  
+
+
+
+
