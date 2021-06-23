@@ -218,8 +218,16 @@ gadget_surveyindices_component <- function (
     }
     data <- deparse_mfdb_data(data)
 
+    if (biomass == 1) {
+        value_col <- "total_weight"
+    } else if (biomass == 0) {
+        value_col <- "number"
+    } else {
+        stop("Biomass should be 1 or 0")
+    }
+
     if (sitype == 'lengths') {
-        compare_cols(names(data), c("year", "step", "area", "length", "number"))
+        compare_cols(names(data), c("year", "step", "area", "length", value_col))
         si_cols <- list(
             lenaggfile  = agg_file(
                 'len',
@@ -227,7 +235,7 @@ gadget_surveyindices_component <- function (
                 if(is.null(length)) attr(data, "length") else length))
 
     } else if (sitype == 'ages') {
-        compare_cols(names(data), c("year", "step", "area", "age", "number"))
+        compare_cols(names(data), c("year", "step", "area", "age", value_col))
         si_cols <- list(
             ageaggfile  = agg_file(
                 'age',
@@ -235,7 +243,7 @@ gadget_surveyindices_component <- function (
                 if(is.null(age)) attr(data, "age") else age))
 
     } else if (sitype == 'fleets') {
-        compare_cols(names(data), c("year", "step", "area", "length", "number"))
+        compare_cols(names(data), c("year", "step", "area", "length", value_col))
         if (is.null(fleetnames)) {
             stop("Expected vector of fleetnames for effort surveyindices")
         }

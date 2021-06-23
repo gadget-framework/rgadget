@@ -383,6 +383,15 @@ ok_group("surveyindices", {
         cmp_file(gd, "likelihood", ...)
     }
 
+    ok(ut_cmp_error({
+        component <- gadgetlikelihoodcomponent('surveyindices', name = 'si', sitype = 'lengths', fittype = 'linearfit',
+            biomass = 0,
+            data = structure(
+                data.frame(year = 1998, step = 1:2, area = 101, total_weight = c(100,200), number = c(2,4)),
+                area = list(all = 101),
+                total_weight = list(len100 = c(100,500))))
+    }, "total_weight"), "Can't have a biomass = 0 SI component with weight")
+
     component <- gadgetlikelihoodcomponent('surveyindices', name = 'si', sitype = 'lengths', fittype = 'linearfit',
         data = structure(
             data.frame(year = 1998, step = 1:2, area = 101, length = c(100,200), number = c(2,4)),
@@ -403,6 +412,28 @@ ok_group("surveyindices", {
         "lenaggfile\tAggfiles/surveyindices.si.len.agg",
         "fittype\tlinearfit",
         NULL), "Wrote component with lengths sitype")
+
+    component <- gadgetlikelihoodcomponent('surveyindices', name = 'si', sitype = 'lengths', fittype = 'linearfit',
+        biomass = 1,
+        data = structure(
+            data.frame(year = 1998, step = 1:2, area = 101, length = c(100,200), total_weight = c(2,4)),
+            area = list(all = 101),
+            total_weight = list(len100 = c(100,500))))
+    ok(ut_cmp_identical(class(component)[[1]], 'gadget_surveyindices_component'), "Made lengths sitype, biomass = 1")
+    ok(cmp_component(component,
+        ver_string,
+        "; ",
+        "[component]",
+        "name\tsi",
+        "weight\t0",
+        "type\tsurveyindices",
+        "datafile\tData/surveyindices.si.lengths",
+        "sitype\tlengths",
+        "biomass\t1",
+        "areaaggfile\tAggfiles/surveyindices.si.area.agg",
+        "lenaggfile\tAggfiles/surveyindices.si.len.agg",
+        "fittype\tlinearfit",
+        NULL), "Wrote component with lengths sitype, biomass = 1")
 
     component <- gadgetlikelihoodcomponent('surveyindices', name = 'si', sitype = 'ages', fittype = 'linearfit',
         data = structure(
