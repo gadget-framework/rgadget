@@ -228,6 +228,7 @@ gadget_surveyindices_component <- function (
 
     if (sitype == 'lengths') {
         compare_cols(names(data), c("year", "step", "area", "length", value_col))
+        names(data)[[5]] <- "number"  # Should always be called number, even if weight
         si_cols <- list(
             lenaggfile  = agg_file(
                 'len',
@@ -236,6 +237,7 @@ gadget_surveyindices_component <- function (
 
     } else if (sitype == 'ages') {
         compare_cols(names(data), c("year", "step", "area", "age", value_col))
+        names(data)[[5]] <- "number"  # Should always be called number, even if weight
         si_cols <- list(
             ageaggfile  = agg_file(
                 'age',
@@ -244,6 +246,7 @@ gadget_surveyindices_component <- function (
 
     } else if (sitype == 'fleets') {
         compare_cols(names(data), c("year", "step", "area", "length", value_col))
+        names(data)[[5]] <- "number"  # Should always be called number, even if weight
         if (is.null(fleetnames)) {
             stop("Expected vector of fleetnames for effort surveyindices")
         }

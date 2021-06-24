@@ -412,6 +412,9 @@ ok_group("surveyindices", {
         "lenaggfile\tAggfiles/surveyindices.si.len.agg",
         "fittype\tlinearfit",
         NULL), "Wrote component with lengths sitype")
+    ok(ut_cmp_identical(
+        names(component$datafile$data),
+        c("year", "step", "area", "length", "number")), "Final column called number")
 
     component <- gadgetlikelihoodcomponent('surveyindices', name = 'si', sitype = 'lengths', fittype = 'linearfit',
         biomass = 1,
@@ -434,6 +437,9 @@ ok_group("surveyindices", {
         "lenaggfile\tAggfiles/surveyindices.si.len.agg",
         "fittype\tlinearfit",
         NULL), "Wrote component with lengths sitype, biomass = 1")
+    ok(ut_cmp_identical(
+        names(component$datafile$data),
+        c("year", "step", "area", "length", "number")), "Final column called number")
 
     component <- gadgetlikelihoodcomponent('surveyindices', name = 'si', sitype = 'ages', fittype = 'linearfit',
         data = structure(
