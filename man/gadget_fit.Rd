@@ -9,6 +9,9 @@ gadget_fit(
   params.in = attr(gd, "params_in"),
   fit = "FIT",
   f.age.range = NULL,
+  weighted.mortality = FALSE,
+  rec.age = NULL,
+  rec.steps = NULL,
   steps = 1
 )
 }
@@ -21,7 +24,13 @@ gadget_fit(
 
 \item{f.age.range}{age range for F}
 
+\item{weighted.mortality}{Method for calculating annual mortality. TRUE for a weighted mean, FALSE for an unweighted mean. This is only applicable if f.age.range is specified. Defaults to FALSE.}
+
+\item{rec.steps}{Step(s) at which recruitment occurs, defaults to "all" & applies to all stocks. Note that recruitment is printed at the start of the timestep.}
+
 \item{steps}{(unused)}
+
+\item{rec.at.age}{Age at which recruitment occurs, integer value that applies across stocks.}
 }
 \value{
 list

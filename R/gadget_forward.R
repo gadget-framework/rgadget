@@ -222,7 +222,7 @@ gadget_project_time <- function(path='.', num_years = 100,
                                     size = main[[1]]$areafile[[1]]$size,
                                     temperature = main[[1]]$areafile %>% 
                                       utils::capture.output() %>% 
-                                      readr::read_lines(.) %>% 
+                                      #readr::read_lines(.) %>% 
                                       .[!grepl('^;',.)] %>% 
                                       readr::read_table2(.,skip = 3, comment = ';', col_names = c('year','step','area','temperature')) %>% 
                                       dplyr::bind_rows(schedule %>% 
@@ -271,7 +271,8 @@ gadget_project_stocks <- function(path,
   
   if(imm_stock[[1]]$minage > 0){
     hockey_stock <- 
-      gadgetstock(paste('hockeystock',imm_stock[[1]]$stockname,sep = '_'),path,missingOkay = TRUE) %>% 
+      gadgetstock(paste('hockeystock',imm_stock[[1]]$stockname,sep = '_'),
+                  path,missingOkay = TRUE) %>% 
       gadget_update('refweight',data = imm_stock[[1]]$refweightfile[[1]]) %>% 
       gadget_update('stock',
                     minage = 0,

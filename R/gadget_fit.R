@@ -160,7 +160,8 @@ gadget_fit <- function(gd,
   ## read in the output
   out <- 
     gadgetprintfile('printfile',gv) %>% 
-    purrr::set_names(.,purrr::map(.,~attr(.$printfile,'file_name')) %>% gsub('out/','',.)) %>% 
+    purrr::set_names(.,purrr::map(.,~attr(.$printfile,'file_name')) %>%
+                       gsub('out/','',.)) %>% 
     purrr::map(print_to_tibble)
   
   
@@ -587,9 +588,12 @@ lik_to_tibble <- function(comp){
     
     dat <- 
       dat %>% 
-      dplyr::inner_join(comp$ageaggfile[[1]] %>% {tibble::tibble(age = names(.), age_range = paste(unlist(.), collapse = '\t'))},
-                        by = 'age') %>% 
-      dplyr::select(-.data$age) 
+      dplyr::inner_join(comp$ageaggfile[[1]] %>% 
+                          {tibble::tibble(age = names(.), 
+                                          age_range = unlist(.) %>% 
+                                            purrr::map(paste,collapse = '\t') %>% 
+                                            unlist())},
+                        by = 'age') 
     
   }
   
