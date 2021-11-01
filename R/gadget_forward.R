@@ -494,7 +494,7 @@ gadget_project_prognosis_likelihood <- function(path,
     paste0(paste(pre_fleets, collapse = '.'), '.', post_fix)
   
   progn <- 
-    gadgetfile('fleet.likelihood',
+    gadgetfile(paste('fleet.likelihood', fleet_label, sep = '.'),
                file_type = 'likelihood',
                components = list(list('[component]',
                                       name = 'prognosis',
