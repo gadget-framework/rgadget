@@ -102,7 +102,7 @@
 
 <span class="fu">theme_set</span><span class="op">(</span><span class="fu">theme_light</span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="co">## set the plot theme (optional)</span>
 
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">patchwork</span><span class="op">)</span>  <span class="co">## optional packages </span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com">patchwork</a></span><span class="op">)</span>  <span class="co">## optional packages </span>
 <span class="va">scale_fill_crayola</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">n</span> <span class="op">=</span> <span class="fl">100</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span>
   
   <span class="co"># taken from RColorBrewer::brewer.pal(12, "Paired")</span>
@@ -115,7 +115,7 @@
 <span class="op">}</span></code></pre></div>
 <p>To illustrate the use of Gadget we will use a model for cod in Icelandic waters atteched to the package. You can access the model using the following code:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span><span class="op">(</span><span class="st">'extdata'</span>, <span class="st">'cod_model.tgz'</span>, package <span class="op">=</span> <span class="st">'Rgadget'</span><span class="op">)</span> <span class="op">%&gt;%</span> 
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span><span class="op">(</span><span class="st">'extdata'</span>, <span class="st">'cod_model.tgz'</span>, package <span class="op">=</span> <span class="st">'Rgadget'</span><span class="op">)</span> <span class="op"><a href="reference/%&gt;%.html">%&gt;%</a></span> 
   <span class="fu"><a href="https://rdrr.io/r/utils/untar.html">untar</a></span><span class="op">(</span>exdir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/path.expand.html">path.expand</a></span><span class="op">(</span><span class="st">'./gadget_example/'</span><span class="op">)</span><span class="op">)</span>
 
 <span class="co">## change the working directory to the location of the gadget model</span>
@@ -133,7 +133,7 @@
 <code class="sourceCode R"><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/gadget.fit.html">gadget.fit</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
 <p>The <code>fit</code> object is essentially a list of data.frames that contain the likelihood data merged with the model output.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">fit</span> <span class="op">%&gt;%</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="va">fit</span> <span class="op"><a href="reference/%&gt;%.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
 <pre><code>##  [1] "sidat"             "resTable"          "nesTable"         
 ##  [4] "suitability"       "stock.growth"      "stock.recruitment"
 ##  [7] "res.by.year"       "stomachcontent"    "likelihoodsummary"

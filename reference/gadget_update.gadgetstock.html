@@ -160,34 +160,34 @@ on the data. How depends in which component:</p><dl>
 </dl><p>Finally, any other value of <code>...</code> will update the relevant keys/values in that component.</p>
 <p>naturalmortality is slightly different. It takes a single vector with one value per-age-group.
 It will be pre-populated with 0.2 for each age group.</p>
-<p>doesgrow / growth can be populated with default values with <code><a href='gadget_update.html'>gadget_update(gs, 'growth', 1)</a></code></p>
-<p><code><a href='gadget_update.html'>gadget_update('refweight', data = data.frame(length = ..., weight = ...))</a></code> will also update
+<p>doesgrow / growth can be populated with default values with <code>gadget_update(gs, 'growth', 1)</code></p>
+<p><code>gadget_update('refweight', data = data.frame(length = ..., weight = ...))</code> will also update
 minlength/maxlength/dl</p>
-<p><code><a href='gadget_update.html'>gadget_update('refweight', data = data.frame(length = ..., alpha = ..., beta = ...))</a></code> will
+<p><code>gadget_update('refweight', data = data.frame(length = ..., alpha = ..., beta = ...))</code> will
 generate lengths via <code>alpha * length^beta</code></p>
 <p>doesmature / maturation will populate the maturityfile data file with all given parameters apart
 from <code>maturityfunction</code>, e.g.
-<code><a href='gadget_update.html'>gadget_update('maturation',maturityfunction = 'constant', maturestocksandratios = c( ... ), coefficients = c( ... ))</a></code></p>
+<code>gadget_update('maturation',maturityfunction = 'constant', maturestocksandratios = c( ... ), coefficients = c( ... ))</code></p>
 <p>doesrenew / recruitment can be populated from MFDB queries, e.g.
-<code><a href='gadget_update.html'>gadget_update('doesrenew', number = data)</a></code></p></td>
+<code>gadget_update('doesrenew', number = data)</code></p></td>
     </tr>
     </table>
 
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
-<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://magrittr.tidyverse.org'>magrittr</a></span><span class='op'>)</span>  <span class='co'># import %&gt;% function</span>
-<span class='va'>path</span> <span class='op'>&lt;-</span> <span class='st'>'./model'</span>
-<span class='fu'><a href='gadgetstock.html'>gadgetstock</a></span><span class='op'>(</span><span class='st'>'codimm'</span>, <span class='va'>path</span>, missingOkay <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span> <span class='op'>%&gt;%</span>  <span class='co'># Create a skeleton if missing</span>
-   <span class='fu'><a href='gadget_update.html'>gadget_update</a></span><span class='op'>(</span><span class='st'>'stock'</span>, minage <span class='op'>=</span> <span class='fl'>2</span>, maxage <span class='op'>=</span> <span class='fl'>4</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
-   <span class='fu'><a href='gadget_update.html'>gadget_update</a></span><span class='op'>(</span><span class='st'>'stock'</span>, stockname <span class='op'>=</span> <span class='st'>'codmat'</span><span class='op'>)</span> <span class='op'>%&gt;%</span>  <span class='co'># Will change the name of the file we write</span>
-   <span class='fu'><a href='gadget_update.html'>gadget_update</a></span><span class='op'>(</span><span class='st'>'doesmigrate'</span>, yearstepfile <span class='op'>=</span> <span class='fu'><a href='gadgetfile.html'>gadgetfile</a></span><span class='op'>(</span><span class='st'>'data/yearstepfile'</span>, components <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>
-                                  <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>year <span class='op'>=</span> <span class='fl'>1998</span>, step <span class='op'>=</span> <span class='fl'>1</span><span class='op'>:</span><span class='fl'>4</span>, 
-                                             matrix <span class='op'>=</span> <span class='st'>'codmat-migration'</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
-   <span class='fu'><a href='gadget_update.html'>gadget_update</a></span><span class='op'>(</span><span class='st'>'doesrenew'</span>, <span class='fl'>0</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
-   <span class='fu'><a href='write.gadget.file.html'>write.gadget.file</a></span><span class='op'>(</span><span class='va'>path</span><span class='op'>)</span>
-   <span class='op'>}</span>
-</div></pre>
+    <pre class="examples"><span class='r-in'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span></span>
+<span class='r-in'><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://magrittr.tidyverse.org'>magrittr</a></span><span class='op'>)</span>  <span class='co'># import %&gt;% function</span></span>
+<span class='r-in'><span class='va'>path</span> <span class='op'>&lt;-</span> <span class='st'>'./model'</span></span>
+<span class='r-in'><span class='fu'><a href='gadgetstock.html'>gadgetstock</a></span><span class='op'>(</span><span class='st'>'codimm'</span>, <span class='va'>path</span>, missingOkay <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span> <span class='op'><a href='%>%.html'>%&gt;%</a></span>  <span class='co'># Create a skeleton if missing</span></span>
+<span class='r-in'>   <span class='fu'><a href='gadget_update.html'>gadget_update</a></span><span class='op'>(</span><span class='st'>'stock'</span>, minage <span class='op'>=</span> <span class='fl'>2</span>, maxage <span class='op'>=</span> <span class='fl'>4</span><span class='op'>)</span> <span class='op'><a href='%>%.html'>%&gt;%</a></span></span>
+<span class='r-in'>   <span class='fu'><a href='gadget_update.html'>gadget_update</a></span><span class='op'>(</span><span class='st'>'stock'</span>, stockname <span class='op'>=</span> <span class='st'>'codmat'</span><span class='op'>)</span> <span class='op'><a href='%>%.html'>%&gt;%</a></span>  <span class='co'># Will change the name of the file we write</span></span>
+<span class='r-in'>   <span class='fu'><a href='gadget_update.html'>gadget_update</a></span><span class='op'>(</span><span class='st'>'doesmigrate'</span>, yearstepfile <span class='op'>=</span> <span class='fu'><a href='gadgetfile.html'>gadgetfile</a></span><span class='op'>(</span><span class='st'>'data/yearstepfile'</span>, components <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span></span>
+<span class='r-in'>                                  <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>year <span class='op'>=</span> <span class='fl'>1998</span>, step <span class='op'>=</span> <span class='fl'>1</span><span class='op'>:</span><span class='fl'>4</span>, </span>
+<span class='r-in'>                                             matrix <span class='op'>=</span> <span class='st'>'codmat-migration'</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span> <span class='op'><a href='%>%.html'>%&gt;%</a></span></span>
+<span class='r-in'>   <span class='fu'><a href='gadget_update.html'>gadget_update</a></span><span class='op'>(</span><span class='st'>'doesrenew'</span>, <span class='fl'>0</span><span class='op'>)</span> <span class='op'><a href='%>%.html'>%&gt;%</a></span></span>
+<span class='r-in'>   <span class='fu'><a href='write.gadget.file.html'>write.gadget.file</a></span><span class='op'>(</span><span class='va'>path</span><span class='op'>)</span></span>
+<span class='r-in'>   <span class='op'>}</span></span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
