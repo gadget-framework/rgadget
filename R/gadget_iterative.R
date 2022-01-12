@@ -111,7 +111,7 @@ gadget_iterative_stage_1 <- function(gd,
   for(name in lik.names){
     ## skip penalty functions
     if(name %in% unlist(grouping) | 
-       lik.type[[name]] %in% c('penalty','understocking','migrationpenalty','catchinkilos'))
+       lik.type[[name]] %in% c('penalty','understocking','migrationpenalty'))
       next
     grouping <- within(grouping,assign(name,name))
   }
@@ -131,7 +131,7 @@ gadget_iterative_stage_1 <- function(gd,
     write.gadget.file(main,gv)  
     
     for(name in seq_along(lik.names)){
-      if(lik.type[[name]] %in% c('penalty','understocking','migrationpenalty','catchinkilos'))
+      if(lik.type[[name]] %in% c('penalty','understocking','migrationpenalty'))
         next
       lik[[name]]$weight <- 
         1/lik.init$data[lik.names[[name]]]
