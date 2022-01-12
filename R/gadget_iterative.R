@@ -216,7 +216,7 @@ gadget_iterative_stage_2 <- function(variants, cv_floor = 0){
     dplyr::left_join(tibble::tibble(component = names(lik.type),
                                     type = unlist(lik.type)),
                      by = 'component') %>%
-    dplyr::filter(!(.data$type %in% c('penalty','understocking','migrationpenalty','catchinkilos')))
+    dplyr::filter(!(.data$type %in% c('penalty','understocking','migrationpenalty')))
   
   if(sum(weights$SS == 0) > 0){
     stop(paste("Likelihood component score exactly 0", weights$component[weights$SS == 0]))
