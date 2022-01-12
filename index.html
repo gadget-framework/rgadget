@@ -21,6 +21,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-home">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -33,18 +35,12 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">Rgadget</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.5</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-<li>
-  <a href="index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
 <li>
   <a href="reference/index.html">Reference</a>
 </li>
@@ -80,52 +76,50 @@
       </header><div class="row">
   <div class="contents col-md-9">
 
-<hr>
-<p>title: “Rgadget” output: html_document: keep_md: yes —</p>
 <p>Rgadget is a set of useful utilities for gadget, a statistical multi-species multi-area marine ecosystem modelling toolbox.</p>
-<p>This package aids in the developement of Gadget models in a number of ways. It can interact with Gadget, by manipulating input files, digest output and rudimentary plots. A rendered version of the on-line help can be accessed <a href="http://hafro.github.io/rgadget">here</a></p>
-<p><a href="https://travis-ci.org/Hafro/rgadget"><img src="https://travis-ci.org/Hafro/rgadget.svg?branch=master" alt="Travis build status"></a></p>
-<div id="installing" class="section level2">
-<h2 class="hasAnchor">
-<a href="#installing" class="anchor"></a>Installing</h2>
+<p>This package aids in the developement of Gadget models in a number of ways. It can interact with Gadget, by manipulating input files, digest output and rudimentary plots. A rendered version of the on-line help can be accessed <a href="http://hafro.github.io/rgadget" class="external-link">here</a></p>
+<p><a href="https://travis-ci.org/Hafro/rgadget" class="external-link"><img src="https://travis-ci.org/Hafro/rgadget.svg?branch=master" alt="Travis build status"></a></p>
+<div class="section level2">
+<h2 id="installing">Installing<a class="anchor" aria-label="anchor" href="#installing"></a>
+</h2>
 <p>You can use devtools to install this directly:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># install.packages("devtools")</span>
-<span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org//reference/remote-reexports.html">install_github</a></span><span class="op">(</span><span class="st">"gadget-framework/rgadget"</span><span class="op">)</span></code></pre></div>
+<span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/remote-reexports.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"gadget-framework/rgadget"</span><span class="op">)</span></code></pre></div>
 </div>
-<div id="using" class="section level2">
-<h2 class="hasAnchor">
-<a href="#using" class="anchor"></a>Using</h2>
+<div class="section level2">
+<h2 id="using">Using<a class="anchor" aria-label="anchor" href="#using"></a>
+</h2>
 <p>To use Rgadget you will need to load it into memory:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">Rgadget</span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">Rgadget</span><span class="op">)</span>
 
 <span class="fu">theme_set</span><span class="op">(</span><span class="fu">theme_light</span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="co">## set the plot theme (optional)</span>
 
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com">patchwork</a></span><span class="op">)</span>  <span class="co">## optional packages </span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com" class="external-link">patchwork</a></span><span class="op">)</span>  <span class="co">## optional packages </span>
 <span class="va">scale_fill_crayola</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">n</span> <span class="op">=</span> <span class="fl">100</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span>
   
   <span class="co"># taken from RColorBrewer::brewer.pal(12, "Paired")</span>
-  <span class="va">pal</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"#A6CEE3"</span>, <span class="st">"#1F78B4"</span>, <span class="st">"#B2DF8A"</span>, <span class="st">"#33A02C"</span>,
+  <span class="va">pal</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#A6CEE3"</span>, <span class="st">"#1F78B4"</span>, <span class="st">"#B2DF8A"</span>, <span class="st">"#33A02C"</span>,
            <span class="st">"#FB9A99"</span>, <span class="st">"#E31A1C"</span>, <span class="st">"#FDBF6F"</span>, <span class="st">"#FF7F00"</span>,
            <span class="st">"#CAB2D6"</span>, <span class="st">"#6A3D9A"</span>, <span class="st">"#FFFF99"</span>, <span class="st">"#B15928"</span><span class="op">)</span>
-  <span class="va">pal</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="va">pal</span>, <span class="va">n</span><span class="op">)</span>
-  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html">scale_fill_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="va">pal</span>, <span class="va">...</span><span class="op">)</span>
+  <span class="va">pal</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">pal</span>, <span class="va">n</span><span class="op">)</span>
+  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_fill_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="va">pal</span>, <span class="va">...</span><span class="op">)</span>
   
 <span class="op">}</span></code></pre></div>
 <p>To illustrate the use of Gadget we will use a model for cod in Icelandic waters atteched to the package. You can access the model using the following code:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span><span class="op">(</span><span class="st">'extdata'</span>, <span class="st">'cod_model.tgz'</span>, package <span class="op">=</span> <span class="st">'Rgadget'</span><span class="op">)</span> <span class="op"><a href="reference/%&gt;%.html">%&gt;%</a></span> 
-  <span class="fu"><a href="https://rdrr.io/r/utils/untar.html">untar</a></span><span class="op">(</span>exdir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/path.expand.html">path.expand</a></span><span class="op">(</span><span class="st">'./gadget_example/'</span><span class="op">)</span><span class="op">)</span>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">'extdata'</span>, <span class="st">'cod_model.tgz'</span>, package <span class="op">=</span> <span class="st">'Rgadget'</span><span class="op">)</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span> 
+  <span class="fu"><a href="https://rdrr.io/r/utils/untar.html" class="external-link">untar</a></span><span class="op">(</span>exdir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/path.expand.html" class="external-link">path.expand</a></span><span class="op">(</span><span class="st">'./gadget_example/'</span><span class="op">)</span><span class="op">)</span>
 
 <span class="co">## change the working directory to the location of the gadget model</span>
-<span class="fu"><a href="https://rdrr.io/r/base/getwd.html">setwd</a></span><span class="op">(</span><span class="st">'gadget_example/cod_model'</span><span class="op">)</span></code></pre></div>
+<span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">setwd</a></span><span class="op">(</span><span class="st">'gadget_example/cod_model'</span><span class="op">)</span></code></pre></div>
 <p>To estimate the model parameters the suggested procedure is to use the iterative reweighting approach with is implemented in the <code>gadget.iterative</code> function (see <code><a href="reference/gadget.iterative.html">?gadget.iterative</a></code> for further details).</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="reference/gadget.iterative.html">gadget.iterative</a></span><span class="op">(</span>main<span class="op">=</span><span class="st">'main'</span>,
-                 grouping<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>sind1<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'si.gp1'</span>,<span class="st">'si.gp1a'</span><span class="op">)</span>,
-                               sind2<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'si.gp2'</span>,<span class="st">'si.gp2a'</span><span class="op">)</span>,
-                               sind3<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'si.gp3'</span>,<span class="st">'si.gp3a'</span><span class="op">)</span><span class="op">)</span>,
+                 grouping<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>sind1<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'si.gp1'</span>,<span class="st">'si.gp1a'</span><span class="op">)</span>,
+                               sind2<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'si.gp2'</span>,<span class="st">'si.gp2a'</span><span class="op">)</span>,
+                               sind3<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'si.gp3'</span>,<span class="st">'si.gp3a'</span><span class="op">)</span><span class="op">)</span>,
                  params.file <span class="op">=</span> <span class="st">'params.in'</span>,
                  wgts<span class="op">=</span><span class="st">'WGTS'</span><span class="op">)</span></code></pre></div>
 <p>This function calls Gadget which behind the scenes does the parameter estimation which we will use. To obtain information on the model fit and properties of the model one can use the <code>gadget.fit</code> function to query the model:</p>
@@ -133,58 +127,58 @@
 <code class="sourceCode R"><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/gadget.fit.html">gadget.fit</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
 <p>The <code>fit</code> object is essentially a list of data.frames that contain the likelihood data merged with the model output.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">fit</span> <span class="op"><a href="reference/%&gt;%.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
-<pre><code>##  [1] "sidat"             "resTable"          "nesTable"         
-##  [4] "suitability"       "stock.growth"      "stock.recruitment"
-##  [7] "res.by.year"       "stomachcontent"    "likelihoodsummary"
-## [10] "catchdist.fleets"  "stockdist"         "SS"               
-## [13] "stock.full"        "stock.std"         "stock.prey"       
-## [16] "fleet.info"        "predator.prey"     "params"           
-## [19] "catchstatistics"</code></pre>
+<code class="sourceCode R"><span class="va">fit</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
+<pre><code><span class="co">##  [1] "sidat"             "resTable"          "nesTable"         </span>
+<span class="co">##  [4] "suitability"       "stock.growth"      "stock.recruitment"</span>
+<span class="co">##  [7] "res.by.year"       "stomachcontent"    "likelihoodsummary"</span>
+<span class="co">## [10] "catchdist.fleets"  "stockdist"         "SS"               </span>
+<span class="co">## [13] "stock.full"        "stock.std"         "stock.prey"       </span>
+<span class="co">## [16] "fleet.info"        "predator.prey"     "params"           </span>
+<span class="co">## [19] "catchstatistics"</span></code></pre>
 <p>and one can access those data.frames simply by calling their name:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">fit</span><span class="op">$</span><span class="va">sidat</span></code></pre></div>
-<pre><code>## # A tibble: 135 x 20
-##    name  area  label  year  step number intercept slope   sse stocknames
-##    &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;int&gt; &lt;int&gt;  &lt;dbl&gt;     &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;     
-##  1 si.g… area1 leng…  1985     2 2.31e8     -35.3  2.21  4.53 codimm    
-##  2 si.g… area1 leng…  1986     2 1.53e8     -35.3  2.21  4.53 codimm    
-##  3 si.g… area1 leng…  1987     2 8.71e7     -35.3  2.21  4.53 codimm    
-##  4 si.g… area1 leng…  1988     2 1.18e8     -35.3  2.21  4.53 codimm    
-##  5 si.g… area1 leng…  1989     2 9.48e7     -35.3  2.21  4.53 codimm    
-##  6 si.g… area1 leng…  1990     2 1.48e8     -35.3  2.21  4.53 codimm    
-##  7 si.g… area1 leng…  1991     2 1.13e8     -35.3  2.21  4.53 codimm    
-##  8 si.g… area1 leng…  1992     2 5.16e7     -35.3  2.21  4.53 codimm    
-##  9 si.g… area1 leng…  1993     2 1.20e8     -35.3  2.21  4.53 codimm    
-## 10 si.g… area1 leng…  1994     2 1.58e8     -35.3  2.21  4.53 codimm    
-## # … with 125 more rows, and 10 more variables: sitype &lt;chr&gt;,
-## #   fittype &lt;chr&gt;, length &lt;chr&gt;, age &lt;chr&gt;, survey &lt;chr&gt;, fleet &lt;chr&gt;,
-## #   observed &lt;int&gt;, lower &lt;int&gt;, upper &lt;int&gt;, predict &lt;dbl&gt;</code></pre>
+<pre><code><span class="co">## # A tibble: 135 x 20</span>
+<span class="co">##    name  area  label  year  step number intercept slope   sse stocknames</span>
+<span class="co">##    &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;int&gt; &lt;int&gt;  &lt;dbl&gt;     &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;     </span>
+<span class="co">##  1 si.g… area1 leng…  1985     2 2.31e8     -35.3  2.21  4.53 codimm    </span>
+<span class="co">##  2 si.g… area1 leng…  1986     2 1.53e8     -35.3  2.21  4.53 codimm    </span>
+<span class="co">##  3 si.g… area1 leng…  1987     2 8.71e7     -35.3  2.21  4.53 codimm    </span>
+<span class="co">##  4 si.g… area1 leng…  1988     2 1.18e8     -35.3  2.21  4.53 codimm    </span>
+<span class="co">##  5 si.g… area1 leng…  1989     2 9.48e7     -35.3  2.21  4.53 codimm    </span>
+<span class="co">##  6 si.g… area1 leng…  1990     2 1.48e8     -35.3  2.21  4.53 codimm    </span>
+<span class="co">##  7 si.g… area1 leng…  1991     2 1.13e8     -35.3  2.21  4.53 codimm    </span>
+<span class="co">##  8 si.g… area1 leng…  1992     2 5.16e7     -35.3  2.21  4.53 codimm    </span>
+<span class="co">##  9 si.g… area1 leng…  1993     2 1.20e8     -35.3  2.21  4.53 codimm    </span>
+<span class="co">## 10 si.g… area1 leng…  1994     2 1.58e8     -35.3  2.21  4.53 codimm    </span>
+<span class="co">## # … with 125 more rows, and 10 more variables: sitype &lt;chr&gt;,</span>
+<span class="co">## #   fittype &lt;chr&gt;, length &lt;chr&gt;, age &lt;chr&gt;, survey &lt;chr&gt;, fleet &lt;chr&gt;,</span>
+<span class="co">## #   observed &lt;int&gt;, lower &lt;int&gt;, upper &lt;int&gt;, predict &lt;dbl&gt;</span></code></pre>
 <p>For further information on what the relevant data.frames contain refer to the help page for <code>gadget.fit</code>.</p>
 <p>In addition a plot routine for the <code>fit</code> object is implement in Rgadget. The input to the <code>plot</code> function is simply the <code>gadget.fit</code> object, the data set one wants to plot and the type. The default plot is a survey index plot:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></code></pre></div>
 <p><img src="README_files/figure-html/unnamed-chunk-8-1.png"><!-- --></p>
 <p>To produce a likelihood summary:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">fit</span>,data<span class="op">=</span><span class="st">'summary'</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>,data<span class="op">=</span><span class="st">'summary'</span><span class="op">)</span></code></pre></div>
 <p><img src="README_files/figure-html/unnamed-chunk-9-1.png"><!-- --></p>
 <p>A weighted summary plot:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">fit</span>,data<span class="op">=</span><span class="st">'summary'</span>,type <span class="op">=</span> <span class="st">'weighted'</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>,data<span class="op">=</span><span class="st">'summary'</span>,type <span class="op">=</span> <span class="st">'weighted'</span><span class="op">)</span></code></pre></div>
 <p><img src="README_files/figure-html/unnamed-chunk-10-1.png"><!-- --></p>
 <p>and an pie chart of likelihood components:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">fit</span>,data<span class="op">=</span><span class="st">'summary'</span>,type<span class="op">=</span><span class="st">'pie'</span><span class="op">)</span></code></pre></div>
-<pre><code>## Warning in RColorBrewer::brewer.pal(n, pal): n too large, allowed maximum for palette Spectral is 11
-## Returning the palette you asked for with that many colors</code></pre>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>,data<span class="op">=</span><span class="st">'summary'</span>,type<span class="op">=</span><span class="st">'pie'</span><span class="op">)</span></code></pre></div>
+<pre><code><span class="co">## Warning in RColorBrewer::brewer.pal(n, pal): n too large, allowed maximum for palette Spectral is 11</span>
+<span class="co">## Returning the palette you asked for with that many colors</span></code></pre>
 <p><img src="README_files/figure-html/unnamed-chunk-11-1.png"><!-- --></p>
 <p>To plot the fit to catch proportions (either length or age) you simply do:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">tmp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">fit</span>,data <span class="op">=</span> <span class="st">'catchdist.fleets'</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">tmp</span><span class="op">)</span></code></pre></div>
-<pre><code>## [1] "alkeys.aut"  "alkeys.comm" "alkeys.igfs" "ldist.aut"   "ldist.comm" 
-## [6] "ldist.igfs"</code></pre>
+<code class="sourceCode R"><span class="va">tmp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>,data <span class="op">=</span> <span class="st">'catchdist.fleets'</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">tmp</span><span class="op">)</span></code></pre></div>
+<pre><code><span class="co">## [1] "alkeys.aut"  "alkeys.comm" "alkeys.igfs" "ldist.aut"   "ldist.comm" </span>
+<span class="co">## [6] "ldist.igfs"</span></code></pre>
 <p>and then plot them one by one:</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">tmp</span><span class="op">$</span><span class="va">alkeys.aut</span></code></pre></div>
@@ -194,12 +188,12 @@
 <p><img src="README_files/figure-html/unnamed-chunk-14-1.png"><!-- --></p>
 <p>One can also produce bubble plots</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">bubbles</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">fit</span>,data <span class="op">=</span> <span class="st">'catchdist.fleets'</span>,type<span class="op">=</span><span class="st">'bubble'</span><span class="op">)</span></code></pre></div>
-<pre><code>## Joining, by = "name"
-## Joining, by = "name"</code></pre>
+<code class="sourceCode R"><span class="va">bubbles</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>,data <span class="op">=</span> <span class="st">'catchdist.fleets'</span>,type<span class="op">=</span><span class="st">'bubble'</span><span class="op">)</span></code></pre></div>
+<pre><code><span class="co">## Joining, by = "name"</span>
+<span class="co">## Joining, by = "name"</span></code></pre>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">bubbles</span><span class="op">)</span></code></pre></div>
-<pre><code>## [1] "ldist"  "aldist"</code></pre>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">bubbles</span><span class="op">)</span></code></pre></div>
+<pre><code><span class="co">## [1] "ldist"  "aldist"</span></code></pre>
 <p>Age bubbles</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">bubbles</span><span class="op">$</span><span class="va">aldist</span></code></pre></div>
@@ -210,41 +204,41 @@
 <p><img src="README_files/figure-html/unnamed-chunk-17-1.png"><!-- --></p>
 <p>One can also illustrate the fit to growth in the model:</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">grplot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">fit</span>,data <span class="op">=</span> <span class="st">'catchdist.fleets'</span>,type<span class="op">=</span><span class="st">'growth'</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">grplot</span><span class="op">)</span></code></pre></div>
-<pre><code>## [1] "alkeys.aut"  "alkeys.comm" "alkeys.igfs"</code></pre>
+<code class="sourceCode R"><span class="va">grplot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>,data <span class="op">=</span> <span class="st">'catchdist.fleets'</span>,type<span class="op">=</span><span class="st">'growth'</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">grplot</span><span class="op">)</span></code></pre></div>
+<pre><code><span class="co">## [1] "alkeys.aut"  "alkeys.comm" "alkeys.igfs"</span></code></pre>
 <p>Illstrate the fit to the autumn survey</p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">grplot</span><span class="op">$</span><span class="va">alkeys.aut</span></code></pre></div>
-<pre><code>## Warning: Removed 1 rows containing missing values (geom_point).</code></pre>
-<pre><code>## Warning: Removed 4 rows containing missing values (geom_linerange).</code></pre>
+<pre><code><span class="co">## Warning: Removed 1 rows containing missing values (geom_point).</span></code></pre>
+<pre><code><span class="co">## Warning: Removed 4 rows containing missing values (geom_linerange).</span></code></pre>
 <p><img src="README_files/figure-html/unnamed-chunk-19-1.png"><!-- --></p>
 <p>And the fit to maturity data:</p>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">fit</span>,data<span class="op">=</span><span class="st">'stockdist'</span><span class="op">)</span></code></pre></div>
-<pre><code>## $matp.igfs</code></pre>
-<pre><code>## Warning: Removed 52 rows containing missing values (geom_point).</code></pre>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>,data<span class="op">=</span><span class="st">'stockdist'</span><span class="op">)</span></code></pre></div>
+<pre><code><span class="co">## $matp.igfs</span></code></pre>
+<pre><code><span class="co">## Warning: Removed 52 rows containing missing values (geom_point).</span></code></pre>
 <p><img src="README_files/figure-html/unnamed-chunk-20-1.png"><!-- --></p>
 <p>And selection by year and step</p>
 <div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">fit</span>,data<span class="op">=</span><span class="st">"suitability"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>,data<span class="op">=</span><span class="st">"suitability"</span><span class="op">)</span></code></pre></div>
 <p><img src="README_files/figure-html/unnamed-chunk-21-1.png"><!-- --></p>
 <p>Age age compostion</p>
 <div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">fit</span>,data<span class="op">=</span><span class="st">'stock.std'</span><span class="op">)</span> <span class="op">+</span> <span class="fu">scale_fill_crayola</span><span class="op">(</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>,data<span class="op">=</span><span class="st">'stock.std'</span><span class="op">)</span> <span class="op">+</span> <span class="fu">scale_fill_crayola</span><span class="op">(</span><span class="op">)</span></code></pre></div>
 <p><img src="README_files/figure-html/unnamed-chunk-22-1.png"><!-- --></p>
 <p>And the standard ices plots</p>
 <div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">fit</span>,data<span class="op">=</span><span class="st">'res.by.year'</span>,type<span class="op">=</span><span class="st">'total'</span><span class="op">)</span> <span class="op">+</span> <span class="fu">theme</span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">'none'</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">fit</span>,data<span class="op">=</span><span class="st">'res.by.year'</span>,type<span class="op">=</span><span class="st">'F'</span><span class="op">)</span> <span class="op">+</span> <span class="fu">theme</span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">'none'</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">fit</span>,data <span class="op">=</span> <span class="st">'res.by.year'</span>,type<span class="op">=</span><span class="st">'catch'</span><span class="op">)</span> <span class="op">+</span> <span class="fu">theme</span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">'none'</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">fit</span>, data<span class="op">=</span><span class="st">'res.by.year'</span>,type<span class="op">=</span><span class="st">'rec'</span><span class="op">)</span></code></pre></div>
-<pre><code>## Warning: Removed 52 rows containing missing values (geom_path).</code></pre>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>,data<span class="op">=</span><span class="st">'res.by.year'</span>,type<span class="op">=</span><span class="st">'total'</span><span class="op">)</span> <span class="op">+</span> <span class="fu">theme</span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">'none'</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>,data<span class="op">=</span><span class="st">'res.by.year'</span>,type<span class="op">=</span><span class="st">'F'</span><span class="op">)</span> <span class="op">+</span> <span class="fu">theme</span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">'none'</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>,data <span class="op">=</span> <span class="st">'res.by.year'</span>,type<span class="op">=</span><span class="st">'catch'</span><span class="op">)</span> <span class="op">+</span> <span class="fu">theme</span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">'none'</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, data<span class="op">=</span><span class="st">'res.by.year'</span>,type<span class="op">=</span><span class="st">'rec'</span><span class="op">)</span></code></pre></div>
+<pre><code><span class="co">## Warning: Removed 52 rows containing missing values (geom_path).</span></code></pre>
 <p><img src="README_files/figure-html/unnamed-chunk-23-1.png"><!-- --></p>
 </div>
-<div id="acknowledgements" class="section level2">
-<h2 class="hasAnchor">
-<a href="#acknowledgements" class="anchor"></a>Acknowledgements</h2>
+<div class="section level2">
+<h2 id="acknowledgements">Acknowledgements<a class="anchor" aria-label="anchor" href="#acknowledgements"></a>
+</h2>
 <p>This project has received funding from the European Union’s Seventh Framework Programme for research, technological development and demonstration under grant agreement no.613571.</p>
 </div>
 
@@ -252,30 +246,43 @@
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <div class="license">
-<h2>License</h2>
+<h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
 <li>GPL</li>
 </ul>
 </div>
+
+
+<div class="citation">
+<h2 data-toc-skip>Citation</h2>
+<ul class="list-unstyled">
+<li><a href="authors.html#citation">Citing Rgadget</a></li>
+</ul>
+</div>
+
 <div class="developers">
-<h2>Developers</h2>
+<h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
 <li>Bjarki Thor Elvarsson <br><small class="roles"> Author, maintainer </small>  </li>
 <li>Jamie Lentin <br><small class="roles"> Author </small>  </li>
-<li><a href="authors.html">All authors...</a></li>
+<li><a href="authors.html">More about authors...</a></li>
 </ul>
 </div>
+
+
 
   </div>
 </div>
 
 
       <footer><div class="copyright">
-  <p>Developed by Bjarki Thor Elvarsson, Jamie Lentin.</p>
+  <p></p>
+<p>Developed by Bjarki Thor Elvarsson, Jamie Lentin.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
 </div>
 
       </footer>
@@ -283,6 +290,8 @@
 
   
 
+
+  
 
   </body>
 </html>

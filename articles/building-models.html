@@ -19,6 +19,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -31,18 +33,12 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">Rgadget</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.5</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-<li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
@@ -89,21 +85,21 @@
     
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://magrittr.tidyverse.org">magrittr</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://tibble.tidyverse.org/">tibble</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">Rgadget</span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">mfdb</span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://magrittr.tidyverse.org" class="external-link">magrittr</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tibble.tidyverse.org/" class="external-link">tibble</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">Rgadget</span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">mfdb</span><span class="op">)</span>
 
-<span class="va">gd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html">tempdir</a></span><span class="op">(</span><span class="op">)</span>
+<span class="va">gd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>
 
 <span class="va">codimm</span> <span class="op">&lt;-</span> 
-  <span class="fu"><a href="../reference/gadgetstock.html">gadgetstock</a></span><span class="op">(</span><span class="st">'codimm'</span>,<span class="va">gd</span>,missingOkay <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op"><a href="../reference/%&gt;%.html">%&gt;%</a></span>
+  <span class="fu"><a href="../reference/gadgetstock.html">gadgetstock</a></span><span class="op">(</span><span class="st">'codimm'</span>,<span class="va">gd</span>,missingOkay <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
   <span class="fu"><a href="../reference/gadget_update.html">gadget_update</a></span><span class="op">(</span><span class="st">'stock'</span>,
                 minage <span class="op">=</span> <span class="fl">1</span>,
                 maxage <span class="op">=</span> <span class="fl">10</span>,
                 minlength <span class="op">=</span> <span class="fl">4</span>,
                 maxlength <span class="op">=</span> <span class="fl">130</span>,
-                dl <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="../reference/%&gt;%.html">%&gt;%</a></span>
+                dl <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
   <span class="co">## does"something" updates should also allow for other names, e.g. doesrenew -&gt; recruitment etc..</span>
   <span class="fu"><a href="../reference/gadget_update.html">gadget_update</a></span><span class="op">(</span><span class="st">'doesgrow'</span>,  
                 <span class="co">## 1) some error catching would be useful here to ensure that the inputs are valid</span>
@@ -111,51 +107,51 @@
                 <span class="co">## 2) the following could be set as default values for this component, although </span>
                 <span class="co">## one might want to add the the name of the stock to the variable (like 'codimm.Linf') </span>
                 growthfunction <span class="op">=</span> <span class="st">'lengthvbsimple'</span>,
-                growthparameters <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>linf<span class="op">=</span><span class="st">'#Linf'</span>,k<span class="op">=</span><span class="st">'( * 0.001 #k)'</span>, <span class="st">'#walpha'</span>,<span class="st">'#wbeta'</span><span class="op">)</span>,
+                growthparameters <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>linf<span class="op">=</span><span class="st">'#Linf'</span>,k<span class="op">=</span><span class="st">'( * 0.001 #k)'</span>, <span class="st">'#walpha'</span>,<span class="st">'#wbeta'</span><span class="op">)</span>,
                 beta<span class="op">=</span><span class="st">'(* 10 #bbin)'</span>, 
-                maxlengthgroupgrowth<span class="op">=</span><span class="fl">15</span><span class="op">)</span> <span class="op"><a href="../reference/%&gt;%.html">%&gt;%</a></span>
+                maxlengthgroupgrowth<span class="op">=</span><span class="fl">15</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
   <span class="fu"><a href="../reference/gadget_update.html">gadget_update</a></span><span class="op">(</span><span class="st">'naturalmortality'</span>,   
                 <span class="co">## here it would be useful to be able to call parameters defined above akin to dplyr::mutate  </span>
                 <span class="co">## default value should be 0.2 repeated for all ages</span>
-                <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.5</span>,  <span class="fl">0.35</span>, <span class="fl">0.2</span>, <span class="fl">0.2</span>,  <span class="fl">0.2</span>, <span class="fl">0.2</span>, <span class="fl">0.2</span>, <span class="fl">0.2</span>, <span class="fl">0.2</span>, <span class="fl">0.3</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/%&gt;%.html">%&gt;%</a></span>
+                <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>,  <span class="fl">0.35</span>, <span class="fl">0.2</span>, <span class="fl">0.2</span>,  <span class="fl">0.2</span>, <span class="fl">0.2</span>, <span class="fl">0.2</span>, <span class="fl">0.2</span>, <span class="fl">0.2</span>, <span class="fl">0.3</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
   <span class="fu"><a href="../reference/gadget_update.html">gadget_update</a></span><span class="op">(</span><span class="st">'refweight'</span>,
                 <span class="co">## would be useful to have an option to have just alpha and beta from the relationship </span>
                 <span class="co">## W=alpha*L^beta </span>
                 <span class="co">## also just supply a normal data.frame</span>
-                data<span class="op">=</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/deprecated.html">data_frame</a></span><span class="op">(</span>length<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">4</span>,<span class="fl">130</span>,<span class="fl">2</span><span class="op">)</span>,mean<span class="op">=</span><span class="fl">6.5e-6</span><span class="op">*</span><span class="va">length</span><span class="op">^</span><span class="fl">3.07</span><span class="op">)</span>
-  <span class="op">)</span> <span class="op"><a href="../reference/%&gt;%.html">%&gt;%</a></span> 
-  <span class="fu"><a href="../reference/gadget_update.html">gadget_update</a></span><span class="op">(</span><span class="st">'iseaten'</span>,<span class="fl">1</span><span class="op">)</span> <span class="op"><a href="../reference/%&gt;%.html">%&gt;%</a></span> 
+                data<span class="op">=</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/deprecated.html" class="external-link">data_frame</a></span><span class="op">(</span>length<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">4</span>,<span class="fl">130</span>,<span class="fl">2</span><span class="op">)</span>,mean<span class="op">=</span><span class="fl">6.5e-6</span><span class="op">*</span><span class="va">length</span><span class="op">^</span><span class="fl">3.07</span><span class="op">)</span>
+  <span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
+  <span class="fu"><a href="../reference/gadget_update.html">gadget_update</a></span><span class="op">(</span><span class="st">'iseaten'</span>,<span class="fl">1</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
   <span class="fu"><a href="../reference/gadget_update.html">gadget_update</a></span><span class="op">(</span><span class="st">'doesmature'</span>, 
                 maturityfunction <span class="op">=</span> <span class="st">'continuous'</span>,
                 maturestocksandratios <span class="op">=</span> <span class="st">'codmat 1'</span>,
-                coefficients <span class="op">=</span> <span class="st">'( * 0.001 #cod.mat1) #cod.mat2 0 0'</span><span class="op">)</span> <span class="op"><a href="../reference/%&gt;%.html">%&gt;%</a></span> 
+                coefficients <span class="op">=</span> <span class="st">'( * 0.001 #cod.mat1) #cod.mat2 0 0'</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
   <span class="fu"><a href="../reference/gadget_update.html">gadget_update</a></span><span class="op">(</span><span class="st">'doesmove'</span>,
                 transitionstockandratios <span class="op">=</span> <span class="st">'codmat 1'</span>,
-                transitionstep <span class="op">=</span> <span class="fl">4</span><span class="op">)</span> <span class="op"><a href="../reference/%&gt;%.html">%&gt;%</a></span> 
+                transitionstep <span class="op">=</span> <span class="fl">4</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
   <span class="fu"><a href="../reference/gadget_update.html">gadget_update</a></span><span class="op">(</span><span class="st">'doesrenew'</span>,
                 <span class="co">## year-step-area-age-number-mean-stddev-a-b</span>
-                normalparam <span class="op">=</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/deprecated.html">data_frame</a></span><span class="op">(</span>year<span class="op">=</span><span class="fl">1960</span><span class="op">:</span><span class="fl">2016</span>,
+                normalparam <span class="op">=</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/deprecated.html" class="external-link">data_frame</a></span><span class="op">(</span>year<span class="op">=</span><span class="fl">1960</span><span class="op">:</span><span class="fl">2016</span>,
                                          step<span class="op">=</span><span class="fl">1</span>,
                                          area<span class="op">=</span><span class="fl">1</span>,
                                          age<span class="op">=</span><span class="fl">1</span>,
-                                         number<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html">sprintf</a></span><span class="op">(</span><span class="st">'(* #cod.rec.scale #cod.rec.%s)'</span>,<span class="va">year</span><span class="op">)</span>,
-                                         mean <span class="op">=</span> <span class="fu"><a href="../reference/to.gadget.formulae.html">to.gadget.formulae</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/substitute.html">quote</a></span><span class="op">(</span><span class="va">Linf</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span> <span class="op">*</span> <span class="op">(</span><span class="fl">0.001</span> <span class="op">*</span> <span class="va">k</span><span class="op">)</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">recl</span><span class="op">/</span><span class="va">Linf</span><span class="op">)</span><span class="op">/</span><span class="op">(</span><span class="fl">0.001</span> <span class="op">*</span> <span class="va">k</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,
-                                         stddev<span class="op">=</span><span class="fu"><a href="../reference/to.gadget.formulae.html">to.gadget.formulae</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/substitute.html">quote</a></span><span class="op">(</span><span class="va">cod.recl.sd</span><span class="op">)</span><span class="op">)</span>,
+                                         number<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">'(* #cod.rec.scale #cod.rec.%s)'</span>,<span class="va">year</span><span class="op">)</span>,
+                                         mean <span class="op">=</span> <span class="fu"><a href="../reference/to.gadget.formulae.html">to.gadget.formulae</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">quote</a></span><span class="op">(</span><span class="va">Linf</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span> <span class="op">*</span> <span class="op">(</span><span class="fl">0.001</span> <span class="op">*</span> <span class="va">k</span><span class="op">)</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">recl</span><span class="op">/</span><span class="va">Linf</span><span class="op">)</span><span class="op">/</span><span class="op">(</span><span class="fl">0.001</span> <span class="op">*</span> <span class="va">k</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,
+                                         stddev<span class="op">=</span><span class="fu"><a href="../reference/to.gadget.formulae.html">to.gadget.formulae</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">quote</a></span><span class="op">(</span><span class="va">cod.recl.sd</span><span class="op">)</span><span class="op">)</span>,
                                          alpha <span class="op">=</span> <span class="st">'#walpha'</span>,
                                          beta <span class="op">=</span> <span class="st">'#wbeta'</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-<pre><code>## Warning: `data_frame()` was deprecated in tibble 1.1.0.
-## Please use `tibble()` instead.
-## This warning is displayed once every 8 hours.
-## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was generated.</code></pre>
+<pre><code><span class="co">## Warning: `data_frame()` was deprecated in tibble 1.1.0.</span>
+<span class="co">## Please use `tibble()` instead.</span>
+<span class="co">## <span style="color: #555555;">This warning is displayed once every 8 hours.</span></span>
+<span class="co">## <span style="color: #555555;">Call `lifecycle::last_lifecycle_warnings()` to see where this warning was generated.</span></span></code></pre>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">codmat</span> <span class="op">&lt;-</span> 
-  <span class="fu"><a href="../reference/gadgetstock.html">gadgetstock</a></span><span class="op">(</span><span class="st">'codmat'</span>,<span class="va">gd</span>,missingOkay <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op"><a href="../reference/%&gt;%.html">%&gt;%</a></span>
+  <span class="fu"><a href="../reference/gadgetstock.html">gadgetstock</a></span><span class="op">(</span><span class="st">'codmat'</span>,<span class="va">gd</span>,missingOkay <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
   <span class="fu"><a href="../reference/gadget_update.html">gadget_update</a></span><span class="op">(</span><span class="st">'stock'</span>,
                 minage <span class="op">=</span> <span class="fl">3</span>,
                 maxage <span class="op">=</span> <span class="fl">12</span>,
                 minlength <span class="op">=</span> <span class="fl">20</span>,
                 maxlength <span class="op">=</span> <span class="fl">140</span>,
-                dl <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="../reference/%&gt;%.html">%&gt;%</a></span>
+                dl <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
   <span class="co">## does"something" updates should also allow for other names, e.g. doesrenew -&gt; recruitment etc..</span>
   <span class="fu"><a href="../reference/gadget_update.html">gadget_update</a></span><span class="op">(</span><span class="st">'doesgrow'</span>,  
                 <span class="co">## 1) some error catching would be useful here to ensure that the inputs are valid</span>
@@ -163,19 +159,19 @@
                 <span class="co">## 2) the following could be set as default values for this component, although </span>
                 <span class="co">## one might want to add the the name of the stock to the variable (like 'codimm.Linf') </span>
                 growthfunction <span class="op">=</span> <span class="st">'lengthvbsimple'</span>,
-                growthparameters <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>linf<span class="op">=</span><span class="st">'#Linf'</span>,k<span class="op">=</span><span class="st">'( * 0.001 #k)'</span>, <span class="st">'#walpha'</span>,<span class="st">'#wbeta'</span><span class="op">)</span>,
+                growthparameters <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>linf<span class="op">=</span><span class="st">'#Linf'</span>,k<span class="op">=</span><span class="st">'( * 0.001 #k)'</span>, <span class="st">'#walpha'</span>,<span class="st">'#wbeta'</span><span class="op">)</span>,
                 beta<span class="op">=</span><span class="st">'(* 10 #bbin)'</span>, 
-                maxlengthgroupgrowth<span class="op">=</span><span class="fl">15</span><span class="op">)</span> <span class="op"><a href="../reference/%&gt;%.html">%&gt;%</a></span>
+                maxlengthgroupgrowth<span class="op">=</span><span class="fl">15</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
   <span class="fu"><a href="../reference/gadget_update.html">gadget_update</a></span><span class="op">(</span><span class="st">'naturalmortality'</span>,   
                 <span class="co">## here it would be useful to be able to call parameters defined above akin to dplyr::mutate  </span>
                 <span class="co">## default value should be 0.2 repeated for all ages</span>
-                <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.2</span>,  <span class="fl">0.2</span>,    <span class="fl">0.2</span>,    <span class="fl">0.2</span>,    <span class="fl">0.2</span>,    <span class="fl">0.2</span>,    <span class="fl">0.2</span>,    <span class="fl">0.3</span>,    <span class="fl">0.5</span>,    <span class="fl">0.7</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/%&gt;%.html">%&gt;%</a></span>
+                <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.2</span>,  <span class="fl">0.2</span>,    <span class="fl">0.2</span>,    <span class="fl">0.2</span>,    <span class="fl">0.2</span>,    <span class="fl">0.2</span>,    <span class="fl">0.2</span>,    <span class="fl">0.3</span>,    <span class="fl">0.5</span>,    <span class="fl">0.7</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span>
   <span class="fu"><a href="../reference/gadget_update.html">gadget_update</a></span><span class="op">(</span><span class="st">'refweight'</span>,
                 <span class="co">## would be useful to have an option to have just alpha and beta from the relationship </span>
                 <span class="co">## W=alpha*L^beta </span>
                 <span class="co">## also just supply a normal data.frame </span>
-                data<span class="op">=</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/deprecated.html">data_frame</a></span><span class="op">(</span>length<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">20</span>,<span class="fl">140</span>,<span class="fl">2</span><span class="op">)</span>,mean<span class="op">=</span><span class="fl">3.5e-6</span><span class="op">*</span><span class="va">length</span><span class="op">^</span><span class="fl">3.22</span><span class="op">)</span>
-  <span class="op">)</span> <span class="op"><a href="../reference/%&gt;%.html">%&gt;%</a></span> 
+                data<span class="op">=</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/deprecated.html" class="external-link">data_frame</a></span><span class="op">(</span>length<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">20</span>,<span class="fl">140</span>,<span class="fl">2</span><span class="op">)</span>,mean<span class="op">=</span><span class="fl">3.5e-6</span><span class="op">*</span><span class="va">length</span><span class="op">^</span><span class="fl">3.22</span><span class="op">)</span>
+  <span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> 
   <span class="fu"><a href="../reference/gadget_update.html">gadget_update</a></span><span class="op">(</span><span class="st">'iseaten'</span>,<span class="fl">1</span><span class="op">)</span> </code></pre></div>
   </div>
 
@@ -188,11 +184,13 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by Bjarki Thor Elvarsson, Jamie Lentin.</p>
+  <p></p>
+<p>Developed by Bjarki Thor Elvarsson, Jamie Lentin.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
 </div>
 
       </footer>
@@ -200,6 +198,8 @@
 
   
 
+
+  
 
   </body>
 </html>
