@@ -590,8 +590,7 @@ lik_to_tibble <- function(comp){
       dat %>% 
       dplyr::inner_join(comp$ageaggfile[[1]] %>% 
                           {tibble::tibble(age = names(.), 
-                                          age_range = unlist(.) %>% 
-                                            purrr::map(paste,collapse = '\t') %>% 
+                                          age_range = purrr::map(.,paste,collapse = '\t') %>% 
                                             unlist())},
                         by = 'age') 
     
