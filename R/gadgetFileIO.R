@@ -123,7 +123,7 @@ read.gadget.likelihood <- function(files='likelihood'){
                                               collapse=' ')
                                       }),' '),
                       function(x) as.character(x))
-        if(class(tmp)!='list'){
+        if(!inherits(tmp, 'list')){
           names.tmp <- utils::head(tmp,1)
           tmp <- as.data.frame(tmp,stringsAsFactors=FALSE)[2,]
           names(tmp) <- names.tmp
