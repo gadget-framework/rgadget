@@ -286,6 +286,8 @@ gadget_fit <- function(gd,
     out[[comp]] <- 
       out[[comp]] %>% 
       dplyr::mutate(area = as.character(.data$area))
+    if ('age' %in% names(out[[comp]])) out[[comp]] <- dplyr::mutate(out[[comp]], age = as.character(.data$age))
+
     if(lik.dat[[comp]]$type[1] == 'surveyindices'){
       if(lik.dat[[comp]]$sitype[1] == 'lengths'){
         out[[comp]] <- 
