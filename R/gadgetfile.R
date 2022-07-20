@@ -73,6 +73,14 @@ split_gadgetfile_line <- function (line) {
 #'    components = list(
 #'        component = list(type = "penalty", aggfile = gadgetfile("aggfile", components = list()))
 #'    ))
+#' gadgetfile('tv', file_type='timevariable',
+#'    components=list(
+#'        list('tvname', multipler=1),
+#'            timedata = expand.grid(year=1988:1990, step=1:4, value=0.2/4)))
+#' gadgetfile('sv', file_type='stockvariable',
+#'    components=list(
+#'        list('svname', multipler=1,
+#'            stockdata = list(biomass=0, c('immature.capelin', 'mature.capelin')))))
 #' @export
 gadgetfile <- function (file_name, file_type = "generic", components = list()) {
   structure(
