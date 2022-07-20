@@ -62,47 +62,70 @@ This is a convenience function that allows the editing of parameter files by var
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">read.gadget.parameters</span><span class="op">(</span>file <span class="op">=</span> <span class="st">"params.in"</span><span class="op">)</span>
-
-<span class="fu">write.gadget.parameters</span><span class="op">(</span><span class="va">params</span>, file <span class="op">=</span> <span class="st">"params.out"</span><span class="op">)</span>
-
-<span class="fu">init_guess</span><span class="op">(</span>
-  <span class="va">dat</span>,
-  pattern <span class="op">=</span> <span class="st">""</span>,
-  value <span class="op">=</span> <span class="fl">0</span>,
-  lower <span class="op">=</span> <span class="op">-</span><span class="fl">999</span>,
-  upper <span class="op">=</span> <span class="fl">999</span>,
-  optimise <span class="op">=</span> <span class="fl">0</span>
-<span class="op">)</span>
-
-<span class="fu">wide_parameters</span><span class="op">(</span><span class="va">dat</span>, value <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">read.gadget.parameters</span><span class="op">(</span>file <span class="op">=</span> <span class="st">"params.in"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">write.gadget.parameters</span><span class="op">(</span><span class="va">params</span>, file <span class="op">=</span> <span class="st">"params.out"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">init_guess</span><span class="op">(</span></span>
+<span>  <span class="va">dat</span>,</span>
+<span>  pattern <span class="op">=</span> <span class="st">""</span>,</span>
+<span>  value <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  lower <span class="op">=</span> <span class="op">-</span><span class="fl">999</span>,</span>
+<span>  upper <span class="op">=</span> <span class="fl">999</span>,</span>
+<span>  optimise <span class="op">=</span> <span class="fl">0</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">wide_parameters</span><span class="op">(</span><span class="va">dat</span>, value <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>file</dt>
 <dd><p>a string naming the file to write to</p></dd>
+
+
 <dt>params</dt>
 <dd><p>params dataframe</p></dd>
+
+
 <dt>dat</dt>
 <dd><p>gadget parameters object</p></dd>
+
+
 <dt>pattern</dt>
 <dd><p>name of parameter, can include grep-able wildcards</p></dd>
+
+
 <dt>value</dt>
 <dd><p>data.frame update to the parameter matrix (assumes same row count)</p></dd>
+
+
 <dt>lower</dt>
 <dd><p>new lower bound</p></dd>
+
+
 <dt>upper</dt>
 <dd><p>new upper bound</p></dd>
+
+
 <dt>optimise</dt>
 <dd><p>should the parameter be optimised</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>dataframe
-a string containing the text of the params file (if desired)
-updated data frame with the new parameter values
-gadget parameters object</p>
+    
+
+<p>dataframe</p>
+
+
+<p>a string containing the text of the params file (if desired)</p>
+
+
+<p>updated data frame with the new parameter values</p>
+
+
+<p>gadget parameters object</p>
     </div>
     <div id="author">
     <h2>Author</h2>
@@ -122,7 +145,7 @@ gadget parameters object</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

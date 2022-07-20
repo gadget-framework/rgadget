@@ -77,7 +77,7 @@
       <h1 data-toc-skip>Weighing likelihood components using Rgadget</h1>
                         <h4 data-toc-skip class="author">Bjarki Þór Elvarsson</h4>
             
-            <h4 data-toc-skip class="date">2022-06-09</h4>
+            <h4 data-toc-skip class="date">2022-07-20</h4>
       
       
       <div class="hidden name"><code>iterative_reweighting.Rmd</code></div>
@@ -99,12 +99,12 @@
 </h2>
 <p>As an illustrative example consider the model for Icelandic cod. Following the logic of <span class="citation">@taylor2007simple</span> the survey indices are grouped together by size category to prevent overfitting, as you will have more than one observation for each recruitment variable. That is done with the <code>grouping</code> input variable. It essentially takes a list of vectors, where each vector lists the likelihood component names from the likelihood file that should be grouped.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/gadget.iterative.html">gadget.iterative</a></span><span class="op">(</span>main<span class="op">=</span><span class="st">'main'</span>,
-                 grouping<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>sind1<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'si.gp1'</span>,<span class="st">'si.gp1a'</span><span class="op">)</span>,
-                               sind2<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'si.gp2'</span>,<span class="st">'si.gp2a'</span><span class="op">)</span>,
-                               sind3<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'si.gp3'</span>,<span class="st">'si.gp3a'</span><span class="op">)</span><span class="op">)</span>,
-                 params.file <span class="op">=</span> <span class="st">'params.in'</span>,
-                 wgts<span class="op">=</span><span class="st">'WGTS'</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/gadget.iterative.html">gadget.iterative</a></span><span class="op">(</span>main<span class="op">=</span><span class="st">'main'</span>,</span>
+<span>                 grouping<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>sind1<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'si.gp1'</span>,<span class="st">'si.gp1a'</span><span class="op">)</span>,</span>
+<span>                               sind2<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'si.gp2'</span>,<span class="st">'si.gp2a'</span><span class="op">)</span>,</span>
+<span>                               sind3<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'si.gp3'</span>,<span class="st">'si.gp3a'</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>                 params.file <span class="op">=</span> <span class="st">'params.in'</span>,</span>
+<span>                 wgts<span class="op">=</span><span class="st">'WGTS'</span><span class="op">)</span></span></code></pre></div>
 <p>In the above example Other options to the function include</p>
 </div>
   </div>
@@ -126,7 +126,7 @@
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer>

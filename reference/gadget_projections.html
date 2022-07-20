@@ -60,155 +60,224 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">gadget_project_time</span><span class="op">(</span>
-  path <span class="op">=</span> <span class="st">"."</span>,
-  num_years <span class="op">=</span> <span class="fl">100</span>,
-  variant_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu">stringr</span><span class="fu">::</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/str_count.html" class="external-link">str_count</a></span><span class="op">(</span><span class="st">"/"</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"../"</span>, <span class="va">.</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span>
-    <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span>collapse <span class="op">=</span> <span class="st">""</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, sep <span class="op">=</span> <span class="st">""</span><span class="op">)</span>
-<span class="op">)</span>
-
-<span class="fu">gadget_project_stocks</span><span class="op">(</span>
-  <span class="va">path</span>,
-  <span class="va">imm.file</span>,
-  <span class="va">mat.file</span>,
-  spawnfunction <span class="op">=</span> <span class="st">"hockeystick"</span>,
-  proportionfunction <span class="op">=</span> <span class="st">"constant 1"</span>,
-  mortalityfunction <span class="op">=</span> <span class="st">"constant 0"</span>,
-  weightlossfunction <span class="op">=</span> <span class="st">"constant 0"</span>
-<span class="op">)</span>
-
-<span class="fu">gadget_project_fleet</span><span class="op">(</span>
-  <span class="va">path</span>,
-  pre_fleet <span class="op">=</span> <span class="st">"comm"</span>,
-  post_fix <span class="op">=</span> <span class="st">"pre"</span>,
-  fleet_type <span class="op">=</span> <span class="st">"linearfleet"</span>,
-  common_mult <span class="op">=</span> <span class="cn">NULL</span>,
-  pre_proportion <span class="op">=</span> <span class="cn">NULL</span>,
-  type <span class="op">=</span> <span class="st">"standard"</span>,
-  <span class="va">...</span>
-<span class="op">)</span>
-
-<span class="fu">gadget_project_prognosis_likelihood</span><span class="op">(</span>
-  <span class="va">path</span>,
-  <span class="va">stocks</span>,
-  pre_fleets <span class="op">=</span> <span class="st">"comm"</span>,
-  post_fix <span class="op">=</span> <span class="st">"pre"</span>,
-  mainfile_overwrite <span class="op">=</span> <span class="cn">TRUE</span>,
-  firsttacyear <span class="op">=</span> <span class="cn">NULL</span>,
-  assessmentstep <span class="op">=</span> <span class="fl">2</span>,
-  weightoflastyearstac <span class="op">=</span> <span class="fl">0</span>,
-  <span class="va">...</span>
-<span class="op">)</span>
-
-<span class="fu">gadget_project_recruitment</span><span class="op">(</span>
-  <span class="va">path</span>,
-  <span class="va">stock</span>,
-  recruitment <span class="op">=</span> <span class="cn">NULL</span>,
-  n_replicates <span class="op">=</span> <span class="fl">100</span>,
-  params.file <span class="op">=</span> <span class="st">"PRE/params.pre"</span>,
-  method <span class="op">=</span> <span class="st">"AR"</span>,
-  <span class="va">...</span>
-<span class="op">)</span>
-
-<span class="fu">gadget_project_advice</span><span class="op">(</span>
-  <span class="va">path</span>,
-  params.file <span class="op">=</span> <span class="st">"PRE/params.pre"</span>,
-  harvest_rate <span class="op">=</span> <span class="fl">0.2</span>,
-  advice_cv <span class="op">=</span> <span class="fl">0.2</span>,
-  advice_rho <span class="op">=</span> <span class="fl">0.6</span>,
-  pre_fleet <span class="op">=</span> <span class="st">"comm"</span>,
-  post_fix <span class="op">=</span> <span class="st">"pre"</span>,
-  n_replicates <span class="op">=</span> <span class="fl">100</span>
-<span class="op">)</span>
-
-<span class="fu">gadget_project_ref_points</span><span class="op">(</span><span class="va">path</span>, <span class="va">ref_points</span>, params.file <span class="op">=</span> <span class="st">"PRE/params.pre"</span><span class="op">)</span>
-
-<span class="fu">gadget_project_output</span><span class="op">(</span>
-  <span class="va">path</span>,
-  <span class="va">imm.file</span>,
-  <span class="va">mat.file</span>,
-  pre_fleets <span class="op">=</span> <span class="st">"comm"</span>,
-  post_fix <span class="op">=</span> <span class="st">"pre"</span>,
-  f_age_range <span class="op">=</span> <span class="cn">NULL</span>,
-  rec_age <span class="op">=</span> <span class="cn">NULL</span>,
-  print_block <span class="op">=</span> <span class="st">"1"</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">gadget_project_time</span><span class="op">(</span></span>
+<span>  path <span class="op">=</span> <span class="st">"."</span>,</span>
+<span>  num_years <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>  variant_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu">stringr</span><span class="fu">::</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/str_count.html" class="external-link">str_count</a></span><span class="op">(</span><span class="st">"/"</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"../"</span>, <span class="va">.</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span>collapse <span class="op">=</span> <span class="st">""</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, sep <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">gadget_project_stocks</span><span class="op">(</span></span>
+<span>  <span class="va">path</span>,</span>
+<span>  <span class="va">imm.file</span>,</span>
+<span>  <span class="va">mat.file</span>,</span>
+<span>  spawnfunction <span class="op">=</span> <span class="st">"hockeystick"</span>,</span>
+<span>  proportionfunction <span class="op">=</span> <span class="st">"constant 1"</span>,</span>
+<span>  mortalityfunction <span class="op">=</span> <span class="st">"constant 0"</span>,</span>
+<span>  weightlossfunction <span class="op">=</span> <span class="st">"constant 0"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">gadget_project_fleet</span><span class="op">(</span></span>
+<span>  <span class="va">path</span>,</span>
+<span>  pre_fleet <span class="op">=</span> <span class="st">"comm"</span>,</span>
+<span>  post_fix <span class="op">=</span> <span class="st">"pre"</span>,</span>
+<span>  fleet_type <span class="op">=</span> <span class="st">"linearfleet"</span>,</span>
+<span>  common_mult <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  pre_proportion <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  type <span class="op">=</span> <span class="st">"standard"</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">gadget_project_prognosis_likelihood</span><span class="op">(</span></span>
+<span>  <span class="va">path</span>,</span>
+<span>  <span class="va">stocks</span>,</span>
+<span>  pre_fleets <span class="op">=</span> <span class="st">"comm"</span>,</span>
+<span>  post_fix <span class="op">=</span> <span class="st">"pre"</span>,</span>
+<span>  mainfile_overwrite <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  firsttacyear <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  assessmentstep <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  weightoflastyearstac <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">gadget_project_recruitment</span><span class="op">(</span></span>
+<span>  <span class="va">path</span>,</span>
+<span>  <span class="va">stock</span>,</span>
+<span>  recruitment <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  n_replicates <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>  params.file <span class="op">=</span> <span class="st">"PRE/params.pre"</span>,</span>
+<span>  method <span class="op">=</span> <span class="st">"AR"</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">gadget_project_advice</span><span class="op">(</span></span>
+<span>  <span class="va">path</span>,</span>
+<span>  params.file <span class="op">=</span> <span class="st">"PRE/params.pre"</span>,</span>
+<span>  harvest_rate <span class="op">=</span> <span class="fl">0.2</span>,</span>
+<span>  advice_cv <span class="op">=</span> <span class="fl">0.2</span>,</span>
+<span>  advice_rho <span class="op">=</span> <span class="fl">0.6</span>,</span>
+<span>  pre_fleet <span class="op">=</span> <span class="st">"comm"</span>,</span>
+<span>  post_fix <span class="op">=</span> <span class="st">"pre"</span>,</span>
+<span>  n_replicates <span class="op">=</span> <span class="fl">100</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">gadget_project_ref_points</span><span class="op">(</span><span class="va">path</span>, <span class="va">ref_points</span>, params.file <span class="op">=</span> <span class="st">"PRE/params.pre"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">gadget_project_output</span><span class="op">(</span></span>
+<span>  <span class="va">path</span>,</span>
+<span>  <span class="va">imm.file</span>,</span>
+<span>  <span class="va">mat.file</span>,</span>
+<span>  pre_fleets <span class="op">=</span> <span class="st">"comm"</span>,</span>
+<span>  post_fix <span class="op">=</span> <span class="st">"pre"</span>,</span>
+<span>  f_age_range <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  rec_age <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  print_block <span class="op">=</span> <span class="st">"1"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>path</dt>
 <dd><p>gadget variant director</p></dd>
+
+
 <dt>num_years</dt>
 <dd><p>number of years</p></dd>
+
+
 <dt>variant_dir</dt>
 <dd><p>location of the</p></dd>
+
+
 <dt>imm.file</dt>
 <dd><p>location of the immature stock file</p></dd>
+
+
 <dt>mat.file</dt>
 <dd><p>location of the mature stock file</p></dd>
+
+
 <dt>spawnfunction</dt>
 <dd><p>what spawn function to use (only hockeystick atm)</p></dd>
+
+
 <dt>proportionfunction</dt>
 <dd><p>proportion suitability</p></dd>
+
+
 <dt>mortalityfunction</dt>
 <dd><p>mortataliy suitability</p></dd>
+
+
 <dt>weightlossfunction</dt>
 <dd><p>weightloss suitability</p></dd>
+
+
 <dt>pre_fleet</dt>
 <dd><p>name of the fleet projections are based on (original fleet). Only a single fleet should be implemented here at a time. Multiple fleets require multiple gadget_project_advice calls.</p></dd>
+
+
 <dt>post_fix</dt>
 <dd><p>A single label (vector of length 1) used to distinguish the original fleet and the projection fleet (with same parameterisations). Should be the same for all projection fleets.</p></dd>
+
+
 <dt>fleet_type</dt>
 <dd><p>type of gadget fleet for the projections</p></dd>
+
+
 <dt>common_mult</dt>
 <dd><p>a string with a base name for a vector of harvest/catch rate multipliers (shared between fleets)</p></dd>
+
+
 <dt>pre_proportion</dt>
 <dd><p>proportion of the effort taken</p></dd>
+
+
 <dt>type</dt>
 <dd><p>type of projection, either "standard" or "prognosis"</p></dd>
+
+
 <dt>...</dt>
 <dd><p>additional arguments for the</p></dd>
+
+
 <dt>stocks</dt>
 <dd><p>names of of the stocks</p></dd>
+
+
 <dt>pre_fleets</dt>
 <dd><p>vector of fleets on which the projections are based</p></dd>
+
+
 <dt>mainfile_overwrite</dt>
 <dd><p>should the likelihood be overwritten, defaults to TRUE, but should be set as FALSE for multiple prognosis components (different groups of fleets)</p></dd>
+
+
 <dt>firsttacyear</dt>
 <dd><p>when does the TAC scheme start</p></dd>
+
+
 <dt>assessmentstep</dt>
 <dd><p>when is the assessment</p></dd>
+
+
 <dt>weightoflastyearstac</dt>
 <dd><p>running average TAC..</p></dd>
+
+
 <dt>stock</dt>
 <dd><p>name of immature stock</p></dd>
+
+
 <dt>recruitment</dt>
 <dd><p>recruitment time series</p></dd>
+
+
 <dt>n_replicates</dt>
 <dd><p>number of simulations</p></dd>
+
+
 <dt>params.file</dt>
 <dd><p>name of the parameter files</p></dd>
+
+
 <dt>method</dt>
 <dd><p>prediction method, built in options are 'AR', 'bootstrap' or constant</p></dd>
+
+
 <dt>harvest_rate</dt>
 <dd><p>median harvest rate</p></dd>
+
+
 <dt>advice_cv</dt>
 <dd><p>assessment error cv</p></dd>
+
+
 <dt>advice_rho</dt>
 <dd><p>assessment error correlation</p></dd>
+
+
 <dt>ref_points</dt>
 <dd><p>tibble with reference points</p></dd>
+
+
 <dt>f_age_range</dt>
 <dd><p>F age range, specified in the format a1:a2</p></dd>
+
+
 <dt>rec_age</dt>
 <dd><p>age of recruitment (as reported)</p></dd>
+
+
 <dt>print_block</dt>
 <dd><p>file suffix for the printfile</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>gadget variant directory</p>
+    
+
+<p>gadget variant directory</p>
     </div>
     <div id="details">
     <h2>Details</h2>
@@ -231,156 +300,156 @@ Multi-annual recruitment is currently not defined.</p>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="gadget.fit.html">gadget.fit</a></span><span class="op">(</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">res</span> <span class="op">&lt;-</span> </span>
-<span class="r-in"> <span class="fu">gadget_project_time</span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="fu">gadget_project_stocks</span><span class="op">(</span>imm.file <span class="op">=</span> <span class="st">'Modelfiles/cod.imm'</span>,mat.file <span class="op">=</span> <span class="st">'Modelfiles/cod.mat'</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="fu">gadget_project_fleet</span><span class="op">(</span>pre_fleet <span class="op">=</span> <span class="st">'comm'</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="fu"><a href="gadget_evaluate.html">gadget_evaluate</a></span><span class="op">(</span>params.out <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">.</span>,<span class="st">'variant_dir'</span><span class="op">)</span>,<span class="st">'params.pre'</span>,sep<span class="op">=</span><span class="st">'/'</span><span class="op">)</span>,</span>
-<span class="r-in">                 params.in <span class="op">=</span> <span class="st">'WGTS/params.final'</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="fu">gadget_project_recruitment</span><span class="op">(</span>stock <span class="op">=</span> <span class="st">'codimm'</span>, </span>
-<span class="r-in">                            recruitment <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">stock.recruitment</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in">                              <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">stock</span> <span class="op">==</span> <span class="st">'codimm'</span>,</span>
-<span class="r-in">                                     <span class="va">year</span> <span class="op">&gt;</span> <span class="fl">1980</span><span class="op">)</span>,</span>
-<span class="r-in">                            params.file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">.</span>,<span class="st">'variant_dir'</span><span class="op">)</span>,<span class="st">'params.pre'</span>,sep<span class="op">=</span><span class="st">'/'</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="fu">gadget_project_ref_points</span><span class="op">(</span>ref_points <span class="op">=</span> <span class="fu">tibble</span><span class="op">(</span>codmat.blim <span class="op">=</span> <span class="fl">207727665</span><span class="op">)</span>, </span>
-<span class="r-in">                         params.file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">.</span>,<span class="st">'variant_dir'</span><span class="op">)</span>,<span class="st">'params.pre'</span>,sep<span class="op">=</span><span class="st">'/'</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="fu">gadget_project_advice</span><span class="op">(</span>pre_fleet <span class="op">=</span> <span class="st">'comm'</span>,</span>
-<span class="r-in">                       harvest_rate <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">100</span><span class="op">/</span><span class="fl">100</span>, </span>
-<span class="r-in">                       params.file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">.</span>,<span class="st">'variant_dir'</span><span class="op">)</span>,<span class="st">'params.pre'</span>,sep<span class="op">=</span><span class="st">'/'</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="fu">gadget_project_output</span><span class="op">(</span>imm.file <span class="op">=</span> <span class="st">'Modelfiles/cod.imm'</span>,mat.file <span class="op">=</span> <span class="st">'Modelfiles/cod.mat'</span>,</span>
-<span class="r-in">                       pre_fleet <span class="op">=</span> <span class="st">'comm'</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="fu"><a href="gadget_evaluate.html">gadget_evaluate</a></span><span class="op">(</span>params.in <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">.</span>,<span class="st">'variant_dir'</span><span class="op">)</span>,<span class="st">'params.pre'</span>,sep<span class="op">=</span><span class="st">'/'</span><span class="op">)</span><span class="op">)</span>  <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="op">{</span><span class="fu"><a href="read.printfiles.html">read.printfiles</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">.</span>,<span class="st">'variant_dir'</span><span class="op">)</span>,<span class="st">'out'</span>,sep<span class="op">=</span><span class="st">'/'</span><span class="op">)</span><span class="op">)</span><span class="op">}</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="fu">map</span><span class="op">(</span><span class="va">mutate</span>, trial<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/cut.html" class="external-link">cut</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">year</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diff.html" class="external-link">diff</a></span><span class="op">(</span><span class="va">year</span><span class="op">)</span><span class="op">&lt;</span><span class="fl">0</span><span class="op">)</span>,<span class="fl">1e9</span><span class="op">)</span>,labels <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="fu">set_names</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"catch.F"</span>,<span class="st">"catch.lw"</span>,<span class="st">'codimm.rec'</span>,<span class="st">'codmat.ssb'</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="fu">map</span><span class="op">(</span><span class="va">left_join</span>,<span class="fu">tibble</span><span class="op">(</span>trial<span class="op">=</span><span class="fl">1</span><span class="op">:</span><span class="fl">10000</span>,harvest_rate <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">100</span><span class="op">/</span><span class="fl">100</span>,<span class="fl">100</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">yield_curve</span> <span class="op">&lt;-</span> </span>
-<span class="r-in"> <span class="va">res</span><span class="op">$</span><span class="va">catch.lw</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">year</span><span class="op">&gt;</span><span class="fl">2050</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="fu">group_by</span><span class="op">(</span><span class="va">trial</span>,<span class="va">harvest_rate</span>,<span class="va">year</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="fu">summarise</span><span class="op">(</span>c<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">biomass_consumed</span><span class="op">)</span><span class="op">/</span><span class="fl">1e6</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="fu">group_by</span><span class="op">(</span><span class="va">harvest_rate</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="fu">summarise</span><span class="op">(</span>m<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">c</span><span class="op">)</span>,u<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">c</span>,<span class="fl">0.95</span><span class="op">)</span>,l<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">c</span>,<span class="fl">0.05</span><span class="op">)</span><span class="op">)</span> </span>
-<span class="r-in"></span>
-<span class="r-in"></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">ssb_curve</span> <span class="op">&lt;-</span> </span>
-<span class="r-in"> <span class="va">res</span><span class="op">$</span><span class="va">codmat.ssb</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">year</span><span class="op">&gt;</span><span class="fl">2050</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="fu">group_by</span><span class="op">(</span><span class="va">trial</span>,<span class="va">harvest_rate</span>,<span class="va">year</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="fu">summarise</span><span class="op">(</span>c<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">number</span><span class="op">*</span><span class="va">mean_weight</span><span class="op">)</span><span class="op">/</span><span class="fl">1e6</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="fu">group_by</span><span class="op">(</span><span class="va">harvest_rate</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="fu">summarise</span><span class="op">(</span>m<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">c</span><span class="op">)</span>,u<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">c</span>,<span class="fl">0.95</span><span class="op">)</span>,l<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">c</span>,<span class="fl">0.05</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">f.curve</span> <span class="op">&lt;-</span> </span>
-<span class="r-in"> <span class="va">res</span><span class="op">$</span><span class="va">catch.F</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">year</span><span class="op">&gt;</span><span class="fl">2050</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="fu">group_by</span><span class="op">(</span><span class="va">trial</span>,<span class="va">harvest_rate</span>,<span class="va">year</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="fu">summarise</span><span class="op">(</span>c<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">mortality</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="fu">group_by</span><span class="op">(</span><span class="va">harvest_rate</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="fu">summarise</span><span class="op">(</span>m<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">c</span><span class="op">)</span>,u<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">c</span>,<span class="fl">0.95</span><span class="op">)</span>,l<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">c</span>,<span class="fl">0.05</span><span class="op">)</span><span class="op">)</span> </span>
-<span class="r-in"></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">blim</span> <span class="op">&lt;-</span> </span>
-<span class="r-in"> <span class="va">fit</span><span class="op">$</span><span class="va">res.by.year</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">'mat'</span>,<span class="va">stock</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="fu">summarise</span><span class="op">(</span>b<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">total.biomass</span><span class="op">)</span><span class="op">/</span><span class="fl">1e6</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="va">.</span><span class="op">$</span><span class="va">b</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">bpa</span> <span class="op">&lt;-</span> <span class="fl">1.4</span><span class="op">*</span><span class="va">blim</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">hr_msy</span> <span class="op">&lt;-</span> </span>
-<span class="r-in"> <span class="va">yield_curve</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">m</span><span class="op">==</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">m</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="va">.</span><span class="op">$</span><span class="va">harvest_rate</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">hr_lim</span> <span class="op">&lt;-</span> </span>
-<span class="r-in"> <span class="va">ssb_curve</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">m</span><span class="op">&gt;</span><span class="va">blim</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">harvest_rate</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">harvest_rate</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="va">.</span><span class="op">$</span><span class="va">harvest_rate</span></span>
-<span class="r-in"></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">f.msy</span> <span class="op">&lt;-</span></span>
-<span class="r-in"> <span class="va">f.curve</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">harvest_rate</span> <span class="op">==</span> <span class="va">hr_msy</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="va">.</span><span class="op">$</span><span class="va">m</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">f.lim</span> <span class="op">&lt;-</span> </span>
-<span class="r-in"> <span class="va">f.curve</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">harvest_rate</span> <span class="op">==</span> <span class="va">hr_lim</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="va">.</span><span class="op">$</span><span class="va">m</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">f.pa</span> <span class="op">&lt;-</span> </span>
-<span class="r-in"> <span class="va">f.lim</span><span class="op">/</span><span class="fl">1.4</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">hr_pa</span> <span class="op">&lt;-</span> </span>
-<span class="r-in"> <span class="va">f.curve</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">m</span> <span class="op">&lt;</span> <span class="va">f.pa</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="fu">summarise</span><span class="op">(</span>hr <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">harvest_rate</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span>
-<span class="r-in"> <span class="va">.</span><span class="op">$</span><span class="va">hr</span></span>
-<span class="r-in"></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com" class="external-link">patchwork</a></span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">yield_curve</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="fu">left_join</span><span class="op">(</span><span class="va">f.curve</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in">             <span class="fu">select</span><span class="op">(</span><span class="va">harvest_rate</span>,F<span class="op">=</span><span class="va">m</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="fu">ggplot</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span><span class="cn">F</span>,<span class="va">m</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span class="r-in"> <span class="fu">geom_ribbon</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>ymin<span class="op">=</span><span class="va">l</span>,ymax<span class="op">=</span><span class="va">u</span><span class="op">)</span>,fill <span class="op">=</span> <span class="st">'gold'</span><span class="op">)</span> <span class="op">+</span>  </span>
-<span class="r-in"> <span class="fu">geom_line</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> </span>
-<span class="r-in"> <span class="fu">geom_vline</span><span class="op">(</span>xintercept <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">f.msy</span>,<span class="va">f.pa</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
-<span class="r-in"> <span class="fu">geom_vline</span><span class="op">(</span>xintercept <span class="op">=</span> <span class="va">f.pa</span>,lty<span class="op">=</span><span class="fl">2</span>,col<span class="op">=</span><span class="st">'red'</span><span class="op">)</span> <span class="op">+</span> </span>
-<span class="r-in"> <span class="fu">geom_vline</span><span class="op">(</span>xintercept <span class="op">=</span> <span class="va">f.lim</span>,lwd<span class="op">=</span><span class="fl">1.1</span>,col<span class="op">=</span><span class="st">'red'</span><span class="op">)</span> <span class="op">+</span></span>
-<span class="r-in"> <span class="va">ssb_curve</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="fu">left_join</span><span class="op">(</span><span class="va">f.curve</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in">             <span class="fu">select</span><span class="op">(</span><span class="va">harvest_rate</span>,F<span class="op">=</span><span class="va">m</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="fu">ggplot</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span><span class="cn">F</span>,<span class="va">m</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
-<span class="r-in"> <span class="fu">geom_ribbon</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>ymin<span class="op">=</span><span class="va">l</span>,ymax<span class="op">=</span><span class="va">u</span><span class="op">)</span>,fill <span class="op">=</span> <span class="st">'gold'</span><span class="op">)</span> <span class="op">+</span> </span>
-<span class="r-in"> <span class="fu">geom_line</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> </span>
-<span class="r-in"> <span class="fu">geom_vline</span><span class="op">(</span>xintercept <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">f.msy</span>,<span class="va">f.pa</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
-<span class="r-in"> <span class="fu">geom_vline</span><span class="op">(</span>xintercept <span class="op">=</span> <span class="va">f.pa</span>,lty<span class="op">=</span><span class="fl">2</span>,col<span class="op">=</span><span class="st">'red'</span><span class="op">)</span> <span class="op">+</span> </span>
-<span class="r-in"> <span class="fu">geom_vline</span><span class="op">(</span>xintercept <span class="op">=</span> <span class="va">f.lim</span>,lwd<span class="op">=</span><span class="fl">1.1</span>,col<span class="op">=</span><span class="st">'red'</span><span class="op">)</span> <span class="op">+</span> </span>
-<span class="r-in"> <span class="fu">geom_hline</span><span class="op">(</span>yintercept <span class="op">=</span> <span class="va">blim</span>, col <span class="op">=</span> <span class="st">'red'</span>, lwd <span class="op">=</span> <span class="fl">1.1</span><span class="op">)</span> <span class="op">+</span> </span>
-<span class="r-in"> <span class="fu">geom_hline</span><span class="op">(</span>yintercept <span class="op">=</span> <span class="va">bpa</span>,col <span class="op">=</span> <span class="st">'red'</span>,lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span class="r-in"> </span>
-<span class="r-in"> </span>
-<span class="r-in"> <span class="co">## run prognosis</span></span>
-<span class="r-in"> </span>
-<span class="r-in"><span class="va">res</span> <span class="op">&lt;-</span> </span>
-<span class="r-in"> <span class="fu">gadget_project_time</span><span class="op">(</span>num_years <span class="op">=</span> <span class="fl">5</span>, variant_dir <span class="op">=</span> <span class="st">'PRG'</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="fu">gadget_project_stocks</span><span class="op">(</span>imm.file <span class="op">=</span> <span class="st">'Modelfiles/cod.imm'</span>,mat.file <span class="op">=</span> <span class="st">'Modelfiles/cod.mat'</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="fu">gadget_project_fleet</span><span class="op">(</span>pre_fleet <span class="op">=</span> <span class="st">'comm'</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="fu"><a href="gadget_evaluate.html">gadget_evaluate</a></span><span class="op">(</span>params.out <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">.</span>,<span class="st">'variant_dir'</span><span class="op">)</span>,<span class="st">'params.pre'</span>,sep<span class="op">=</span><span class="st">'/'</span><span class="op">)</span>,</span>
-<span class="r-in">                 params.in <span class="op">=</span> <span class="st">'WGTS/params.final'</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="fu">gadget_project_recruitment</span><span class="op">(</span>stock <span class="op">=</span> <span class="st">'codimm'</span>, </span>
-<span class="r-in">                            recruitment <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">stock.recruitment</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in">                              <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">stock</span> <span class="op">==</span> <span class="st">'codimm'</span>,</span>
-<span class="r-in">                                     <span class="va">year</span> <span class="op">&gt;</span> <span class="fl">1980</span><span class="op">)</span>,</span>
-<span class="r-in">                            method <span class="op">=</span> <span class="st">'constant'</span>,</span>
-<span class="r-in">                            n_replicates <span class="op">=</span> <span class="fl">1</span>,          </span>
-<span class="r-in">                            params.file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">.</span>,<span class="st">'variant_dir'</span><span class="op">)</span>,<span class="st">'params.pre'</span>,sep<span class="op">=</span><span class="st">'/'</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="fu">gadget_project_ref_points</span><span class="op">(</span>ref_points <span class="op">=</span> <span class="fu">tibble</span><span class="op">(</span>codmat.blim <span class="op">=</span> <span class="fl">207727665</span><span class="op">)</span>, </span>
-<span class="r-in">                         params.file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">.</span>,<span class="st">'variant_dir'</span><span class="op">)</span>,<span class="st">'params.pre'</span>,sep<span class="op">=</span><span class="st">'/'</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="fu">gadget_project_advice</span><span class="op">(</span>pre_fleet <span class="op">=</span> <span class="st">'comm'</span>,</span>
-<span class="r-in">                       harvest_rate <span class="op">=</span> <span class="va">hr_msy</span>, </span>
-<span class="r-in">                       params.file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">.</span>,<span class="st">'variant_dir'</span><span class="op">)</span>,<span class="st">'params.pre'</span>,sep<span class="op">=</span><span class="st">'/'</span><span class="op">)</span>,</span>
-<span class="r-in">                       n_replicates <span class="op">=</span> <span class="fl">1</span>, </span>
-<span class="r-in">                       advice_cv <span class="op">=</span> <span class="fl">0</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="fu">gadget_project_output</span><span class="op">(</span>imm.file <span class="op">=</span> <span class="st">'Modelfiles/cod.imm'</span>,mat.file <span class="op">=</span> <span class="st">'Modelfiles/cod.mat'</span>,</span>
-<span class="r-in">                       pre_fleet <span class="op">=</span> <span class="st">'comm'</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="fu"><a href="gadget_evaluate.html">gadget_evaluate</a></span><span class="op">(</span>params.in <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">.</span>,<span class="st">'variant_dir'</span><span class="op">)</span>,<span class="st">'params.pre'</span>,sep<span class="op">=</span><span class="st">'/'</span><span class="op">)</span><span class="op">)</span>  <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="op">{</span><span class="fu"><a href="read.printfiles.html">read.printfiles</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">.</span>,<span class="st">'variant_dir'</span><span class="op">)</span>,<span class="st">'out'</span>,sep<span class="op">=</span><span class="st">'/'</span><span class="op">)</span><span class="op">)</span><span class="op">}</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span>
-<span class="r-in"> <span class="fu">set_names</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"catch.F"</span>,<span class="st">"catch"</span>,<span class="st">'rec'</span>,<span class="st">'ssb'</span><span class="op">)</span><span class="op">)</span> </span>
-<span class="r-in"> </span>
-<span class="r-in"> </span>
-<span class="r-in"> <span class="op">}</span></span>
-<span class="r-in"> </span>
-<span class="r-in"> </span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="gadget.fit.html">gadget.fit</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> </span></span>
+<span class="r-in"><span> <span class="fu">gadget_project_time</span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="fu">gadget_project_stocks</span><span class="op">(</span>imm.file <span class="op">=</span> <span class="st">'Modelfiles/cod.imm'</span>,mat.file <span class="op">=</span> <span class="st">'Modelfiles/cod.mat'</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="fu">gadget_project_fleet</span><span class="op">(</span>pre_fleet <span class="op">=</span> <span class="st">'comm'</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="fu"><a href="gadget_evaluate.html">gadget_evaluate</a></span><span class="op">(</span>params.out <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">.</span>,<span class="st">'variant_dir'</span><span class="op">)</span>,<span class="st">'params.pre'</span>,sep<span class="op">=</span><span class="st">'/'</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                 params.in <span class="op">=</span> <span class="st">'WGTS/params.final'</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="fu">gadget_project_recruitment</span><span class="op">(</span>stock <span class="op">=</span> <span class="st">'codimm'</span>, </span></span>
+<span class="r-in"><span>                            recruitment <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">stock.recruitment</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span>                              <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">stock</span> <span class="op">==</span> <span class="st">'codimm'</span>,</span></span>
+<span class="r-in"><span>                                     <span class="va">year</span> <span class="op">&gt;</span> <span class="fl">1980</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                            params.file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">.</span>,<span class="st">'variant_dir'</span><span class="op">)</span>,<span class="st">'params.pre'</span>,sep<span class="op">=</span><span class="st">'/'</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="fu">gadget_project_ref_points</span><span class="op">(</span>ref_points <span class="op">=</span> <span class="fu">tibble</span><span class="op">(</span>codmat.blim <span class="op">=</span> <span class="fl">207727665</span><span class="op">)</span>, </span></span>
+<span class="r-in"><span>                         params.file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">.</span>,<span class="st">'variant_dir'</span><span class="op">)</span>,<span class="st">'params.pre'</span>,sep<span class="op">=</span><span class="st">'/'</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="fu">gadget_project_advice</span><span class="op">(</span>pre_fleet <span class="op">=</span> <span class="st">'comm'</span>,</span></span>
+<span class="r-in"><span>                       harvest_rate <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">100</span><span class="op">/</span><span class="fl">100</span>, </span></span>
+<span class="r-in"><span>                       params.file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">.</span>,<span class="st">'variant_dir'</span><span class="op">)</span>,<span class="st">'params.pre'</span>,sep<span class="op">=</span><span class="st">'/'</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="fu">gadget_project_output</span><span class="op">(</span>imm.file <span class="op">=</span> <span class="st">'Modelfiles/cod.imm'</span>,mat.file <span class="op">=</span> <span class="st">'Modelfiles/cod.mat'</span>,</span></span>
+<span class="r-in"><span>                       pre_fleet <span class="op">=</span> <span class="st">'comm'</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="fu"><a href="gadget_evaluate.html">gadget_evaluate</a></span><span class="op">(</span>params.in <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">.</span>,<span class="st">'variant_dir'</span><span class="op">)</span>,<span class="st">'params.pre'</span>,sep<span class="op">=</span><span class="st">'/'</span><span class="op">)</span><span class="op">)</span>  <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="op">{</span><span class="fu"><a href="read.printfiles.html">read.printfiles</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">.</span>,<span class="st">'variant_dir'</span><span class="op">)</span>,<span class="st">'out'</span>,sep<span class="op">=</span><span class="st">'/'</span><span class="op">)</span><span class="op">)</span><span class="op">}</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="fu">map</span><span class="op">(</span><span class="va">mutate</span>, trial<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/cut.html" class="external-link">cut</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">year</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diff.html" class="external-link">diff</a></span><span class="op">(</span><span class="va">year</span><span class="op">)</span><span class="op">&lt;</span><span class="fl">0</span><span class="op">)</span>,<span class="fl">1e9</span><span class="op">)</span>,labels <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="fu">set_names</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"catch.F"</span>,<span class="st">"catch.lw"</span>,<span class="st">'codimm.rec'</span>,<span class="st">'codmat.ssb'</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="fu">map</span><span class="op">(</span><span class="va">left_join</span>,<span class="fu">tibble</span><span class="op">(</span>trial<span class="op">=</span><span class="fl">1</span><span class="op">:</span><span class="fl">10000</span>,harvest_rate <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">100</span><span class="op">/</span><span class="fl">100</span>,<span class="fl">100</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">yield_curve</span> <span class="op">&lt;-</span> </span></span>
+<span class="r-in"><span> <span class="va">res</span><span class="op">$</span><span class="va">catch.lw</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">year</span><span class="op">&gt;</span><span class="fl">2050</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="fu">group_by</span><span class="op">(</span><span class="va">trial</span>,<span class="va">harvest_rate</span>,<span class="va">year</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="fu">summarise</span><span class="op">(</span>c<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">biomass_consumed</span><span class="op">)</span><span class="op">/</span><span class="fl">1e6</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="fu">group_by</span><span class="op">(</span><span class="va">harvest_rate</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="fu">summarise</span><span class="op">(</span>m<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">c</span><span class="op">)</span>,u<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">c</span>,<span class="fl">0.95</span><span class="op">)</span>,l<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">c</span>,<span class="fl">0.05</span><span class="op">)</span><span class="op">)</span> </span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">ssb_curve</span> <span class="op">&lt;-</span> </span></span>
+<span class="r-in"><span> <span class="va">res</span><span class="op">$</span><span class="va">codmat.ssb</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">year</span><span class="op">&gt;</span><span class="fl">2050</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="fu">group_by</span><span class="op">(</span><span class="va">trial</span>,<span class="va">harvest_rate</span>,<span class="va">year</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="fu">summarise</span><span class="op">(</span>c<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">number</span><span class="op">*</span><span class="va">mean_weight</span><span class="op">)</span><span class="op">/</span><span class="fl">1e6</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="fu">group_by</span><span class="op">(</span><span class="va">harvest_rate</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="fu">summarise</span><span class="op">(</span>m<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">c</span><span class="op">)</span>,u<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">c</span>,<span class="fl">0.95</span><span class="op">)</span>,l<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">c</span>,<span class="fl">0.05</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">f.curve</span> <span class="op">&lt;-</span> </span></span>
+<span class="r-in"><span> <span class="va">res</span><span class="op">$</span><span class="va">catch.F</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">year</span><span class="op">&gt;</span><span class="fl">2050</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="fu">group_by</span><span class="op">(</span><span class="va">trial</span>,<span class="va">harvest_rate</span>,<span class="va">year</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="fu">summarise</span><span class="op">(</span>c<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">mortality</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="fu">group_by</span><span class="op">(</span><span class="va">harvest_rate</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="fu">summarise</span><span class="op">(</span>m<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">c</span><span class="op">)</span>,u<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">c</span>,<span class="fl">0.95</span><span class="op">)</span>,l<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">c</span>,<span class="fl">0.05</span><span class="op">)</span><span class="op">)</span> </span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">blim</span> <span class="op">&lt;-</span> </span></span>
+<span class="r-in"><span> <span class="va">fit</span><span class="op">$</span><span class="va">res.by.year</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">'mat'</span>,<span class="va">stock</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="fu">summarise</span><span class="op">(</span>b<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">total.biomass</span><span class="op">)</span><span class="op">/</span><span class="fl">1e6</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="va">.</span><span class="op">$</span><span class="va">b</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">bpa</span> <span class="op">&lt;-</span> <span class="fl">1.4</span><span class="op">*</span><span class="va">blim</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">hr_msy</span> <span class="op">&lt;-</span> </span></span>
+<span class="r-in"><span> <span class="va">yield_curve</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">m</span><span class="op">==</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">m</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="va">.</span><span class="op">$</span><span class="va">harvest_rate</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">hr_lim</span> <span class="op">&lt;-</span> </span></span>
+<span class="r-in"><span> <span class="va">ssb_curve</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">m</span><span class="op">&gt;</span><span class="va">blim</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">harvest_rate</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">harvest_rate</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="va">.</span><span class="op">$</span><span class="va">harvest_rate</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">f.msy</span> <span class="op">&lt;-</span></span></span>
+<span class="r-in"><span> <span class="va">f.curve</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">harvest_rate</span> <span class="op">==</span> <span class="va">hr_msy</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="va">.</span><span class="op">$</span><span class="va">m</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">f.lim</span> <span class="op">&lt;-</span> </span></span>
+<span class="r-in"><span> <span class="va">f.curve</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">harvest_rate</span> <span class="op">==</span> <span class="va">hr_lim</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="va">.</span><span class="op">$</span><span class="va">m</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">f.pa</span> <span class="op">&lt;-</span> </span></span>
+<span class="r-in"><span> <span class="va">f.lim</span><span class="op">/</span><span class="fl">1.4</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">hr_pa</span> <span class="op">&lt;-</span> </span></span>
+<span class="r-in"><span> <span class="va">f.curve</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">m</span> <span class="op">&lt;</span> <span class="va">f.pa</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="fu">summarise</span><span class="op">(</span>hr <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">harvest_rate</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
+<span class="r-in"><span> <span class="va">.</span><span class="op">$</span><span class="va">hr</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com" class="external-link">patchwork</a></span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">yield_curve</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="fu">left_join</span><span class="op">(</span><span class="va">f.curve</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span>             <span class="fu">select</span><span class="op">(</span><span class="va">harvest_rate</span>,F<span class="op">=</span><span class="va">m</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="fu">ggplot</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span><span class="cn">F</span>,<span class="va">m</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span></span>
+<span class="r-in"><span> <span class="fu">geom_ribbon</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>ymin<span class="op">=</span><span class="va">l</span>,ymax<span class="op">=</span><span class="va">u</span><span class="op">)</span>,fill <span class="op">=</span> <span class="st">'gold'</span><span class="op">)</span> <span class="op">+</span>  </span></span>
+<span class="r-in"><span> <span class="fu">geom_line</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> </span></span>
+<span class="r-in"><span> <span class="fu">geom_vline</span><span class="op">(</span>xintercept <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">f.msy</span>,<span class="va">f.pa</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span></span>
+<span class="r-in"><span> <span class="fu">geom_vline</span><span class="op">(</span>xintercept <span class="op">=</span> <span class="va">f.pa</span>,lty<span class="op">=</span><span class="fl">2</span>,col<span class="op">=</span><span class="st">'red'</span><span class="op">)</span> <span class="op">+</span> </span></span>
+<span class="r-in"><span> <span class="fu">geom_vline</span><span class="op">(</span>xintercept <span class="op">=</span> <span class="va">f.lim</span>,lwd<span class="op">=</span><span class="fl">1.1</span>,col<span class="op">=</span><span class="st">'red'</span><span class="op">)</span> <span class="op">+</span></span></span>
+<span class="r-in"><span> <span class="va">ssb_curve</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="fu">left_join</span><span class="op">(</span><span class="va">f.curve</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span>             <span class="fu">select</span><span class="op">(</span><span class="va">harvest_rate</span>,F<span class="op">=</span><span class="va">m</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="fu">ggplot</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span><span class="cn">F</span>,<span class="va">m</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span></span>
+<span class="r-in"><span> <span class="fu">geom_ribbon</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>ymin<span class="op">=</span><span class="va">l</span>,ymax<span class="op">=</span><span class="va">u</span><span class="op">)</span>,fill <span class="op">=</span> <span class="st">'gold'</span><span class="op">)</span> <span class="op">+</span> </span></span>
+<span class="r-in"><span> <span class="fu">geom_line</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> </span></span>
+<span class="r-in"><span> <span class="fu">geom_vline</span><span class="op">(</span>xintercept <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">f.msy</span>,<span class="va">f.pa</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span></span>
+<span class="r-in"><span> <span class="fu">geom_vline</span><span class="op">(</span>xintercept <span class="op">=</span> <span class="va">f.pa</span>,lty<span class="op">=</span><span class="fl">2</span>,col<span class="op">=</span><span class="st">'red'</span><span class="op">)</span> <span class="op">+</span> </span></span>
+<span class="r-in"><span> <span class="fu">geom_vline</span><span class="op">(</span>xintercept <span class="op">=</span> <span class="va">f.lim</span>,lwd<span class="op">=</span><span class="fl">1.1</span>,col<span class="op">=</span><span class="st">'red'</span><span class="op">)</span> <span class="op">+</span> </span></span>
+<span class="r-in"><span> <span class="fu">geom_hline</span><span class="op">(</span>yintercept <span class="op">=</span> <span class="va">blim</span>, col <span class="op">=</span> <span class="st">'red'</span>, lwd <span class="op">=</span> <span class="fl">1.1</span><span class="op">)</span> <span class="op">+</span> </span></span>
+<span class="r-in"><span> <span class="fu">geom_hline</span><span class="op">(</span>yintercept <span class="op">=</span> <span class="va">bpa</span>,col <span class="op">=</span> <span class="st">'red'</span>,lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span> </span></span>
+<span class="r-in"><span> </span></span>
+<span class="r-in"><span> <span class="co">## run prognosis</span></span></span>
+<span class="r-in"><span> </span></span>
+<span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> </span></span>
+<span class="r-in"><span> <span class="fu">gadget_project_time</span><span class="op">(</span>num_years <span class="op">=</span> <span class="fl">5</span>, variant_dir <span class="op">=</span> <span class="st">'PRG'</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="fu">gadget_project_stocks</span><span class="op">(</span>imm.file <span class="op">=</span> <span class="st">'Modelfiles/cod.imm'</span>,mat.file <span class="op">=</span> <span class="st">'Modelfiles/cod.mat'</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="fu">gadget_project_fleet</span><span class="op">(</span>pre_fleet <span class="op">=</span> <span class="st">'comm'</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="fu"><a href="gadget_evaluate.html">gadget_evaluate</a></span><span class="op">(</span>params.out <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">.</span>,<span class="st">'variant_dir'</span><span class="op">)</span>,<span class="st">'params.pre'</span>,sep<span class="op">=</span><span class="st">'/'</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                 params.in <span class="op">=</span> <span class="st">'WGTS/params.final'</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="fu">gadget_project_recruitment</span><span class="op">(</span>stock <span class="op">=</span> <span class="st">'codimm'</span>, </span></span>
+<span class="r-in"><span>                            recruitment <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">stock.recruitment</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span>                              <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">stock</span> <span class="op">==</span> <span class="st">'codimm'</span>,</span></span>
+<span class="r-in"><span>                                     <span class="va">year</span> <span class="op">&gt;</span> <span class="fl">1980</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                            method <span class="op">=</span> <span class="st">'constant'</span>,</span></span>
+<span class="r-in"><span>                            n_replicates <span class="op">=</span> <span class="fl">1</span>,          </span></span>
+<span class="r-in"><span>                            params.file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">.</span>,<span class="st">'variant_dir'</span><span class="op">)</span>,<span class="st">'params.pre'</span>,sep<span class="op">=</span><span class="st">'/'</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="fu">gadget_project_ref_points</span><span class="op">(</span>ref_points <span class="op">=</span> <span class="fu">tibble</span><span class="op">(</span>codmat.blim <span class="op">=</span> <span class="fl">207727665</span><span class="op">)</span>, </span></span>
+<span class="r-in"><span>                         params.file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">.</span>,<span class="st">'variant_dir'</span><span class="op">)</span>,<span class="st">'params.pre'</span>,sep<span class="op">=</span><span class="st">'/'</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="fu">gadget_project_advice</span><span class="op">(</span>pre_fleet <span class="op">=</span> <span class="st">'comm'</span>,</span></span>
+<span class="r-in"><span>                       harvest_rate <span class="op">=</span> <span class="va">hr_msy</span>, </span></span>
+<span class="r-in"><span>                       params.file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">.</span>,<span class="st">'variant_dir'</span><span class="op">)</span>,<span class="st">'params.pre'</span>,sep<span class="op">=</span><span class="st">'/'</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                       n_replicates <span class="op">=</span> <span class="fl">1</span>, </span></span>
+<span class="r-in"><span>                       advice_cv <span class="op">=</span> <span class="fl">0</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="fu">gadget_project_output</span><span class="op">(</span>imm.file <span class="op">=</span> <span class="st">'Modelfiles/cod.imm'</span>,mat.file <span class="op">=</span> <span class="st">'Modelfiles/cod.mat'</span>,</span></span>
+<span class="r-in"><span>                       pre_fleet <span class="op">=</span> <span class="st">'comm'</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="fu"><a href="gadget_evaluate.html">gadget_evaluate</a></span><span class="op">(</span>params.in <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">.</span>,<span class="st">'variant_dir'</span><span class="op">)</span>,<span class="st">'params.pre'</span>,sep<span class="op">=</span><span class="st">'/'</span><span class="op">)</span><span class="op">)</span>  <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="op">{</span><span class="fu"><a href="read.printfiles.html">read.printfiles</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">.</span>,<span class="st">'variant_dir'</span><span class="op">)</span>,<span class="st">'out'</span>,sep<span class="op">=</span><span class="st">'/'</span><span class="op">)</span><span class="op">)</span><span class="op">}</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> </span></span>
+<span class="r-in"><span> <span class="fu">set_names</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"catch.F"</span>,<span class="st">"catch"</span>,<span class="st">'rec'</span>,<span class="st">'ssb'</span><span class="op">)</span><span class="op">)</span> </span></span>
+<span class="r-in"><span> </span></span>
+<span class="r-in"><span> </span></span>
+<span class="r-in"><span> <span class="op">}</span></span></span>
+<span class="r-in"><span> </span></span>
+<span class="r-in"><span> </span></span>
 </code></pre></div>
     </div>
   </div>
@@ -395,7 +464,7 @@ Multi-annual recruitment is currently not defined.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

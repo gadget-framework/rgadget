@@ -60,36 +60,51 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">gadgetfleetcomponent</span><span class="op">(</span>
-  <span class="va">type</span>,
-  name <span class="op">=</span> <span class="va">type</span>,
-  livesonareas <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">area</span><span class="op">)</span>,
-  multiplicative <span class="op">=</span> <span class="fl">1</span>,
-  suitability <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,
-  fleetfile <span class="op">=</span> <span class="st">"fleet"</span>,
-  data <span class="op">=</span> <span class="kw"><a href="https://rdrr.io/r/base/stop.html" class="external-link">stop</a></span><span class="op">(</span><span class="st">"data not provided"</span><span class="op">)</span>,
-  <span class="va">...</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">gadgetfleetcomponent</span><span class="op">(</span></span>
+<span>  <span class="va">type</span>,</span>
+<span>  name <span class="op">=</span> <span class="va">type</span>,</span>
+<span>  livesonareas <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">area</span><span class="op">)</span>,</span>
+<span>  multiplicative <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  suitability <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  fleetfile <span class="op">=</span> <span class="st">"fleet"</span>,</span>
+<span>  data <span class="op">=</span> <span class="kw"><a href="https://rdrr.io/r/base/stop.html" class="external-link">stop</a></span><span class="op">(</span><span class="st">"data not provided"</span><span class="op">)</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>type</dt>
 <dd><p>Component type, one of: 'TotalFleet ' / 'NumberFleet ' / 'LinearFleet ' / 'EffortFleet ' / 'QuotaFleet'</p></dd>
+
+
 <dt>name</dt>
 <dd><p>Name of component</p></dd>
+
+
 <dt>livesonareas</dt>
 <dd><p>List of areas fleet is active in</p></dd>
+
+
 <dt>multiplicative</dt>
 <dd><p>Multiplicative constant used to scale the data if required</p></dd>
+
+
 <dt>suitability</dt>
 <dd><p>Suitability function for fleet</p></dd>
+
+
 <dt>fleetfile</dt>
 <dd><p>Name of fleet data file</p></dd>
+
+
 <dt>data</dt>
 <dd><p>data.frame containing landings data for fleet</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Other data required for component type</p></dd>
+
 </dl></div>
 
   </div>
@@ -104,7 +119,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

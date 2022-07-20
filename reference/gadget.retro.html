@@ -60,47 +60,64 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">gadget.retro</span><span class="op">(</span>
-  path <span class="op">=</span> <span class="st">"."</span>,
-  main.file <span class="op">=</span> <span class="st">"main"</span>,
-  params.file <span class="op">=</span> <span class="st">"params.in"</span>,
-  optinfofile <span class="op">=</span> <span class="st">"optinfofile"</span>,
-  num.years <span class="op">=</span> <span class="fl">5</span>,
-  pre <span class="op">=</span> <span class="st">"RETRO"</span>,
-  iterative <span class="op">=</span> <span class="cn">FALSE</span>,
-  <span class="va">...</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">gadget.retro</span><span class="op">(</span></span>
+<span>  path <span class="op">=</span> <span class="st">"."</span>,</span>
+<span>  main.file <span class="op">=</span> <span class="st">"main"</span>,</span>
+<span>  params.file <span class="op">=</span> <span class="st">"params.in"</span>,</span>
+<span>  optinfofile <span class="op">=</span> <span class="st">"optinfofile"</span>,</span>
+<span>  num.years <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>  pre <span class="op">=</span> <span class="st">"RETRO"</span>,</span>
+<span>  iterative <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>path</dt>
 <dd><p>location of the Gadget model, all filenames are relative to the path</p></dd>
+
+
 <dt>main.file</dt>
 <dd><p>name of the main file, defaults to 'main'</p></dd>
+
+
 <dt>params.file</dt>
 <dd><p>name of the starting parameter value file, defaults to 'params.in'</p></dd>
+
+
 <dt>optinfofile</dt>
 <dd><p>name of the file containing the optimizer settings, defaults to 'optinfofile'</p></dd>
+
+
 <dt>num.years</dt>
 <dd><p>number of years (models) should be used, defaults to 5 yeaes</p></dd>
+
+
 <dt>pre</dt>
 <dd><p>location of the model runs, defaults to 'RETRO'</p></dd>
+
+
 <dt>iterative</dt>
 <dd><p>logical should the iterative reweighting be used, defaults FALSE</p></dd>
+
+
 <dt>...</dt>
 <dd><p>additional parameter passed gadget.iterative</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>null</p>
+    
+
+<p>null</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="fu">gadget.retro</span><span class="op">(</span>iterative <span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="fu">gadget.retro</span><span class="op">(</span>iterative <span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -115,7 +132,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

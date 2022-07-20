@@ -68,82 +68,121 @@ The source code for gadget can be obtained from https://github.com/hafro/gadget<
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">callGadget</span><span class="op">(</span>
-  l <span class="op">=</span> <span class="cn">NULL</span>,
-  s <span class="op">=</span> <span class="cn">NULL</span>,
-  n <span class="op">=</span> <span class="cn">NULL</span>,
-  v <span class="op">=</span> <span class="cn">NULL</span>,
-  h <span class="op">=</span> <span class="cn">NULL</span>,
-  i <span class="op">=</span> <span class="cn">NULL</span>,
-  opt <span class="op">=</span> <span class="cn">NULL</span>,
-  main <span class="op">=</span> <span class="cn">NULL</span>,
-  m <span class="op">=</span> <span class="cn">NULL</span>,
-  p <span class="op">=</span> <span class="cn">NULL</span>,
-  o <span class="op">=</span> <span class="cn">NULL</span>,
-  print <span class="op">=</span> <span class="cn">NULL</span>,
-  precision <span class="op">=</span> <span class="cn">NULL</span>,
-  log <span class="op">=</span> <span class="cn">NULL</span>,
-  printinitial <span class="op">=</span> <span class="cn">NULL</span>,
-  printfinal <span class="op">=</span> <span class="cn">NULL</span>,
-  gadget.exe <span class="op">=</span> <span class="st">"gadget"</span>,
-  ignore.stderr <span class="op">=</span> <span class="cn">FALSE</span>,
-  parallel <span class="op">=</span> <span class="cn">NULL</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">callGadget</span><span class="op">(</span></span>
+<span>  l <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  s <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  n <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  v <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  h <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  i <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  opt <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  main <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  m <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  p <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  o <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  print <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  precision <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  log <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  printinitial <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  printfinal <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  gadget.exe <span class="op">=</span> <span class="st">"gadget"</span>,</span>
+<span>  ignore.stderr <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  parallel <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>l</dt>
 <dd><p>performs a likelihood (optimising) model run</p></dd>
+
+
 <dt>s</dt>
 <dd><p>perform a single (simulation) model run</p></dd>
+
+
 <dt>n</dt>
 <dd><p>perform a network run (using paramin)</p></dd>
+
+
 <dt>v</dt>
 <dd><p>display version information and exit</p></dd>
+
+
 <dt>h</dt>
 <dd><p>display this help screen and exit</p></dd>
+
+
 <dt>i</dt>
 <dd><p>name of the file containing the model parameters</p></dd>
+
+
 <dt>opt</dt>
 <dd><p>name of the file containing the optimising parameters</p></dd>
+
+
 <dt>main</dt>
 <dd><p>name of the main file (optional, as default it will
 look for 'main'</p></dd>
+
+
 <dt>m</dt>
 <dd><p>name of the file containing additional parameters
 (optional)</p></dd>
+
+
 <dt>p</dt>
 <dd><p>name of the file to which the parameter estimates should
 be output to. Default is 'params.out'</p></dd>
+
+
 <dt>o</dt>
 <dd><p>name of the file to which the likelihood-output should be
 saved (optional).</p></dd>
+
+
 <dt>print</dt>
 <dd><p>Number. print -o output every &lt;number&gt; iterations.</p></dd>
+
+
 <dt>precision</dt>
 <dd><p>set the precision to &lt;number&gt; in output files</p></dd>
+
+
 <dt>log</dt>
 <dd><p>Name of the file to which the logging information
 should be saved.</p></dd>
+
+
 <dt>printinitial</dt>
 <dd><p>Name of the file to which the initial model
 information should be saved.</p></dd>
+
+
 <dt>printfinal</dt>
 <dd><p>Name of the file to which the final model
 information should be saved.</p></dd>
+
+
 <dt>gadget.exe</dt>
 <dd><p>path to the gadget executable, if not set, first looks
 to see if the gadget R package is installed, if that fails uses the system
 path. .Options$gadget.path will override any given parameter.</p></dd>
+
+
 <dt>ignore.stderr</dt>
 <dd><p>should error output be ignored</p></dd>
+
+
 <dt>parallel</dt>
 <dd><p>(experimental) should the parallel option be used</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>the run history</p>
+    
+
+<p>the run history</p>
     </div>
     <div id="details">
     <h2>Details</h2>
@@ -192,7 +231,7 @@ optimisation methods utilised.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

@@ -72,99 +72,134 @@ the final weights will not be completed.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">gadget.iterative</span><span class="op">(</span>
-  main.file <span class="op">=</span> <span class="st">"main"</span>,
-  gadget.exe <span class="op">=</span> <span class="st">"gadget"</span>,
-  params.file <span class="op">=</span> <span class="st">"params.in"</span>,
-  rew.sI <span class="op">=</span> <span class="cn">TRUE</span>,
-  run.final <span class="op">=</span> <span class="cn">TRUE</span>,
-  resume.final <span class="op">=</span> <span class="cn">FALSE</span>,
-  wgts <span class="op">=</span> <span class="st">"WGTS"</span>,
-  grouping <span class="op">=</span> <span class="cn">NULL</span>,
-  optinfofile <span class="op">=</span> <span class="st">"optinfofile"</span>,
-  run.serial <span class="op">=</span> <span class="cn">FALSE</span>,
-  method <span class="op">=</span> <span class="st">"lm"</span>,
-  cv.floor <span class="op">=</span> <span class="cn">NULL</span>,
-  comp <span class="op">=</span> <span class="cn">NULL</span>,
-  inverse <span class="op">=</span> <span class="cn">FALSE</span>,
-  gd <span class="op">=</span> <span class="cn">NULL</span>,
-  rew.cik <span class="op">=</span> <span class="cn">FALSE</span>,
-  <span class="va">...</span>
-<span class="op">)</span>
-
-<span class="fu">gadget.iterative</span><span class="op">(</span>
-  main.file <span class="op">=</span> <span class="st">"main"</span>,
-  gadget.exe <span class="op">=</span> <span class="st">"gadget"</span>,
-  params.file <span class="op">=</span> <span class="st">"params.in"</span>,
-  rew.sI <span class="op">=</span> <span class="cn">TRUE</span>,
-  run.final <span class="op">=</span> <span class="cn">TRUE</span>,
-  resume.final <span class="op">=</span> <span class="cn">FALSE</span>,
-  wgts <span class="op">=</span> <span class="st">"WGTS"</span>,
-  grouping <span class="op">=</span> <span class="cn">NULL</span>,
-  optinfofile <span class="op">=</span> <span class="st">"optinfofile"</span>,
-  run.serial <span class="op">=</span> <span class="cn">FALSE</span>,
-  method <span class="op">=</span> <span class="st">"lm"</span>,
-  cv.floor <span class="op">=</span> <span class="cn">NULL</span>,
-  comp <span class="op">=</span> <span class="cn">NULL</span>,
-  inverse <span class="op">=</span> <span class="cn">FALSE</span>,
-  gd <span class="op">=</span> <span class="cn">NULL</span>,
-  rew.cik <span class="op">=</span> <span class="cn">FALSE</span>,
-  <span class="va">...</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">gadget.iterative</span><span class="op">(</span></span>
+<span>  main.file <span class="op">=</span> <span class="st">"main"</span>,</span>
+<span>  gadget.exe <span class="op">=</span> <span class="st">"gadget"</span>,</span>
+<span>  params.file <span class="op">=</span> <span class="st">"params.in"</span>,</span>
+<span>  rew.sI <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  run.final <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  resume.final <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  wgts <span class="op">=</span> <span class="st">"WGTS"</span>,</span>
+<span>  grouping <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  optinfofile <span class="op">=</span> <span class="st">"optinfofile"</span>,</span>
+<span>  run.serial <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  method <span class="op">=</span> <span class="st">"lm"</span>,</span>
+<span>  cv.floor <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  comp <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  inverse <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  gd <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  rew.cik <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">gadget.iterative</span><span class="op">(</span></span>
+<span>  main.file <span class="op">=</span> <span class="st">"main"</span>,</span>
+<span>  gadget.exe <span class="op">=</span> <span class="st">"gadget"</span>,</span>
+<span>  params.file <span class="op">=</span> <span class="st">"params.in"</span>,</span>
+<span>  rew.sI <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  run.final <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  resume.final <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  wgts <span class="op">=</span> <span class="st">"WGTS"</span>,</span>
+<span>  grouping <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  optinfofile <span class="op">=</span> <span class="st">"optinfofile"</span>,</span>
+<span>  run.serial <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  method <span class="op">=</span> <span class="st">"lm"</span>,</span>
+<span>  cv.floor <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  comp <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  inverse <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  gd <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  rew.cik <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>main.file</dt>
 <dd><p>a string containing the location of the main file</p></dd>
+
+
 <dt>gadget.exe</dt>
 <dd><p>path to the gadget executable, if not set, first looks
 to see if the gadget R package is installed, if that fails uses the system
 path. .Options$gadget.path will override any given parameter.</p></dd>
+
+
 <dt>params.file</dt>
 <dd><p>a string containing the location of the input
 parameters</p></dd>
+
+
 <dt>rew.sI</dt>
 <dd><p>logical, should survey indices be iteratively
 reweighted (TRUE) or estimated using a linear model.</p></dd>
+
+
 <dt>run.final</dt>
 <dd><p>logical should the final optimisation be run
 (DEBUG)</p></dd>
+
+
 <dt>resume.final</dt>
 <dd><p>logical should the final optimisation be
 resumed (DEBUG)</p></dd>
+
+
 <dt>wgts</dt>
 <dd><p>a string containing the path the folder where the
 interim weighting results should be stored.</p></dd>
+
+
 <dt>grouping</dt>
 <dd><p>a list naming the groups of components that should be reweighted together.</p></dd>
+
+
 <dt>optinfofile</dt>
 <dd><p>optinfofile used in the reweighting</p></dd>
+
+
 <dt>run.serial</dt>
 <dd><p>should the weighting run be run in parallel (used in
 bootstrap).</p></dd>
+
+
 <dt>method</dt>
 <dd><p>linear model or loess smoother used to calculate SI
 weights outside the gadget model. DEPRECATED</p></dd>
+
+
 <dt>cv.floor</dt>
 <dd><p>a value for an optional floor for survey indices
 CV, used to prevent overfitting in the final run.</p></dd>
+
+
 <dt>comp</dt>
 <dd><p>string vector of names of likelihood components to be
 used in the model (if NULL use all)</p></dd>
+
+
 <dt>inverse</dt>
 <dd><p>should inverse selection be used for likelihood
 components</p></dd>
+
+
 <dt>gd</dt>
 <dd><p>the gadget model directory</p></dd>
+
+
 <dt>rew.cik</dt>
 <dd><p>logical, should the catch in kilos components be reweighted (default to FALSE)</p></dd>
+
+
 <dt>...</dt>
 <dd><p>pass to callGadget</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>a matrix containing the weights of the likelihood
+    
+
+<p>a matrix containing the weights of the likelihood
 components at each iteration (defaults to FALSE).</p>
     </div>
     <div id="details">
@@ -224,14 +259,14 @@ surveyindices are weighted simultaneously.</p>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="va">tmp</span> <span class="op">&lt;-</span> <span class="fu">gadget.iterative</span><span class="op">(</span>rew.sI<span class="op">=</span><span class="cn">TRUE</span>,</span>
-<span class="r-in">                        grouping<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>sind<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'si2039'</span>,<span class="st">'si4069'</span>,<span class="st">'si70110'</span><span class="op">)</span>,</span>
-<span class="r-in">                        survey<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'ldist.survey'</span>,<span class="st">'alkeys.survey'</span><span class="op">)</span>,</span>
-<span class="r-in">                        catch<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'ldist.catch'</span>,<span class="st">'alkeys.catch'</span><span class="op">)</span><span class="op">)</span>,</span>
-<span class="r-in">                        params.file<span class="op">=</span><span class="st">'params.base'</span>,</span>
-<span class="r-in">                        wgts<span class="op">=</span><span class="st">'WGTS'</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="va">tmp</span> <span class="op">&lt;-</span> <span class="fu">gadget.iterative</span><span class="op">(</span>rew.sI<span class="op">=</span><span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>                        grouping<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>sind<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'si2039'</span>,<span class="st">'si4069'</span>,<span class="st">'si70110'</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                        survey<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'ldist.survey'</span>,<span class="st">'alkeys.survey'</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                        catch<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'ldist.catch'</span>,<span class="st">'alkeys.catch'</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                        params.file<span class="op">=</span><span class="st">'params.base'</span>,</span></span>
+<span class="r-in"><span>                        wgts<span class="op">=</span><span class="st">'WGTS'</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -246,7 +281,7 @@ surveyindices are weighted simultaneously.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

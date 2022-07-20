@@ -60,36 +60,51 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">gadget_catchstatistics_component</span><span class="op">(</span>
-  weight <span class="op">=</span> <span class="fl">0</span>,
-  name <span class="op">=</span> <span class="st">"catchstatistics"</span>,
-  data_function <span class="op">=</span> <span class="cn">NULL</span>,
-  data <span class="op">=</span> <span class="cn">NULL</span>,
-  area <span class="op">=</span> <span class="cn">NULL</span>,
-  age <span class="op">=</span> <span class="cn">NULL</span>,
-  fleetnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">)</span>,
-  stocknames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">)</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">gadget_catchstatistics_component</span><span class="op">(</span></span>
+<span>  weight <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  name <span class="op">=</span> <span class="st">"catchstatistics"</span>,</span>
+<span>  data_function <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  data <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  area <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  age <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  fleetnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  stocknames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>weight</dt>
 <dd><p>A numeric weighting</p></dd>
+
+
 <dt>name</dt>
 <dd><p>A descriptive name for the component, default same as component type</p></dd>
+
+
 <dt>data_function</dt>
 <dd><p>Function to be used to compare the modelled statistical data to the input statistical data</p></dd>
+
+
 <dt>data</dt>
 <dd><p>data.frame required by the data_function</p></dd>
+
+
 <dt>area</dt>
 <dd><p>Area aggregation, if not attached to the data.frame by MFDB</p></dd>
+
+
 <dt>age</dt>
 <dd><p>Age aggregation, if not attached to the data.frame by MFDB</p></dd>
+
+
 <dt>fleetnames</dt>
 <dd><p>A list of all the fleets to be aggregated into a single pseudo fleet for the purposes of the data comparison</p></dd>
+
+
 <dt>stocknames</dt>
 <dd><p>A list of all the stocks to be aggregated into a single pseudo stock</p></dd>
+
 </dl></div>
 
   </div>
@@ -104,7 +119,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

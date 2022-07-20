@@ -60,45 +60,66 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">gadget_stomachcontent_component</span><span class="op">(</span>
-  weight <span class="op">=</span> <span class="fl">0</span>,
-  name <span class="op">=</span> <span class="st">"stomachcontent"</span>,
-  data_function <span class="op">=</span> <span class="st">"scsimple"</span>,
-  epsilon <span class="op">=</span> <span class="fl">10</span>,
-  area <span class="op">=</span> <span class="cn">NULL</span>,
-  predator_length <span class="op">=</span> <span class="cn">NULL</span>,
-  prey_length <span class="op">=</span> <span class="cn">NULL</span>,
-  prey_labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,
-  prey_digestion_coefficients <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,
-  predator_names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">)</span>,
-  data <span class="op">=</span> <span class="cn">NULL</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">gadget_stomachcontent_component</span><span class="op">(</span></span>
+<span>  weight <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  name <span class="op">=</span> <span class="st">"stomachcontent"</span>,</span>
+<span>  data_function <span class="op">=</span> <span class="st">"scsimple"</span>,</span>
+<span>  epsilon <span class="op">=</span> <span class="fl">10</span>,</span>
+<span>  area <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  predator_length <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  prey_length <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  prey_labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  prey_digestion_coefficients <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  predator_names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  data <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>weight</dt>
 <dd><p>A numeric weighting</p></dd>
+
+
 <dt>name</dt>
 <dd><p>A descriptive name for the component, default same as component type</p></dd>
+
+
 <dt>data_function</dt>
 <dd><p>Comparison function to use</p></dd>
+
+
 <dt>epsilon</dt>
 <dd><p>Used when probability is very unikely, default 10.</p></dd>
+
+
 <dt>area</dt>
 <dd><p>Area aggregation, if not attached to the data.frame by MFDB</p></dd>
+
+
 <dt>predator_length</dt>
 <dd><p>Predator length aggregation, if not attached to the data.frame by MFDB</p></dd>
+
+
 <dt>prey_length</dt>
 <dd><p>Prey length aggregation, if not attached to the data.frame by MFDB</p></dd>
+
+
 <dt>prey_labels</dt>
 <dd><p>Named list of (prey name) -&gt; (stock names)</p></dd>
+
+
 <dt>prey_digestion_coefficients</dt>
 <dd><p>Named list of (prey name) -&gt; (digestion coefficients)</p></dd>
+
+
 <dt>predator_names</dt>
 <dd><p>A list of all the predators to be aggregated into a single pseudo predator</p></dd>
+
+
 <dt>data</dt>
 <dd><p>Stomach content data.frame</p></dd>
+
 </dl></div>
 
   </div>
@@ -113,7 +134,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

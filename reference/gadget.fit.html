@@ -179,54 +179,79 @@ if the list is named those names will be used to identify the model.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">gadget.fit</span><span class="op">(</span>
-  wgts <span class="op">=</span> <span class="st">"WGTS"</span>,
-  main.file <span class="op">=</span> <span class="cn">NULL</span>,
-  fleet.predict <span class="op">=</span> <span class="cn">NULL</span>,
-  mat.par <span class="op">=</span> <span class="cn">NULL</span>,
-  params.file <span class="op">=</span> <span class="cn">NULL</span>,
-  f.age.range <span class="op">=</span> <span class="cn">NULL</span>,
-  fit.folder <span class="op">=</span> <span class="st">"FIT"</span>,
-  printatstart <span class="op">=</span> <span class="fl">1</span>,
-  steps <span class="op">=</span> <span class="fl">1</span>,
-  recruitment_step_age <span class="op">=</span> <span class="cn">NULL</span>,
-  gd <span class="op">=</span> <span class="cn">NULL</span>
-<span class="op">)</span>
-
-<span class="fu">bind.gadget.fit</span><span class="op">(</span><span class="va">...</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">gadget.fit</span><span class="op">(</span></span>
+<span>  wgts <span class="op">=</span> <span class="st">"WGTS"</span>,</span>
+<span>  main.file <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  fleet.predict <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  mat.par <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  params.file <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  f.age.range <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  fit.folder <span class="op">=</span> <span class="st">"FIT"</span>,</span>
+<span>  printatstart <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  steps <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  recruitment_step_age <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  gd <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">bind.gadget.fit</span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>wgts</dt>
 <dd><p>Location of the iterative reweighting folder, if null gadget.fit requires a parameter file</p></dd>
+
+
 <dt>main.file</dt>
 <dd><p>if the main file is different from the 'main' or 'wgts/main.final'</p></dd>
+
+
 <dt>fleet.predict</dt>
 <dd><p>data.frame containing the basis fleets used to calculate the harvestable biomass. Fleet names should be specified in the fleet column.</p></dd>
+
+
 <dt>mat.par</dt>
 <dd><p>parameters for the maturity ogive</p></dd>
+
+
 <dt>params.file</dt>
 <dd><p>parameter file used in the fit (defaults to "WGTS/params.final")</p></dd>
+
+
 <dt>f.age.range</dt>
 <dd><p>data.frame describing the desired age range where the F's are calculated, if null this defaults to the apical F fro all stocks. 
 Input columns should include stock, age.min and age.max</p></dd>
+
+
 <dt>fit.folder</dt>
 <dd><p>location of the output</p></dd>
+
+
 <dt>printatstart</dt>
 <dd><p>should the stock standard output be printed at the beginning or the end of the timestep</p></dd>
+
+
 <dt>steps</dt>
 <dd><p>what steps should be printed</p></dd>
+
+
 <dt>recruitment_step_age</dt>
 <dd><p>data frame defining the recruitment age by stock and time step. Default is the minimum age at step 1. Expects columns stock, age and step</p></dd>
+
+
 <dt>gd</dt>
 <dd><p>gadget_directory object to optionally set the location of the gadget directory</p></dd>
+
+
 <dt>...</dt>
 <dd><p>any number of gadget.fit objects</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>list containing the output from Gadget.</p>
+    
+
+<p>list containing the output from Gadget.</p>
     </div>
     <div id="author">
     <h2>Author</h2>
@@ -245,7 +270,7 @@ Input columns should include stock, age.min and age.max</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

@@ -60,54 +60,81 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">gadget_surveyindices_component</span><span class="op">(</span>
-  weight <span class="op">=</span> <span class="fl">0</span>,
-  name <span class="op">=</span> <span class="st">"surveyindices"</span>,
-  sitype <span class="op">=</span> <span class="st">"lengths"</span>,
-  biomass <span class="op">=</span> <span class="fl">0</span>,
-  data <span class="op">=</span> <span class="cn">NULL</span>,
-  area <span class="op">=</span> <span class="cn">NULL</span>,
-  fittype <span class="op">=</span> <span class="cn">NULL</span>,
-  length <span class="op">=</span> <span class="cn">NULL</span>,
-  age <span class="op">=</span> <span class="cn">NULL</span>,
-  fleetnames <span class="op">=</span> <span class="cn">NULL</span>,
-  surveynames <span class="op">=</span> <span class="cn">NULL</span>,
-  stocknames <span class="op">=</span> <span class="cn">NULL</span>,
-  slope <span class="op">=</span> <span class="cn">NULL</span>,
-  intercept <span class="op">=</span> <span class="cn">NULL</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">gadget_surveyindices_component</span><span class="op">(</span></span>
+<span>  weight <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  name <span class="op">=</span> <span class="st">"surveyindices"</span>,</span>
+<span>  sitype <span class="op">=</span> <span class="st">"lengths"</span>,</span>
+<span>  biomass <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  data <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  area <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  fittype <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  length <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  age <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  fleetnames <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  surveynames <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  stocknames <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  slope <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  intercept <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>weight</dt>
 <dd><p>A numeric weighting</p></dd>
+
+
 <dt>name</dt>
 <dd><p>A descriptive name for the component, default same as component type</p></dd>
+
+
 <dt>sitype</dt>
 <dd><p>Survey index type. One of 'lengths'/'ages'/'fleets'/'acoustic'/'effort'</p></dd>
+
+
 <dt>biomass</dt>
 <dd><p>Whether the index data should be based on the biomass of the stock or on the population numbers for the stock. 0 or 1</p></dd>
+
+
 <dt>data</dt>
 <dd><p>data.frame required by the data_function</p></dd>
+
+
 <dt>area</dt>
 <dd><p>Area aggregation, if not attached to the data.frame by MFDB</p></dd>
+
+
 <dt>fittype</dt>
 <dd><p>Type of linear regression to use. One of 'linearfit' / 'loglinearfit' / 'fixedslopelinearfit' / 'fixedslopeloglinearfit' / 'fixedinterceptlinearfit' / 'fixedinterceptloglinearfit' / 'fixedlinearfit' / 'fixedloglinearfit'.</p></dd>
+
+
 <dt>length</dt>
 <dd><p>Length aggregation, if not attached to the data.frame by MFDB</p></dd>
+
+
 <dt>age</dt>
 <dd><p>Age aggregation, if not attached to the data.frame by MFDB</p></dd>
+
+
 <dt>fleetnames</dt>
 <dd><p>A list of all the fleets to be aggregated into a single pseudo fleet for the purposes of the data comparison</p></dd>
+
+
 <dt>surveynames</dt>
 <dd><p>A list of all the stocks to be aggregated into a single pseudo stock</p></dd>
+
+
 <dt>stocknames</dt>
 <dd><p>A list of all the stocks to be aggregated into a single pseudo stock</p></dd>
+
+
 <dt>slope</dt>
 <dd><p>Parameter for linear regression</p></dd>
+
+
 <dt>intercept</dt>
 <dd><p>Parameter for linear regression</p></dd>
+
 </dl></div>
 
   </div>
@@ -122,7 +149,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>
