@@ -4,7 +4,7 @@
 #' 
 #' gadget project recruitment:
 #' Sets up the process error for the stock recruitment relationship.
-#' The user has a choice of three types, constant, AR and block bootstrap
+#' The user has a choice of five types, constant, AR, block bootstrap, AR around a hockey-stick with or without external variable(s) 
 #' based on a time-series of recruitment
 #' 
 #' gadget project stocks:
@@ -549,9 +549,13 @@ gadget_project_prognosis_likelihood <- function(path,
 gadget_project_recruitment <- function(path,
                                        stock,
                                        recruitment=NULL,
+                                       ssb=NULL,
                                        n_replicates=100,
                                        params.file = 'PRE/params.pre',
                                        method = 'AR', 
+                                       bHS=NULL,
+                                       window=NULL,
+                                       extVar=NULL,
                                        ...){
   
   schedule <- 
@@ -571,7 +575,20 @@ gadget_project_recruitment <- function(path,
     dplyr::group_by(.data$model,.data$year, .data$step) %>% 
     dplyr::summarise(recruitment = sum(.data$recruitment)) %>% 
     dplyr::arrange(.data$model,.data$year)
- 
+
+  if(!is.null(window)){
+      recruitment <- recruitment %>%
+          filter(year %in% window)
+  }
+    
+  if(!is.null(ssb)){
+      if (!("model" %in% names(ssb))) {
+          ssb$model <- 1
+      }
+      recruitment <- recruitment %>%
+          left_join(ssb, by=c("model","year")) %>%
+          rename(ssb=total.biomass)
+  } else {}
   
   if(method == 'AR'){
     rec <- 
@@ -594,8 +611,18 @@ gadget_project_recruitment <- function(path,
       purrr::map(gadget_project_rec_constant,schedule=schedule) %>% 
       dplyr::bind_rows(.id="model")
     
-  }else {
-    stop('Method not valid, expected constant, AR or bootstrap')
+  } else if (method == "hockeystickAR") {
+        rec <- recruitment %>% split(.$model) %>% purrr::map(gadget_project_rec_hockeystick, 
+             schedule = schedule, n_replicates = n_replicates,
+             ...) %>% dplyr::bind_rows(.id = "model")
+
+  } else if (method == "hockeystickARExt") {
+        rec <- recruitment %>% split(.$model) %>% purrr::map(gadget_project_rec_hockeystickExt, 
+             schedule = schedule, n_replicates = n_replicates, extVar = extVar,
+             ...) %>% dplyr::bind_rows(.id = "model")
+
+  } else {
+    stop('Method not valid, expected constant, AR, bootstrap, hockeystickAR or hockeystickARExt')
   }
   
   rec <- 
@@ -659,6 +686,95 @@ gadget_project_rec_constant <- function(recruitment,schedule){
                   rec = exp(mean(log(recruitment$recruitment)))) %>% 
     dplyr::select('trial','year','rec')
 }
+
+gadget_project_rec_hockeystick <-
+function (recruitment, schedule, n_replicates, bHS=NULL) 
+{
+    # initialise HS params
+    p <- c(mean(recruitment$recruitment)/mean(recruitment$ssb),
+           mean(recruitment$ssb))
+    # two cases depending if break-point HS is provided
+    if(is.null(bHS)){
+    est <- optim(p, function(p, x=recruitment$ssb, y=recruitment$recruitment){
+        yhat <- ifelse(x<=p[2], p[1]*x, p[1]*p[2])
+        sum((log(y) - log(yhat))^2)},
+        method="Nelder-Mead") %>%
+        .$par
+    recruitment <- recruitment %>%
+        mutate(yhat = ifelse(ssb<=est[2], est[1]*ssb, est[1]*est[2]))
+    mrec <- est[1]*est[2]
+    } else {
+    est <- optim(p, function(p, x=recruitment$ssb, y=recruitment$recruitment){
+        yhat <- ifelse(x<=bHS, p[1]*x, p[1]*bHS)
+        sum((log(y) - log(yhat))^2)},
+        method="L-BFGS-B") %>%
+        .$par
+    recruitment <- recruitment %>%
+        mutate(yhat = ifelse(ssb<=bHS, est[1]*ssb, est[1]*bHS))
+    mrec <- est[1]*bHS
+    }
+
+    recruitment %>% dplyr::mutate(recruitment.ldev = log(recruitment)-log(yhat)) %>% 
+        stats::lm(head(recruitment.ldev, -1) ~ utils::tail(recruitment.ldev, 
+            -1), data = .) %>% {
+        list(variables = broom::tidy(.) %>% {
+            tibble::tibble(a = .$estimate[1], b = .$estimate[2])
+        }, sigma = broom::glance(.) %>% dplyr::select(.data$sigma))
+    } %>% dplyr::bind_cols() %>% dplyr::slice(rep(1, length(unique(schedule$year)) * 
+        n_replicates)) %>% dplyr::bind_cols(tidyr::expand_grid(year = unique(schedule$year), 
+        trial = 1:n_replicates)) %>% dplyr::mutate(rec = stats::arima.sim(dplyr::n(), 
+        model = list(ar = unique(.data$b)), sd = unique(.data$sigma)), 
+        rec = mrec * exp(.data$rec)) %>% dplyr::select("trial", 
+        "year", "rec")
+}
+
+gadget_project_rec_hockeystickExt <-
+function (recruitment, schedule, n_replicates, bHS=NULL, extVar) 
+{
+    # initialise HS params
+    p <- c(mean(recruitment$recruitment)/mean(recruitment$ssb),
+           mean(recruitment$ssb))
+    # two cases depending if break-point HS is provided
+    if(is.null(bHS)){
+    est <- optim(p, function(p, x=recruitment$ssb, y=recruitment$recruitment){
+        yhat <- ifelse(x<=p[2], p[1]*x, p[1]*p[2])
+        sum((log(y) - log(yhat))^2)},
+        method="Nelder-Mead") %>%
+        .$par
+    recruitment <- recruitment %>%
+        mutate(yhat = ifelse(ssb<=est[2], est[1]*ssb, est[1]*est[2]))
+    mrec <- est[1]*est[2]
+    } else {
+    est <- optim(p, function(p, x=recruitment$ssb, y=recruitment$recruitment){
+        yhat <- ifelse(x<=bHS, p[1]*x, p[1]*bHS)
+        sum((log(y) - log(yhat))^2)},
+        method="L-BFGS-B") %>%
+        .$par
+    recruitment <- recruitment %>%
+        mutate(yhat = ifelse(ssb<=bHS, est[1]*ssb, est[1]*bHS))
+    mrec <- est[1]*bHS
+    }
+
+    # separate hindacast and forecast period for the external variable
+    extVarHind <- recruitment %>%
+        ungroup() %>%
+        select(year) %>%
+        left_join(extVar, by="year")
+    extVarForc <- expand_grid(trial = 1:n_replicates, year = unique(schedule$year)) %>%
+        left_join(extVar, by="year")
+    
+    recruitment <- recruitment %>% dplyr::mutate(recruitment.ldev = log(recruitment)-log(yhat))
+    fitAR <- forecast::auto.arima(recruitment$recruitment.ldev, xreg=as.matrix(extVarHind[-1]))
+    extVarForc %>%
+        group_by(trial) %>%
+        group_map(~simulate(fitAR, future=T, bootstrap=T, xreg=as.matrix(.x %>% select(-year)))) %>%
+        unlist() %>%
+        bind_cols(extVarForc) %>%
+        rename(rec=...1) %>%
+        mutate(rec = mrec * exp(rec)) %>% dplyr::select("trial", "year", "rec")
+}
+
+
 
 #' @rdname gadget_projections 
 #' @param harvest_rate median harvest rate
